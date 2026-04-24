@@ -60,7 +60,7 @@ export function CountdownTimer() {
           </div>
 
           <button className="bg-white text-gray-800 text-sm font-medium px-8 py-3 rounded-full hover:bg-gray-100 transition-colors">
-            Add to Calendar
+            Add to Calendarssss
           </button>
         </motion.div>
       </div>
