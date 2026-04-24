@@ -1,158 +1,183 @@
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Card, CardContent } from "./ui/card";
 import { toast } from "sonner";
+import { supabase } from "../../lib/supabase";
 
 export function RSVP() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    attendance: "yes",
-    guests: "1",
-    message: ""
-  });
+  const [rsvp, setRsvp] = useState({ name: "", email: "", event: "reception", guests: "1" });
+  const [wish, setWish] = useState({ nickname: "", name: "", message: "" });
+  const [rsvpLoading, setRsvpLoading] = useState(false);
+  const [wishLoading, setWishLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Show success message
-    toast.success("Баярлалаа!", {
-      description: "Таны хариу амжилттай илгээгдлээ. Удахгүй холбогдох болно."
+    setRsvpLoading(true);
+    const { error } = await supabase.from("rsvp").insert({
+      name: rsvp.name,
+      email: rsvp.email,
+      event: rsvp.event,
+      guests: Number(rsvp.guests),
     });
-
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      attendance: "yes",
-      guests: "1",
-      message: ""
-    });
+    setRsvpLoading(false);
+    if (error) {
+      console.log("error::", error);
+      toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
+    } else {
+      toast.success("Баярлалаа! Таны оролцоо баталгаажлаа.");
+      setRsvp({ name: "", email: "", event: "reception", guests: "1" });
+    }
   };
 
+  const handleWish = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWishLoading(true);
+    const { error } = await supabase.from("wishes").insert({
+      nickname: wish.nickname,
+      name: wish.name,
+      message: wish.message,
+    });
+    setWishLoading(false);
+    if (error) {
+      toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
+    } else {
+      toast.success("Баярлалаа! Таны мэндчилгээ хүлээн авлаа.");
+      setWish({ nickname: "", name: "", message: "" });
+    }
+  };
+
+  const selectClass =
+    "mt-1 w-full border border-input rounded-md px-3 py-2 text-sm text-gray-700 bg-background focus:outline-none focus:ring-1 focus:ring-ring";
+
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-white to-pink-50">
-      <div className="max-w-2xl mx-auto">
+    <section className="py-16 px-4 bg-white">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
+        {/* RSVP */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-serif mb-4">Оролцоо баталгаажуулах</h2>
-          <p className="text-lg text-gray-600">Та ирэх эсэхээ бидэнд мэдэгдэнэ үү</p>
+          <h2 className="text-3xl font-serif text-gray-800 mb-1">RSVP</h2>
+          <p className="text-sm text-gray-400 mb-7">
+            Ирэх эсэхээ баталгаажуулна уу
+          </p>
+          <form onSubmit={handleRsvp} className="space-y-4">
+            <div>
+              <Label htmlFor="r-name" className="text-xs text-gray-500">Your Name</Label>
+              <Input
+                id="r-name"
+                placeholder="Таны нэр"
+                value={rsvp.name}
+                onChange={(e) => setRsvp({ ...rsvp, name: e.target.value })}
+                required
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="r-email" className="text-xs text-gray-500">Your Email</Label>
+              <Input
+                id="r-email"
+                type="email"
+                placeholder="email@example.com"
+                value={rsvp.email}
+                onChange={(e) => setRsvp({ ...rsvp, email: e.target.value })}
+                required
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="r-event" className="text-xs text-gray-500">Арга хэмжээ</Label>
+              <select
+                id="r-event"
+                value={rsvp.event}
+                onChange={(e) => setRsvp({ ...rsvp, event: e.target.value })}
+                className={selectClass}
+              >
+                <option value="ceremony">Гэрлэлтийн ёслол</option>
+                <option value="reception">Хурим</option>
+                <option value="both">Хоёул</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="r-guests" className="text-xs text-gray-500">Guest</Label>
+              <select
+                id="r-guests"
+                value={rsvp.guests}
+                onChange={(e) => setRsvp({ ...rsvp, guests: e.target.value })}
+                className={selectClass}
+              >
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <option key={n} value={String(n)}>
+                    {n} хүн
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="submit"
+              disabled={rsvpLoading}
+              className="w-full bg-gray-800 text-white text-sm font-medium py-3 rounded-full hover:bg-gray-700 transition-colors mt-2 disabled:opacity-60"
+            >
+              {rsvpLoading ? "Илгээж байна..." : "I'm Attending"}
+            </button>
+          </form>
         </motion.div>
 
+        {/* Wishes */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.6 }}
         >
-          <Card>
-            <CardContent className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name */}
-                <div>
-                  <Label htmlFor="name">Нэр *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Таны нэр"
-                    required
-                    className="mt-2"
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <Label htmlFor="email">И-мэйл *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="your@email.com"
-                    required
-                    className="mt-2"
-                  />
-                </div>
-
-                {/* Attendance */}
-                <div>
-                  <Label className="mb-3 block">Та ирэх үү? *</Label>
-                  <RadioGroup
-                    value={formData.attendance}
-                    onValueChange={(value) => setFormData({ ...formData, attendance: value })}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="yes" id="yes" />
-                      <Label htmlFor="yes" className="cursor-pointer">Тийм, би ирнэ</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id="no" />
-                      <Label htmlFor="no" className="cursor-pointer">Үгүй, ирэх боломжгүй байна</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Number of guests */}
-                {formData.attendance === "yes" && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                  >
-                    <Label htmlFor="guests">Хэдэн хүн ирэх вэ? *</Label>
-                    <Input
-                      id="guests"
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={formData.guests}
-                      onChange={(e) => setFormData({ ...formData, guests: e.target.value })}
-                      className="mt-2"
-                    />
-                  </motion.div>
-                )}
-
-                {/* Message */}
-                <div>
-                  <Label htmlFor="message">Хүсэлт, санал (заавал биш)</Label>
-                  <Textarea
-                    id="message"
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Хоолны онцгой хэрэгцээ эсвэл бусад хүсэлтээ бичнэ үү..."
-                    className="mt-2 min-h-24"
-                  />
-                </div>
-
-                {/* Submit button */}
-                <Button type="submit" className="w-full bg-pink-600 hover:bg-pink-700 text-white">
-                  Хариу илгээх
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+          <h2 className="text-3xl font-serif text-gray-800 mb-1">Wishes</h2>
+          <p className="text-sm text-gray-400 mb-7">Leave Us A Note</p>
+          <form onSubmit={handleWish} className="space-y-4">
+            <div>
+              <Label htmlFor="w-nickname" className="text-xs text-gray-500">Nickname</Label>
+              <Input
+                id="w-nickname"
+                placeholder="Хоч нэр"
+                value={wish.nickname}
+                onChange={(e) => setWish({ ...wish, nickname: e.target.value })}
+                required
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="w-name" className="text-xs text-gray-500">Name</Label>
+              <Input
+                id="w-name"
+                placeholder="Бүтэн нэр"
+                value={wish.name}
+                onChange={(e) => setWish({ ...wish, name: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="w-message" className="text-xs text-gray-500">Message</Label>
+              <Textarea
+                id="w-message"
+                placeholder="Мэндчилгээ бичнэ үү..."
+                value={wish.message}
+                onChange={(e) => setWish({ ...wish, message: e.target.value })}
+                required
+                className="mt-1 min-h-28"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={wishLoading}
+              className="bg-gray-800 text-white text-sm font-medium px-8 py-3 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-60"
+            >
+              {wishLoading ? "Илгээж байна..." : "Send"}
+            </button>
+          </form>
         </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="text-center text-sm text-gray-500 mt-6"
-        >
-          Хариугаа 2026 оны 06 сарын 30-ны өмнө илгээнэ үү
-        </motion.p>
       </div>
     </section>
   );

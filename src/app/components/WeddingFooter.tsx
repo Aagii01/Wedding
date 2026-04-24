@@ -1,98 +1,34 @@
 import { motion } from "motion/react";
-import { Heart, Phone, Mail, MapPin } from "lucide-react";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 export function WeddingFooter() {
   return (
-    <footer className="bg-gradient-to-b from-pink-50 to-pink-100 py-16 px-4">
-      <div className="max-w-4xl mx-auto">
+    <footer className="relative h-64 md:h-80 overflow-hidden">
+      <ImageWithFallback
+        src="https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+        alt="Болд & Сарнай"
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center"
+          className="text-center text-white"
         >
-          {/* Names */}
-          <div className="mb-8">
-            <h3 className="text-3xl md:text-4xl font-serif mb-4">Болд & Сарнай</h3>
-            <div className="flex justify-center mb-4">
-              <Heart className="w-6 h-6 fill-pink-500 text-pink-500" />
-            </div>
-            <p className="text-lg text-gray-600">2026.07.15</p>
-          </div>
-
-          {/* Contact Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="flex flex-col items-center"
-            >
-              <div className="p-3 bg-white rounded-full mb-3">
-                <Phone className="w-5 h-5 text-pink-600" />
-              </div>
-              <p className="text-sm text-gray-600 mb-1">Утас</p>
-              <a href="tel:+97699119911" className="text-gray-800 hover:text-pink-600 transition-colors">
-                +976 9911-9911
-              </a>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-col items-center"
-            >
-              <div className="p-3 bg-white rounded-full mb-3">
-                <Mail className="w-5 h-5 text-pink-600" />
-              </div>
-              <p className="text-sm text-gray-600 mb-1">И-мэйл</p>
-              <a href="mailto:wedding@example.com" className="text-gray-800 hover:text-pink-600 transition-colors">
-                wedding@example.com
-              </a>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="flex flex-col items-center"
-            >
-              <div className="p-3 bg-white rounded-full mb-3">
-                <MapPin className="w-5 h-5 text-pink-600" />
-              </div>
-              <p className="text-sm text-gray-600 mb-1">Байршил</p>
-              <p className="text-gray-800">Shangri-La Hotel</p>
-            </motion.div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-pink-200 pt-8">
-            <p className="text-gray-600 mb-2">
-              Танай оролцоо бидэнд маш чухал
-            </p>
-            <p className="text-sm text-gray-500">
-              Бидний амьдралын хамгийн онцгой өдрийг танай хамт тэмдэглэх гэж байна
-            </p>
-          </div>
-
-          {/* Copyright */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.6 }}
-            className="mt-8 pt-6 border-t border-pink-200"
+          <p className="text-xs tracking-widest mb-3 text-white/60 uppercase">The wedding of</p>
+          <h2
+            className="text-5xl mb-3"
+            style={{ fontFamily: "'Dancing Script', cursive" }}
           >
-            <p className="text-sm text-gray-500">
-              © 2026 Болд & Сарнай. Бүх эрх хуулиар хамгаалагдсан.
-            </p>
-          </motion.div>
+            Болд & Сарнай
+          </h2>
+          <p className="text-sm text-white/60 tracking-wide">Friday, July 15th, 2026</p>
         </motion.div>
+      </div>
+      <div className="absolute bottom-4 left-0 right-0 text-center">
+        <p className="text-white/30 text-[10px] tracking-widest uppercase">One Wedding</p>
       </div>
     </footer>
   );
