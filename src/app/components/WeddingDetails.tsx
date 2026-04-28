@@ -1,33 +1,36 @@
 import { motion } from "motion/react";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
+import { EventData } from "../../types/event";
 
-export function WeddingDetails() {
+type Props = { event: EventData };
+
+export function WeddingDetails({ event }: Props) {
   const details = [
     {
       icon: Calendar,
       title: "Огноо",
-      description: "2026 оны 07 сарын 15",
-      subtitle: "Баасан гариг"
+      description: event.date,
+      subtitle: "",
     },
     {
       icon: Clock,
       title: "Цаг",
-      description: "18:00 цагт",
-      subtitle: "Тогтсон цагтаа ирнэ үү"
+      description: event.time,
+      subtitle: "Тогтсон цагтаа ирнэ үү",
     },
     {
       icon: MapPin,
       title: "Газар",
-      description: "Shangri-La Hotel",
-      subtitle: "Улаанбаатар хот"
+      description: event.venue_name,
+      subtitle: event.venue_address,
     },
     {
       icon: Users,
       title: "Хүрэлцэн ирнэ үү",
       description: "Танаас хүлээж байна",
-      subtitle: "Таны оролцоо чухал"
-    }
+      subtitle: "Таны оролцоо чухал",
+    },
   ];
 
   return (
@@ -62,7 +65,9 @@ export function WeddingDetails() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">{detail.title}</h3>
                   <p className="text-lg mb-1">{detail.description}</p>
-                  <p className="text-sm text-gray-500">{detail.subtitle}</p>
+                  {detail.subtitle && (
+                    <p className="text-sm text-gray-500">{detail.subtitle}</p>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

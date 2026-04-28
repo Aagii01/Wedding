@@ -1,0 +1,21 @@
+export type EventData = {
+  id: string;
+  slug: string;
+  type: string;
+  title: string;
+  date: string;
+  time: string;
+  venue_name: string;
+  venue_address: string;
+  venue_map_url: string;
+  venue_image_url: string;
+  hero_image_url: string;
+  person1_name: string;
+  person1_role: string;
+  person1_photo_url: string;
+  person1_instagram: string;
+  person2_name?: string;
+  person2_role?: string;
+  person2_photo_url?: string;
+  person2_instagram?: string;
+};

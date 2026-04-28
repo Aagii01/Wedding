@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Heart } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useState } from "react";
+import { EventData } from "../../types/event";
 
 const slides = [
   {
@@ -39,43 +40,50 @@ function SlideCard({ src, quote, small }: { src: string; quote: string; small?: 
   );
 }
 
-export function WeddingHero() {
-  const [current, setCurrent] = useState(0);
+type Props = { event: EventData };
 
+export function WeddingHero({ event }: Props) {
+  const [current, setCurrent] = useState(0);
 
   const prev = (current - 1 + slides.length) % slides.length;
   const next = (current + 1) % slides.length;
 
+  const heroSrc = event.hero_image_url ||
+    "https://images.unsplash.com/photo-1583939003579-730e3918a45a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800";
+
+  const displayTitle = event.person2_name
+    ? `${event.person1_name} & ${event.person2_name}`
+    : event.person1_name;
+
   return (
     <>
-      {/* Hero Banner Card */}
       <section className="flex justify-center items-center py-10 px-4 bg-white">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative w-full max-w-xs mx-auto rounded-3xl overflow-hidden shadow-2xl"
-          style={{ height: 260  }}
+          className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl aspect-[3/4]"
         >
           <ImageWithFallback
-            src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
-            alt="Болд & Сарнай"
-            className="w-full h-full object-cover"
+            src={heroSrc}
+            alt={displayTitle}
+            className="w-full h-full object-cover "
           />
           <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-between py-8 px-6">
-            <p className="text-white/80 text-xs tracking-widest italic">The wedding of</p>
+            <p className="text-white/80 text-xs tracking-widest italic">
+              {event.type === "wedding" ? "The wedding of" : "You're invited to"}
+            </p>
             <h1
-              className="text-white text-5xl text-center leading-tight"
+              className="text-white text-4xl text-center leading-tight"
               style={{ fontFamily: "'Dancing Script', cursive" }}
             >
-              Болд & Сарнай
+              {displayTitle}
             </h1>
-            <p className="text-white/85 text-sm tracking-wide">Friday, July 15th, 2026</p>
+            <p className="text-white/85 text-sm tracking-wide">{event.date}</p>
           </div>
         </motion.div>
       </section>
 
-      {/* Our Love Story Carousel */}
       <section className="bg-[#d0cfc8] flex flex-col items-center py-16 overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -83,12 +91,14 @@ export function WeddingHero() {
           transition={{ duration: 2.7 }}
           className="text-center mb-14"
         >
-          <h2 className="text-4xl md:text-5xl font-serif text-gray-800 mb-2">Our Love Story</h2>
-          <div className="flex items-center justify-center gap-2 text-gray-600">
-            <span className="text-base font-serif">Болд</span>
-            <Heart className="w-3 h-3 fill-rose-400 text-rose-400" />
-            <span className="text-base font-serif">Сарнай</span>
-          </div>
+          <h2 className="text-4xl md:text-5xl font-serif text-gray-800 mb-2">Бидний хайрын түүх</h2>
+          {event.person2_name && (
+            <div className="flex items-center justify-center gap-2 text-gray-600">
+              <span className="text-base font-serif">{event.person1_name}</span>
+              <Heart className="w-3 h-3 fill-rose-400 text-rose-400" />
+              <span className="text-base font-serif">{event.person2_name}</span>
+            </div>
+          )}
         </motion.div>
 
         <motion.div

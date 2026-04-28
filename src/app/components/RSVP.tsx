@@ -6,7 +6,9 @@ import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { supabase } from "../../lib/supabase";
 
-export function RSVP() {
+type Props = { eventId: string };
+
+export function RSVP({ eventId }: Props) {
   const [rsvp, setRsvp] = useState({ name: "", email: "", event: "reception", guests: "1" });
   const [wish, setWish] = useState({ nickname: "", name: "", message: "" });
   const [rsvpLoading, setRsvpLoading] = useState(false);
@@ -16,6 +18,7 @@ export function RSVP() {
     e.preventDefault();
     setRsvpLoading(true);
     const { error } = await supabase.from("rsvp").insert({
+      event_id: eventId,
       name: rsvp.name,
       email: rsvp.email,
       event: rsvp.event,
@@ -23,7 +26,6 @@ export function RSVP() {
     });
     setRsvpLoading(false);
     if (error) {
-      console.log("error::", error);
       toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     } else {
       toast.success("Баярлалаа! Таны оролцоо баталгаажлаа.");
@@ -35,6 +37,7 @@ export function RSVP() {
     e.preventDefault();
     setWishLoading(true);
     const { error } = await supabase.from("wishes").insert({
+      event_id: eventId,
       nickname: wish.nickname,
       name: wish.name,
       message: wish.message,
@@ -61,16 +64,14 @@ export function RSVP() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl font-serif text-gray-800 mb-1">RSVP</h2>
-          <p className="text-sm text-gray-400 mb-7">
-            Ирэх эсэхээ баталгаажуулна уу
-          </p>
+          <h2 className="text-3xl font-serif text-gray-800 mb-1">Оролцоо баталгаажуулах</h2>
+          <p className="text-sm text-gray-400 mb-7">Ирэх эсэхээ баталгаажуулна уу</p>
           <form onSubmit={handleRsvp} className="space-y-4">
             <div>
-              <Label htmlFor="r-name" className="text-xs text-gray-500">Your Name</Label>
+              <Label htmlFor="r-name" className="text-xs text-gray-500">Таны нэр</Label>
               <Input
                 id="r-name"
-                placeholder="Таны нэр"
+                placeholder="Нэрээ бичнэ үү"
                 value={rsvp.name}
                 onChange={(e) => setRsvp({ ...rsvp, name: e.target.value })}
                 required
@@ -78,7 +79,7 @@ export function RSVP() {
               />
             </div>
             <div>
-              <Label htmlFor="r-email" className="text-xs text-gray-500">Your Email</Label>
+              <Label htmlFor="r-email" className="text-xs text-gray-500">Имэйл хаяг</Label>
               <Input
                 id="r-email"
                 type="email"
@@ -103,7 +104,7 @@ export function RSVP() {
               </select>
             </div>
             <div>
-              <Label htmlFor="r-guests" className="text-xs text-gray-500">Guest</Label>
+              <Label htmlFor="r-guests" className="text-xs text-gray-500">Зочдын тоо</Label>
               <select
                 id="r-guests"
                 value={rsvp.guests}
@@ -111,9 +112,7 @@ export function RSVP() {
                 className={selectClass}
               >
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <option key={n} value={String(n)}>
-                    {n} хүн
-                  </option>
+                  <option key={n} value={String(n)}>{n} хүн</option>
                 ))}
               </select>
             </div>
@@ -122,7 +121,7 @@ export function RSVP() {
               disabled={rsvpLoading}
               className="w-full bg-gray-800 text-white text-sm font-medium py-3 rounded-full hover:bg-gray-700 transition-colors mt-2 disabled:opacity-60"
             >
-              {rsvpLoading ? "Илгээж байна..." : "I'm Attending"}
+              {rsvpLoading ? "Илгээж байна..." : "Оролцоно"}
             </button>
           </form>
         </motion.div>
@@ -134,32 +133,22 @@ export function RSVP() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl font-serif text-gray-800 mb-1">Wishes</h2>
-          <p className="text-sm text-gray-400 mb-7">Leave Us A Note</p>
+          <h2 className="text-3xl font-serif text-gray-800 mb-1">Мэндчилгээ</h2>
+          <p className="text-sm text-gray-400 mb-7">Баяр хүргэх үгээ үлдээнэ үү</p>
           <form onSubmit={handleWish} className="space-y-4">
+            
             <div>
-              <Label htmlFor="w-nickname" className="text-xs text-gray-500">Nickname</Label>
-              <Input
-                id="w-nickname"
-                placeholder="Хоч нэр"
-                value={wish.nickname}
-                onChange={(e) => setWish({ ...wish, nickname: e.target.value })}
-                required
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="w-name" className="text-xs text-gray-500">Name</Label>
+              <Label htmlFor="w-name" className="text-xs text-gray-500">Нэр</Label>
               <Input
                 id="w-name"
-                placeholder="Бүтэн нэр"
+                placeholder="Нэрээ бичнэ үү"
                 value={wish.name}
                 onChange={(e) => setWish({ ...wish, name: e.target.value })}
                 className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="w-message" className="text-xs text-gray-500">Message</Label>
+              <Label htmlFor="w-message" className="text-xs text-gray-500">Мэндчилгээний үг</Label>
               <Textarea
                 id="w-message"
                 placeholder="Мэндчилгээ бичнэ үү..."
@@ -174,7 +163,7 @@ export function RSVP() {
               disabled={wishLoading}
               className="bg-gray-800 text-white text-sm font-medium px-8 py-3 rounded-full hover:bg-gray-700 transition-colors disabled:opacity-60"
             >
-              {wishLoading ? "Илгээж байна..." : "Send"}
+              {wishLoading ? "Илгээж байна..." : "Илгээх"}
             </button>
           </form>
         </motion.div>
