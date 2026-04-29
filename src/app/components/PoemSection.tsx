@@ -1,29 +1,40 @@
 import { motion } from "motion/react";
 
+const lines = [
+  "Хоёр сэтгэл нэгэн зүгт тэмүүлж,",
+  "Хайрын гэгээн замд учирсан бид хоёр",
+  "Хувь заяагаа холбон,",
+  "Хуримын ариун ёслолоо тэмдэглэх гэж байна.",
+  "",
+  "Энэхүү аз жаргалт мөчийг",
+  "Эрхэм таны хамт хуваалцахыг урьж байна.",
+];
+
 export function PoemSection() {
+  let lineIndex = 0;
+
   return (
     <section className="py-16 px-4 bg-white text-center">
-      <motion.p
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7 }}
-        className="leading-loose mx-auto max-w-sm"
+      <div
+        className="mx-auto max-w-sm leading-loose"
         style={{ fontFamily: "'Great Vibes', cursive", fontSize: "1.6rem", color: "#b8952a" }}
       >
-        Хоёр сэтгэл нэгэн зүгт тэмүүлж,
-        <br />
-        Хайрын гэгээн замд учирсан бид хоёр
-        <br />
-        Хувь заяагаа холбон,
-        <br />
-        Хуримын ариун ёслолоо тэмдэглэх гэж байна.
-        <br />
-        <br />
-        Энэхүү аз жаргалт мөчийг
-        <br />
-        Эрхэм таны хамт хуваалцахыг урьж байна.
-      </motion.p>
+        {lines.map((line, i) => {
+          if (line === "") return <div key={i} className="h-4" />;
+          const delay = lineIndex++ * 0.18;
+          return (
+            <motion.p
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.65, delay, ease: "easeOut" }}
+            >
+              {line}
+            </motion.p>
+          );
+        })}
+      </div>
     </section>
   );
 }

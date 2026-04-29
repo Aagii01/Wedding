@@ -23,11 +23,13 @@ const slides = [
   },
 ];
 
-function SlideCard({ src, quote, small }: { src: string; quote: string; small?: boolean }) {
+function SlideCard({ src, quote, small, tiny }: { src: string; quote: string; small?: boolean; tiny?: boolean }) {
   return (
     <div
       className={`${
-        small ? "w-48 h-[340px]" : "w-64 h-[460px]"
+        tiny  ? "w-32 h-[240px] md:w-44 md:h-[320px]" :
+        small ? "w-48 h-[340px] md:w-64 md:h-[440px]" :
+                "w-64 h-[460px] md:w-96 md:h-[560px]"
       } rounded-3xl overflow-hidden shadow-2xl relative flex-shrink-0`}
     >
       <ImageWithFallback src={src} alt="Wedding photo" className="w-full h-full object-cover" />
@@ -45,8 +47,10 @@ type Props = { event: EventData };
 export function WeddingHero({ event }: Props) {
   const [current, setCurrent] = useState(0);
 
-  const prev = (current - 1 + slides.length) % slides.length;
-  const next = (current + 1) % slides.length;
+  const prev  = (current - 1 + slides.length) % slides.length;
+  const prev2 = (current - 2 + slides.length) % slides.length;
+  const next  = (current + 1) % slides.length;
+  const next2 = (current + 2) % slides.length;
 
   const heroSrc = event.hero_image_url ||
     "https://images.unsplash.com/photo-1583939003579-730e3918a45a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800";
@@ -71,7 +75,7 @@ export function WeddingHero({ event }: Props) {
           />
           <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-between py-8 px-6">
             <p className="text-white/80 text-xs tracking-widest italic">
-              {event.type === "wedding" ? "The wedding of" : "You're invited to"}
+              {event.type === "wedding" ? "" : "You're invited to"}
             </p>
             <h1
               className="text-white text-4xl text-center leading-tight"
@@ -102,7 +106,7 @@ export function WeddingHero({ event }: Props) {
         </motion.div>
 
         <motion.div
-          className="relative flex items-center justify-center w-full h-[500px] cursor-grab active:cursor-grabbing touch-none select-none"
+          className="relative flex items-center justify-center w-full h-[500px] md:h-[620px] cursor-grab active:cursor-grabbing touch-none select-none"
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.15}
@@ -114,6 +118,15 @@ export function WeddingHero({ event }: Props) {
             }
           }}
         >
+          {/* Far left */}
+          <div
+            className="absolute pointer-events-none"
+            style={{ transform: "translateX(-410px) scale(0.62)", opacity: 0.3, zIndex: 0 }}
+          >
+            <SlideCard src={slides[prev2].src} quote={slides[prev2].quote} tiny />
+          </div>
+
+          {/* Left */}
           <div
             className="absolute pointer-events-none"
             style={{ transform: "translateX(-230px) scale(0.8)", opacity: 0.6, zIndex: 1 }}
@@ -121,6 +134,7 @@ export function WeddingHero({ event }: Props) {
             <SlideCard src={slides[prev].src} quote={slides[prev].quote} small />
           </div>
 
+          {/* Center */}
           <div className="absolute pointer-events-none" style={{ zIndex: 10 }}>
             <AnimatePresence mode="wait">
               <motion.div
@@ -135,11 +149,20 @@ export function WeddingHero({ event }: Props) {
             </AnimatePresence>
           </div>
 
+          {/* Right */}
           <div
             className="absolute pointer-events-none"
             style={{ transform: "translateX(230px) scale(0.8)", opacity: 0.6, zIndex: 1 }}
           >
             <SlideCard src={slides[next].src} quote={slides[next].quote} small />
+          </div>
+
+          {/* Far right */}
+          <div
+            className="absolute pointer-events-none"
+            style={{ transform: "translateX(410px) scale(0.62)", opacity: 0.3, zIndex: 0 }}
+          >
+            <SlideCard src={slides[next2].src} quote={slides[next2].quote} tiny />
           </div>
         </motion.div>
 

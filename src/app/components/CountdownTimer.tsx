@@ -42,10 +42,10 @@ function TimerNumbers({ date, time }: { date: string; time: string }) {
     <div className="grid grid-cols-4 gap-4 mb-10">
       {units.map(({ label, value }) => (
         <div key={label} className="flex flex-col items-center">
-          <span className="text-4xl md:text-6xl font-bold text-white tabular-nums">
+          <span className="text-4xl md:text-6xl font-bold italic text-white tabular-nums">
             {String(value).padStart(2, "0")}
           </span>
-          <span className="text-gray-400 text-[10px] mt-2 tracking-widest uppercase">
+          <span className="text-gray-400 text-[10px] mt-2 tracking-widest uppercase italic">
             {label}
           </span>
         </div>
@@ -116,7 +116,7 @@ export function CountdownTimer({ date, time, title, venue, venueAddress }: Props
       
 
         </motion.div>
-          <h2 className="text-4xl font-bold text-white mb-8 mt-0">{date}</h2>
+          <h2 className="text-4xl font-bold italic text-white mb-8 mt-0">{date}</h2>
           {/* <h2 className="text-xl font-bold text-white mb-2">{time}</h2> */}
         {/* Timer — тусдаа render, animation дахрахгүй */}
         <TimerNumbers date={date} time={time} />
@@ -127,7 +127,7 @@ export function CountdownTimer({ date, time, title, venue, venueAddress }: Props
             onClick={() => setOpen((v) => !v)}
             className="inline-flex items-center gap-2 bg-white text-gray-800 text-sm font-medium px-8 py-3 rounded-full hover:bg-gray-100 transition-colors"
           >
-            <CalendarDays className="w-4 h-4" />
+            <CalendarDays className="w-4 h-4 " />
             Календарьт нэмэх
             <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
           </button>

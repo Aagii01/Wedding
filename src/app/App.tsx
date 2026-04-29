@@ -3,6 +3,7 @@ import { WeddingHero } from "./components/WeddingHero";
 import { GroomBride } from "./components/GroomBride";
 import { VenueSection } from "./components/VenueSection";
 import { GallerySection } from "./components/GallerySection";
+import { FloatingPetals } from "./components/FloatingPetals";
 import { PoemSection } from "./components/PoemSection";
 import { CountdownTimer } from "./components/CountdownTimer";
 import { HealthProtocol } from "./components/HealthProtocol";
@@ -15,6 +16,7 @@ type Props = { event: EventData };
 export default function App({ event }: Props) {
   return (
     <div className="min-h-screen bg-white">
+      <FloatingPetals />
       <WeddingHero event={event} />
       <GroomBride event={event} />
       {/* <WeddingDetails event={event} /> */}
