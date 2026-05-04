@@ -19,7 +19,7 @@ export function PoemSection() {
     <section className="py-16 px-4 bg-white text-center">
       <div
         className="mx-auto max-w-sm leading-loose"
-        style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.45rem", color: "#3a2e28", letterSpacing: "0.01em", lineHeight: "2.2" }}
+        style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.55rem", color: "#3a2e28", letterSpacing: "0.01em", lineHeight: "2.2" }}
       >
         {lines.map((line, i) => {
           if (line === "") return <div key={i} className="h-4" />;
