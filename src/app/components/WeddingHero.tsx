@@ -7,10 +7,10 @@ import { EventData } from "../../types/event";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 const QUOTES = [
-  '"Gravitation is not responsible for people falling in love." —Albert Einstein',
-  '"A hundred hearts would be too few to carry all my love for you." —Unknown',
-  '"If we look at the world with a love of life, the world will reveal its beauty to us." —Daisaku Ikeda',
-  '"You are only as strong as the love that holds you." —Unknown',
+  '"Таталцлын хүч хүмүүсийг хайрт болгодоггүй." —Альберт Эйнштейн',
+  '"Зуун зүрх ч гэсэн миний хайрыг тэвэрч чадахгүй." —Тодорхойгүй',
+  '"Амьдралыг хайрын нүдээр харвал дэлхий өөрийн гоо сайхнаа нээнэ." —Дайсаку Икеда',
+  '"Чамайг тэврэн буй хайр чинь чиний хамгийн том хүч." —Тодорхойгүй',
 ];
 
 const FALLBACK_SRCS = [
