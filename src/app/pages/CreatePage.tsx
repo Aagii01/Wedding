@@ -12,16 +12,20 @@ type FormData = {
   venue_name: string;
   venue_address: string;
   venue_map_url: string;
-  venue_image_url: string;
-  hero_image_url: string;
+  maps_photo: string;
+  main_image: string;
   person1_name: string;
   person1_role: string;
   person1_instagram: string;
-  person1_photo_url: string;
+  person1_photo: string;
   person2_name: string;
   person2_role: string;
   person2_instagram: string;
-  person2_photo_url: string;
+  person2_photo: string;
+  gallery_photo_1: string;
+  gallery_photo_2: string;
+  gallery_photo_3: string;
+  gallery_photo_4: string;
 };
 
 const INITIAL: FormData = {
@@ -32,16 +36,20 @@ const INITIAL: FormData = {
   venue_name: "",
   venue_address: "",
   venue_map_url: "",
-  venue_image_url: "",
-  hero_image_url: "",
+  maps_photo: "",
+  main_image: "",
   person1_name: "",
   person1_role: "Groom",
   person1_instagram: "",
-  person1_photo_url: "",
+  person1_photo: "",
   person2_name: "",
   person2_role: "Bride",
   person2_instagram: "",
-  person2_photo_url: "",
+  person2_photo: "",
+  gallery_photo_1: "",
+  gallery_photo_2: "",
+  gallery_photo_3: "",
+  gallery_photo_4: "",
 };
 
 function toSlug(text: string) {
@@ -98,13 +106,35 @@ export function CreatePage() {
       return;
     }
     setLoading(true);
+
+    const gallery_photos = [
+      form.gallery_photo_1,
+      form.gallery_photo_2,
+      form.gallery_photo_3,
+      form.gallery_photo_4,
+    ].filter(Boolean);
+
     const payload = {
-      ...form,
+      type: form.type,
+      slug: form.slug,
+      date: form.date,
+      time: form.time,
+      venue_name: form.venue_name,
+      venue_address: form.venue_address,
+      venue_map_url: form.venue_map_url,
+      maps_photo: form.maps_photo,
+      main_image: form.main_image,
+      person1_name: form.person1_name,
+      person1_role: form.person1_role,
+      person1_instagram: form.person1_instagram,
+      person1_photo: form.person1_photo,
       person2_name: form.person2_name || null,
       person2_role: form.person2_role || null,
       person2_instagram: form.person2_instagram || null,
-      person2_photo_url: form.person2_photo_url || null,
+      person2_photo: form.person2_photo || null,
+      gallery_photos,
     };
+
     const { error: err } = await supabase.from("events").insert(payload);
     setLoading(false);
     if (err) {
@@ -166,8 +196,8 @@ export function CreatePage() {
             <Field label="Instagram">
               <Input className={inputClass} value={form.person1_instagram} onChange={(e) => set("person1_instagram", e.target.value)} placeholder="@bold.mn" />
             </Field>
-            <Field label="Зургийн URL" hint="Зурагны https://... холбоос">
-              <Input className={inputClass} value={form.person1_photo_url} onChange={(e) => set("person1_photo_url", e.target.value)} placeholder="https://..." />
+            <Field label="Зургийн URL (person1_photo)" hint="GroomBride хэсэгт харагдана">
+              <Input className={inputClass} value={form.person1_photo} onChange={(e) => set("person1_photo", e.target.value)} placeholder="https://..." />
             </Field>
           </div>
 
@@ -186,8 +216,8 @@ export function CreatePage() {
                 <Field label="Instagram">
                   <Input className={inputClass} value={form.person2_instagram} onChange={(e) => set("person2_instagram", e.target.value)} placeholder="@sarnai.mn" />
                 </Field>
-                <Field label="Зургийн URL">
-                  <Input className={inputClass} value={form.person2_photo_url} onChange={(e) => set("person2_photo_url", e.target.value)} placeholder="https://..." />
+                <Field label="Зургийн URL (person2_photo)" hint="GroomBride хэсэгт харагдана">
+                  <Input className={inputClass} value={form.person2_photo} onChange={(e) => set("person2_photo", e.target.value)} placeholder="https://..." />
                 </Field>
               </div>
             </>
@@ -222,17 +252,38 @@ export function CreatePage() {
             <Field label="Google Maps холбоос">
               <Input className={inputClass} value={form.venue_map_url} onChange={(e) => set("venue_map_url", e.target.value)} placeholder="https://maps.google.com/..." />
             </Field>
-            <Field label="Газрын зургийн URL">
-              <Input className={inputClass} value={form.venue_image_url} onChange={(e) => set("venue_image_url", e.target.value)} placeholder="https://..." />
+            <Field label="Газрын зургийн URL (maps_photo)" hint="VenueSection-д харагдана">
+              <Input className={inputClass} value={form.maps_photo} onChange={(e) => set("maps_photo", e.target.value)} placeholder="https://..." />
             </Field>
           </div>
 
           <hr className="border-gray-100" />
 
-          {/* Hero image */}
-          <Field label="Нүүр зургийн URL" hint="Hero болон footer-т харагдана">
-            <Input className={inputClass} value={form.hero_image_url} onChange={(e) => set("hero_image_url", e.target.value)} placeholder="https://..." />
+          {/* Main image */}
+          <Field label="Нүүр зургийн URL (main_image)" hint="Hero карт болон footer-т харагдана">
+            <Input className={inputClass} value={form.main_image} onChange={(e) => set("main_image", e.target.value)} placeholder="https://..." />
           </Field>
+
+          <hr className="border-gray-100" />
+
+          {/* Gallery */}
+          <div className="space-y-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Галерей зургууд</p>
+            <p className="text-[11px] text-gray-400 -mt-2">Галерей хэсэгт тусдаа харагдана (hero, person зургуудтай давхцахгүй)</p>
+            {([1, 2, 3, 4] as const).map((n) => (
+              <Field
+                key={n}
+                label={`Зураг ${n}${n === 1 ? " (том, featured)" : n === 4 ? " (доод, өргөн)" : ""}`}
+              >
+                <Input
+                  className={inputClass}
+                  value={form[`gallery_photo_${n}` as keyof FormData]}
+                  onChange={(e) => set(`gallery_photo_${n}` as keyof FormData, e.target.value)}
+                  placeholder="https://..."
+                />
+              </Field>
+            ))}
+          </div>
 
           <hr className="border-gray-100" />
 

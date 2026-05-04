@@ -15,7 +15,7 @@ export function GroomBride({ event }: Props) {
     {
       role: event.person1_role,
       name: event.person1_name,
-      photo: event.person1_photo_url || FALLBACK_GROOM,
+      photo: event.person1_photo || FALLBACK_GROOM,
       instagram: event.person1_instagram,
     },
     ...(event.person2_name
@@ -23,7 +23,7 @@ export function GroomBride({ event }: Props) {
           {
             role: event.person2_role || "Bride",
             name: event.person2_name,
-            photo: event.person2_photo_url || FALLBACK_BRIDE,
+            photo: event.person2_photo || FALLBACK_BRIDE,
             instagram: event.person2_instagram || "",
           },
         ]

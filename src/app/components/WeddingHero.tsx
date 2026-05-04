@@ -54,7 +54,7 @@ export function WeddingHero({ event }: Props) {
   const next  = (current + 1) % slides.length;
   const next2 = (current + 2) % slides.length;
 
-  const heroSrc = event.hero_image_url ||
+  const heroSrc = event.main_image ||
     "https://images.unsplash.com/photo-1583939003579-730e3918a45a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800";
 
   const displayTitle = event.person2_name

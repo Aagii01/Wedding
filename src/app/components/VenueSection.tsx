@@ -22,7 +22,7 @@ export function VenueSection({ event }: Props) {
         >
           <div className="h-64 md:h-80">
             <ImageWithFallback
-              src={event.venue_image_url || FALLBACK_IMAGE}
+              src={event.maps_photo || FALLBACK_IMAGE}
               alt={event.venue_name}
               className="w-full h-full object-cover"
             />

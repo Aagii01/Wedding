@@ -14,7 +14,7 @@ export function WeddingFooter({ event }: Props) {
   return (
     <footer className="relative h-64 md:h-80 overflow-hidden">
       <ImageWithFallback
-        src={event.hero_image_url || FALLBACK_IMAGE}
+        src={event.main_image || FALLBACK_IMAGE}
         alt={displayTitle}
         className="w-full h-full object-cover"
       />
