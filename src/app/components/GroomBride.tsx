@@ -3,6 +3,8 @@ import { Instagram } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { EventData } from "../../types/event";
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 const FALLBACK_GROOM = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&fit=crop&q=80";
 const FALLBACK_BRIDE = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&fit=crop&q=80";
 
@@ -34,10 +36,10 @@ export function GroomBride({ event }: Props) {
         {persons.map((person, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, x: i === 0 ? -30 : 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, x: i === 0 ? -28 : 28, scale: 0.97 }}
+            whileInView={{ opacity: 1, x: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-40px 0px" }}
+            transition={{ duration: 0.75, delay: i * 0.12, ease: EASE }}
             className="flex flex-col items-center text-center"
           >
             <div className="w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden mb-4 shadow-lg ring-4 ring-gray-100">

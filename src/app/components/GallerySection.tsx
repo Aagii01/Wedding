@@ -3,6 +3,8 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { EventData } from "../../types/event";
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 type Props = { event: EventData };
 
 export function GallerySection({ event }: Props) {
@@ -29,10 +31,10 @@ export function GallerySection({ event }: Props) {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-3xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-40px 0px" }}
+            transition={{ duration: 0.75, ease: EASE }}
             className="text-center mb-10"
           >
             <p className="text-[10px] tracking-[0.25em] uppercase text-gray-400 mb-3">
@@ -43,12 +45,12 @@ export function GallerySection({ event }: Props) {
 
           {/* Bento grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-            {/* Featured large — always first photo */}
+            {/* Featured large */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              viewport={{ once: true, margin: "-40px 0px" }}
+              transition={{ duration: 0.8, ease: EASE }}
               className="col-span-2 md:col-span-2 md:row-span-2 relative overflow-hidden rounded-2xl cursor-pointer group"
               style={{ aspectRatio: "4/3" }}
               onClick={() => setLightbox(photos[0])}
@@ -61,14 +63,14 @@ export function GallerySection({ event }: Props) {
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />
             </motion.div>
 
-            {/* Small photos — right column */}
+            {/* Small photos */}
             {photos.slice(1, 3).map((src, i) => (
               <motion.div
                 key={src}
-                initial={{ opacity: 0, scale: 0.97 }}
+                initial={{ opacity: 0, scale: 0.96 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: (i + 1) * 0.1 }}
+                viewport={{ once: true, margin: "-40px 0px" }}
+                transition={{ duration: 0.75, delay: (i + 1) * 0.1, ease: EASE }}
                 className="relative overflow-hidden rounded-2xl cursor-pointer group"
                 style={{ aspectRatio: "1/1" }}
                 onClick={() => setLightbox(src)}
@@ -85,10 +87,10 @@ export function GallerySection({ event }: Props) {
             {/* 4th photo — full width bottom */}
             {photos[3] && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.97 }}
+                initial={{ opacity: 0, scale: 0.96 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true, margin: "-40px 0px" }}
+                transition={{ duration: 0.75, delay: 0.2, ease: EASE }}
                 className="col-span-2 md:col-span-3 relative overflow-hidden rounded-2xl cursor-pointer group"
                 style={{ aspectRatio: "16/7" }}
                 onClick={() => setLightbox(photos[3])}
@@ -112,26 +114,30 @@ export function GallerySection({ event }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.22, ease: EASE }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
             onClick={() => setLightbox(null)}
           >
             <motion.img
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.92, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ duration: 0.35, ease: EASE }}
               src={lightbox}
               alt="full"
               className="max-w-full max-h-[90vh] rounded-2xl object-contain shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
-            <button
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ delay: 0.1, duration: 0.25, ease: EASE }}
               onClick={() => setLightbox(null)}
               className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
             >
               <X className="w-5 h-5" />
-            </button>
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>

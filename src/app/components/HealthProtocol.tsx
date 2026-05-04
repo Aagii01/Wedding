@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 const schedule = [
   { time: "15:30", label: "Хүлээн авалт", desc: "Зочид морилно" },
   { time: "16:00", label: "Тайзны урд зургийн цаг", desc: "Гэрэл зурагчидтай хамт" },
@@ -13,10 +15,10 @@ export function HealthProtocol() {
     <section className="py-16 px-4 bg-gray-50">
       <div className="max-w-md mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-40px 0px" }}
+          transition={{ duration: 0.75, ease: EASE }}
           className="text-center mb-12"
         >
           <p className="text-[10px] tracking-[0.25em] uppercase text-gray-400 mb-3">
@@ -33,10 +35,10 @@ export function HealthProtocol() {
             {schedule.map(({ time, label, desc }, i) => (
               <motion.div
                 key={time}
-                initial={{ opacity: 0, x: -16 }}
+                initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
+                viewport={{ once: true, margin: "-20px 0px" }}
+                transition={{ duration: 0.65, delay: i * 0.09, ease: EASE }}
                 className="flex items-start gap-6"
               >
                 {/* Time */}

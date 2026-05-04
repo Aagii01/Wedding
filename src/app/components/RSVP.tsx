@@ -6,6 +6,8 @@ import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { supabase } from "../../lib/supabase";
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 type Props = { eventId: string };
 
 export function RSVP({ eventId }: Props) {
@@ -59,10 +61,10 @@ export function RSVP({ eventId }: Props) {
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
         {/* RSVP */}
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0, x: -28, scale: 0.98 }}
+          whileInView={{ opacity: 1, x: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-40px 0px" }}
+          transition={{ duration: 0.75, ease: EASE }}
         >
           <h2 className="text-3xl font-serif text-gray-800 mb-1">Оролцоо баталгаажуулах</h2>
           <p className="text-sm text-gray-400 mb-7">Ирэх эсэхээ баталгаажуулна уу</p>
@@ -128,15 +130,14 @@ export function RSVP({ eventId }: Props) {
 
         {/* Wishes */}
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0, x: 28, scale: 0.98 }}
+          whileInView={{ opacity: 1, x: 0, scale: 1 }}
+          viewport={{ once: true, margin: "-40px 0px" }}
+          transition={{ duration: 0.75, delay: 0.12, ease: EASE }}
         >
           <h2 className="text-3xl font-serif text-gray-800 mb-1">Мэндчилгээ</h2>
           <p className="text-sm text-gray-400 mb-7">Баяр хүргэх үгээ үлдээнэ үү</p>
           <form onSubmit={handleWish} className="space-y-4">
-            
             <div>
               <Label htmlFor="w-name" className="text-xs text-gray-500">Нэр</Label>
               <Input

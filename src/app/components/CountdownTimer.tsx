@@ -65,6 +65,8 @@ function addHours(date: string, time: string, hours: number) {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 }
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 export function CountdownTimer({ date, time, title, venue, venueAddress }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -108,10 +110,10 @@ export function CountdownTimer({ date, time, title, venue, venueAddress }: Props
     <section className="py-6 px-4 bg-[#2d2d2d]">
       <div className="max-w-3xl mx-auto text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          viewport={{ once: true, margin: "-40px 0px" }}
+          transition={{ duration: 0.8, ease: EASE }}
         >
       
 
