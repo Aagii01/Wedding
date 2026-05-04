@@ -28,6 +28,31 @@ function formatDate(date: string) {
   return `${y} · ${m} · ${d}`;
 }
 
+function FlipNumber({ value }: { value: number }) {
+  const display = String(value).padStart(2, "0");
+  return (
+    <div style={{ perspective: "400px", height: "1.15em", overflow: "visible" }}>
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={display}
+          initial={{ rotateX: -90, opacity: 0, y: -8 }}
+          animate={{ rotateX: 0, opacity: 1, y: 0 }}
+          exit={{ rotateX: 80, opacity: 0, y: 8 }}
+          transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+          style={{
+            display: "block",
+            transformOrigin: "center top",
+            fontFamily: "'Cormorant Garamond', serif",
+          }}
+          className="text-5xl md:text-7xl font-light text-gray-800 tabular-nums leading-none"
+        >
+          {display}
+        </motion.span>
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function TimerNumbers({ date, time }: { date: string; time: string }) {
   const target = useRef(new Date(`${date}T${time}:00`));
   const [timeLeft, setTimeLeft] = useState(() => getTimeLeft(target.current));
@@ -50,12 +75,7 @@ function TimerNumbers({ date, time }: { date: string; time: string }) {
       {units.map(({ label, value }, i) => (
         <div key={label} className="flex items-center">
           <div className="flex flex-col items-center px-5 md:px-9">
-            <span
-              className="text-5xl md:text-7xl font-light text-gray-800 tabular-nums leading-none"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
-            >
-              {String(value).padStart(2, "0")}
-            </span>
+            <FlipNumber value={value} />
             <span className="text-[9px] tracking-[0.25em] text-gray-400 uppercase mt-3">
               {label}
             </span>
