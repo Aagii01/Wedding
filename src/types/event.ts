@@ -19,4 +19,5 @@ export type EventData = {
   person2_photo?: string;
   person2_instagram?: string;
   gallery_photos: string[];
+  gallery2_photos: string[];
 };

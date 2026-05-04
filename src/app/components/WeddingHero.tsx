@@ -11,6 +11,10 @@ const QUOTES = [
   '"Зуун зүрх ч гэсэн миний хайрыг тэвэрч чадахгүй." —Тодорхойгүй',
   '"Амьдралыг хайрын нүдээр харвал дэлхий өөрийн гоо сайхнаа нээнэ." —Дайсаку Икеда',
   '"Чамайг тэврэн буй хайр чинь чиний хамгийн том хүч." —Тодорхойгүй',
+  '"Хайр бол хоёр хүний нэг мөрөөдлийг хуваалцах явдал." —Тодорхойгүй',
+  '"Чиний нүд дотор би гэрийн дулааныг олдог." —Тодорхойгүй',
+  '"Хамтдаа байх агшин бүр хамгийн үнэ цэнэтэй эрдэнэ." —Тодорхойгүй',
+  '"Хайр цаг хугацааны хязгаарыг мэддэггүй." —Тодорхойгүй',
 ];
 
 const FALLBACK_SRCS = [
@@ -18,6 +22,10 @@ const FALLBACK_SRCS = [
   "https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
   "https://images.unsplash.com/photo-1606800052052-a08af7148866?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
   "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  "https://images.unsplash.com/photo-1583939003579-730e3918a45a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  "https://images.unsplash.com/photo-1529636798458-92182e662485?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  "https://images.unsplash.com/photo-1591604466107-ec97de577aff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
 ];
 
 function SlideCard({ src, quote, small, tiny }: { src: string; quote: string; small?: boolean; tiny?: boolean }) {
@@ -45,7 +53,7 @@ export function WeddingHero({ event }: Props) {
   const [current, setCurrent] = useState(0);
 
   const slides = QUOTES.map((quote, i) => ({
-    src: event.gallery_photos?.[i] || FALLBACK_SRCS[i],
+    src: event.gallery2_photos?.[i] || FALLBACK_SRCS[i],
     quote,
   }));
 

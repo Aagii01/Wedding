@@ -26,6 +26,14 @@ type FormData = {
   gallery_photo_2: string;
   gallery_photo_3: string;
   gallery_photo_4: string;
+  gallery2_photo_1: string;
+  gallery2_photo_2: string;
+  gallery2_photo_3: string;
+  gallery2_photo_4: string;
+  gallery2_photo_5: string;
+  gallery2_photo_6: string;
+  gallery2_photo_7: string;
+  gallery2_photo_8: string;
 };
 
 const INITIAL: FormData = {
@@ -50,6 +58,14 @@ const INITIAL: FormData = {
   gallery_photo_2: "",
   gallery_photo_3: "",
   gallery_photo_4: "",
+  gallery2_photo_1: "",
+  gallery2_photo_2: "",
+  gallery2_photo_3: "",
+  gallery2_photo_4: "",
+  gallery2_photo_5: "",
+  gallery2_photo_6: "",
+  gallery2_photo_7: "",
+  gallery2_photo_8: "",
 };
 
 function toSlug(text: string) {
@@ -114,6 +130,17 @@ export function CreatePage() {
       form.gallery_photo_4,
     ].filter(Boolean);
 
+    const gallery2_photos = [
+      form.gallery2_photo_1,
+      form.gallery2_photo_2,
+      form.gallery2_photo_3,
+      form.gallery2_photo_4,
+      form.gallery2_photo_5,
+      form.gallery2_photo_6,
+      form.gallery2_photo_7,
+      form.gallery2_photo_8,
+    ].filter(Boolean);
+
     const payload = {
       type: form.type,
       slug: form.slug,
@@ -133,6 +160,7 @@ export function CreatePage() {
       person2_instagram: form.person2_instagram || null,
       person2_photo: form.person2_photo || null,
       gallery_photos,
+      gallery2_photos,
     };
 
     const { error: err } = await supabase.from("events").insert(payload);
@@ -279,6 +307,24 @@ export function CreatePage() {
                   className={inputClass}
                   value={form[`gallery_photo_${n}` as keyof FormData]}
                   onChange={(e) => set(`gallery_photo_${n}` as keyof FormData, e.target.value)}
+                  placeholder="https://..."
+                />
+              </Field>
+            ))}
+          </div>
+
+          <hr className="border-gray-100" />
+
+          {/* Gallery2 — carousel photos */}
+          <div className="space-y-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Carousel зургууд (8)</p>
+            <p className="text-[11px] text-gray-400 -mt-2">"Бидний хайрын түүх" carousel-д харагдана</p>
+            {([1,2,3,4,5,6,7,8] as const).map((n) => (
+              <Field key={n} label={`Зураг ${n}`}>
+                <Input
+                  className={inputClass}
+                  value={form[`gallery2_photo_${n}` as keyof FormData]}
+                  onChange={(e) => set(`gallery2_photo_${n}` as keyof FormData, e.target.value)}
                   placeholder="https://..."
                 />
               </Field>
