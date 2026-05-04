@@ -6,23 +6,18 @@ import { EventData } from "../../types/event";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-const slides = [
-  {
-    src: "https://images.unsplash.com/photo-1761211488173-a7154314420a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    quote: '"Gravitation is not responsible for people falling in love." —Albert Einstein',
-  },
-  {
-    src: "https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    quote: '"A hundred hearts would be too few to carry all my love for you." —Unknown',
-  },
-  {
-    src: "https://images.unsplash.com/photo-1606800052052-a08af7148866?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    quote: '"If we look at the world with a love of life, the world will reveal its beauty to us." —Daisaku Ikeda',
-  },
-  {
-    src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-    quote: '"You are only as strong as the love that holds you." —Unknown',
-  },
+const QUOTES = [
+  '"Gravitation is not responsible for people falling in love." —Albert Einstein',
+  '"A hundred hearts would be too few to carry all my love for you." —Unknown',
+  '"If we look at the world with a love of life, the world will reveal its beauty to us." —Daisaku Ikeda',
+  '"You are only as strong as the love that holds you." —Unknown',
+];
+
+const FALLBACK_SRCS = [
+  "https://images.unsplash.com/photo-1761211488173-a7154314420a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  "https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  "https://images.unsplash.com/photo-1606800052052-a08af7148866?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
 ];
 
 function SlideCard({ src, quote, small, tiny }: { src: string; quote: string; small?: boolean; tiny?: boolean }) {
@@ -48,6 +43,11 @@ type Props = { event: EventData };
 
 export function WeddingHero({ event }: Props) {
   const [current, setCurrent] = useState(0);
+
+  const slides = QUOTES.map((quote, i) => ({
+    src: event.gallery_photos?.[i] || FALLBACK_SRCS[i],
+    quote,
+  }));
 
   const prev  = (current - 1 + slides.length) % slides.length;
   const prev2 = (current - 2 + slides.length) % slides.length;
