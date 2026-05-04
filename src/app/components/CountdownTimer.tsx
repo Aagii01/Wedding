@@ -32,8 +32,8 @@ function FlipNumber({ value }: { value: number }) {
   const display = String(value).padStart(2, "0");
   return (
     <div
-      className="relative h-12 md:h-[4.5rem] overflow-hidden"
-      style={{ perspective: "400px" }}
+      className="relative h-14 md:h-[5rem]"
+      style={{ perspective: "500px" }}
     >
       <AnimatePresence mode="wait">
         <motion.span
