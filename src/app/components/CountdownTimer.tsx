@@ -31,20 +31,19 @@ function formatDate(date: string) {
 function FlipNumber({ value }: { value: number }) {
   const display = String(value).padStart(2, "0");
   return (
-    <div style={{ perspective: "400px", height: "1.15em", overflow: "visible" }}>
+    <div
+      className="relative h-12 md:h-[4.5rem] overflow-hidden"
+      style={{ perspective: "400px" }}
+    >
       <AnimatePresence mode="wait">
         <motion.span
           key={display}
-          initial={{ rotateX: -90, opacity: 0, y: -8 }}
-          animate={{ rotateX: 0, opacity: 1, y: 0 }}
-          exit={{ rotateX: 80, opacity: 0, y: 8 }}
+          initial={{ rotateX: -90, opacity: 0 }}
+          animate={{ rotateX: 0, opacity: 1 }}
+          exit={{ rotateX: 80, opacity: 0 }}
           transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-          style={{
-            display: "block",
-            transformOrigin: "center top",
-            fontFamily: "'Cormorant Garamond', serif",
-          }}
-          className="text-5xl md:text-7xl font-light text-gray-800 tabular-nums leading-none"
+          className="absolute inset-0 flex items-center justify-center text-5xl md:text-7xl font-light text-gray-800 tabular-nums leading-none"
+          style={{ transformOrigin: "center top", fontFamily: "'Cormorant Garamond', serif" }}
         >
           {display}
         </motion.span>
