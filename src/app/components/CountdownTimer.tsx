@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronDown } from "lucide-react";
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 type Props = {
   date: string;
   time: string;
@@ -19,6 +21,11 @@ function getTimeLeft(target: Date) {
     minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
     seconds: Math.floor((diff % (1000 * 60)) / 1000),
   };
+}
+
+function formatDate(date: string) {
+  const [y, m, d] = date.split("-");
+  return `${y} · ${m} · ${d}`;
 }
 
 function TimerNumbers({ date, time }: { date: string; time: string }) {
@@ -39,15 +46,21 @@ function TimerNumbers({ date, time }: { date: string; time: string }) {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-4 mb-10">
-      {units.map(({ label, value }) => (
-        <div key={label} className="flex flex-col items-center">
-          <span className="text-4xl md:text-6xl font-bold italic text-white tabular-nums">
-            {String(value).padStart(2, "0")}
-          </span>
-          <span className="text-gray-400 text-[10px] mt-2 tracking-widest uppercase italic">
-            {label}
-          </span>
+    <div className="flex items-center justify-center mb-12">
+      {units.map(({ label, value }, i) => (
+        <div key={label} className="flex items-center">
+          <div className="flex flex-col items-center px-5 md:px-9">
+            <span
+              className="text-5xl md:text-7xl font-light text-gray-800 tabular-nums leading-none"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              {String(value).padStart(2, "0")}
+            </span>
+            <span className="text-[9px] tracking-[0.25em] text-gray-400 uppercase mt-3">
+              {label}
+            </span>
+          </div>
+          {i < 3 && <div className="w-px h-10 bg-gray-200 flex-shrink-0" />}
         </div>
       ))}
     </div>
@@ -64,8 +77,6 @@ function addHours(date: string, time: string, hours: number) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 }
-
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function CountdownTimer({ date, time, title, venue, venueAddress }: Props) {
   const [open, setOpen] = useState(false);
@@ -107,64 +118,72 @@ export function CountdownTimer({ date, time, title, venue, venueAddress }: Props
   }
 
   return (
-    <section className="py-6 px-4 bg-[#2d2d2d]">
-      <div className="max-w-3xl mx-auto text-center">
+    <section className="py-20 px-4 bg-[#f8f5f0]">
+      <div className="max-w-2xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px 0px" }}
           transition={{ duration: 0.8, ease: EASE }}
         >
-      
+          <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 mb-5">
+            Хуримд үлдсэн хугацаа
+          </p>
 
-        </motion.div>
-          <h2 className="text-4xl font-bold italic text-white mb-8 mt-0">{date}</h2>
-          {/* <h2 className="text-xl font-bold text-white mb-2">{time}</h2> */}
-        {/* Timer — тусдаа render, animation дахрахгүй */}
-        <TimerNumbers date={date} time={time} />
-
-        {/* Calendar dropdown */}
-        <div className="inline-block relative" ref={ref}>
-          <button
-            onClick={() => setOpen((v) => !v)}
-            className="inline-flex items-center gap-2 bg-white text-gray-800 text-sm font-medium px-8 py-3 rounded-full hover:bg-gray-100 transition-colors"
+          <h2
+            className="text-5xl md:text-6xl text-gray-800 mb-8"
+            style={{ fontFamily: "'Dancing Script', cursive" }}
           >
-            <CalendarDays className="w-4 h-4 " />
-            Календарьт нэмэх
-            <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-          </button>
+            {formatDate(date)}
+          </h2>
 
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                transition={{ duration: 0.18 }}
-                className="absolute left-1/2 -translate-x-1/2 mt-2 w-52 bg-white rounded-2xl shadow-xl overflow-hidden z-10"
-              >
-                <a
-                  href={googleUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          <div className="w-10 h-px bg-gray-300 mx-auto mb-12" />
+
+          <TimerNumbers date={date} time={time} />
+
+          {/* Calendar dropdown */}
+          <div className="inline-block relative" ref={ref}>
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="inline-flex items-center gap-2 border border-gray-300 text-gray-600 text-sm px-8 py-3 rounded-full hover:border-gray-500 hover:text-gray-800 transition-colors"
+            >
+              <CalendarDays className="w-4 h-4" />
+              Календарьт нэмэх
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+            </button>
+
+            <AnimatePresence>
+              {open && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                  transition={{ duration: 0.18, ease: EASE }}
+                  className="absolute left-1/2 -translate-x-1/2 mt-2 w-52 bg-white rounded-2xl shadow-xl overflow-hidden z-10"
                 >
-                  <span className="text-base">📅</span>
-                  Google Calendar
-                </a>
-                <div className="h-px bg-gray-100 mx-3" />
-                <button
-                  onClick={downloadIcs}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <span className="text-base">🍎</span>
-                  Apple / Outlook
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                  <a
+                    href={googleUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-base">📅</span>
+                    Google Calendar
+                  </a>
+                  <div className="h-px bg-gray-100 mx-3" />
+                  <button
+                    onClick={downloadIcs}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <span className="text-base">🍎</span>
+                    Apple / Outlook
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
