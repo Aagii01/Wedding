@@ -3,6 +3,12 @@ import { useParams } from "react-router";
 import { supabase } from "../../lib/supabase";
 import { EventData } from "../../types/event";
 import App from "../App";
+import Template12 from "../templates/Template12";
+
+const templateMap: Record<string, React.ComponentType<{ event: EventData }>> = {
+  "11": App,
+  "12": Template12,
+};
 
 export function EventPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -38,5 +44,7 @@ export function EventPage() {
       </div>
     );
 
-  return <App event={event!} />;
+  const templateKey = event!.template ?? "11";
+  const Template = templateMap[templateKey] ?? App;
+  return <Template event={event!} />;
 }
