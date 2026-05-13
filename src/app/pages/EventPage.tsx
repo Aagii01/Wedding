@@ -4,10 +4,12 @@ import { supabase } from "../../lib/supabase";
 import { EventData } from "../../types/event";
 import App from "../App";
 import Template12 from "../templates/Template12";
+import Template13 from "../templates/Template13";
 
 const templateMap: Record<string, React.ComponentType<{ event: EventData }>> = {
   "11": App,
   "12": Template12,
+  "13": Template13,
 };
 
 export function EventPage() {
