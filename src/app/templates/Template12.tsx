@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
+import { HorizontalCarousel, type CarouselSlide } from "../components/HorizontalCarousel";
 
 // ─── palette ────────────────────────────────────────────────────────────────
 const CREAM  = "hsl(220 18% 96%)";
@@ -528,6 +529,14 @@ function StoryChapter({
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const isMobile = useIsMobile();
 
+  const mobileSlides: CarouselSlide[] = srcs.map((src, i) => ({
+    src,
+    title: captions[i] || title,
+    sub: num,
+    index: String(i + 1).padStart(2, "0"),
+    desc: body,
+  }));
+
   const watermark = (
     <div style={{ position: "sticky", top: 0, height: 0, overflow: "visible", zIndex: 0, pointerEvents: "none" }}>
       <div
@@ -580,71 +589,54 @@ function StoryChapter({
     </motion.div>
   );
 
+  /* ── MOBILE: text блок + HorizontalCarousel ── */
+  if (isMobile) {
+    return (
+      <>
+        <div style={{ background: CREAM, padding: "clamp(40px,10vw,64px) 24px 32px" }}>
+          {textBlock(true)}
+        </div>
+        <HorizontalCarousel
+          slides={mobileSlides}
+          heading={title}
+          subLabel={num}
+        />
+      </>
+    );
+  }
+
+  /* ── DESKTOP: 200vh sticky scroll animation ── */
   return (
     <section ref={ref} style={{ height: "200vh", position: "relative" }}>
       {watermark}
-
-      {isMobile ? (
-        /* ── MOBILE: text дээр, зурагнууд дэлгэц дүүрэн ── */
+      <div style={{
+        position: "sticky", top: 0, height: "100vh",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        zIndex: 1,
+      }}>
         <div style={{
-          position: "sticky", top: 0, height: "100vh",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "flex-start",
-          paddingTop: "clamp(40px,10vw,72px)",
-          zIndex: 1, overflow: "hidden",
+          display: "grid", gridTemplateColumns: "1fr 1fr",
+          gap: "clamp(24px,5vw,72px)", alignItems: "center",
+          maxWidth: 1000, width: "100%",
+          padding: "0 clamp(20px,4vw,48px)",
+          direction: reverse ? "rtl" : "ltr",
         }}>
-          <div style={{ padding: "0 24px", marginBottom: 24, width: "100%" }}>
-            {textBlock(true)}
-          </div>
-          <div style={{
-            position: "relative", flex: 1, width: "100%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
+          {textBlock(false)}
+          <div style={{ direction: "ltr", position: "relative", height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
             {srcs.map((src, i) => (
               <ScrollPhoto
                 key={i}
                 src={src}
                 caption={captions[i]}
                 scrollYProgress={scrollYProgress}
-                enterRange={MOBILE_ENTER_RANGES[i]}
-                slot={MOBILE_STACK_SLOTS[i]}
-                grayscale={false}
-                width={Math.min(Math.round(window.innerWidth * 0.86), 310)}
+                enterRange={ENTER_RANGES[i]}
+                slot={slots[i]}
+                grayscale={i === 1}
               />
             ))}
           </div>
         </div>
-      ) : (
-        /* ── DESKTOP: 2 баганатай grid ── */
-        <div style={{
-          position: "sticky", top: 0, height: "100vh",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          zIndex: 1,
-        }}>
-          <div style={{
-            display: "grid", gridTemplateColumns: "1fr 1fr",
-            gap: "clamp(24px,5vw,72px)", alignItems: "center",
-            maxWidth: 1000, width: "100%",
-            padding: "0 clamp(20px,4vw,48px)",
-            direction: reverse ? "rtl" : "ltr",
-          }}>
-            {textBlock(false)}
-            <div style={{ direction: "ltr", position: "relative", height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {srcs.map((src, i) => (
-                <ScrollPhoto
-                  key={i}
-                  src={src}
-                  caption={captions[i]}
-                  scrollYProgress={scrollYProgress}
-                  enterRange={ENTER_RANGES[i]}
-                  slot={slots[i]}
-                  grayscale={i === 1}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </section>
   );
 }
