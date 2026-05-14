@@ -419,11 +419,6 @@ const STACK_SLOTS = [
   [{ x: -88, r:  7, z: 1 }, { x: 5,  r: -3, z: 2 }, { x: 85, r: -8, z: 3 }],
 ];
 
-const MOBILE_STACK_SLOTS = [
-  { x: -22, r: -8, z: 1 },
-  { x:   3, r:  2, z: 2 },
-  { x:  20, r:  9, z: 3 },
-];
 
 // Single scroll-driven polaroid card
 function ScrollPhoto({
@@ -498,12 +493,6 @@ const ENTER_RANGES: [number, number][] = [
   [0.51, 0.76],
 ];
 
-// Mobile: нэг нэгээрээ гарч ирдэг (давхцахгүй)
-const MOBILE_ENTER_RANGES: [number, number][] = [
-  [0.04, 0.26],
-  [0.33, 0.55],
-  [0.62, 0.84],
-];
 
 function useIsMobile() {
   const [mobile, setMobile] = useState(() =>

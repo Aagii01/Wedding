@@ -34,12 +34,15 @@ export function HorizontalCarousel({
   heading  = "Зургийн Цомог",
   subLabel = "Дурсамж",
 }: Props) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const slideEls   = useRef<(HTMLDivElement | null)[]>([]);
-  const titleEl    = useRef<HTMLHeadingElement>(null);
-  const descEl     = useRef<HTMLParagraphElement>(null);
-  const subEl      = useRef<HTMLSpanElement>(null);
-  const idxEl      = useRef<HTMLSpanElement>(null);
+  const sectionRef    = useRef<HTMLElement>(null);
+  const slideEls      = useRef<(HTMLDivElement | null)[]>([]);
+  const titleEl       = useRef<HTMLHeadingElement>(null);
+  const descEl        = useRef<HTMLParagraphElement>(null);
+  const subEl         = useRef<HTMLSpanElement>(null);
+  const idxEl         = useRef<HTMLSpanElement>(null);
+  const progressBarEl = useRef<HTMLDivElement>(null);
+  const hintEl        = useRef<HTMLDivElement>(null);
+  const counterEl     = useRef<HTMLSpanElement>(null);
 
   const [dotActive, setDotActive] = useState(0);
 
@@ -97,8 +100,10 @@ export function HorizontalCarousel({
 
     function updateCaption(idx: number) {
       const s = slides[idx];
-      if (subEl.current) subEl.current.textContent = s.sub;
-      if (idxEl.current) idxEl.current.textContent = `(${s.index})`;
+      if (subEl.current)     subEl.current.textContent = s.sub;
+      if (idxEl.current)     idxEl.current.textContent = `(${s.index})`;
+      if (counterEl.current) counterEl.current.textContent =
+        `${String(idx + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
       if (titleEl.current) revealText(titleEl.current, s.title, splitT);
       if (descEl.current)  revealText(descEl.current,  s.desc,  splitD);
       setDotActive(idx);
@@ -137,9 +142,19 @@ export function HorizontalCarousel({
     // ── Subscribe to scroll ─────────────────────────────────────────────────
     const unsub = scrollYProgress.on("change", (v) => {
       const n = slides.length;
-      // Map [0,1] to [0, n-1] with floor — each slide occupies 1/n of the range
+
+      // Drive progress bar with GSAP (no React re-render)
+      if (progressBarEl.current) {
+        gsap.set(progressBarEl.current, { width: `${v * 100}%` });
+      }
+
+      // Map [0,1] → [0, n-1] with floor — each slide occupies 1/n of the range
       const newIdx = Math.min(n - 1, Math.max(0, Math.floor(v * n)));
       if (newIdx !== curIdx) {
+        // Fade out scroll hint after user scrolls past the first slide
+        if (curIdx === 0 && hintEl.current) {
+          gsap.to(hintEl.current, { opacity: 0, y: 6, duration: 0.6, ease: "power2.out" });
+        }
         animateTo(newIdx, newIdx > curIdx ? 1 : -1);
       }
     });
@@ -188,6 +203,17 @@ export function HorizontalCarousel({
           overflow: "hidden",
           background: "linear-gradient(155deg, #2a0f1a 0%, #1a0a10 55%, #0d0508 100%)",
         }}>
+
+          {/* ── Progress bar — top edge ───────────────────────────────────────── */}
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "rgba(255,220,230,0.10)", zIndex: 10 }}>
+            <div
+              ref={progressBarEl}
+              style={{
+                height: "100%", width: "0%",
+                background: "linear-gradient(90deg, rgba(255,180,210,0.6), rgba(255,220,230,0.85))",
+              }}
+            />
+          </div>
 
           {/* Sub-label — top left */}
           <div style={{ position: "absolute", top: "clamp(18px,3.5vh,36px)", left: "clamp(20px,5vw,44px)" }}>
@@ -289,44 +315,61 @@ export function HorizontalCarousel({
             </div>
           </div>
 
-          {/* ── Dot indicators ───────────────────────────────────────────────── */}
+          {/* ── Bottom bar: counter · dots · hint ───────────────────────────── */}
           <div style={{
-            position:        "absolute",
-            bottom:          "clamp(18px, 3.2vh, 32px)",
-            left:            0,
-            right:           0,
-            display:         "flex",
-            justifyContent:  "center",
-            gap:             10,
+            position: "absolute",
+            bottom:   "clamp(18px, 3.5vh, 36px)",
+            left:     0, right: 0,
+            display:  "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 20,
+            padding: "0 clamp(20px,5vw,44px)",
           }}>
-            {slides.map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  width:        7,
-                  height:       7,
-                  borderRadius: "50%",
-                  background:   i === dotActive ? "rgba(255,220,230,0.90)" : "rgba(255,220,230,0.24)",
-                  transform:    i === dotActive ? "scale(1.55)" : "scale(1)",
-                  transition:   "background 0.3s ease, transform 0.3s ease",
-                }}
-              />
-            ))}
-          </div>
+            {/* Slide counter — left */}
+            <span
+              ref={counterEl}
+              style={{
+                color:         "rgba(255,220,230,0.35)",
+                fontFamily:    "'Cormorant Garamond', serif",
+                fontSize:      11,
+                letterSpacing: "0.18em",
+                minWidth:      44,
+                textAlign:     "right",
+              }}
+            />
 
-          {/* Scroll hint */}
-          <div style={{
-            position:       "absolute",
-            bottom:         "clamp(18px, 3.2vh, 32px)",
-            right:          "clamp(20px, 5vw, 44px)",
-            color:          "rgba(255,220,230,0.26)",
-            fontSize:       10,
-            letterSpacing:  "0.24em",
-            textTransform:  "uppercase",
-            fontFamily:     "'Cormorant Garamond', serif",
-            pointerEvents:  "none",
-          }}>
-            scroll ↓
+            {/* Dots — center */}
+            <div style={{ display: "flex", gap: 8 }}>
+              {slides.map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width:        i === dotActive ? 20 : 7,
+                    height:       7,
+                    borderRadius: 4,
+                    background:   i === dotActive ? "rgba(255,220,230,0.85)" : "rgba(255,220,230,0.22)",
+                    transition:   "width 0.35s ease, background 0.35s ease",
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Scroll hint — right (fades out after first advance) */}
+            <div
+              ref={hintEl}
+              style={{
+                color:         "rgba(255,220,230,0.30)",
+                fontSize:      10,
+                letterSpacing: "0.24em",
+                textTransform: "uppercase",
+                fontFamily:    "'Cormorant Garamond', serif",
+                pointerEvents: "none",
+                minWidth:      44,
+              }}
+            >
+              scroll ↓
+            </div>
           </div>
 
         </div>
