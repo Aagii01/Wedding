@@ -1,8 +1,19 @@
-// HorizontalCarousel — horizontal snap scroll, no vertical scroll hijacking
-// All slides visible in a draggable horizontal strip.
-// Touch/mouse drag navigates between slides; vertical page scroll is unblocked.
+// HorizontalCarousel — scroll-driven sticky carousel
+//
+// Behavior:
+//   • Section height = slides.length × 100vh  → scroll captures the user for each slide
+//   • Sticky inner viewport stays fixed while user scrolls through all slides
+//   • After last slide, normal page scroll resumes automatically
+//   • GSAP slide transition: x-slide in/out + scale + SplitText caption reveal
+//
+// Requires: npm install gsap  (v3.12+ includes SplitText for free)
 
 import { useEffect, useRef, useState } from "react";
+import { useScroll } from "motion/react";
+import gsap from "gsap";
+import { SplitText } from "gsap/SplitText";
+
+gsap.registerPlugin(SplitText);
 
 export type CarouselSlide = {
   src:   string;
@@ -23,35 +34,134 @@ export function HorizontalCarousel({
   heading  = "Зургийн Цомог",
   subLabel = "Дурсамж",
 }: Props) {
-  const trackRef   = useRef<HTMLDivElement>(null);
-  const [current, setCurrent] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const slideEls   = useRef<(HTMLDivElement | null)[]>([]);
+  const titleEl    = useRef<HTMLHeadingElement>(null);
+  const descEl     = useRef<HTMLParagraphElement>(null);
+  const subEl      = useRef<HTMLSpanElement>(null);
+  const idxEl      = useRef<HTMLSpanElement>(null);
 
-  // ── Sync dot indicator with native scroll position ──────────────────────────
+  const [dotActive, setDotActive] = useState(0);
+
+  // Track scroll progress over the full section height
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const onScroll = () => {
-      const idx = Math.round(track.scrollLeft / track.clientWidth);
-      setCurrent(Math.max(0, Math.min(idx, slides.length - 1)));
-    };
-    track.addEventListener("scroll", onScroll, { passive: true });
-    return () => track.removeEventListener("scroll", onScroll);
-  }, [slides.length]);
+    if (!slides.length) return;
 
-  // ── Dot click → smooth scroll to slide ──────────────────────────────────────
-  const goTo = (i: number) => {
-    const track = trackRef.current;
-    if (!track) return;
-    track.scrollTo({ left: i * track.clientWidth, behavior: "smooth" });
-  };
+    let curIdx = 0;
+    const splitT = { v: null as InstanceType<typeof SplitText> | null };
+    const splitD = { v: null as InstanceType<typeof SplitText> | null };
+
+    // ── Initialize slide positions ──────────────────────────────────────────
+    slideEls.current.forEach((el, i) => {
+      if (!el) return;
+      gsap.set(el, {
+        xPercent: i === 0 ? 0 : 108,
+        scale:    i === 0 ? 1 : 0.86,
+        opacity:  i === 0 ? 1 : 0,
+        zIndex:   i === 0 ? 2 : 1,
+      });
+    });
+
+    // ── SplitText word reveal helper ────────────────────────────────────────
+    function revealText(
+      el: HTMLElement,
+      text: string,
+      ref: { v: InstanceType<typeof SplitText> | null },
+    ) {
+      const doReveal = () => {
+        el.textContent = text;
+        const st = new SplitText(el, { type: "words" });
+        ref.v = st;
+        gsap.fromTo(
+          st.words,
+          { y: "115%", opacity: 0 },
+          { y: "0%", opacity: 1, duration: 0.7, stagger: 0.03, ease: "power3.out", delay: 0.05 },
+        );
+      };
+      if (ref.v) {
+        const old = ref.v;
+        ref.v = null;
+        gsap.to(old.words, {
+          y: "-115%", opacity: 0, duration: 0.35, stagger: 0.01, ease: "power2.in",
+          onComplete: () => { old.revert(); doReveal(); },
+        });
+      } else {
+        doReveal();
+      }
+    }
+
+    function updateCaption(idx: number) {
+      const s = slides[idx];
+      if (subEl.current) subEl.current.textContent = s.sub;
+      if (idxEl.current) idxEl.current.textContent = `(${s.index})`;
+      if (titleEl.current) revealText(titleEl.current, s.title, splitT);
+      if (descEl.current)  revealText(descEl.current,  s.desc,  splitD);
+      setDotActive(idx);
+    }
+
+    // ── Slide transition ────────────────────────────────────────────────────
+    function animateTo(newIdx: number, dir: 1 | -1) {
+      const oldEl = slideEls.current[curIdx];
+      const newEl = slideEls.current[newIdx];
+      if (!oldEl || !newEl) return;
+
+      // Outgoing slide
+      gsap.to(oldEl, {
+        xPercent: dir > 0 ? -108 : 108,
+        scale: 0.86,
+        opacity: 0,
+        duration: 0.85,
+        ease: "power3.inOut",
+        zIndex: 1,
+      });
+
+      // Incoming slide
+      gsap.fromTo(
+        newEl,
+        { xPercent: dir > 0 ? 108 : -108, scale: 0.86, opacity: 0, zIndex: 2 },
+        { xPercent: 0, scale: 1, opacity: 1, duration: 0.85, ease: "power3.inOut" },
+      );
+
+      curIdx = newIdx;
+      updateCaption(newIdx);
+    }
+
+    // First caption
+    updateCaption(0);
+
+    // ── Subscribe to scroll ─────────────────────────────────────────────────
+    const unsub = scrollYProgress.on("change", (v) => {
+      const n = slides.length;
+      // Map [0,1] to [0, n-1] with floor — each slide occupies 1/n of the range
+      const newIdx = Math.min(n - 1, Math.max(0, Math.floor(v * n)));
+      if (newIdx !== curIdx) {
+        animateTo(newIdx, newIdx > curIdx ? 1 : -1);
+      }
+    });
+
+    return () => {
+      unsub();
+      splitT.v?.revert();
+      splitD.v?.revert();
+      gsap.killTweensOf(slideEls.current.filter(Boolean) as HTMLDivElement[]);
+    };
+  }, [slides, scrollYProgress]);
+
+  if (!slides.length) return null;
 
   return (
-    <section>
-      {/* ── Section header ──────────────────────────────────────────────────── */}
-      <div style={{ background: "#fff6f8", padding: "44px 16px 36px", textAlign: "center" }}>
+    <>
+      {/* ── Non-sticky header (scrolls away before sticky kicks in) ─────────── */}
+      <div style={{ background: "#fff6f8", padding: "52px 16px 44px", textAlign: "center" }}>
         <p style={{
           color: "#c08090", fontSize: 10, letterSpacing: "0.3em",
           textTransform: "uppercase", margin: "0 0 10px",
+          fontFamily: "'Cormorant Garamond', serif",
         }}>
           {subLabel}
         </p>
@@ -65,142 +175,162 @@ export function HorizontalCarousel({
         </h2>
       </div>
 
-      {/* ── Carousel body ───────────────────────────────────────────────────── */}
-      <div style={{
-        background: "linear-gradient(155deg, #2a0f1a 0%, #1a0a10 55%, #0d0508 100%)",
-        paddingBottom: 40,
-      }}>
-        {/* Horizontal scroll track — CSS scroll-snap handles touch natively */}
-        <div
-          ref={trackRef}
-          className="hc-track"
-          style={{
-            display: "flex",
-            overflowX: "scroll",
-            overflowY: "visible",
-            scrollSnapType: "x mandatory",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            cursor: "grab",
-          }}
-        >
+      {/* ── Sticky scroll section ────────────────────────────────────────────── */}
+      {/* Height = slides.length × 100vh: user must scroll through all slides   */}
+      <section
+        ref={sectionRef}
+        style={{ height: `${slides.length * 100}vh`, position: "relative" }}
+      >
+        <div style={{
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+          overflow: "hidden",
+          background: "linear-gradient(155deg, #2a0f1a 0%, #1a0a10 55%, #0d0508 100%)",
+        }}>
+
+          {/* Sub-label — top left */}
+          <div style={{ position: "absolute", top: "clamp(18px,3.5vh,36px)", left: "clamp(20px,5vw,44px)" }}>
+            <span
+              ref={subEl}
+              style={{
+                color: "rgba(255,220,230,0.40)", fontSize: 10,
+                letterSpacing: "0.38em", textTransform: "uppercase",
+                fontFamily: "'Cormorant Garamond', serif",
+              }}
+            />
+          </div>
+
+          {/* Index — top right */}
+          <div style={{ position: "absolute", top: "clamp(10px,2vh,22px)", right: "clamp(20px,5vw,44px)" }}>
+            <span
+              ref={idxEl}
+              style={{
+                color: "rgba(255,220,230,0.20)",
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: "clamp(38px,9vw,68px)",
+                fontWeight: 300, lineHeight: 1,
+              }}
+            />
+          </div>
+
+          {/* ── Slide images ─────────────────────────────────────────────────── */}
           {slides.map((slide, i) => (
             <div
               key={i}
+              ref={el => { slideEls.current[i] = el; }}
               style={{
-                minWidth: "85%",
-                scrollSnapAlign: "center",
-                padding: "36px 16px 0",
+                position: "absolute",
+                inset: 0,
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
-                userSelect: "none",
+                justifyContent: "center",
+                // Leave room for caption below
+                paddingTop:    "clamp(56px,10vh,90px)",
+                paddingBottom: "clamp(150px,28vh,230px)",
               }}
             >
-              {/* Image */}
               <div style={{
-                width: "100%",
-                aspectRatio: "3 / 4",
+                width:        "clamp(200px, 64vw, 360px)",
+                height:       "100%",
+                maxHeight:    "clamp(270px, 54vh, 430px)",
                 borderRadius: 16,
-                overflow: "hidden",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.55)",
-                flexShrink: 0,
+                overflow:     "hidden",
+                boxShadow:    "0 28px 80px rgba(74,37,53,0.65)",
               }}>
                 <img
                   src={slide.src}
                   alt={slide.title}
                   draggable={false}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </div>
-
-              {/* Sub-label + index row */}
-              <div style={{
-                display: "flex", alignItems: "center", gap: 8,
-                marginTop: 20, marginBottom: 6,
-              }}>
-                <span style={{
-                  color: "rgba(255,220,230,0.45)", fontSize: 10,
-                  letterSpacing: "0.32em", textTransform: "uppercase",
-                  fontFamily: "'Cormorant Garamond', serif",
-                }}>
-                  {slide.sub}
-                </span>
-                <span style={{
-                  color: "rgba(255,220,230,0.22)", fontSize: 11,
-                  fontFamily: "'Cormorant Garamond', serif",
-                }}>
-                  {slide.index}
-                </span>
-              </div>
-
-              {/* Title */}
-              <div style={{
-                fontFamily: "'Dancing Script', cursive",
-                fontSize: "clamp(28px, 7vw, 42px)",
-                color: "#fff",
-                textShadow: "0 2px 20px rgba(74,37,53,0.7)",
-                lineHeight: 1.15,
-                textAlign: "center",
-                marginBottom: 8,
-              }}>
-                {slide.title}
-              </div>
-
-              {/* Description */}
-              <p style={{
-                color: "rgba(255,220,230,0.65)",
-                fontFamily: "'Dancing Script', cursive",
-                fontSize: "clamp(13px, 3.5vw, 17px)",
-                fontStyle: "italic",
-                lineHeight: 1.55,
-                textAlign: "center",
-                margin: 0,
-                maxWidth: 260,
-              }}>
-                {slide.desc}
-              </p>
             </div>
           ))}
 
-          {/* Right padding slot so last slide centres properly */}
-          <div style={{ minWidth: "7.5%" }} aria-hidden />
-        </div>
+          {/* ── Caption ──────────────────────────────────────────────────────── */}
+          <div style={{
+            position:       "absolute",
+            bottom:         "clamp(52px,11vh,100px)",
+            left:           0,
+            right:          0,
+            textAlign:      "center",
+            pointerEvents:  "none",
+            padding:        "0 32px",
+          }}>
+            {/* Title — overflow hidden clips SplitText y-translate */}
+            <div style={{ overflow: "hidden" }}>
+              <h3
+                ref={titleEl}
+                style={{
+                  fontFamily:  "'Dancing Script', cursive",
+                  fontSize:    "clamp(34px, 9vw, 74px)",
+                  color:       "#fff",
+                  textShadow:  "0 2px 28px rgba(74,37,53,0.65)",
+                  lineHeight:  1,
+                  margin:      0,
+                }}
+              />
+            </div>
 
-        {/* ── Dot indicators ──────────────────────────────────────────────── */}
-        <div style={{
-          display: "flex", justifyContent: "center",
-          gap: 10, paddingTop: 28,
-        }}>
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              style={{
-                width: 7, height: 7,
-                borderRadius: "50%",
-                border: "none", padding: 0, cursor: "pointer",
-                background: i === current ? "rgba(255,220,230,0.90)" : "rgba(255,220,230,0.25)",
-                transform: i === current ? "scale(1.55)" : "scale(1)",
-                transition: "all 0.3s ease",
-              }}
-            />
-          ))}
-        </div>
+            {/* Description */}
+            <div style={{ overflow: "hidden", marginTop: 8 }}>
+              <p
+                ref={descEl}
+                style={{
+                  color:       "rgba(255,220,230,0.68)",
+                  fontFamily:  "'Dancing Script', cursive",
+                  fontSize:    "clamp(13px, 3.5vw, 18px)",
+                  fontStyle:   "italic",
+                  lineHeight:  1.55,
+                  margin:      0,
+                }}
+              />
+            </div>
+          </div>
 
-        {/* Swipe hint — fades out after first interaction */}
-        <p style={{
-          textAlign: "center", marginTop: 14,
-          color: "rgba(255,220,230,0.28)",
-          fontSize: 10, letterSpacing: "0.22em",
-          textTransform: "uppercase",
-          fontFamily: "'Cormorant Garamond', serif",
-          pointerEvents: "none",
-        }}>
-          swipe · drag
-        </p>
-      </div>
-    </section>
+          {/* ── Dot indicators ───────────────────────────────────────────────── */}
+          <div style={{
+            position:        "absolute",
+            bottom:          "clamp(18px, 3.2vh, 32px)",
+            left:            0,
+            right:           0,
+            display:         "flex",
+            justifyContent:  "center",
+            gap:             10,
+          }}>
+            {slides.map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width:        7,
+                  height:       7,
+                  borderRadius: "50%",
+                  background:   i === dotActive ? "rgba(255,220,230,0.90)" : "rgba(255,220,230,0.24)",
+                  transform:    i === dotActive ? "scale(1.55)" : "scale(1)",
+                  transition:   "background 0.3s ease, transform 0.3s ease",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Scroll hint */}
+          <div style={{
+            position:       "absolute",
+            bottom:         "clamp(18px, 3.2vh, 32px)",
+            right:          "clamp(20px, 5vw, 44px)",
+            color:          "rgba(255,220,230,0.26)",
+            fontSize:       10,
+            letterSpacing:  "0.24em",
+            textTransform:  "uppercase",
+            fontFamily:     "'Cormorant Garamond', serif",
+            pointerEvents:  "none",
+          }}>
+            scroll ↓
+          </div>
+
+        </div>
+      </section>
+    </>
   );
 }
