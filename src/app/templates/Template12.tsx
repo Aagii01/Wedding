@@ -306,6 +306,22 @@ const FALLBACK_PHOTOS = [
   "https://images.unsplash.com/photo-1529636798458-92182e662485?w=700&q=80",
 ];
 
+function MobileParallaxPhoto({ src, amount = 30, grayscale, style }: {
+  src: string; amount?: number; grayscale?: boolean; style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y     = useTransform(scrollYProgress, [0, 1], [amount, -amount]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.96, 1, 0.96]);
+  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.85, 1], [0, 1, 1, 0.8]);
+  return (
+    <motion.div ref={ref} style={{ ...style, y, scale, opacity }}>
+      <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover",
+        ...(grayscale ? { filter: "grayscale(1) contrast(1.05)" } : {}) }} />
+    </motion.div>
+  );
+}
+
 function T12PhotoCollage({ photos }: { photos: string[] }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
@@ -357,44 +373,23 @@ function T12PhotoCollage({ photos }: { photos: string[] }) {
         </div>
       </section>
 
-      {/* ── Mobile: staggered grid ── */}
+      {/* ── Mobile: parallax grid ── */}
       <section className="md:hidden" style={{ background: CREAM, padding: "48px 20px 64px" }}>
-        {/* Hero photo - full width */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          style={{ borderRadius: 20, overflow: "hidden", aspectRatio: "4/5", marginBottom: 16, ...POLAROID }}
-        >
-          <img src={heroSrc} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        </motion.div>
-
-        {/* Side photos - 2 column grid */}
+        <MobileParallaxPhoto src={heroSrc} amount={45} style={{ borderRadius: 20, overflow: "hidden", aspectRatio: "4/5", marginBottom: 16, ...POLAROID }} />
         {sideImgs.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {sideImgs.map((src, i) => (
-              <motion.div
+              <MobileParallaxPhoto
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-30px" }}
-                transition={{ duration: 0.6, delay: i * 0.1, ease: "easeOut" }}
+                src={src}
+                amount={[30, 50, 20, 40][i]}
+                grayscale={i === 1}
                 style={{
-                  borderRadius: 16, overflow: "hidden",
-                  aspectRatio: i % 2 === 0 ? "4/5" : "4/5",
+                  borderRadius: 16, overflow: "hidden", aspectRatio: "4/5",
                   rotate: `${i % 2 === 0 ? -1.5 : 1.5}deg`,
                   ...POLAROID,
                 }}
-              >
-                <img
-                  src={src} alt=""
-                  style={{
-                    width: "100%", height: "100%", objectFit: "cover",
-                    ...(i === 1 ? { filter: "grayscale(1) contrast(1.05)" } : {}),
-                  }}
-                />
-              </motion.div>
+              />
             ))}
           </div>
         )}
@@ -403,7 +398,8 @@ function T12PhotoCollage({ photos }: { photos: string[] }) {
   );
 }
 
-// ─── Our Story ───────────────────────────────────────────────────────────────
+// ─── REMOVED: Our Story section ──────────────────────────────────────────────
+// ─── Countdown ───────────────────────────────────────────────────────────────
 const STORY_FALLBACKS = [
   "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80",
   "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=600&q=80",
@@ -478,12 +474,6 @@ const DEFAULT_CHAPTERS = [
     body: "Нэгэн өдөр, нэгэн газар, нэгэн мөчид хоёр зам огтлолцов. Тэр агшнаас хойш ямар ч тусдаа зам байгаагүй.",
     captions: ["Анхны уулзалт", "Тэр өдөр", "Эхлэл"],
   },
-  {
-    num: "хоёр",
-    title: "Хайрт болсон нь",
-    body: "Удаан оройнууд хурдан хувирав. Хамтдаа өнгөрүүлсэн цаг бүр зүрхэнд мөнхөд үлдэх болов.",
-    captions: ["Аялал", "Өглөөний гэрэл", "Хамт"],
-  },
 ];
 
 // Photo stagger entry ranges (0-1 of scrollYProgress)
@@ -552,21 +542,6 @@ function StoryChapter({
       transition={{ duration: 0.7, ease: "easeOut" }}
       style={{ direction: "ltr", textAlign: center ? "center" : "left" }}
     >
-      <div style={{
-        fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
-        fontSize: center ? "clamp(2.8rem,12vw,5rem)" : "clamp(3rem,7vw,6rem)",
-        lineHeight: 1, marginBottom: 8,
-        color: `color-mix(in srgb, ${ACCENT} 55%, ${CREAM})`,
-      }}>
-        {num}
-      </div>
-      <h3 style={{
-        fontFamily: "'Cormorant Garamond', serif", fontWeight: 700,
-        fontSize: center ? "clamp(1.1rem,4.5vw,1.5rem)" : "clamp(1.3rem,2.5vw,1.9rem)",
-        color: INK, margin: "0 0 14px",
-      }}>
-        {title}
-      </h3>
       <p style={{
         color: `${INK}bb`, lineHeight: 1.75,
         fontSize: center ? 14 : 15,
@@ -578,19 +553,14 @@ function StoryChapter({
     </motion.div>
   );
 
-  /* ── MOBILE: text блок + HorizontalCarousel ── */
+  /* ── MOBILE: HorizontalCarousel only ── */
   if (isMobile) {
     return (
-      <>
-        <div style={{ background: CREAM, padding: "clamp(40px,10vw,64px) 24px 32px" }}>
-          {textBlock(true)}
-        </div>
-        <HorizontalCarousel
-          slides={mobileSlides}
-          heading={title}
-          subLabel={num}
-        />
-      </>
+      <HorizontalCarousel
+        slides={mobileSlides}
+        heading={title}
+        subLabel={num}
+      />
     );
   }
 
@@ -603,15 +573,8 @@ function StoryChapter({
         display: "flex", alignItems: "center", justifyContent: "center",
         zIndex: 1,
       }}>
-        <div style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          gap: "clamp(24px,5vw,72px)", alignItems: "center",
-          maxWidth: 1000, width: "100%",
-          padding: "0 clamp(20px,4vw,48px)",
-          direction: reverse ? "rtl" : "ltr",
-        }}>
-          {textBlock(false)}
-          <div style={{ direction: "ltr", position: "relative", height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", maxWidth: 1000, width: "100%", padding: "0 clamp(20px,4vw,48px)" }}>
+          <div style={{ position: "relative", height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
             {srcs.map((src, i) => (
               <ScrollPhoto
                 key={i}
@@ -1228,7 +1191,6 @@ export default function Template12({ event }: { event: EventData }) {
 
   return (
     <div style={{ background: CREAM, minHeight: "100vh" }}>
-      <T12Navbar mono={mono} names={names} />
       <T12Hero names={names} date={event.date} venue={event.venue_name} heroImage={event.main_image} />
       <T12InvitationText names={names} />
       <T12PhotoCollage photos={allPhotos} />

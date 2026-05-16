@@ -128,7 +128,10 @@ function WaxSeal({ i1 = "V", i2 = "P" }: { i1?: string; i2?: string }) {
 // ─── Envelope ─────────────────────────────────────────────────────────────────
 type EnvPhase = "idle" | "opening" | "flying" | "done";
 
-function EnvelopeOverlay({ onOpen, event }: { onOpen: () => void; event: EventData }) {
+function EnvelopeOverlay({ onOpen, event, audioRef }: {
+  onOpen: () => void; event: EventData;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
+}) {
   const [phase, setPhase] = useState<EnvPhase>("idle");
   const i1 = (event.person1_name || "V")[0].toUpperCase();
   const i2 = (event.person2_name || "P")[0].toUpperCase();
@@ -136,12 +139,11 @@ function EnvelopeOverlay({ onOpen, event }: { onOpen: () => void; event: EventDa
   const handleClick = useCallback(() => {
     if (phase !== "idle") return;
     setPhase("opening");
+    // Browser autoplay зөвшөөрдөг — user gesture дотор шууд тоглуулна
+    audioRef.current?.play().catch(() => {});
     setTimeout(() => setPhase("flying"), 900);
-    setTimeout(() => {
-      setPhase("done");
-      onOpen();
-    }, 2500);
-  }, [phase, onOpen]);
+    setTimeout(() => { setPhase("done"); onOpen(); }, 2500);
+  }, [phase, onOpen, audioRef]);
 
   if (phase === "done") return null;
 
@@ -327,20 +329,28 @@ function EnvelopeOverlay({ onOpen, event }: { onOpen: () => void; event: EventDa
 }
 
 // ─── Music player ─────────────────────────────────────────────────────────────
-function MusicPlayer({ src }: { src?: string }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
+function MusicPlayer({ src, audioRef }: { src?: string; audioRef: React.RefObject<HTMLAudioElement | null> }) {
   const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const onPlay  = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    a.addEventListener("play",  onPlay);
+    a.addEventListener("pause", onPause);
+    return () => { a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
+  }, [audioRef]);
 
   const toggle = () => {
     const a = audioRef.current;
     if (!a) return;
-    if (a.paused) { a.play(); setPlaying(true); }
-    else { a.pause(); setPlaying(false); }
+    if (a.paused) a.play().catch(() => {}); else a.pause();
   };
 
   return (
     <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000 }}>
-      <audio ref={audioRef} loop src={src ?? ""} preload="none" />
+      <audio ref={audioRef} loop src={src ?? ""} preload="auto" />
       <button
         onClick={toggle}
         style={{
@@ -1213,8 +1223,11 @@ function T13Footer({ event }: { event: EventData }) {
 }
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
+const MUSIC_SRC = ""; // ← дууны mp3 URL энд оруулна
+
 export default function Template13({ event }: { event: EventData }) {
   const [envelopeDone, setEnvelopeDone] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const id = setTimeout(() => setEnvelopeDone(true), 5000);
@@ -1223,7 +1236,7 @@ export default function Template13({ event }: { event: EventData }) {
 
   return (
     <div style={{ maxWidth: 523, margin: "0 auto", fontFamily: "'Ovo', serif", overflowX: "hidden" }}>
-      <EnvelopeOverlay onOpen={() => setEnvelopeDone(true)} event={event} />
+      <EnvelopeOverlay onOpen={() => setEnvelopeDone(true)} event={event} audioRef={audioRef} />
 
       <AnimatePresence>
         {envelopeDone && (
@@ -1246,7 +1259,7 @@ export default function Template13({ event }: { event: EventData }) {
         )}
       </AnimatePresence>
 
-      <MusicPlayer />
+      <MusicPlayer src={MUSIC_SRC} audioRef={audioRef} />
       <Toaster />
     </div>
   );

@@ -172,23 +172,6 @@ export function HorizontalCarousel({
   return (
     <>
       {/* ── Non-sticky header (scrolls away before sticky kicks in) ─────────── */}
-      <div style={{ background: "#fff6f8", padding: "52px 16px 44px", textAlign: "center" }}>
-        <p style={{
-          color: "#c08090", fontSize: 10, letterSpacing: "0.3em",
-          textTransform: "uppercase", margin: "0 0 10px",
-          fontFamily: "'Cormorant Garamond', serif",
-        }}>
-          {subLabel}
-        </p>
-        <h2 style={{
-          fontFamily: "'Dancing Script', cursive",
-          color: "#7a4a5a",
-          fontSize: "clamp(26px, 6vw, 44px)",
-          margin: 0, lineHeight: 1.2,
-        }}>
-          {heading}
-        </h2>
-      </div>
 
       {/* ── Sticky scroll section ────────────────────────────────────────────── */}
       {/* Height = slides.length × 100vh: user must scroll through all slides   */}
@@ -201,16 +184,16 @@ export function HorizontalCarousel({
           top: 0,
           height: "100vh",
           overflow: "hidden",
-          background: "linear-gradient(155deg, #2a0f1a 0%, #1a0a10 55%, #0d0508 100%)",
+          background: "linear-gradient(155deg, #131d2e 0%, #0d1520 55%, #080e17 100%)",
         }}>
 
           {/* ── Progress bar — top edge ───────────────────────────────────────── */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "rgba(255,220,230,0.10)", zIndex: 10 }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "rgba(210,225,245,0.10)", zIndex: 10 }}>
             <div
               ref={progressBarEl}
               style={{
                 height: "100%", width: "0%",
-                background: "linear-gradient(90deg, rgba(255,180,210,0.6), rgba(255,220,230,0.85))",
+                background: "linear-gradient(90deg, rgba(100,150,220,0.6), rgba(190,215,245,0.85))",
               }}
             />
           </div>
@@ -220,7 +203,7 @@ export function HorizontalCarousel({
             <span
               ref={subEl}
               style={{
-                color: "rgba(255,220,230,0.40)", fontSize: 10,
+                color: "rgba(210,225,245,0.40)", fontSize: 10,
                 letterSpacing: "0.38em", textTransform: "uppercase",
                 fontFamily: "'Cormorant Garamond', serif",
               }}
@@ -232,7 +215,7 @@ export function HorizontalCarousel({
             <span
               ref={idxEl}
               style={{
-                color: "rgba(255,220,230,0.20)",
+                color: "rgba(210,225,245,0.20)",
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: "clamp(38px,9vw,68px)",
                 fontWeight: 300, lineHeight: 1,
@@ -262,7 +245,7 @@ export function HorizontalCarousel({
                 maxHeight:    "clamp(270px, 54vh, 430px)",
                 borderRadius: 16,
                 overflow:     "hidden",
-                boxShadow:    "0 28px 80px rgba(74,37,53,0.65)",
+                boxShadow:    "0 28px 80px rgba(29,40,57,0.65)",
               }}>
                 <img
                   src={slide.src}
@@ -292,7 +275,7 @@ export function HorizontalCarousel({
                   fontFamily:  "'Dancing Script', cursive",
                   fontSize:    "clamp(34px, 9vw, 74px)",
                   color:       "#fff",
-                  textShadow:  "0 2px 28px rgba(74,37,53,0.65)",
+                  textShadow:  "0 2px 28px rgba(29,40,57,0.65)",
                   lineHeight:  1,
                   margin:      0,
                 }}
@@ -304,7 +287,7 @@ export function HorizontalCarousel({
               <p
                 ref={descEl}
                 style={{
-                  color:       "rgba(255,220,230,0.68)",
+                  color:       "rgba(210,225,245,0.68)",
                   fontFamily:  "'Dancing Script', cursive",
                   fontSize:    "clamp(13px, 3.5vw, 18px)",
                   fontStyle:   "italic",
@@ -330,7 +313,7 @@ export function HorizontalCarousel({
             <span
               ref={counterEl}
               style={{
-                color:         "rgba(255,220,230,0.35)",
+                color:         "rgba(210,225,245,0.35)",
                 fontFamily:    "'Cormorant Garamond', serif",
                 fontSize:      11,
                 letterSpacing: "0.18em",
@@ -348,7 +331,7 @@ export function HorizontalCarousel({
                     width:        i === dotActive ? 20 : 7,
                     height:       7,
                     borderRadius: 4,
-                    background:   i === dotActive ? "rgba(255,220,230,0.85)" : "rgba(255,220,230,0.22)",
+                    background:   i === dotActive ? "rgba(210,225,245,0.85)" : "rgba(210,225,245,0.22)",
                     transition:   "width 0.35s ease, background 0.35s ease",
                   }}
                 />
@@ -359,7 +342,7 @@ export function HorizontalCarousel({
             <div
               ref={hintEl}
               style={{
-                color:         "rgba(255,220,230,0.30)",
+                color:         "rgba(210,225,245,0.30)",
                 fontSize:      10,
                 letterSpacing: "0.24em",
                 textTransform: "uppercase",
