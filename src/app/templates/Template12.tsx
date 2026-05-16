@@ -25,7 +25,7 @@ function initials(p1: string, p2?: string) {
 function formatDate(iso: string) {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return `${d.getFullYear()} оны ${d.getMonth() + 1}-р сарын ${d.getDate()}`;
 }
 
 // ─── Reveal ─────────────────────────────────────────────────────────────────
@@ -69,9 +69,9 @@ function T12Navbar({ mono, names }: { mono: string; names: string }) {
   }, []);
 
   const links: [string, string][] = [
-    ["Venue", "#venue"],
-    ["Countdown", "#countdown"],
-    ["RSVP", "#rsvp"],
+    ["Болох газар", "#venue"],
+    ["Тоолол", "#countdown"],
+    ["Бүртгэл", "#rsvp"],
   ];
 
   return (
@@ -123,7 +123,7 @@ function T12Navbar({ mono, names }: { mono: string; names: string }) {
               textDecoration: "none",
             }}
           >
-            RSVP
+            Бүртгэл
           </a>
           <button
             aria-label="Open menu"
@@ -196,7 +196,7 @@ function T12Navbar({ mono, names }: { mono: string; names: string }) {
 // ─── Hero ────────────────────────────────────────────────────────────────────
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1519741497674-611481863552?w=2400&q=80";
 
-function T12Hero({ names, date, venue, heroImage }: { names: string; date: string; venue: string; heroImage?: string }) {
+function T12Hero({ names, date, heroImage }: { names: string; date: string; heroImage?: string }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollY } = useScroll();
   const yBg = useTransform(scrollY, [0, 800], [0, 160]);
@@ -223,7 +223,7 @@ function T12Hero({ names, date, venue, heroImage }: { names: string; date: strin
           style={{ textAlign: "center" }}
         >
           <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.4em", marginBottom: 24 }}>
-            {formatDate(date)} · {venue}
+            {formatDate(date)}
           </div>
           <h1
             style={{
@@ -259,44 +259,7 @@ function T12Hero({ names, date, venue, heroImage }: { names: string; date: strin
   );
 }
 
-// ─── Invitation text ─────────────────────────────────────────────────────────
-function T12InvitationText({ names }: { names: string }) {
-  const words = "та бүхнийг хуримын ёслолд урьж байна".split(" ");
-  return (
-    <section style={{ background: CREAM, padding: "clamp(80px,12vw,176px) 24px" }}>
-      <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
-        <p
-          style={{
-            fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
-            color: INK, lineHeight: 1.15, fontSize: "clamp(1.8rem, 5vw, 3.5rem)", margin: 0,
-          }}
-        >
-          {words.map((w, i) => (
-            <motion.span
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.6, delay: i * 0.09, ease: "easeOut" }}
-              style={{ display: "inline-block", marginRight: "0.25em" }}
-            >
-              {w}
-            </motion.span>
-          ))}
-        </p>
-        <Reveal delay={words.length * 0.07 + 0.15}>
-          <div style={{
-            marginTop: 40,
-            fontFamily: "'Cormorant Garamond', serif",
-            color: INK, fontSize: "clamp(2.4rem, 5.5vw, 4.2rem)", fontWeight: 700, letterSpacing: "-0.01em",
-          }}>
-            {names}
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
+
 
 // ─── Photo collage ───────────────────────────────────────────────────────────
 const FALLBACK_PHOTOS = [
@@ -529,7 +492,7 @@ function StoryChapter({
           userSelect: "none",
         }}
       >
-        our story
+        манай түүх
       </div>
     </div>
   );
@@ -956,9 +919,84 @@ function T12Countdown({ date, title, venue }: { date: string; title: string; ven
         </Reveal>
         <Reveal delay={0.3}>
           <div style={{ marginTop: 32, fontSize: 12, textTransform: "uppercase", letterSpacing: "0.3em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})` }}>
-            {title} · {venue}
+            {title}
           </div>
         </Reveal>
+      </div>
+    </section>
+  );
+}
+
+// ─── Schedule ────────────────────────────────────────────────────────────────
+const SCHEDULE = [
+  { time: "15:30", label: "Хүлээн авалт",           desc: "Зочид морилно" },
+  { time: "16:00", label: "Тайзны урд зургийн цаг", desc: "Гэрэл зурагчидтай хамт" },
+  { time: "16:30", label: "Танхимд орох",            desc: "Хурмын танхимд тавтай морилно уу" },
+  { time: "17:00", label: "Ёслол эхлэх",             desc: "Гэрлэлтийн ёслолын ажиллагаа" },
+  { time: "18:30", label: "Орой хоол",               desc: "Хоол хүртэх, баяр хүргэх" },
+];
+
+function T12Schedule() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start center", "end center"] });
+  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  return (
+    <section style={{ background: CREAM, paddingBlock: "clamp(80px,12vw,140px)", paddingInline: 24 }}>
+      <div style={{ maxWidth: 520, margin: "0 auto" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          style={{ textAlign: "center", marginBottom: "clamp(48px,8vw,80px)" }}
+        >
+          <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.32em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})`, marginBottom: 12 }}>
+            Өдрийн цагийн хуваарь
+          </div>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "clamp(2rem,6vw,3.2rem)", color: INK, letterSpacing: "-0.01em" }}>
+            Хуримын хөтөлбөр
+          </div>
+        </motion.div>
+
+        <div ref={containerRef} style={{ position: "relative" }}>
+          {/* Scroll-driven vertical line */}
+          <div style={{ position: "absolute", left: 86, top: 6, bottom: 6, width: 1, background: `${INK}14` }} />
+          <motion.div style={{ position: "absolute", left: 86, top: 6, width: 1, height: lineHeight, background: `${INK}55`, originY: 0 }} />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "clamp(28px,5vw,40px)" }}>
+            {SCHEDULE.map(({ time, label, desc }, i) => (
+              <motion.div
+                key={time}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-20px" }}
+                transition={{ duration: 0.65, delay: i * 0.09, ease: [0.22, 1, 0.36, 1] }}
+                style={{ display: "flex", alignItems: "flex-start", gap: 24 }}
+              >
+                {/* Time */}
+                <div style={{ width: 70, flexShrink: 0, textAlign: "right", paddingTop: 2 }}>
+                  <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 15, color: `color-mix(in srgb, ${INK} 55%, ${CREAM})`, letterSpacing: "0.04em" }}>
+                    {time}
+                  </span>
+                </div>
+
+                {/* Diamond dot */}
+                <div style={{ flexShrink: 0, marginTop: 5, width: 9, height: 9, background: INK, transform: "rotate(45deg)", marginLeft: 7, marginRight: 7 }} />
+
+                {/* Content */}
+                <div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, fontSize: 17, color: INK, letterSpacing: "-0.01em" }}>
+                    {label}
+                  </div>
+                  <div style={{ fontSize: 12, color: `color-mix(in srgb, ${INK} 45%, ${CREAM})`, marginTop: 3, letterSpacing: "0.02em" }}>
+                    {desc}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -1024,7 +1062,7 @@ function T12Venue({ name, address, mapUrl, image }: { name: string; address: str
 function T12Quote() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 30%"] });
-  const text = "Хоёр зүрх нэгдэхэд дэлхий бүхэл бүтэн болно — энэ шөнийг хамт угтаж байгаа та бүхэнд талархал илэрхийлье.";
+  const text = "Хоёр сэтгэл нэгэн зүгт тэмүүлж, Хайрын гэгээн замд учирсан бид хоёр Хувь заяагаа холбон, Хуримын ариун ёслолоо тэмдэглэх гэж байна. Энэхүү аз жаргалт мөчийг Эрхэм таны хамт хуваалцахыг урьж байна.";
   const words = text.split(" ");
 
   return (
@@ -1166,7 +1204,7 @@ function T12Footer({ mono, names }: { mono: string; names: string }) {
         {names}
       </div>
       <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
-        One Wedding · Made with love
+        One Wedding · Хайраар бүтээсэн
       </div>
     </footer>
   );
@@ -1191,11 +1229,11 @@ export default function Template12({ event }: { event: EventData }) {
 
   return (
     <div style={{ background: CREAM, minHeight: "100vh" }}>
-      <T12Hero names={names} date={event.date} venue={event.venue_name} heroImage={event.main_image} />
-      <T12InvitationText names={names} />
-      <T12PhotoCollage photos={allPhotos} />
+      <T12Hero names={names} date={event.date} heroImage={event.main_image} />
+      {/* <T12PhotoCollage photos={allPhotos} /> */}
       <T12OurStory photos={allPhotos} />
       <T12Countdown date={event.date} title={event.title} venue={event.venue_name} />
+      <T12Schedule />
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T12Quote />
       <T12RSVP eventId={event.id} />
