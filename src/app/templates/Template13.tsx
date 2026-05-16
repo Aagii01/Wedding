@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
@@ -15,6 +15,37 @@ const ENVELOPE_BG = "#E8E3DC";
 const playfair  = { fontFamily: "'Playfair Display', serif" } as const;
 const playfairI = { fontFamily: "'Playfair Display', serif", fontStyle: "italic" } as const;
 const ovo       = { fontFamily: "'Ovo', serif" } as const;
+
+// Georgia-д & тэмдэг энгийн харагддаг тул тусад нь render хийнэ
+function Amp({ size }: { size?: number }) {
+  return (
+    <span style={{ fontFamily: "Georgia, serif", fontStyle: "normal", fontSize: size }}>
+      &amp;
+    </span>
+  );
+}
+
+// ─── Gallery quotes & fallbacks ───────────────────────────────────────────────
+const QUOTES = [
+  '"Чамайг хайрлах нь нарны туяа шиг — нуугдсан ч дулааныг нь мэднэ." —Монгол ардын',
+  '"Хоёр зүрх нэгдэхэд дэлхий бүхэл бүтэн болно." —Монгол ардын',
+  '"Хайрын утас зайн холоор тасардаггүй." —Монгол ардын',
+  '"Чиний инээмсэглэл бол миний өдрийн хамгийн сайхан мөч." —Монгол ардын',
+  '"Хайрласан хүнтэйгээ байхад цаг яарамгай өнгөрнө." —Монгол ардын',
+  '"Нүдний цэнхэр тэнгэрт чиний дүр харагдана." —Монгол ардын',
+  '"Хоёр хүний хайр бол хаврын анхны цэцэг шиг эмзэг ч хүчтэй." —Монгол ардын',
+  '"Чамтай байх агшин бүр зүрхэнд мөнхөд үлдэнэ." —Монгол ардын',
+];
+const FALLBACK_PHOTOS = [
+  "https://images.unsplash.com/photo-1519741497674-611481863552?w=800",
+  "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800",
+  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800",
+  "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800",
+  "https://images.unsplash.com/photo-1529636798458-92182e662485?w=800",
+  "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800",
+  "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800",
+  "https://images.unsplash.com/photo-1761211488173-a7154314420a?w=800",
+];
 
 // ─── Wavy divider ─────────────────────────────────────────────────────────────
 function WavyBottom({ fill = BURGUNDY }: { fill?: string }) {
@@ -87,7 +118,7 @@ function WaxSeal({ i1 = "V", i2 = "P" }: { i1?: string; i2?: string }) {
       <text x="60" y="55" textAnchor="middle" fill="#F5E6D8" fontSize="18"
         fontFamily="Playfair Display, serif" fontStyle="italic">{i1}</text>
       <text x="60" y="70" textAnchor="middle" fill="#F5E6D8" fontSize="11"
-        fontFamily="Playfair Display, serif">&amp;</text>
+        fontFamily="Georgia, serif">&amp;</text>
       <text x="60" y="84" textAnchor="middle" fill="#F5E6D8" fontSize="18"
         fontFamily="Playfair Display, serif" fontStyle="italic">{i2}</text>
     </svg>
@@ -218,7 +249,7 @@ function EnvelopeOverlay({ onOpen, event }: { onOpen: () => void; event: EventDa
             УРИЛГА
           </div>
           <div style={{ ...playfairI, fontSize: 22, color: BURGUNDY }}>
-            {i1} &amp; {i2}
+            {i1} <Amp /> {i2}
           </div>
           <div style={{ width: 36, height: 1, background: BURGUNDY, opacity: 0.25 }} />
           <div style={{ ...ovo, fontSize: 10, color: INK, opacity: 0.55, letterSpacing: "0.08em", textAlign: "center", padding: "0 12px" }}>
@@ -410,13 +441,152 @@ function T13Hero({ event }: { event: EventData }) {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3.45, ease: "easeOut" }}
           style={{ color: "white", ...playfairI, fontSize: 44, lineHeight: 1.2 }}>
-          &amp;
+          <Amp size={44} />
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3.6, ease: "easeOut" }}
           style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1 }}>
           {name2}
         </motion.div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Gallery card ─────────────────────────────────────────────────────────────
+function GalleryCard({ src, quote, size }: {
+  src: string; quote: string; size: "large" | "small" | "tiny";
+}) {
+  const dims = {
+    large: { width: 210, height: 360 },
+    small: { width: 148, height: 260 },
+    tiny:  { width: 100, height: 195 },
+  }[size];
+
+  return (
+    <div style={{
+      width: dims.width, height: dims.height,
+      borderRadius: 18,
+      overflow: "hidden",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.22)",
+      border: `3px solid rgba(102,2,31,0.35)`,
+      position: "relative",
+      flexShrink: 0,
+    }}>
+      <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        padding: size === "large" ? "14px 12px" : "8px 8px",
+        background: "linear-gradient(to top, rgba(0,0,0,0.72), transparent)",
+      }}>
+        <p style={{
+          ...playfairI,
+          fontSize: size === "large" ? 11 : 9,
+          color: "white", lineHeight: 1.55, margin: 0,
+        }}>
+          {quote}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Gallery carousel ─────────────────────────────────────────────────────────
+function T13Gallery({ event }: { event: EventData }) {
+  const [current, setCurrent] = useState(0);
+
+  const slides = QUOTES.map((quote, i) => ({
+    src: event.gallery2_photos?.[i] || FALLBACK_PHOTOS[i],
+    quote,
+  }));
+
+  const prev  = (current - 1 + slides.length) % slides.length;
+  const prev2 = (current - 2 + slides.length) % slides.length;
+  const next  = (current + 1) % slides.length;
+  const next2 = (current + 2) % slides.length;
+
+  return (
+    <div style={{ background: CREAM, paddingTop: 60, paddingBottom: 44, overflow: "hidden" }}>
+      <FadeUp>
+        <div style={{ textAlign: "center", marginBottom: 44, padding: "0 24px" }}>
+          <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10 }}>
+            Бидний хайрын түүх
+          </div>
+          {event.person2_name && (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <span style={{ ...playfair, fontSize: 15, color: INK }}>{event.person1_name}</span>
+              <span style={{ color: "#F87171", fontSize: 14 }}>♥</span>
+              <span style={{ ...playfair, fontSize: 15, color: INK }}>{event.person2_name}</span>
+            </div>
+          )}
+        </div>
+      </FadeUp>
+
+      {/* 5-card fan carousel */}
+      <motion.div
+        style={{
+          position: "relative",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          height: 400,
+          cursor: "grab",
+          touchAction: "none",
+          userSelect: "none",
+        }}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.15}
+        onDragEnd={(_, info) => {
+          if (info.offset.x < -60 || info.velocity.x < -400) setCurrent(next);
+          else if (info.offset.x > 60 || info.velocity.x > 400) setCurrent(prev);
+        }}
+      >
+        {/* Far left */}
+        <div style={{ position: "absolute", transform: "translateX(-310px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
+          <GalleryCard src={slides[prev2].src} quote={slides[prev2].quote} size="tiny" />
+        </div>
+        {/* Left */}
+        <div style={{ position: "absolute", transform: "translateX(-188px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
+          <GalleryCard src={slides[prev].src} quote={slides[prev].quote} size="small" />
+        </div>
+        {/* Center */}
+        <div style={{ position: "absolute", zIndex: 10, pointerEvents: "none" }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <GalleryCard src={slides[current].src} quote={slides[current].quote} size="large" />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        {/* Right */}
+        <div style={{ position: "absolute", transform: "translateX(188px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
+          <GalleryCard src={slides[next].src} quote={slides[next].quote} size="small" />
+        </div>
+        {/* Far right */}
+        <div style={{ position: "absolute", transform: "translateX(310px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
+          <GalleryCard src={slides[next2].src} quote={slides[next2].quote} size="tiny" />
+        </div>
+      </motion.div>
+
+      {/* Dots */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 28 }}>
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            style={{
+              height: 8, borderRadius: 4, border: "none", cursor: "pointer",
+              background: i === current ? BURGUNDY : "rgba(102,2,31,0.22)",
+              width: i === current ? 24 : 8,
+              transition: "all 0.4s",
+              padding: 0,
+            }}
+          />
+        ))}
       </div>
     </div>
   );
@@ -479,7 +649,7 @@ function T13Countdown({ event }: { event: EventData }) {
     <div style={{ background: CREAM, padding: "56px 24px", textAlign: "center" }}>
       <FadeUp>
         <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10 }}>
-          Хуримд хүртэл
+          Хурим хүртэл
         </div>
         <div style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.5, letterSpacing: "0.15em", marginBottom: 36 }}>
           ───── ✦ ─────
@@ -516,9 +686,16 @@ function T13Schedule({ event }: { event: EventData }) {
   const items = [
     { time: fmt(hh, mm),         label: "Хурим ёслол" },
     { time: fmt(hh + 1, mm),     label: "Баяр ёслол" },
-    { time: fmt(hh + 3, mm),     label: "Оройн зоог", flower: true },
+    { time: fmt(hh + 3, mm),     label: "Оройн зоог"  },
     { time: fmt(hh + 4, mm),     label: "Баяр цэнгэл" },
   ];
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"],
+  });
+  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   return (
     <div style={{ background: BURGUNDY }}>
@@ -529,13 +706,21 @@ function T13Schedule({ event }: { event: EventData }) {
             Цагийн хуваарь
           </div>
         </FadeUp>
-        <div style={{ position: "relative", display: "inline-block", textAlign: "left" }}>
+        <div ref={containerRef} style={{ position: "relative", display: "inline-block", textAlign: "left" }}>
+          {/* Scroll-driven vertical line — centered on diamond (70+20+5=95px) */}
           <div style={{
             position: "absolute",
-            left: "50%", top: 0, bottom: 0,
-            width: 2, background: "rgba(255,255,255,0.3)",
-            transform: "translateX(-50%)",
-          }} />
+            left: 94, top: 0, bottom: 0,
+            width: 2,
+            overflow: "hidden",
+          }}>
+            <motion.div style={{
+              width: "100%",
+              height: lineHeight,
+              background: "rgba(255,255,255,0.35)",
+            }} />
+          </div>
+
           {items.map((item, i) => (
             <FadeUp key={i} delay={i * 0.15}>
               <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 28, position: "relative" }}>
@@ -549,10 +734,7 @@ function T13Schedule({ event }: { event: EventData }) {
                   flexShrink: 0,
                   position: "relative", zIndex: 1,
                 }} />
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ ...ovo, fontSize: 18, color: CREAM }}>{item.label}</div>
-                  {item.flower && <PeonySVG size={44} color="#E8A0BF" />}
-                </div>
+                <div style={{ ...ovo, fontSize: 18, color: CREAM }}>{item.label}</div>
               </div>
             </FadeUp>
           ))}
@@ -655,7 +837,7 @@ function T13DressCode() {
           </p>
         </FadeUp>
 
-        <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -664,14 +846,14 @@ function T13DressCode() {
             style={{
               background: "rgba(255,255,255,0.08)",
               border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: 8, padding: "24px 20px",
-              maxWidth: 200, textAlign: "center",
+              borderRadius: 8, padding: "20px 14px",
+              flex: 1, textAlign: "center",
             }}
           >
             <div style={{ marginBottom: 12 }}>
-              <PeonySVG size={60} color="#D4B0A0" />
+              <PeonySVG size={56} color="#D4B0A0" />
             </div>
-            <p style={{ ...ovo, fontSize: 14, color: CREAM, lineHeight: 1.65 }}>
+            <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
               <strong>Эрэгтэйчүүд:</strong> Нарийн тохируулсан костюм, ёслолын гутал.
             </p>
           </motion.div>
@@ -684,14 +866,14 @@ function T13DressCode() {
             style={{
               background: "rgba(255,255,255,0.08)",
               border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: 8, padding: "24px 20px",
-              maxWidth: 200, textAlign: "center",
+              borderRadius: 8, padding: "20px 14px",
+              flex: 1, textAlign: "center",
             }}
           >
             <div style={{ marginBottom: 12 }}>
-              <PeonySVG size={60} color="#E8A0BF" />
+              <PeonySVG size={56} color="#E8A0BF" />
             </div>
-            <p style={{ ...ovo, fontSize: 14, color: CREAM, lineHeight: 1.65 }}>
+            <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
               <strong>Эмэгтэйчүүд:</strong> Тансаг хувцас, гоёмсог загвар урьтал болгоно.
             </p>
           </motion.div>
@@ -702,42 +884,110 @@ function T13DressCode() {
   );
 }
 
-// ─── Details ──────────────────────────────────────────────────────────────────
-function T13Details({ event }: { event: EventData }) {
-  const contact = event.person1_name || "";
-  const phone   = event.person1_instagram || "";
+// ─── Wishes ───────────────────────────────────────────────────────────────────
+function T13Wishes({ eventId }: { eventId: string }) {
+  const [name, setName]       = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent]       = useState(false);
+
+  const submit = async () => {
+    if (!name.trim() || !message.trim()) return;
+    setSending(true);
+    const { error } = await supabase.from("wishes").insert({
+      event_id: eventId,
+      name: name.trim(),
+      message: message.trim(),
+    });
+    setSending(false);
+    if (error) { toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
+    setSent(true);
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "12px 14px",
+    border: `1px solid rgba(102,2,31,0.22)`,
+    borderRadius: 8,
+    ...ovo, fontSize: 15, color: INK,
+    background: "white",
+    boxSizing: "border-box",
+    outline: "none",
+  };
 
   return (
-    <div style={{ background: CREAM, padding: "56px 32px 64px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", top: -30, right: -20, opacity: 0.1, pointerEvents: "none" }}>
-        <PeonySVG size={240} color={BURGUNDY} />
+    <div style={{ background: CREAM, padding: "56px 32px 64px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: -30, right: -20, opacity: 0.08, pointerEvents: "none" }}>
+        <PeonySVG size={220} color={BURGUNDY} />
       </div>
-      <div style={{ position: "absolute", bottom: -40, left: -20, opacity: 0.08, pointerEvents: "none" }}>
-        <PeonySVG size={200} color={BURGUNDY} />
+      <div style={{ position: "absolute", bottom: -40, left: -20, opacity: 0.07, pointerEvents: "none" }}>
+        <PeonySVG size={190} color={BURGUNDY} />
       </div>
 
       <FadeUp>
-        <div style={{ ...playfairI, fontSize: 34, color: BURGUNDY, marginBottom: 28 }}>
-          Холбоо барих
+        <div style={{ ...playfairI, fontSize: 34, color: BURGUNDY, marginBottom: 8, textAlign: "center" }}>
+          Мэндчилгээ
         </div>
-        <p style={{ ...ovo, fontSize: 16, color: INK, lineHeight: 1.8, marginBottom: 16 }}>
-          Нэмэлт мэдээлэл авах эсвэл асуух зүйл байвал<br />
-          хурмын зохион байгуулагчтай холбогдоно уу.
+        <p style={{ ...ovo, fontSize: 14, color: INK, opacity: 0.6, textAlign: "center", marginBottom: 32 }}>
+          Баяр хүргэх үгээ үлдээнэ үү
         </p>
-        {contact && (
-          <p style={{ ...playfair, fontSize: 18, color: BURGUNDY, fontWeight: 600, marginBottom: 4 }}>
-            {contact}
-          </p>
+
+        {sent ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ textAlign: "center", padding: "28px 0" }}
+          >
+            <div style={{ ...playfairI, fontSize: 26, color: BURGUNDY, marginBottom: 10 }}>
+              Баярлалаа!
+            </div>
+            <p style={{ ...ovo, fontSize: 15, color: INK, opacity: 0.75, lineHeight: 1.7 }}>
+              Таны мэндчилгээг хүлээн авлаа.
+            </p>
+          </motion.div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <label style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.65, display: "block", marginBottom: 6 }}>
+                Нэр
+              </label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Нэрээ бичнэ үү"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.65, display: "block", marginBottom: 6 }}>
+                Мэндчилгээний үг
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Мэндчилгээ бичнэ үү..."
+                rows={5}
+                style={{ ...inputStyle, resize: "none", lineHeight: 1.65 }}
+              />
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={submit}
+              disabled={sending || !name.trim() || !message.trim()}
+              style={{
+                width: "100%", padding: "13px",
+                background: BURGUNDY, color: "white",
+                border: "none", borderRadius: 8,
+                ...ovo, fontSize: 16, fontWeight: 600,
+                cursor: sending ? "wait" : "pointer",
+                opacity: (!name.trim() || !message.trim()) ? 0.5 : 1,
+                marginTop: 4,
+              }}
+            >
+              {sending ? "Илгээж байна..." : "Илгээх"}
+            </motion.button>
+          </div>
         )}
-        {phone && (
-          <p style={{ ...ovo, fontSize: 15, color: INK, marginBottom: 28 }}>
-            {phone}
-          </p>
-        )}
-        <p style={{ ...ovo, fontSize: 15, color: INK, lineHeight: 1.8, maxWidth: 380, margin: "0 auto", opacity: 0.75 }}>
-          Таны ирэлт бидэнд хамгийн үнэтэй бэлэг юм. Гэсэн ч бэлэг дурсгал авчрахыг хүсвэл,
-          ирээдүйн амьдралд зориулсан хувь нэмэр нь бидэнд үнэтэй байх болно.
-        </p>
       </FadeUp>
     </div>
   );
@@ -814,7 +1064,7 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
           ) : (
             <>
               <div style={{ ...playfair, fontSize: 22, color: INK, textAlign: "center", marginBottom: 6 }}>
-                Ирэлтийн бүртгэл
+                Ирцээ бүртгүүлэх
               </div>
               <p style={{ ...ovo, fontSize: 14, color: INK, opacity: 0.6, textAlign: "center", marginBottom: 24 }}>
                 Хурмын өдрөөс өмнө бүртгэлээ хийнэ үү
@@ -897,10 +1147,10 @@ function T13RSVP({ eventId }: { eventId: string }) {
     <div style={{ background: BURGUNDY, padding: "60px 32px", textAlign: "center" }}>
       <FadeUp>
         <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 16 }}>
-          Ирэлтийн бүртгэл
+          Ирцээ бүртгүүлэх
         </div>
         <p style={{ ...ovo, fontSize: 17, color: "rgba(255,250,248,0.85)", maxWidth: 380, margin: "0 auto 36px", lineHeight: 1.75 }}>
-          Тантай хамт баярлахын тулд ирэлтийн мэдээллээ илгээнэ үү.
+          Тантай хамт баярлахын тулд ирцийн мэдээллээ илгээнэ үү.
         </p>
         <motion.button
           whileHover={{ scale: 1.05, boxShadow: "0 8px 24px rgba(0,0,0,0.25)" }}
@@ -936,9 +1186,9 @@ function T13Footer({ event }: { event: EventData }) {
             src={event.gallery_photos[0]}
             alt="couple"
             style={{
-              width: 200, height: 260,
+              width: "88%", maxWidth: 380, height: 320,
               objectFit: "cover",
-              borderRadius: 8,
+              borderRadius: 12,
               display: "block", margin: "0 auto 32px",
               boxShadow: "0 12px 40px rgba(0,0,0,0.35)",
               border: "4px solid rgba(255,250,248,0.25)",
@@ -951,7 +1201,7 @@ function T13Footer({ event }: { event: EventData }) {
           Тантай уулзахыг тэсэн ядан хүлээж байна!
         </div>
         <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
-          {name1} &amp; {name2}
+          {name1} <Amp /> {name2}
         </div>
       </FadeUp>
 
@@ -984,11 +1234,12 @@ export default function Template13({ event }: { event: EventData }) {
           >
             <T13Hero event={event} />
             <T13Letter event={event} />
+            <T13Gallery event={event} />
             <T13Countdown event={event} />
             <T13Schedule event={event} />
             <T13Location event={event} />
             <T13DressCode />
-            <T13Details event={event} />
+            <T13Wishes eventId={event.id} />
             <T13RSVP eventId={event.id} />
             <T13Footer event={event} />
           </motion.div>
