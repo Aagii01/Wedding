@@ -6,9 +6,9 @@ import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
 
 // ─── palette ─────────────────────────────────────────────────────────────────
-const BURGUNDY = "#66021F";
-const CREAM    = "#FFFAF8";
-const INK      = "#3A3A3A";
+const BURGUNDY    = "#66021F";
+const CREAM       = "#FFFAF8";
+const INK         = "#3A3A3A";
 const ENVELOPE_BG = "#E8E3DC";
 
 // ─── font helpers ─────────────────────────────────────────────────────────────
@@ -58,165 +58,239 @@ function FadeUp({ children, delay = 0, style = {} }: {
 function PeonySVG({ size = 120, color = "#E8A0BF" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Center */}
       <circle cx="60" cy="60" r="12" fill="#F5C2D4" />
-      {/* Petals layer 1 */}
       {[0,45,90,135,180,225,270,315].map((deg, i) => (
-        <ellipse
-          key={i}
-          cx="60" cy="60"
-          rx="10" ry="22"
-          fill={color}
-          opacity="0.85"
-          transform={`rotate(${deg} 60 60) translate(0 -20)`}
-        />
+        <ellipse key={i} cx="60" cy="60" rx="10" ry="22" fill={color} opacity="0.85"
+          transform={`rotate(${deg} 60 60) translate(0 -20)`} />
       ))}
-      {/* Petals layer 2 */}
       {[22,67,112,157,202,247,292,337].map((deg, i) => (
-        <ellipse
-          key={i}
-          cx="60" cy="60"
-          rx="8" ry="18"
-          fill={color}
-          opacity="0.6"
-          transform={`rotate(${deg} 60 60) translate(0 -26)`}
-        />
+        <ellipse key={i} cx="60" cy="60" rx="8" ry="18" fill={color} opacity="0.6"
+          transform={`rotate(${deg} 60 60) translate(0 -26)`} />
       ))}
-      {/* Stamens */}
       {[0,60,120,180,240,300].map((deg, i) => (
-        <circle
-          key={i}
+        <circle key={i}
           cx={60 + 8 * Math.cos((deg * Math.PI) / 180)}
           cy={60 + 8 * Math.sin((deg * Math.PI) / 180)}
-          r="2"
-          fill="#F9E0AC"
-        />
+          r="2" fill="#F9E0AC" />
       ))}
     </svg>
   );
 }
 
 // ─── Wax seal SVG ─────────────────────────────────────────────────────────────
-function WaxSeal() {
+function WaxSeal({ i1 = "V", i2 = "P" }: { i1?: string; i2?: string }) {
   return (
     <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
       <circle cx="60" cy="60" r="55" fill={BURGUNDY} />
       <circle cx="60" cy="60" r="50" fill="none" stroke="#C8A08A" strokeWidth="1.5" />
       <circle cx="60" cy="60" r="42" fill="none" stroke="#C8A08A" strokeWidth="0.8" strokeDasharray="4 3" />
-      {/* monogram V & P */}
-      <text x="60" y="55" textAnchor="middle" fill="#F5E6D8" fontSize="18" fontFamily="Playfair Display, serif" fontStyle="italic">V</text>
-      <text x="60" y="70" textAnchor="middle" fill="#F5E6D8" fontSize="11" fontFamily="Playfair Display, serif">&amp;</text>
-      <text x="60" y="84" textAnchor="middle" fill="#F5E6D8" fontSize="18" fontFamily="Playfair Display, serif" fontStyle="italic">P</text>
+      <text x="60" y="55" textAnchor="middle" fill="#F5E6D8" fontSize="18"
+        fontFamily="Playfair Display, serif" fontStyle="italic">{i1}</text>
+      <text x="60" y="70" textAnchor="middle" fill="#F5E6D8" fontSize="11"
+        fontFamily="Playfair Display, serif">&amp;</text>
+      <text x="60" y="84" textAnchor="middle" fill="#F5E6D8" fontSize="18"
+        fontFamily="Playfair Display, serif" fontStyle="italic">{i2}</text>
     </svg>
   );
 }
 
 // ─── Envelope ─────────────────────────────────────────────────────────────────
-function EnvelopeOverlay({ onOpen }: { onOpen: () => void }) {
-  const [clicked, setClicked] = useState(false);
-  const [hidden, setHidden] = useState(false);
+type EnvPhase = "idle" | "opening" | "flying" | "done";
+
+function EnvelopeOverlay({ onOpen, event }: { onOpen: () => void; event: EventData }) {
+  const [phase, setPhase] = useState<EnvPhase>("idle");
+  const i1 = (event.person1_name || "V")[0].toUpperCase();
+  const i2 = (event.person2_name || "P")[0].toUpperCase();
 
   const handleClick = useCallback(() => {
-    if (clicked) return;
-    setClicked(true);
-    setTimeout(() => setHidden(true), 4600);
-  }, [clicked]);
+    if (phase !== "idle") return;
+    setPhase("opening");
+    setTimeout(() => setPhase("flying"), 900);
+    setTimeout(() => {
+      setPhase("done");
+      onOpen();
+    }, 2500);
+  }, [phase, onOpen]);
 
-  if (hidden) return null;
+  if (phase === "done") return null;
+
+  const isOpen    = phase !== "idle";
+  const isFlying  = phase === "flying";
 
   return (
     <div
-      onClick={!clicked ? handleClick : undefined}
+      onClick={phase === "idle" ? handleClick : undefined}
       style={{
         position: "fixed", inset: 0,
         background: ENVELOPE_BG,
         zIndex: 9999,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        cursor: clicked ? "default" : "pointer",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        cursor: phase === "idle" ? "pointer" : "default",
         overflow: "hidden",
       }}
     >
-      {/* Envelope body */}
-      <div style={{ position: "relative", width: 320, height: 240 }}>
+      {/* Decorative peonies */}
+      <motion.div
+        animate={isFlying ? { opacity: 0, scale: 0 } : { opacity: 0.35 }}
+        transition={{ duration: 0.4 }}
+        style={{ position: "absolute", top: 24, right: 24, pointerEvents: "none" }}
+      >
+        <PeonySVG size={80} color="#C8A08A" />
+      </motion.div>
+      <motion.div
+        animate={isFlying ? { opacity: 0, scale: 0 } : { opacity: 0.35 }}
+        transition={{ duration: 0.4 }}
+        style={{ position: "absolute", bottom: 80, left: 16, pointerEvents: "none" }}
+      >
+        <PeonySVG size={70} color="#D4B0A0" />
+      </motion.div>
+
+      {/* Envelope wrapper fades + sinks when flying */}
+      <motion.div
+        animate={isFlying ? { opacity: 0, y: 24, scale: 0.92 } : { opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, delay: isFlying ? 0.55 : 0, ease: "easeIn" }}
+        style={{ position: "relative", width: 320, height: 240 }}
+      >
+        {/* Envelope back */}
+        <div style={{ position: "absolute", inset: 0, background: "#E0D9CF", zIndex: 0 }} />
+
         {/* Left flap */}
-        <div style={{
-          position: "absolute", top: 0, left: 0, width: "50%", height: "100%",
-          background: "#D4CCBF",
-          clipPath: "polygon(0 0, 100% 50%, 0 100%)",
-          transition: clicked ? "transform 2s ease 2.5s, opacity 0.5s ease 0.5s" : "none",
-          transform: clicked ? "translateX(-560px)" : "none",
-          opacity: clicked ? 0 : 1,
-        }} />
+        <motion.div
+          animate={isFlying ? { x: -580, opacity: 0 } : { x: 0, opacity: 1 }}
+          transition={{ duration: 0.75, ease: [0.4, 0, 1, 1] }}
+          style={{
+            position: "absolute", top: 0, left: 0, width: "50%", height: "100%",
+            background: "#D4CCBF",
+            clipPath: "polygon(0 0, 100% 50%, 0 100%)",
+            zIndex: 1,
+          }}
+        />
+
         {/* Right flap */}
-        <div style={{
-          position: "absolute", top: 0, right: 0, width: "50%", height: "100%",
-          background: "#CEC6BA",
-          clipPath: "polygon(100% 0, 0 50%, 100% 100%)",
-          transition: clicked ? "transform 2s ease 2.5s, opacity 0.5s ease 0.5s" : "none",
-          transform: clicked ? "translateX(560px)" : "none",
-          opacity: clicked ? 0 : 1,
-        }} />
+        <motion.div
+          animate={isFlying ? { x: 580, opacity: 0 } : { x: 0, opacity: 1 }}
+          transition={{ duration: 0.75, delay: 0.05, ease: [0.4, 0, 1, 1] }}
+          style={{
+            position: "absolute", top: 0, right: 0, width: "50%", height: "100%",
+            background: "#CEC6BA",
+            clipPath: "polygon(100% 0, 0 50%, 100% 100%)",
+            zIndex: 1,
+          }}
+        />
+
         {/* Bottom flap */}
-        <div style={{
-          position: "absolute", bottom: 0, left: 0, width: "100%", height: "50%",
-          background: "#C8C0B4",
-          clipPath: "polygon(0 100%, 50% 0, 100% 100%)",
-          transition: clicked ? "transform 1.5s ease 2.5s, opacity 0.5s ease 0.5s" : "none",
-          transform: clicked ? "translateY(566px)" : "none",
-          opacity: clicked ? 0 : 1,
-        }} />
-        {/* Top flap */}
-        <div style={{
-          position: "absolute", top: 0, left: 0, width: "100%", height: "50%",
-          background: "#D9D1C5",
-          clipPath: "polygon(0 0, 50% 100%, 100% 0)",
-          transition: clicked ? "transform 1.5s ease 2.5s, opacity 0.5s ease 0.5s" : "none",
-          transform: clicked ? "translateY(-430px)" : "none",
-          opacity: clicked ? 0 : 1,
-          zIndex: 2,
-        }} />
-        {/* Envelope center background */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "#E0D9CF",
-          zIndex: 0,
-        }} />
-        {/* Wax seal */}
+        <motion.div
+          animate={isFlying ? { y: 420, opacity: 0 } : { y: 0, opacity: 1 }}
+          transition={{ duration: 0.75, delay: 0.08, ease: [0.4, 0, 1, 1] }}
+          style={{
+            position: "absolute", bottom: 0, left: 0, width: "100%", height: "50%",
+            background: "#C8C0B4",
+            clipPath: "polygon(0 100%, 50% 0, 100% 100%)",
+            zIndex: 1,
+          }}
+        />
+
+        {/* Letter card — rises from inside the envelope */}
+        <motion.div
+          animate={{
+            y: isFlying ? -300 : isOpen ? -115 : 70,
+            opacity: isFlying ? 0 : isOpen ? 1 : 0,
+          }}
+          transition={{
+            duration: isFlying ? 0.65 : 0.6,
+            ease: isFlying ? [0.4, 0, 1, 1] : [0.25, 0.46, 0.45, 0.94],
+          }}
+          style={{
+            position: "absolute",
+            width: 200, height: 150,
+            left: 60, top: 45,
+            background: CREAM,
+            borderRadius: 4,
+            zIndex: 2,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            gap: 8,
+            boxShadow: "0 6px 28px rgba(0,0,0,0.13)",
+          }}
+        >
+          <div style={{ ...playfairI, fontSize: 11, color: BURGUNDY, letterSpacing: "0.2em", opacity: 0.65 }}>
+            УРИЛГА
+          </div>
+          <div style={{ ...playfairI, fontSize: 22, color: BURGUNDY }}>
+            {i1} &amp; {i2}
+          </div>
+          <div style={{ width: 36, height: 1, background: BURGUNDY, opacity: 0.25 }} />
+          <div style={{ ...ovo, fontSize: 10, color: INK, opacity: 0.55, letterSpacing: "0.08em", textAlign: "center", padding: "0 12px" }}>
+            Таны ирэлтийг хүлээн байна
+          </div>
+        </motion.div>
+
+        {/* Top flap — peels open upward */}
+        <motion.div
+          animate={isOpen ? { y: -230, opacity: 0 } : { y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{
+            position: "absolute", top: 0, left: 0, width: "100%", height: "50%",
+            background: "#D9D1C5",
+            clipPath: "polygon(0 0, 50% 100%, 100% 0)",
+            zIndex: 3,
+          }}
+        />
+
+        {/* Wax seal — pulses before click, fades on click */}
         <div style={{
           position: "absolute",
           top: "50%", left: "50%",
           transform: "translate(-50%, -50%)",
-          zIndex: 3,
-          transition: clicked ? "transform 1.5s ease 1s, opacity 1.5s ease 1s" : "none",
-          ...(clicked ? { transform: "translate(-50%, -50%) scale(1.22)", opacity: 0 } : {}),
+          zIndex: 4,
         }}>
-          <WaxSeal />
+          <motion.div
+            animate={
+              phase === "idle"
+                ? { scale: [1, 1.08, 1], opacity: 1 }
+                : { scale: 1.4, opacity: 0 }
+            }
+            transition={
+              phase === "idle"
+                ? { repeat: Infinity, duration: 2.4, ease: "easeInOut" }
+                : { duration: 0.35 }
+            }
+          >
+            <WaxSeal i1={i1} i2={i2} />
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* "Click to open" text */}
-      <div style={{
-        position: "absolute",
-        bottom: "calc(50% - 150px)",
-        left: "50%",
-        transform: "translateX(-50%)",
-        color: BURGUNDY,
-        ...playfairI,
-        fontSize: 15,
-        transition: clicked ? "opacity 1.5s ease 0s" : "none",
-        opacity: clicked ? 0 : 1,
-        whiteSpace: "nowrap",
-      }}>
-        Click to open
-      </div>
-
-      {/* Animated peony on hover */}
-      <div style={{ position: "absolute", top: 20, right: 20, opacity: 0.4, pointerEvents: "none" }}>
-        <PeonySVG size={80} color="#C8A08A" />
-      </div>
-      <div style={{ position: "absolute", bottom: 20, left: 20, opacity: 0.4, pointerEvents: "none" }}>
-        <PeonySVG size={70} color="#D4B0A0" />
-      </div>
+      {/* "Дарж нээх" label */}
+      <motion.div
+        animate={
+          phase === "idle"
+            ? { y: [0, -5, 0], opacity: 1 }
+            : { opacity: 0 }
+        }
+        transition={
+          phase === "idle"
+            ? { repeat: Infinity, duration: 1.8, ease: "easeInOut" }
+            : { duration: 0.2 }
+        }
+        style={{
+          marginTop: 22,
+          color: BURGUNDY,
+          ...playfairI,
+          fontSize: 15,
+          pointerEvents: "none",
+          display: "flex", alignItems: "center", gap: 8,
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2v10M4 8l4 4 4-4" stroke={BURGUNDY} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Дарж нээх
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2v10M4 8l4 4 4-4" stroke={BURGUNDY} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </motion.div>
     </div>
   );
 }
@@ -265,12 +339,12 @@ function MusicPlayer({ src }: { src?: string }) {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function T13Hero({ event }: { event: EventData }) {
-  const name1 = event.person1_name || "Viktor";
-  const name2 = event.person2_name || "Paula";
+  const name1 = event.person1_name || "Болд";
+  const name2 = event.person2_name || "Сарнай";
 
   const fmtDate = (d: string) => {
     const parts = d.split("-");
-    if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0].slice(2)}`;
+    if (parts.length === 3) return `${parts[0]} · ${parts[1]} · ${parts[2]}`;
     return d;
   };
 
@@ -282,7 +356,6 @@ function T13Hero({ event }: { event: EventData }) {
       overflow: "hidden",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
     }}>
-      {/* bg image overlay */}
       {event.main_image && (
         <div style={{
           position: "absolute", inset: 0,
@@ -292,80 +365,51 @@ function T13Hero({ event }: { event: EventData }) {
         }} />
       )}
 
-      {/* Peony decorations */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2, delay: 3, ease: "easeOut" }}
-        style={{ position: "absolute", top: -20, left: -20 }}
-      >
+        style={{ position: "absolute", top: -20, left: -20 }}>
         <PeonySVG size={160} color="#E8A0BF" />
       </motion.div>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2.5, delay: 3.2, ease: "easeOut" }}
-        style={{ position: "absolute", top: 40, right: -30 }}
-      >
+        style={{ position: "absolute", top: 40, right: -30 }}>
         <PeonySVG size={140} color="#F0B8CC" />
       </motion.div>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2.7, delay: 3.4, ease: "easeOut" }}
-        style={{ position: "absolute", bottom: 20, left: 10 }}
-      >
+        style={{ position: "absolute", bottom: 20, left: 10 }}>
         <PeonySVG size={120} color="#E0A0B8" />
       </motion.div>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 2.3, delay: 3.6, ease: "easeOut" }}
-        style={{ position: "absolute", bottom: -10, right: 0 }}
-      >
+        style={{ position: "absolute", bottom: -10, right: 0 }}>
         <PeonySVG size={150} color="#F5B0CA" />
       </motion.div>
 
-      {/* Text */}
       <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "0 24px" }}>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 36, marginBottom: 8 }}
-        >
-          Wedding Day
+          style={{ color: "white", ...playfairI, fontSize: 36, marginBottom: 8 }}>
+          Хурим
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3.15, ease: "easeOut" }}
-          style={{ color: "white", ...ovo, fontSize: 18, fontWeight: 700, letterSpacing: "0.15em", marginBottom: 28 }}
-        >
+          style={{ color: "white", ...ovo, fontSize: 16, fontWeight: 700, letterSpacing: "0.2em", marginBottom: 28, opacity: 0.85 }}>
           {fmtDate(event.date)}
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3.3, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1, marginBottom: 0 }}
-        >
+          style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1, marginBottom: 0 }}>
           {name1}
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3.45, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 44, lineHeight: 1.2 }}
-        >
+          style={{ color: "white", ...playfairI, fontSize: 44, lineHeight: 1.2 }}>
           &amp;
         </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3.6, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1 }}
-        >
+          style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1 }}>
           {name2}
         </motion.div>
       </div>
@@ -374,18 +418,21 @@ function T13Hero({ event }: { event: EventData }) {
 }
 
 // ─── Letter ───────────────────────────────────────────────────────────────────
-function T13Letter() {
+function T13Letter({ event }: { event: EventData }) {
+  const name1 = event.person1_name || "Болд";
+  const name2 = event.person2_name || "Сарнай";
   return (
     <div style={{ background: BURGUNDY }}>
       <WavyTop fill={CREAM} />
       <div style={{ background: BURGUNDY, padding: "48px 32px 56px", textAlign: "center" }}>
         <FadeUp>
-          <div style={{ color: "white", ...playfairI, fontSize: 30, marginBottom: 20 }}>
-            Dear Friends and Family,
+          <div style={{ color: "white", ...playfairI, fontSize: 28, marginBottom: 20 }}>
+            Хайрт найзууд болон гэр бүлийнхэн,
           </div>
-          <p style={{ color: "rgba(255,255,255,0.88)", ...ovo, fontSize: 17, lineHeight: 1.8, maxWidth: 420, margin: "0 auto" }}>
-            As we get ready to say "I do," we feel grateful for the wonderful people in our lives.
-            Your support means the world to us, and we would be honored to have you with us as we begin our life together.
+          <p style={{ color: "rgba(255,255,255,0.88)", ...ovo, fontSize: 17, lineHeight: 1.85, maxWidth: 420, margin: "0 auto" }}>
+            Бид хоёрын хамгийн тусгай өдөр болох хуримдаа та бүхнийг урьж байна.
+            Та нарын дэмжлэг, хайр бидэнд дэлхийн хамгийн үнэтэй зүйл юм.
+            {name1} ба {name2} нарын шинэ амьдралын эхлэлийг хамт тэмдэглэе.
           </p>
         </FadeUp>
       </div>
@@ -417,31 +464,34 @@ function T13Countdown({ event }: { event: EventData }) {
 
   const pad = (n: number) => String(n).padStart(2, "0");
   const units = [
-    { val: time.days,    label: "Days" },
-    { val: time.hours,   label: "Hours" },
-    { val: time.minutes, label: "Minutes" },
-    { val: time.seconds, label: "Seconds" },
+    { val: time.days,    label: "Өдөр" },
+    { val: time.hours,   label: "Цаг" },
+    { val: time.minutes, label: "Минут" },
+    { val: time.seconds, label: "Секунд" },
   ];
 
   return (
     <div style={{ background: CREAM, padding: "56px 24px", textAlign: "center" }}>
       <FadeUp>
-        <div style={{ ...playfairI, fontSize: 34, color: INK, marginBottom: 36 }}>
-          The Celebration Begins In
+        <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10 }}>
+          Хуримд хүртэл
+        </div>
+        <div style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.5, letterSpacing: "0.15em", marginBottom: 36 }}>
+          ───── ✦ ─────
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
           {units.map((u, i) => (
             <div key={u.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ textAlign: "center" }}>
+              <div style={{ textAlign: "center", minWidth: 56 }}>
                 <div style={{ ...ovo, fontSize: 44, fontWeight: 700, color: INK, lineHeight: 1 }}>
                   {pad(u.val)}
                 </div>
-                <div style={{ ...ovo, fontSize: 12, color: INK, marginTop: 6, letterSpacing: "0.1em" }}>
+                <div style={{ ...ovo, fontSize: 11, color: BURGUNDY, marginTop: 6, letterSpacing: "0.1em" }}>
                   {u.label}
                 </div>
               </div>
               {i < 3 && (
-                <div style={{ ...ovo, fontSize: 36, color: BURGUNDY, marginBottom: 18, opacity: 0.7 }}>:</div>
+                <div style={{ ...ovo, fontSize: 36, color: BURGUNDY, marginBottom: 18, opacity: 0.5 }}>:</div>
               )}
             </div>
           ))}
@@ -452,12 +502,17 @@ function T13Countdown({ event }: { event: EventData }) {
 }
 
 // ─── Schedule ─────────────────────────────────────────────────────────────────
-function T13Schedule() {
+function T13Schedule({ event }: { event: EventData }) {
+  const time = event.time || "16:00";
+  const [hh, mm] = time.split(":").map(Number);
+  const fmt = (h: number, m: number) =>
+    `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+
   const items = [
-    { time: "16:00", label: "Wedding Ceremony" },
-    { time: "17:00", label: "Cocktail Hour" },
-    { time: "19:00", label: "Dinner", flower: true },
-    { time: "20:00", label: "Party" },
+    { time: fmt(hh, mm),         label: "Хурим ёслол" },
+    { time: fmt(hh + 1, mm),     label: "Баяр ёслол" },
+    { time: fmt(hh + 3, mm),     label: "Оройн зоог", flower: true },
+    { time: fmt(hh + 4, mm),     label: "Баяр цэнгэл" },
   ];
 
   return (
@@ -465,25 +520,23 @@ function T13Schedule() {
       <WavyTop fill={BURGUNDY} />
       <div style={{ background: BURGUNDY, padding: "52px 24px 60px", textAlign: "center" }}>
         <FadeUp>
-          <div style={{ ...playfairI, fontSize: 36, color: CREAM, marginBottom: 44 }}>
-            Schedule of Events
+          <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 44 }}>
+            Цагийн хуваарь
           </div>
         </FadeUp>
         <div style={{ position: "relative", display: "inline-block", textAlign: "left" }}>
-          {/* vertical line */}
           <div style={{
             position: "absolute",
             left: "50%", top: 0, bottom: 0,
-            width: 2, background: "rgba(255,255,255,0.5)",
+            width: 2, background: "rgba(255,255,255,0.3)",
             transform: "translateX(-50%)",
           }} />
           {items.map((item, i) => (
             <FadeUp key={i} delay={i * 0.15}>
               <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 28, position: "relative" }}>
-                <div style={{ ...ovo, fontSize: 22, fontWeight: 700, color: "white", width: 70, textAlign: "right" }}>
+                <div style={{ ...ovo, fontSize: 20, fontWeight: 700, color: "white", width: 70, textAlign: "right" }}>
                   {item.time}
                 </div>
-                {/* diamond */}
                 <div style={{
                   width: 10, height: 10,
                   background: "white",
@@ -492,9 +545,7 @@ function T13Schedule() {
                   position: "relative", zIndex: 1,
                 }} />
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ ...ovo, fontSize: 18, color: CREAM }}>
-                    {item.label}
-                  </div>
+                  <div style={{ ...ovo, fontSize: 18, color: CREAM }}>{item.label}</div>
                   {item.flower && <PeonySVG size={44} color="#E8A0BF" />}
                 </div>
               </div>
@@ -512,15 +563,19 @@ function T13Location({ event }: { event: EventData }) {
   return (
     <div style={{ background: CREAM, padding: "56px 32px", textAlign: "center" }}>
       <FadeUp>
-        <div style={{ ...playfairI, fontSize: 36, color: BURGUNDY, marginBottom: 16 }}>
-          Location
+        <div style={{ ...playfairI, fontSize: 34, color: BURGUNDY, marginBottom: 16 }}>
+          Байршил
         </div>
-        <div style={{ ...playfairI, fontSize: 20, fontWeight: 600, color: INK, marginBottom: 8 }}>
-          {event.venue_name}
-        </div>
-        <div style={{ ...ovo, fontSize: 15, color: INK, opacity: 0.75, marginBottom: 28, lineHeight: 1.6 }}>
-          {event.venue_address}
-        </div>
+        {event.venue_name && (
+          <div style={{ ...playfairI, fontSize: 20, fontWeight: 600, color: INK, marginBottom: 8 }}>
+            {event.venue_name}
+          </div>
+        )}
+        {event.venue_address && (
+          <div style={{ ...ovo, fontSize: 15, color: INK, opacity: 0.7, marginBottom: 28, lineHeight: 1.6 }}>
+            {event.venue_address}
+          </div>
+        )}
       </FadeUp>
 
       {event.maps_photo && (
@@ -555,7 +610,7 @@ function T13Location({ event }: { event: EventData }) {
               boxShadow: "0 4px 14px rgba(102,2,31,0.3)",
             }}
           >
-            Open in Maps
+            Газрын зурагт нээх
           </a>
         </FadeUp>
       )}
@@ -572,34 +627,29 @@ function T13DressCode() {
       <WavyTop fill={BURGUNDY} />
       <div style={{ background: BURGUNDY, padding: "52px 32px 60px", textAlign: "center" }}>
         <FadeUp>
-          <div style={{ ...playfairI, fontSize: 36, color: CREAM, marginBottom: 28 }}>
-            Dress Code
+          <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 28 }}>
+            Хувцасны загвар
           </div>
         </FadeUp>
 
-        {/* Color swatches */}
         <FadeUp delay={0.1}>
           <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 28 }}>
             {swatches.map((c) => (
-              <div
-                key={c}
-                style={{
-                  width: 50, height: 50, borderRadius: "50%",
-                  background: c,
-                  border: `2px solid ${CREAM}`,
-                }}
-              />
+              <div key={c} style={{
+                width: 50, height: 50, borderRadius: "50%",
+                background: c,
+                border: `2px solid ${CREAM}`,
+              }} />
             ))}
           </div>
         </FadeUp>
 
         <FadeUp delay={0.2}>
-          <p style={{ ...ovo, fontSize: 18, color: CREAM, maxWidth: 380, margin: "0 auto 40px", lineHeight: 1.75 }}>
-            We kindly invite you to dress in elegant attire that reflects the style and spirit of our special day.
+          <p style={{ ...ovo, fontSize: 17, color: CREAM, maxWidth: 360, margin: "0 auto 40px", lineHeight: 1.8 }}>
+            Энэхүү онцгой өдрийг тусгасан нарийн, тансаг хувцас өмсөхийг урьж байна.
           </p>
         </FadeUp>
 
-        {/* Two cards */}
         <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap" }}>
           <motion.div
             initial={{ opacity: 0, x: 40 }}
@@ -608,7 +658,7 @@ function T13DressCode() {
             transition={{ duration: 1.5, ease: "easeOut" }}
             style={{
               background: "rgba(255,255,255,0.08)",
-              border: `1px solid rgba(255,255,255,0.2)`,
+              border: "1px solid rgba(255,255,255,0.2)",
               borderRadius: 8, padding: "24px 20px",
               maxWidth: 200, textAlign: "center",
             }}
@@ -617,7 +667,7 @@ function T13DressCode() {
               <PeonySVG size={60} color="#D4B0A0" />
             </div>
             <p style={{ ...ovo, fontSize: 14, color: CREAM, lineHeight: 1.65 }}>
-              <strong>Gentlemen:</strong> Well-tailored suits with classic dress shoes are preferred.
+              <strong>Эрэгтэйчүүд:</strong> Нарийн тохируулсан костюм, ёслолын гутал.
             </p>
           </motion.div>
 
@@ -628,7 +678,7 @@ function T13DressCode() {
             transition={{ duration: 1.5, ease: "easeOut" }}
             style={{
               background: "rgba(255,255,255,0.08)",
-              border: `1px solid rgba(255,255,255,0.2)`,
+              border: "1px solid rgba(255,255,255,0.2)",
               borderRadius: 8, padding: "24px 20px",
               maxWidth: 200, textAlign: "center",
             }}
@@ -637,7 +687,7 @@ function T13DressCode() {
               <PeonySVG size={60} color="#E8A0BF" />
             </div>
             <p style={{ ...ovo, fontSize: 14, color: CREAM, lineHeight: 1.65 }}>
-              <strong>Ladies:</strong> Formal dresses in elegant, polished styles are encouraged.
+              <strong>Эмэгтэйчүүд:</strong> Тансаг хувцас, гоёмсог загвар урьтал болгоно.
             </p>
           </motion.div>
         </div>
@@ -649,37 +699,39 @@ function T13DressCode() {
 
 // ─── Details ──────────────────────────────────────────────────────────────────
 function T13Details({ event }: { event: EventData }) {
-  const contact = event.person1_name || "Organizer";
+  const contact = event.person1_name || "";
   const phone   = event.person1_instagram || "";
 
   return (
     <div style={{ background: CREAM, padding: "56px 32px 64px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-      {/* background peony parallax decoration */}
-      <div style={{ position: "absolute", top: -30, right: -20, opacity: 0.12, pointerEvents: "none" }}>
+      <div style={{ position: "absolute", top: -30, right: -20, opacity: 0.1, pointerEvents: "none" }}>
         <PeonySVG size={240} color={BURGUNDY} />
       </div>
-      <div style={{ position: "absolute", bottom: -40, left: -20, opacity: 0.1, pointerEvents: "none" }}>
+      <div style={{ position: "absolute", bottom: -40, left: -20, opacity: 0.08, pointerEvents: "none" }}>
         <PeonySVG size={200} color={BURGUNDY} />
       </div>
 
       <FadeUp>
-        <div style={{ ...playfairI, fontSize: 36, color: BURGUNDY, marginBottom: 28 }}>
-          Details
+        <div style={{ ...playfairI, fontSize: 34, color: BURGUNDY, marginBottom: 28 }}>
+          Холбоо барих
         </div>
-        <p style={{ ...ovo, fontSize: 16, color: INK, lineHeight: 1.8, marginBottom: 12 }}>
-          For additional information or questions,<br />please contact the wedding organizers.
+        <p style={{ ...ovo, fontSize: 16, color: INK, lineHeight: 1.8, marginBottom: 16 }}>
+          Нэмэлт мэдээлэл авах эсвэл асуух зүйл байвал<br />
+          хурмын зохион байгуулагчтай холбогдоно уу.
         </p>
-        <p style={{ ...playfair, fontSize: 18, color: BURGUNDY, fontWeight: 600, marginBottom: 4 }}>
-          {contact}
-        </p>
+        {contact && (
+          <p style={{ ...playfair, fontSize: 18, color: BURGUNDY, fontWeight: 600, marginBottom: 4 }}>
+            {contact}
+          </p>
+        )}
         {phone && (
-          <p style={{ ...ovo, fontSize: 15, color: INK, marginBottom: 24 }}>
+          <p style={{ ...ovo, fontSize: 15, color: INK, marginBottom: 28 }}>
             {phone}
           </p>
         )}
-        <p style={{ ...ovo, fontSize: 15, color: INK, lineHeight: 1.8, maxWidth: 380, margin: "0 auto", opacity: 0.8 }}>
-          Your presence is the greatest gift to us. However, if you wish to honor us with a present,
-          a contribution toward our future would be sincerely appreciated.
+        <p style={{ ...ovo, fontSize: 15, color: INK, lineHeight: 1.8, maxWidth: 380, margin: "0 auto", opacity: 0.75 }}>
+          Таны ирэлт бидэнд хамгийн үнэтэй бэлэг юм. Гэсэн ч бэлэг дурсгал авчрахыг хүсвэл,
+          ирээдүйн амьдралд зориулсан хувь нэмэр нь бидэнд үнэтэй байх болно.
         </p>
       </FadeUp>
     </div>
@@ -688,11 +740,11 @@ function T13Details({ event }: { event: EventData }) {
 
 // ─── RSVP Modal ───────────────────────────────────────────────────────────────
 function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void }) {
-  const [name, setName] = useState("");
+  const [name, setName]         = useState("");
   const [attending, setAttending] = useState<boolean | null>(null);
-  const [food, setFood] = useState("");
+  const [food, setFood]         = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
+  const [done, setDone]         = useState(false);
 
   const submit = async () => {
     if (!name.trim() || attending === null) return;
@@ -724,9 +776,9 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
         }}
       >
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
+          exit={{ scale: 0.85, opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
           style={{
             background: CREAM,
@@ -748,25 +800,25 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
           {done ? (
             <div style={{ textAlign: "center", padding: "20px 0" }}>
               <div style={{ ...playfairI, fontSize: 28, color: BURGUNDY, marginBottom: 12 }}>
-                Thank you!
+                Баярлалаа!
               </div>
-              <p style={{ ...ovo, color: INK }}>
-                We look forward to celebrating with you.
+              <p style={{ ...ovo, color: INK, lineHeight: 1.7 }}>
+                Таны бүртгэлийг хүлээн авлаа.<br />Тантай уулзахыг тэсэн ядан хүлээж байна.
               </p>
             </div>
           ) : (
             <>
               <div style={{ ...playfair, fontSize: 22, color: INK, textAlign: "center", marginBottom: 6 }}>
-                Confirm Your Attendance
+                Ирэлтийн бүртгэл
               </div>
-              <p style={{ ...ovo, fontSize: 14, color: INK, opacity: 0.65, textAlign: "center", marginBottom: 24 }}>
-                Please RSVP before the wedding date
+              <p style={{ ...ovo, fontSize: 14, color: INK, opacity: 0.6, textAlign: "center", marginBottom: 24 }}>
+                Хурмын өдрөөс өмнө бүртгэлээ хийнэ үү
               </p>
 
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder="Таны нэр"
                 style={{
                   width: "100%", padding: "11px 14px",
                   border: `1px solid rgba(102,2,31,0.25)`,
@@ -777,11 +829,11 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
                 }}
               />
 
-              <p style={{ ...ovo, fontSize: 14, color: INK, marginBottom: 10 }}>Will you come?</p>
+              <p style={{ ...ovo, fontSize: 14, color: INK, marginBottom: 10 }}>Та ирэх үү?</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
                 {[
-                  { val: true,  label: "Yes, I will" },
-                  { val: false, label: "Unfortunately, I can't :(" },
+                  { val: true,  label: "Тийм, заавал ирнэ" },
+                  { val: false, label: "Харамсалтай нь ирж чадахгүй" },
                 ].map(({ val, label }) => (
                   <label key={String(val)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", ...ovo, fontSize: 15, color: INK }}>
                     <input
@@ -799,7 +851,7 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
               <input
                 value={food}
                 onChange={(e) => setFood(e.target.value)}
-                placeholder="Do you have any food intolerances?"
+                placeholder="Хоолны хязгаарлалт байна уу?"
                 style={{
                   width: "100%", padding: "11px 14px",
                   border: `1px solid rgba(102,2,31,0.25)`,
@@ -822,7 +874,7 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
                   opacity: (!name.trim() || attending === null) ? 0.5 : 1,
                 }}
               >
-                {submitting ? "Sending…" : "Submit"}
+                {submitting ? "Илгээж байна..." : "Илгээх"}
               </button>
             </>
           )}
@@ -840,10 +892,10 @@ function T13RSVP({ eventId }: { eventId: string }) {
     <div style={{ background: BURGUNDY, padding: "60px 32px", textAlign: "center" }}>
       <FadeUp>
         <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 16 }}>
-          Confirm Your Attendance
+          Ирэлтийн бүртгэл
         </div>
-        <p style={{ ...ovo, fontSize: 18, color: "rgba(255,250,248,0.85)", marginBottom: 36, maxWidth: 380, margin: "0 auto 36px" }}>
-          To help us prepare for a joyful celebration, kindly confirm your attendance.
+        <p style={{ ...ovo, fontSize: 17, color: "rgba(255,250,248,0.85)", maxWidth: 380, margin: "0 auto 36px", lineHeight: 1.75 }}>
+          Тантай хамт баярлахын тулд ирэлтийн мэдээллээ илгээнэ үү.
         </p>
         <motion.button
           whileHover={{ scale: 1.05, boxShadow: "0 8px 24px rgba(0,0,0,0.25)" }}
@@ -856,7 +908,7 @@ function T13RSVP({ eventId }: { eventId: string }) {
             cursor: "pointer",
           }}
         >
-          RSVP
+          Бүртгүүлэх
         </motion.button>
       </FadeUp>
 
@@ -867,8 +919,8 @@ function T13RSVP({ eventId }: { eventId: string }) {
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function T13Footer({ event }: { event: EventData }) {
-  const name1 = event.person1_name || "Viktor";
-  const name2 = event.person2_name || "Paula";
+  const name1 = event.person1_name || "Болд";
+  const name2 = event.person2_name || "Сарнай";
 
   return (
     <div style={{ background: BURGUNDY, padding: "56px 32px 80px", textAlign: "center" }}>
@@ -890,15 +942,14 @@ function T13Footer({ event }: { event: EventData }) {
         </FadeUp>
       )}
       <FadeUp delay={0.15}>
-        <div style={{ ...playfairI, fontSize: 36, color: CREAM, marginBottom: 12 }}>
-          Hope to see you there!
+        <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 12 }}>
+          Тантай уулзахыг тэсэн ядан хүлээж байна!
         </div>
-        <div style={{ ...playfair, fontSize: 22, color: CREAM, opacity: 0.85 }}>
-          {name1} and {name2}
+        <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
+          {name1} &amp; {name2}
         </div>
       </FadeUp>
 
-      {/* Peony decoration bottom */}
       <div style={{ marginTop: 40, opacity: 0.3 }}>
         <PeonySVG size={90} color="#E8A0BF" />
       </div>
@@ -917,7 +968,7 @@ export default function Template13({ event }: { event: EventData }) {
 
   return (
     <div style={{ maxWidth: 523, margin: "0 auto", fontFamily: "'Ovo', serif", overflowX: "hidden" }}>
-      <EnvelopeOverlay onOpen={() => setEnvelopeDone(true)} />
+      <EnvelopeOverlay onOpen={() => setEnvelopeDone(true)} event={event} />
 
       <AnimatePresence>
         {envelopeDone && (
@@ -927,9 +978,9 @@ export default function Template13({ event }: { event: EventData }) {
             transition={{ duration: 1 }}
           >
             <T13Hero event={event} />
-            <T13Letter />
+            <T13Letter event={event} />
             <T13Countdown event={event} />
-            <T13Schedule />
+            <T13Schedule event={event} />
             <T13Location event={event} />
             <T13DressCode />
             <T13Details event={event} />
