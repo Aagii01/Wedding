@@ -351,7 +351,7 @@ function T13Hero({ event }: { event: EventData }) {
   return (
     <div style={{
       minHeight: "100svh",
-      background: BURGUNDY,
+      background: "#1a0812",
       position: "relative",
       overflow: "hidden",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
@@ -361,32 +361,37 @@ function T13Hero({ event }: { event: EventData }) {
           position: "absolute", inset: 0,
           backgroundImage: `url(${event.main_image})`,
           backgroundSize: "cover", backgroundPosition: "center",
-          opacity: 0.35,
         }} />
       )}
+      {/* Subtle gradient so white text stays readable */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.65) 100%)",
+        zIndex: 0,
+      }} />
 
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
         transition={{ duration: 2, delay: 3, ease: "easeOut" }}
-        style={{ position: "absolute", top: -20, left: -20 }}>
-        <PeonySVG size={160} color="#E8A0BF" />
+        style={{ position: "absolute", top: -20, left: -20, zIndex: 1 }}>
+        <PeonySVG size={160} color="#F5C8DC" />
       </motion.div>
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
         transition={{ duration: 2.5, delay: 3.2, ease: "easeOut" }}
-        style={{ position: "absolute", top: 40, right: -30 }}>
-        <PeonySVG size={140} color="#F0B8CC" />
+        style={{ position: "absolute", top: 40, right: -30, zIndex: 1 }}>
+        <PeonySVG size={140} color="#F8D0E0" />
       </motion.div>
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.5, scale: 1 }}
         transition={{ duration: 2.7, delay: 3.4, ease: "easeOut" }}
-        style={{ position: "absolute", bottom: 20, left: 10 }}>
-        <PeonySVG size={120} color="#E0A0B8" />
+        style={{ position: "absolute", bottom: 20, left: 10, zIndex: 1 }}>
+        <PeonySVG size={120} color="#F0C0D4" />
       </motion.div>
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
         transition={{ duration: 2.3, delay: 3.6, ease: "easeOut" }}
-        style={{ position: "absolute", bottom: -10, right: 0 }}>
-        <PeonySVG size={150} color="#F5B0CA" />
+        style={{ position: "absolute", bottom: -10, right: 0, zIndex: 1 }}>
+        <PeonySVG size={150} color="#F5C8DA" />
       </motion.div>
 
-      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "0 24px" }}>
+      <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px" }}>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 3, ease: "easeOut" }}
           style={{ color: "white", ...playfairI, fontSize: 36, marginBottom: 8 }}>
