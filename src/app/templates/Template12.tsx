@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useMotionTemplate } from "motion/react";
 import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
@@ -53,6 +53,130 @@ function Eyebrow({ children, className = "" }: { children: React.ReactNode; clas
     >
       {children}
     </div>
+  );
+}
+
+// ─── Envelope overlay ────────────────────────────────────────────────────────
+const ENV_BG    = "hsl(220 38% 12%)";
+const ENV_FLAP  = "hsl(220 38% 15%)";
+const ENV_SIDE  = "hsl(220 38% 10%)";
+
+type EnvPhase = "idle" | "opening" | "flying" | "done";
+
+function T12EnvelopeOverlay({ onOpen, heroImage, audioRef }: {
+  onOpen: () => void;
+  heroImage?: string;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
+}) {
+  const [phase, setPhase] = useState<EnvPhase>("idle");
+
+  const handleClick = useCallback(() => {
+    if (phase !== "idle") return;
+    setPhase("opening");
+    audioRef.current?.play().catch(() => {});
+    setTimeout(() => setPhase("flying"), 4200);
+    setTimeout(() => { setPhase("done"); onOpen(); }, 5400);
+  }, [phase, onOpen, audioRef]);
+
+  if (phase === "done") return null;
+  const isOpen   = phase !== "idle";
+  const isFlying = phase === "flying";
+
+  return (
+    <motion.div
+      onClick={phase === "idle" ? handleClick : undefined}
+      animate={isFlying ? { y: "110vh" } : { y: 0 }}
+      transition={{ duration: 1.0, ease: [0.4, 0, 0.6, 1], delay: isFlying ? 0.2 : 0 }}
+      style={{
+        position: "fixed", inset: 0,
+        background: ENV_BG,
+        zIndex: 9999,
+        cursor: phase === "idle" ? "pointer" : "default",
+        overflow: "hidden",
+      }}
+    >
+      {/* Texture overlay */}
+      <div style={{
+        position: "absolute", inset: 0,
+        backgroundImage: "radial-gradient(rgba(255,255,255,0.025) 1px, transparent 1px)",
+        backgroundSize: "5px 5px",
+        pointerEvents: "none",
+      }} />
+
+      {/* Bottom flap */}
+      <div style={{ position: "absolute", inset: 0, background: ENV_FLAP, clipPath: "polygon(0 100%, 50% 52%, 100% 100%)", pointerEvents: "none" }} />
+      {/* Left flap */}
+      <div style={{ position: "absolute", inset: 0, background: ENV_SIDE, clipPath: "polygon(0 0, 50% 52%, 0 100%)", pointerEvents: "none" }} />
+      {/* Right flap */}
+      <div style={{ position: "absolute", inset: 0, background: ENV_SIDE, clipPath: "polygon(100% 0, 50% 52%, 100% 100%)", pointerEvents: "none" }} />
+
+      {/* Hero image peek in top flap */}
+      {heroImage && (
+        <motion.div
+          style={{ position: "absolute", inset: 0, clipPath: "polygon(0 0, 100% 0, 50% 52%)", overflow: "hidden", pointerEvents: "none" }}
+          initial={{ opacity: 0 }}
+          animate={isOpen ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 1.4, delay: isOpen ? 0.4 : 0 }}
+        >
+          <img src={heroImage} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%" }} />
+          <div style={{ position: "absolute", inset: 0, background: "rgba(8,14,30,0.45)" }} />
+        </motion.div>
+      )}
+
+      {/* Top flap — нээгдэнэ */}
+      <motion.div
+        style={{ position: "absolute", inset: 0, background: ENV_FLAP, clipPath: "polygon(0 0, 100% 0, 50% 52%)", transformOrigin: "top center", pointerEvents: "none" }}
+        animate={isOpen ? { scaleY: 0 } : { scaleY: 1 }}
+        transition={{ duration: 1.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+      />
+
+      {/* Seam lines */}
+      <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} preserveAspectRatio="none" viewBox="0 0 100 100">
+        <line x1="0"   y1="0"   x2="50" y2="52" stroke="rgba(180,200,240,0.15)" strokeWidth="0.25"/>
+        <line x1="100" y1="0"   x2="50" y2="52" stroke="rgba(180,200,240,0.15)" strokeWidth="0.25"/>
+        <line x1="0"   y1="100" x2="50" y2="52" stroke="rgba(180,200,240,0.10)" strokeWidth="0.25"/>
+        <line x1="100" y1="100" x2="50" y2="52" stroke="rgba(180,200,240,0.10)" strokeWidth="0.25"/>
+      </svg>
+
+      {/* Wax seal — monogram */}
+      <motion.div
+        style={{ position: "absolute", top: "52%", left: "50%", marginLeft: -60, marginTop: -60, pointerEvents: "none" }}
+        animate={isOpen ? { scale: 0, opacity: 0 } : { scale: [1, 1.04, 1], opacity: 1 }}
+        transition={isOpen ? { duration: 0.35 } : { repeat: Infinity, duration: 2.8, ease: "easeInOut" }}
+      >
+        <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="t12wax" cx="36%" cy="30%" r="72%">
+              <stop offset="0%"   stopColor="hsl(220 50% 30%)"/>
+              <stop offset="100%" stopColor="hsl(220 50% 14%)"/>
+            </radialGradient>
+          </defs>
+          <circle cx="60" cy="60" r="55" fill="url(#t12wax)" />
+          <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(180,200,240,0.35)" strokeWidth="1.5" />
+          <circle cx="60" cy="60" r="42" fill="none" stroke="rgba(180,200,240,0.2)" strokeWidth="0.8" strokeDasharray="4 3" />
+          <text x="60" y="68" textAnchor="middle" fill="rgba(220,235,255,0.9)" fontSize="28"
+            fontFamily="Cormorant Garamond, serif" fontStyle="italic" letterSpacing="2">
+            ♥
+          </text>
+        </svg>
+      </motion.div>
+
+      {/* Hint */}
+      <motion.div
+        animate={phase === "idle" ? { y: [0, -6, 0], opacity: 1 } : { opacity: 0 }}
+        transition={phase === "idle" ? { repeat: Infinity, duration: 1.8, ease: "easeInOut" } : { duration: 0.2 }}
+        style={{
+          position: "absolute", bottom: "8%", left: 0, right: 0,
+          color: "rgba(180,210,255,0.45)",
+          fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
+          fontSize: 14, letterSpacing: "0.14em",
+          pointerEvents: "none", whiteSpace: "nowrap",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+        }}
+      >
+        <span>↓</span> Дарж нээх <span>↓</span>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -1215,6 +1339,7 @@ export default function Template12({ event }: { event: EventData }) {
   const names = [event.person1_name, event.person2_name].filter(Boolean).join(" & ");
   const mono  = initials(event.person1_name, event.person2_name);
   const allPhotos = [...(event.gallery_photos || []), ...(event.gallery2_photos || [])];
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--t12-cream", CREAM);
@@ -1229,6 +1354,8 @@ export default function Template12({ event }: { event: EventData }) {
 
   return (
     <div style={{ background: CREAM, minHeight: "100vh" }}>
+      <T12EnvelopeOverlay onOpen={() => {}} heroImage={event.main_image} audioRef={audioRef} />
+      {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       <T12Hero names={names} date={event.date} heroImage={event.main_image} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
       <T12OurStory photos={allPhotos} />
