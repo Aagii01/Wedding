@@ -261,8 +261,8 @@ function EnvelopeOverlay({ onOpen, event, audioRef }: {
     if (phase !== "idle") return;
     setPhase("opening");
     audioRef.current?.play().catch(() => {});
-    setTimeout(() => setPhase("flying"), 2200);
-    setTimeout(() => { setPhase("done"); onOpen(); }, 3400);
+    setTimeout(() => setPhase("flying"), 4200);
+    setTimeout(() => { setPhase("done"); onOpen(); }, 5400);
   }, [phase, onOpen, audioRef]);
 
   if (phase === "done") return null;
@@ -504,49 +504,49 @@ function T13Hero({ event }: { event: EventData }) {
       }} />
 
       <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
-        transition={{ duration: 2, delay: 3, ease: "easeOut" }}
+        transition={{ duration: 2, delay: 5, ease: "easeOut" }}
         style={{ position: "absolute", top: -20, left: -20, zIndex: 1 }}>
         <PeonySVG size={160} color="#F5C8DC" />
       </motion.div>
       <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
-        transition={{ duration: 2.5, delay: 3.2, ease: "easeOut" }}
+        transition={{ duration: 2.5, delay: 5.2, ease: "easeOut" }}
         style={{ position: "absolute", top: 40, right: -30, zIndex: 1 }}>
         <PeonySVG size={140} color="#F8D0E0" />
       </motion.div>
       <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.5, scale: 1 }}
-        transition={{ duration: 2.7, delay: 3.4, ease: "easeOut" }}
+        transition={{ duration: 2.7, delay: 5.4, ease: "easeOut" }}
         style={{ position: "absolute", bottom: 20, left: 10, zIndex: 1 }}>
         <PeonySVG size={120} color="#F0C0D4" />
       </motion.div>
       <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
-        transition={{ duration: 2.3, delay: 3.6, ease: "easeOut" }}
+        transition={{ duration: 2.3, delay: 5.6, ease: "easeOut" }}
         style={{ position: "absolute", bottom: -10, right: 0, zIndex: 1 }}>
         <PeonySVG size={150} color="#F5C8DA" />
       </motion.div>
 
       <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px" }}>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2, delay: 3, ease: "easeOut" }}
+          transition={{ duration: 2, delay: 5, ease: "easeOut" }}
           style={{ color: "white", ...playfairI, fontSize: 36, marginBottom: 8 }}>
           Хурим
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2, delay: 3.15, ease: "easeOut" }}
+          transition={{ duration: 2, delay: 5.15, ease: "easeOut" }}
           style={{ color: "white", ...ovo, fontSize: 16, fontWeight: 700, letterSpacing: "0.2em", marginBottom: 28, opacity: 0.85 }}>
           {fmtDate(event.date)}
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2, delay: 3.3, ease: "easeOut" }}
+          transition={{ duration: 2, delay: 5.3, ease: "easeOut" }}
           style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1, marginBottom: 0 }}>
           {name1}
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2, delay: 3.45, ease: "easeOut" }}
+          transition={{ duration: 2, delay: 5.45, ease: "easeOut" }}
           style={{ color: "white", ...playfairI, fontSize: 44, lineHeight: 1.2 }}>
           <Amp size={44} />
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2, delay: 3.6, ease: "easeOut" }}
+          transition={{ duration: 2, delay: 5.6, ease: "easeOut" }}
           style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1 }}>
           {name2}
         </motion.div>
