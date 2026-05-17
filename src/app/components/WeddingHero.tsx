@@ -96,7 +96,7 @@ export function WeddingHero({ event }: Props) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.9, ease: EASE }}
-              className="text-white text-4xl text-center leading-tight"
+              className="text-white text-2xl sm:text-3xl md:text-4xl text-center leading-tight w-full break-words"
               style={{ fontFamily: "'Dancing Script', cursive" }}
             >
               {event.person2_name ? (

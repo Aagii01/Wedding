@@ -11,8 +11,8 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 type Props = { eventId: string };
 
 export function RSVP({ eventId }: Props) {
-  const [rsvp, setRsvp] = useState({ name: "", attending: "yes", dietary: "" });
-  const [wish, setWish] = useState({ nickname: "", name: "", message: "" });
+  const [rsvp, setRsvp] = useState({ name: "", attending: "yes" });
+  const [wish, setWish] = useState({ name: "", message: "" });
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [wishLoading, setWishLoading] = useState(false);
 
@@ -20,17 +20,16 @@ export function RSVP({ eventId }: Props) {
     e.preventDefault();
     setRsvpLoading(true);
     const { error } = await supabase.from("rsvp").insert({
-      event_id: eventId,
+      event: eventId,
       name: rsvp.name,
       guests: rsvp.attending === "yes" ? 1 : 0,
-      message: rsvp.dietary || null,
     });
     setRsvpLoading(false);
     if (error) {
       toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     } else {
       toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
-      setRsvp({ name: "", attending: "yes", dietary: "" });
+      setRsvp({ name: "", attending: "yes" });
     }
   };
 
@@ -39,7 +38,6 @@ export function RSVP({ eventId }: Props) {
     setWishLoading(true);
     const { error } = await supabase.from("wishes").insert({
       event_id: eventId,
-      nickname: wish.nickname,
       name: wish.name,
       message: wish.message,
     });
@@ -48,7 +46,7 @@ export function RSVP({ eventId }: Props) {
       toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     } else {
       toast.success("Баярлалаа! Таны мэндчилгээ хүлээн авлаа.");
-      setWish({ nickname: "", name: "", message: "" });
+      setWish({ name: "", message: "" });
     }
   };
 
@@ -78,7 +76,7 @@ export function RSVP({ eventId }: Props) {
               <div className="space-y-2">
                 {[
                   { value: "yes", label: "Тийм, заавал ирнэ" },
-                  { value: "no",  label: "Харамсалтай нь ирж чадахгүй" },
+                  { value: "no",  label: "Харамсалтай нь очиж чадахгүй" },
                 ].map(({ value, label }) => (
                   <label key={value} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
                     <input
@@ -93,13 +91,6 @@ export function RSVP({ eventId }: Props) {
                   </label>
                 ))}
               </div>
-            </div>
-            <div>
-              <Input
-                placeholder="Хоолны хязгаарлалт байна уу?"
-                value={rsvp.dietary}
-                onChange={(e) => setRsvp({ ...rsvp, dietary: e.target.value })}
-              />
             </div>
             <button
               type="submit"

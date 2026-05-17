@@ -698,8 +698,8 @@ function T14RSVP({ eventId }: { eventId: string }) {
                     }}
                   >
                     <option value="" style={{ background: NIGHT }}>Сонгох</option>
-                    <option value="yes" style={{ background: NIGHT }}>Баяртайяа ирнэ</option>
-                    <option value="no" style={{ background: NIGHT }}>Харамсалтай нь ирэхгүй</option>
+                    <option value="yes" style={{ background: NIGHT }}>Тийм, заавал ирнэ</option>
+                    <option value="no" style={{ background: NIGHT }}>Харамсалтай нь очиж чадахгүй</option>
                   </select>
                 </div>
                 <div>

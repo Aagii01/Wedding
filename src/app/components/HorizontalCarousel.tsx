@@ -289,7 +289,7 @@ export function HorizontalCarousel({
                 style={{
                   color:       "rgba(210,225,245,0.68)",
                   fontFamily:  "'Dancing Script', cursive",
-                  fontSize:    "clamp(13px, 3.5vw, 18px)",
+                  fontSize:    "clamp(16px, 4.2vw, 20px)",
                   fontStyle:   "italic",
                   lineHeight:  1.55,
                   margin:      0,

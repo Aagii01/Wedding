@@ -559,6 +559,11 @@ const DEFAULT_CHAPTERS = [
     num: "нэг",
     title: "Хэрхэн уулзсан бэ",
     body: "Нэгэн өдөр, нэгэн газар, нэгэн мөчид хоёр зам огтлолцов. Тэр агшнаас хойш ямар ч тусдаа зам байгаагүй.",
+    bodies: [
+      "Анхны харц, анхны инээмсэглэл — бүх зүйл тэндээс эхэлсэн.",
+      "Тэр өдрийг хэзээ ч мартахгүй. Цаг хугацаа зогссон мэт санагдсан.",
+      "Хоёр зам огтлолцов. Тэр агшнаас хойш ямар ч тусдаа зам байгаагүй.",
+    ],
     captions: ["Анхны уулзалт", "Тэр өдөр", "Эхлэл"],
   },
 ];
@@ -584,10 +589,10 @@ function useIsMobile() {
 }
 
 function StoryChapter({
-  srcs, captions, num, title, body, slots, reverse,
+  srcs, captions, num, title, body, bodies, slots, reverse,
 }: {
   srcs: string[]; captions: string[];
-  num: string; title: string; body: string;
+  num: string; title: string; body: string; bodies?: string[];
   slots: typeof STACK_SLOTS[0];
   reverse: boolean;
 }) {
@@ -600,7 +605,7 @@ function StoryChapter({
     title: captions[i] || title,
     sub: num,
     index: String(i + 1).padStart(2, "0"),
-    desc: body,
+    desc: bodies?.[i] || body,
   }));
 
   const watermark = (
@@ -1053,12 +1058,16 @@ function T12Countdown({ date, title, venue }: { date: string; title: string; ven
 
 // ─── Schedule ────────────────────────────────────────────────────────────────
 const SCHEDULE = [
-  { time: "15:30", label: "Хүлээн авалт",           desc: "Зочид морилно" },
-  { time: "16:00", label: "Тайзны урд зургийн цаг", desc: "Гэрэл зурагчидтай хамт" },
-  { time: "16:30", label: "Танхимд орох",            desc: "Хурмын танхимд тавтай морилно уу" },
-  { time: "17:00", label: "Ёслол эхлэх",             desc: "Гэрлэлтийн ёслолын ажиллагаа" },
-  { time: "18:30", label: "Орой хоол",               desc: "Хоол хүртэх, баяр хүргэх" },
+  { time: "15:30", label: "Зочид цугларах", desc: "Урилгаар ирсэн хүндэт зочид морилно" },
+  { time: "16:00", label: "Дурсамж зураг татуулах", desc: "Фото бүсэд зурагчидтай хамт" },
+  { time: "16:30", label: "Хурмын танхимд суудал эзлэх", desc: "Зочид байраа эзлэн, ёслолд бэлтгэнэ" },
+  { time: "17:00", label: "Гэрлэлтийн баярын ёслол", desc: "Хосууд орж ирэх, бөгж солилцох, гарын үсэг зурах" },
+  { time: "17:40", label: "Хүндэтгэлийн зоог", desc: "Ширээний хундага өргөх, уран бүтээлчдийн тоглолт эхлэх" },
+  { time: "18:20", label: "Ерөөл, бэлэг дэвшүүлэх", desc: "Аав ээж, төрөл төрөгсдийн ерөөлийн үг, бэлэг гардуулах" },
+  { time: "19:30", label: "Хурмын чөлөөт цаг", desc: "Шинэ чөлөөт хөтөлбөр, диско цаг эхлэх" },
 ];
+
+
 
 function T12Schedule() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1186,15 +1195,28 @@ function T12Venue({ name, address, mapUrl, image }: { name: string; address: str
 function T12Quote() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 30%"] });
-  const text = "Хоёр сэтгэл нэгэн зүгт тэмүүлж, Хайрын гэгээн замд учирсан бид хоёр Хувь заяагаа холбон, Хуримын ариун ёслолоо тэмдэглэх гэж байна. Энэхүү аз жаргалт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.";
-  const words = text.split(" ");
+
+  const lines = [
+    "Хоёр сэтгэл нэгэн зүгт тэмүүлж,",
+    "Хайрын гэгээн замд учирсан бид хоёр",
+    "Хувь заяагаа холбон, Хуримын ариун ёслолоо тэмдэглэх гэж байна.",
+    "Энэхүү аз жаргалт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.",
+  ];
+  const words = lines.flatMap(l => l.split(" "));
+
+  const lineEndIndices = new Set<number>();
+  let acc = 0;
+  lines.forEach((line, li) => {
+    acc += line.split(" ").length;
+    if (li < lines.length - 1) lineEndIndices.add(acc - 1);
+  });
 
   return (
     <section ref={ref} style={{ background: CREAM, padding: "clamp(80px,12vw,192px) 24px" }}>
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         <p style={{
           fontFamily: "'Cormorant Garamond', serif",
-          color: INK, lineHeight: 1.15, fontWeight: 700, letterSpacing: "-0.01em",
+          color: INK, lineHeight: 1.55, fontWeight: 700, letterSpacing: "-0.01em",
           fontSize: "clamp(1.6rem, 5vw, 4rem)", margin: 0,
         }}>
           {words.map((w, i) => {
@@ -1203,9 +1225,12 @@ function T12Quote() {
             // eslint-disable-next-line react-hooks/rules-of-hooks
             const op = useTransform(scrollYProgress, [start, end], [0.15, 1]);
             return (
-              <motion.span key={i} style={{ opacity: op, display: "inline-block", marginRight: "0.22em" }}>
-                {w}
-              </motion.span>
+              <span key={i}>
+                <motion.span style={{ opacity: op, display: "inline-block", marginRight: "0.22em" }}>
+                  {w}
+                </motion.span>
+                {lineEndIndices.has(i) && <br />}
+              </span>
             );
           })}
         </p>
@@ -1223,7 +1248,7 @@ function T12RSVP({ eventId }: { eventId: string }) {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.from("rsvp").insert({
-      event_id: eventId,
+      event: eventId,
       name: form.name,
       phone: form.phone,
       guests: Number(form.guests),
@@ -1342,6 +1367,49 @@ function T12Footer({ mono, names }: { mono: string; names: string }) {
   );
 }
 
+// ─── Music player ────────────────────────────────────────────────────────────
+function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement | null> }) {
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const onPlay  = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    a.addEventListener("play",  onPlay);
+    a.addEventListener("pause", onPause);
+    return () => { a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
+  }, [audioRef]);
+
+  const toggle = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) a.play().catch(() => {}); else a.pause();
+  };
+
+  return (
+    <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000 }}>
+      <button onClick={toggle} style={{
+        width: 48, height: 48, borderRadius: "50%",
+        background: INK, border: "none", cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+      }}>
+        {playing ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill={CREAM}>
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill={CREAM}>
+            <polygon points="6,3 20,12 6,21" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 // ─── Root ────────────────────────────────────────────────────────────────────
 export default function Template12({ event }: { event: EventData }) {
   const names = [event.person1_name, event.person2_name].filter(Boolean).join(" & ");
@@ -1364,6 +1432,7 @@ export default function Template12({ event }: { event: EventData }) {
     <div style={{ background: CREAM, minHeight: "100vh" }}>
       <T12EnvelopeOverlay onOpen={() => {}} heroImage={event.main_image} audioRef={audioRef} />
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
+      {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <T12Hero names={names} date={event.date} heroImage={event.main_image} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
       <T12OurStory photos={allPhotos} />

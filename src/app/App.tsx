@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { EventData } from "../types/event";
 import { WeddingHero } from "./components/WeddingHero";
@@ -113,7 +113,6 @@ function EnvelopeOverlay({ heroImage, audioRef }: {
           <circle cx="100" cy="100" r="91" fill="#152d60" filter="url(#t11waxEdge)"/>
           <circle cx="100" cy="100" r="77" fill="url(#t11waxBg)"/>
           <circle cx="100" cy="100" r="77" fill="none" stroke="rgba(180,205,238,0.22)" strokeWidth="1.2"/>
-          {/* Petal ornament */}
           {([0,60,120,180,240,300] as number[]).map(deg => {
             const a = deg * Math.PI / 180;
             const r = 28;
@@ -149,6 +148,49 @@ function EnvelopeOverlay({ heroImage, audioRef }: {
   );
 }
 
+// ─── Music player ────────────────────────────────────────────────────────────
+function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement | null> }) {
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const onPlay  = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    a.addEventListener("play",  onPlay);
+    a.addEventListener("pause", onPause);
+    return () => { a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
+  }, [audioRef]);
+
+  const toggle = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) a.play().catch(() => {}); else a.pause();
+  };
+
+  return (
+    <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000 }}>
+      <button onClick={toggle} style={{
+        width: 48, height: 48, borderRadius: "50%",
+        background: "#0f1b35", border: "none", cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+      }}>
+        {playing ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+            <polygon points="6,3 20,12 6,21" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 // ─── Root ────────────────────────────────────────────────────────────────────
 type Props = { event: EventData };
 
@@ -159,6 +201,7 @@ export default function App({ event }: Props) {
     <div className="min-h-screen bg-white">
       <EnvelopeOverlay heroImage={event.main_image} audioRef={audioRef} />
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
+      {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <FloatingPetals />
       <WeddingHero event={event} />
       <GroomBride event={event} />

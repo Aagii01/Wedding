@@ -32,10 +32,8 @@ export function GallerySection({ event }: Props) {
             transition={{ duration: 0.75, ease: EASE }}
             className="text-center mb-10"
           >
-            <p className="text-[10px] tracking-[0.25em] uppercase text-gray-400 mb-3">
-              Зургийн цомог
-            </p>
-            <h2 className="text-3xl font-serif text-gray-800">Галерей</h2>
+      
+            <h2 className="text-3xl font-serif text-gray-800">Зургийн цомог</h2>
           </motion.div>
 
           {/* Bento grid */}

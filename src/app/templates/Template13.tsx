@@ -560,7 +560,7 @@ function GalleryCard({ src, quote, size }: {
   src: string; quote: string; size: "large" | "small" | "tiny";
 }) {
   const dims = {
-    large: { width: 210, height: 360 },
+    large: { width: 260, height: 420 },
     small: { width: 148, height: 260 },
     tiny:  { width: 100, height: 195 },
   }[size];
@@ -629,7 +629,7 @@ function T13Gallery({ event }: { event: EventData }) {
         style={{
           position: "relative",
           display: "flex", alignItems: "center", justifyContent: "center",
-          height: 400,
+          height: 460,
           cursor: "grab",
           touchAction: "none",
           userSelect: "none",
@@ -643,11 +643,11 @@ function T13Gallery({ event }: { event: EventData }) {
         }}
       >
         {/* Far left */}
-        <div style={{ position: "absolute", transform: "translateX(-310px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", transform: "translateX(-340px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
           <GalleryCard src={slides[prev2].src} quote={slides[prev2].quote} size="tiny" />
         </div>
         {/* Left */}
-        <div style={{ position: "absolute", transform: "translateX(-188px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", transform: "translateX(-210px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
           <GalleryCard src={slides[prev].src} quote={slides[prev].quote} size="small" />
         </div>
         {/* Center */}
@@ -665,11 +665,11 @@ function T13Gallery({ event }: { event: EventData }) {
           </AnimatePresence>
         </div>
         {/* Right */}
-        <div style={{ position: "absolute", transform: "translateX(188px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", transform: "translateX(210px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
           <GalleryCard src={slides[next].src} quote={slides[next].quote} size="small" />
         </div>
         {/* Far right */}
-        <div style={{ position: "absolute", transform: "translateX(310px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", transform: "translateX(340px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
           <GalleryCard src={slides[next2].src} quote={slides[next2].quote} size="tiny" />
         </div>
       </motion.div>
@@ -786,10 +786,13 @@ function T13Schedule({ event }: { event: EventData }) {
     `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 
   const items = [
-    { time: fmt(hh, mm),         label: "Хурим ёслол" },
-    { time: fmt(hh + 1, mm),     label: "Баяр ёслол" },
-    { time: fmt(hh + 3, mm),     label: "Оройн зоог"  },
-    { time: fmt(hh + 4, mm),     label: "Баяр цэнгэл" },
+    { time: fmt(hh, mm),         label: "Зочид цугларах" },
+    { time: fmt(hh + 1, mm),     label: "Дурсамж зураг татуулах" },
+    { time: fmt(hh + 2, mm),     label: "Гэрлэлтийн баярын ёслол" },
+        { time: fmt(hh + 3, mm),     label: "Хүндэтгэлийн зоог" },
+            { time: fmt(hh + 4, mm),     label: "Ерөөл, бэлэг дэвшүүлэх" },
+            { time: fmt(hh + 5, mm),     label: "Чөлөөт хөтөлбөр, диско цаг эхлэх" },
+
   ];
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -909,7 +912,12 @@ function T13Location({ event }: { event: EventData }) {
 
 // ─── Dress Code ───────────────────────────────────────────────────────────────
 function T13DressCode() {
-  const swatches = ["#60603B", "#360C1A", "#40312C", "#EFDDCD"];
+  const icons = [
+    { emoji: "🌸", label: "Хүлээн авалт" },
+    { emoji: "📵", label: "Утасгүй мөч" },
+    { emoji: "⏰", label: "Цаг баримтлах" },
+    { emoji: "🥂", label: "Хамтдаа баярлах" },
+  ];
 
   return (
     <div style={{ background: BURGUNDY }}>
@@ -917,25 +925,32 @@ function T13DressCode() {
       <div style={{ background: BURGUNDY, padding: "52px 32px 60px", textAlign: "center" }}>
         <FadeUp>
           <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 28 }}>
-            Хувцасны загвар
+            Хурмын хүсэлт
           </div>
         </FadeUp>
 
         <FadeUp delay={0.1}>
-          <div style={{ display: "flex", justifyContent: "center", gap: 16, marginBottom: 28 }}>
-            {swatches.map((c) => (
-              <div key={c} style={{
-                width: 50, height: 50, borderRadius: "50%",
-                background: c,
-                border: `2px solid ${CREAM}`,
-              }} />
+          <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 28 }}>
+            {icons.map(({ emoji, label }) => (
+              <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <div style={{
+                  width: 50, height: 50, borderRadius: "50%",
+                  background: "rgba(255,255,255,0.12)",
+                  border: `2px solid ${CREAM}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 22,
+                }}>
+                  {emoji}
+                </div>
+                <span style={{ ...ovo, fontSize: 10, color: `${CREAM}aa`, letterSpacing: "0.05em" }}>{label}</span>
+              </div>
             ))}
           </div>
         </FadeUp>
 
         <FadeUp delay={0.2}>
           <p style={{ ...ovo, fontSize: 17, color: CREAM, maxWidth: 360, margin: "0 auto 40px", lineHeight: 1.8 }}>
-            Энэхүү онцгой өдрийг тусгасан нарийн, тансаг хувцас өмсөхийг урьж байна.
+            Энэхүү онцгой мөчийг хамтдаа бүтэн зүрхээр угтан авч, дурсамж болгон үлдээе.
           </p>
         </FadeUp>
 
@@ -956,7 +971,7 @@ function T13DressCode() {
               <PeonySVG size={56} color="#D4B0A0" />
             </div>
             <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
-              <strong>Эрэгтэйчүүд:</strong> Нарийн тохируулсан костюм, ёслолын гутал.
+              <strong>Хүлээн авалт:</strong> Чөлөөт цаг эхлэтэл та бүхэн хүлээлгийн зоог барьж, дурсамж зургаа авахуулна уу.
             </p>
           </motion.div>
 
@@ -976,7 +991,7 @@ function T13DressCode() {
               <PeonySVG size={56} color="#E8A0BF" />
             </div>
             <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
-              <strong>Эмэгтэйчүүд:</strong> Тансаг хувцас, гоёмсог загвар урьтал болгоно.
+              <strong>Цаг:</strong> Ёслол эхлэхээс 15 минутын өмнө ирж суудалдаа заларна уу.
             </p>
           </motion.div>
         </div>
@@ -1190,7 +1205,7 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
                 {[
                   { val: true,  label: "Тийм, заавал ирнэ" },
-                  { val: false, label: "Харамсалтай нь ирж чадахгүй" },
+                  { val: false, label: "Харамсалтай нь очиж чадахгүй" },
                 ].map(({ val, label }) => (
                   <label key={String(val)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", ...ovo, fontSize: 15, color: INK }}>
                     <input
