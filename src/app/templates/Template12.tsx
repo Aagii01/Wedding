@@ -74,8 +74,8 @@ function T12EnvelopeOverlay({ onOpen, heroImage, audioRef }: {
     if (phase !== "idle") return;
     setPhase("opening");
     audioRef.current?.play().catch(() => {});
-    setTimeout(() => setPhase("flying"), 4200);
-    setTimeout(() => { setPhase("done"); onOpen(); }, 5400);
+    setTimeout(() => setPhase("flying"), 3200);
+    setTimeout(() => { setPhase("done"); onOpen(); }, 4400);
   }, [phase, onOpen, audioRef]);
 
   if (phase === "done") return null;

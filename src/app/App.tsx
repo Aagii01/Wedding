@@ -30,8 +30,8 @@ function EnvelopeOverlay({ heroImage, audioRef }: {
     if (phase !== "idle") return;
     setPhase("opening");
     audioRef.current?.play().catch(() => {});
-    setTimeout(() => setPhase("flying"), 4200);
-    setTimeout(() => setPhase("done"), 5400);
+    setTimeout(() => setPhase("flying"), 3200);
+    setTimeout(() => setPhase("done"), 4400);
   }, [phase, audioRef]);
 
   if (phase === "done") return null;
