@@ -11,7 +11,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 type Props = { eventId: string };
 
 export function RSVP({ eventId }: Props) {
-  const [rsvp, setRsvp] = useState({ name: "", email: "", event: "reception", guests: "1" });
+  const [rsvp, setRsvp] = useState({ name: "", attending: "yes", dietary: "" });
   const [wish, setWish] = useState({ nickname: "", name: "", message: "" });
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [wishLoading, setWishLoading] = useState(false);
@@ -22,16 +22,15 @@ export function RSVP({ eventId }: Props) {
     const { error } = await supabase.from("rsvp").insert({
       event_id: eventId,
       name: rsvp.name,
-      email: rsvp.email,
-      event: rsvp.event,
-      guests: Number(rsvp.guests),
+      guests: rsvp.attending === "yes" ? 1 : 0,
+      message: rsvp.dietary || null,
     });
     setRsvpLoading(false);
     if (error) {
       toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     } else {
-      toast.success("Баярлалаа! Таны оролцоо баталгаажлаа.");
-      setRsvp({ name: "", email: "", event: "reception", guests: "1" });
+      toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
+      setRsvp({ name: "", attending: "yes", dietary: "" });
     }
   };
 
@@ -53,9 +52,6 @@ export function RSVP({ eventId }: Props) {
     }
   };
 
-  const selectClass =
-    "mt-1 w-full border border-input rounded-md px-3 py-2 text-sm text-gray-700 bg-background focus:outline-none focus:ring-1 focus:ring-ring";
-
   return (
     <section className="py-16 px-4 bg-white">
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
@@ -66,64 +62,51 @@ export function RSVP({ eventId }: Props) {
           viewport={{ once: true, margin: "-40px 0px" }}
           transition={{ duration: 0.75, ease: EASE }}
         >
-          <h2 className="text-3xl font-serif text-gray-800 mb-1">Оролцоо баталгаажуулах</h2>
-          <p className="text-sm text-gray-400 mb-7">Ирэх эсэхээ баталгаажуулна уу</p>
+          <h2 className="text-3xl font-serif text-gray-800 mb-1">Ирцээ бүртгүүлэх</h2>
+          <p className="text-sm text-gray-400 mb-7">Хурмын өдрөөс өмнө бүртгэлээ хийнэ үү</p>
           <form onSubmit={handleRsvp} className="space-y-4">
             <div>
-              <Label htmlFor="r-name" className="text-xs text-gray-500">Таны нэр</Label>
               <Input
-                id="r-name"
-                placeholder="Нэрээ бичнэ үү"
+                placeholder="Таны нэр"
                 value={rsvp.name}
                 onChange={(e) => setRsvp({ ...rsvp, name: e.target.value })}
                 required
-                className="mt-1"
               />
             </div>
             <div>
-              <Label htmlFor="r-email" className="text-xs text-gray-500">Имэйл хаяг</Label>
-              <Input
-                id="r-email"
-                type="email"
-                placeholder="email@example.com"
-                value={rsvp.email}
-                onChange={(e) => setRsvp({ ...rsvp, email: e.target.value })}
-                required
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="r-event" className="text-xs text-gray-500">Арга хэмжээ</Label>
-              <select
-                id="r-event"
-                value={rsvp.event}
-                onChange={(e) => setRsvp({ ...rsvp, event: e.target.value })}
-                className={selectClass}
-              >
-                <option value="ceremony">Гэрлэлтийн ёслол</option>
-                <option value="reception">Хурим</option>
-                <option value="both">Хоёул</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="r-guests" className="text-xs text-gray-500">Зочдын тоо</Label>
-              <select
-                id="r-guests"
-                value={rsvp.guests}
-                onChange={(e) => setRsvp({ ...rsvp, guests: e.target.value })}
-                className={selectClass}
-              >
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <option key={n} value={String(n)}>{n} хүн</option>
+              <p className="text-sm text-gray-500 mb-2">Та ирэх үү?</p>
+              <div className="space-y-2">
+                {[
+                  { value: "yes", label: "Тийм, заавал ирнэ" },
+                  { value: "no",  label: "Харамсалтай нь ирж чадахгүй" },
+                ].map(({ value, label }) => (
+                  <label key={value} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+                    <input
+                      type="radio"
+                      name="attending"
+                      value={value}
+                      checked={rsvp.attending === value}
+                      onChange={() => setRsvp({ ...rsvp, attending: value })}
+                      className=""
+                    />
+                    {label}
+                  </label>
                 ))}
-              </select>
+              </div>
+            </div>
+            <div>
+              <Input
+                placeholder="Хоолны хязгаарлалт байна уу?"
+                value={rsvp.dietary}
+                onChange={(e) => setRsvp({ ...rsvp, dietary: e.target.value })}
+              />
             </div>
             <button
               type="submit"
               disabled={rsvpLoading}
               className="w-full bg-gray-800 text-white text-sm font-medium py-3 rounded-full hover:bg-gray-700 transition-colors mt-2 disabled:opacity-60"
             >
-              {rsvpLoading ? "Илгээж байна..." : "Оролцоно"}
+              {rsvpLoading ? "Илгээж байна..." : "Илгээх"}
             </button>
           </form>
         </motion.div>

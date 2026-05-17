@@ -1062,7 +1062,7 @@ function T12Venue({ name, address, mapUrl, image }: { name: string; address: str
 function T12Quote() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 30%"] });
-  const text = "Хоёр сэтгэл нэгэн зүгт тэмүүлж, Хайрын гэгээн замд учирсан бид хоёр Хувь заяагаа холбон, Хуримын ариун ёслолоо тэмдэглэх гэж байна. Энэхүү аз жаргалт мөчийг Эрхэм таны хамт хуваалцахыг урьж байна.";
+  const text = "Хоёр сэтгэл нэгэн зүгт тэмүүлж, Хайрын гэгээн замд учирсан бид хоёр Хувь заяагаа холбон, Хуримын ариун ёслолоо тэмдэглэх гэж байна. Энэхүү аз жаргалт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.";
   const words = text.split(" ");
 
   return (
@@ -1108,7 +1108,7 @@ function T12RSVP({ eventId }: { eventId: string }) {
     setLoading(false);
     if (error) toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     else {
-      toast.success("Баярлалаа! Таны оролцоо баталгаажлаа.");
+      toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
       setForm({ name: "", phone: "", guests: "1", message: "" });
     }
   };
@@ -1130,7 +1130,7 @@ function T12RSVP({ eventId }: { eventId: string }) {
     <section id="rsvp" style={{ background: CREAM, paddingInline: 24, paddingBlock: "clamp(80px,12vw,160px)" }}>
       <div style={{ maxWidth: 600, margin: "0 auto" }}>
         <Reveal className="text-center mb-14">
-          <Eyebrow className="mb-4">Ирэлтийн бүртгэл</Eyebrow>
+          <Eyebrow className="mb-4">Ирц бүртгэл</Eyebrow>
           <div style={{
             fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
             fontSize: "clamp(2.2rem, 6vw, 3.8rem)", color: INK, letterSpacing: "-0.01em",

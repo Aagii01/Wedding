@@ -7,14 +7,14 @@ import { EventData } from "../../types/event";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 const QUOTES = [
-  '"Чамайг хайрлах нь нарны туяа шиг — нуугдсан ч дулааныг нь мэднэ." —Монгол ардын',
-  '"Хоёр зүрх нэгдэхэд дэлхий бүхэл бүтэн болно." —Монгол ардын',
-  '"Хайрын утас зайн холоор тасардаггүй." —Монгол ардын',
-  '"Чиний инээмсэглэл бол миний өдрийн хамгийн сайхан мөч." —Монгол ардын',
-  '"Хайрласан хүнтэйгээ байхад цаг яарамгай өнгөрнө." —Монгол ардын',
-  '"Нүдний цэнхэр тэнгэрт чиний дүр харагдана." —Монгол ардын',
-  '"Хоёр хүний хайр бол хаврын анхны цэцэг шиг эмзэг ч хүчтэй." —Монгол ардын',
-  '"Чамтай байх агшин бүр зүрхэнд мөнхөд үлдэнэ." —Монгол ардын',
+  '"Чамайг хайрлах нь үүлсийн цаанаас ч дулаацуулах нарны гэрэл мэт Үзэгдэхгүй атлаа зүрхэнд үргэлж оршдог."',
+  '"Хоёр зүрх нэгэн хэмнэлээр цохилох үед Орчлон ертөнц сая нэг бүрэн бүтэн болдог."',
+  '"Орон зайн алс, цаг хугацааны уртад ч Хайрын торгон утас хэзээ ч тасардаггүй."',
+  '"Амьдралын минь саарал өдрүүдийг гэрэлтүүлэх Хамгийн тод өнгө бол чиний инээмсэглэл."',
+  '"Чамтай өнгөрүүлэх хором мөч бүр Цаг хугацааны хүрдийг дэндүү яаруулах юм."',
+  '"Харцны минь гүн дэх цэнхэр тэнгэрт Зөвхөн чиний л дүр тодрон үлддэг."',
+  '"Бидний хайр хаврын анхны цэцэг мэт Хяруунд жихүүцэх эмзэг ч, цасыг нэвтлэх тийм хүчтэй."',
+  '"Чамтай өнгөрүүлсэн хором бүр Зүрхний гүнд хэзээ ч бүдгэршгүй дурсамж болон мөнхөрнө."',
 ];
 
 const FALLBACK_SRCS = [
@@ -65,7 +65,7 @@ export function WeddingHero({ event }: Props) {
   const heroSrc = event.main_image ||
     "https://images.unsplash.com/photo-1583939003579-730e3918a45a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800";
 
-  const displayTitle = event.person2_name
+  const altText = event.person2_name
     ? `${event.person1_name} & ${event.person2_name}`
     : event.person1_name;
 
@@ -80,7 +80,7 @@ export function WeddingHero({ event }: Props) {
         >
           <ImageWithFallback
             src={heroSrc}
-            alt={displayTitle}
+            alt={altText}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-between py-8 px-6">
@@ -99,7 +99,13 @@ export function WeddingHero({ event }: Props) {
               className="text-white text-4xl text-center leading-tight"
               style={{ fontFamily: "'Dancing Script', cursive" }}
             >
-              {displayTitle}
+              {event.person2_name ? (
+                <>
+                  {event.person1_name}
+                  <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", margin: "0 6px" }}>&</span>
+                  {event.person2_name}
+                </>
+              ) : event.person1_name}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
