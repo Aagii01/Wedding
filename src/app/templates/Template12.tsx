@@ -1316,13 +1316,21 @@ function T12RSVP({ eventId }: { eventId: string }) {
 
 // ─── Footer ──────────────────────────────────────────────────────────────────
 function T12Footer({ mono, names }: { mono: string; names: string }) {
+  const parts = mono.split("&");
   return (
     <footer style={{ background: CREAM, paddingTop: 96, paddingBottom: 64, textAlign: "center", position: "relative" }}>
       <div style={{
         fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
         fontSize: "clamp(56px,14vw,100px)", lineHeight: 1, color: INK,
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
       }}>
-        {mono}
+        {parts.length === 2 ? (
+          <>
+            <span>{parts[0]}</span>
+            <span style={{ fontSize: "0.42em", color: ACCENT, fontStyle: "italic", margin: "0 6px", lineHeight: 1 }}>&amp;</span>
+            <span>{parts[1]}</span>
+          </>
+        ) : mono}
       </div>
       <div style={{ marginTop: 24, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})` }}>
         {names}
