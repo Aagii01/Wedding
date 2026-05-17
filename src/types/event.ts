@@ -21,4 +21,5 @@ export type EventData = {
   gallery_photos: string[];
   gallery2_photos: string[];
   template?: string;
+  music_url?: string;
 };
