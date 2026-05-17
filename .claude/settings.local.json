@@ -9,7 +9,10 @@
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\user\\\\Documents\\\\GitHub\\\\Wedding\\\\src\\\\app\\\\components\" -Filter \"*.tsx\")",
       "Bash(Select-Object Name)",
       "Bash(grep -v \"^ui$\")",
-      "Bash(grep -v \"^figma$\")"
+      "Bash(grep -v \"^figma$\")",
+      "Bash(git push *)",
+      "Bash(npx tsc *)",
+      "Bash(node_modules/.bin/tsc --noEmit)"
     ]
   }
 }
