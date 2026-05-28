@@ -1,21 +1,16 @@
 import {
   motion,
+  AnimatePresence,
   useMotionValue,
   useTransform,
   useAnimationFrame,
   useScroll,
 } from "motion/react";
-import { Heart } from "lucide-react";
-import { useRef, useMemo } from "react";
+import { Heart, X } from "lucide-react";
+import { useRef, useMemo, useState, useEffect } from "react";
+import { DEMO_EVENT } from "../demo/demoEvent";
 
 const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61582580015733";
-
-const DEMO_SLUGS: Record<string, string> = {
-  "11": "",
-  "12": "",
-  "13": "",
-  "14": "",
-};
 
 const TEMPLATES = [
   {
@@ -592,17 +587,154 @@ function AboutSection() {
   );
 }
 
+// ─── Phone mockup (preview screen + frame) ────────────────────────────────────
+type Template = (typeof TEMPLATES)[0];
+
+function PhoneScreenHero({ t }: { t: Template }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, background: t.bg }}>
+      <img
+        src={DEMO_EVENT.main_image}
+        alt=""
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(180deg, rgba(10,12,20,0.4) 0%, rgba(10,12,20,0.12) 35%, rgba(10,12,20,0.58) 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: 13,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          fontSize: 8,
+          letterSpacing: "0.24em",
+          textTransform: "uppercase",
+          color: "rgba(255,255,255,0.65)",
+        }}
+      >
+        {t.name}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "0 18px",
+        }}
+      >
+        <p
+          style={{
+            fontSize: 9,
+            letterSpacing: "0.28em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.8)",
+            marginBottom: 10,
+          }}
+        >
+          The wedding of
+        </p>
+        <h3
+          style={{
+            fontFamily: t.font,
+            fontSize: "clamp(26px, 7vw, 34px)",
+            color: "#fff",
+            lineHeight: 1.15,
+            margin: 0,
+            textShadow: "0 2px 16px rgba(0,0,0,0.55)",
+          }}
+        >
+          Болд
+          <br />& Сарнай
+        </h3>
+        <div style={{ width: 34, height: 1, background: t.accent, margin: "13px auto" }} />
+        <p style={{ fontSize: 10, letterSpacing: "0.18em", color: "rgba(255,255,255,0.85)" }}>
+          2026 · 07 · 15
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function PhoneFrame({
+  children,
+  screenW,
+  screenH,
+  notch = true,
+  screenRef,
+}: {
+  children: React.ReactNode;
+  screenW: number | string;
+  screenH: number | string;
+  notch?: boolean;
+  screenRef?: React.Ref<HTMLDivElement>;
+}) {
+  return (
+    <div
+      style={{
+        position: "relative",
+        padding: 9,
+        background: "linear-gradient(145deg, #2c2c30, #0d0d0f)",
+        borderRadius: 40,
+        boxShadow: "0 30px 70px rgba(0,0,0,0.5), inset 0 0 2px rgba(255,255,255,0.3)",
+      }}
+    >
+      <div
+        ref={screenRef}
+        style={{
+          position: "relative",
+          width: screenW,
+          height: screenH,
+          borderRadius: 31,
+          overflow: "hidden",
+          background: "#000",
+        }}
+      >
+        {children}
+        {notch && (
+          <div
+            style={{
+              position: "absolute",
+              top: 7,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 64,
+              height: 17,
+              background: "#000",
+              borderRadius: 11,
+              zIndex: 20,
+              pointerEvents: "none",
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Templates Section (sticky stacking cards) ────────────────────────────────
 function TemplateCard({
   t,
   index,
   total,
   scrollProgress,
+  onOpen,
 }: {
-  t: (typeof TEMPLATES)[0];
+  t: Template;
   index: number;
   total: number;
   scrollProgress: ReturnType<typeof useMotionValue<number>>;
+  onOpen: (t: Template) => void;
 }) {
   const targetScale = 1 - (total - 1 - index) * 0.04;
   const scale = useTransform(
@@ -611,7 +743,6 @@ function TemplateCard({
     [1, targetScale]
   );
   const dark = t.bg === "#66021f" || t.bg === "#0f1b33";
-  const demoSlug = DEMO_SLUGS[t.id];
   const numLabel = ["01", "02", "03", "04"][index];
 
   return (
@@ -682,21 +813,17 @@ function TemplateCard({
                   ))}
                 </div>
                 <div className="flex gap-3 flex-wrap">
-                  {demoSlug && (
-                    <a
-                      href={`/i/${demoSlug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block rounded-full font-semibold uppercase tracking-wider text-xs px-6 py-2.5 transition-opacity hover:opacity-80"
-                      style={{
-                        background: t.accent,
-                        color: dark ? t.bg : "#fff",
-                        textDecoration: "none",
-                      }}
-                    >
-                      Demo харах →
-                    </a>
-                  )}
+                  <button
+                    onClick={() => onOpen(t)}
+                    className="inline-flex items-center gap-2 rounded-full font-semibold uppercase tracking-wider text-xs px-6 py-2.5 transition-opacity hover:opacity-80 cursor-pointer"
+                    style={{
+                      background: t.accent,
+                      color: dark ? t.bg : "#fff",
+                      border: "none",
+                    }}
+                  >
+                    ▶ Demo үзэх
+                  </button>
                   <a
                     href={FACEBOOK_URL}
                     target="_blank"
@@ -715,7 +842,7 @@ function TemplateCard({
               </div>
             </div>
 
-            {/* Right: mini preview card */}
+            {/* Right: phone mockup preview (clickable) */}
             <div
               className="flex items-center justify-center p-8 md:p-10"
               style={{
@@ -724,78 +851,16 @@ function TemplateCard({
                 minWidth: "clamp(200px, 30vw, 340px)",
               }}
             >
-              <div
-                style={{
-                  width: 190,
-                  height: 310,
-                  background: t.bg,
-                  borderRadius: 20,
-                  boxShadow: `0 20px 60px ${t.accent}44`,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "22px 18px",
-                  border: `1px solid ${t.accent}44`,
-                }}
+              <button
+                onClick={() => onOpen(t)}
+                className="cursor-pointer transition-transform duration-300 hover:scale-[1.03]"
+                style={{ background: "transparent", border: "none", padding: 0 }}
+                aria-label={`${t.name} demo`}
               >
-                <div
-                  style={{
-                    width: 26,
-                    height: 26,
-                    borderRadius: "50%",
-                    background: t.accent,
-                    opacity: 0.9,
-                  }}
-                />
-                <div style={{ textAlign: "center" }}>
-                  <p
-                    style={{
-                      fontSize: 9,
-                      letterSpacing: "0.2em",
-                      textTransform: "uppercase",
-                      color: t.soft,
-                      marginBottom: 8,
-                    }}
-                  >
-                    The wedding of
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: t.font,
-                      fontSize: 26,
-                      color: t.text,
-                      lineHeight: 1.2,
-                      margin: "0 0 8px",
-                    }}
-                  >
-                    Болд
-                    <br />& Сарнай
-                  </p>
-                  <div
-                    style={{
-                      width: 28,
-                      height: 1,
-                      background: t.accent,
-                      margin: "10px auto",
-                    }}
-                  />
-                  <p style={{ fontSize: 9, letterSpacing: "0.15em", color: t.soft }}>
-                    2026 · 07 · 15
-                  </p>
-                </div>
-                <p
-                  style={{
-                    fontSize: 9,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    color: t.soft,
-                    fontWeight: 600,
-                  }}
-                >
-                  {t.name}
-                </p>
-              </div>
+                <PhoneFrame screenW={172} screenH={318}>
+                  <PhoneScreenHero t={t} />
+                </PhoneFrame>
+              </button>
             </div>
           </div>
         </div>
@@ -804,8 +869,179 @@ function TemplateCard({
   );
 }
 
+// ─── Demo Modal (interactive iframe inside phone) ─────────────────────────────
+const DEVICE_W = 390;
+const DEVICE_H = 844;
+
+function DemoModal({ t, onClose }: { t: Template; onClose: () => void }) {
+  const [loaded, setLoaded] = useState(false);
+  const [scale, setScale] = useState(1);
+  const screenRef = useRef<HTMLDivElement>(null);
+  const dark = t.bg === "#66021f" || t.bg === "#0f1b33";
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  // iframe-г 390×844 нягтрал дээр render хийгээд phone screen-д багтаатал scale хийнэ
+  useEffect(() => {
+    const measure = () => {
+      const el = screenRef.current;
+      if (el) setScale(el.clientHeight / DEVICE_H);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [loaded]);
+
+  const screenH = "min(88vh, 880px)";
+  const screenW = `calc(min(88vh, 880px) * ${DEVICE_W / DEVICE_H})`;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto py-10 px-4"
+      style={{ background: "rgba(8,8,10,0.82)", backdropFilter: "blur(8px)" }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative flex flex-col md:flex-row items-center gap-8 md:gap-14 my-auto"
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          aria-label="Хаах"
+          className="absolute -top-3 -right-2 md:-top-4 md:-right-12 z-10 rounded-full flex items-center justify-center transition-opacity hover:opacity-70 cursor-pointer"
+          style={{ width: 40, height: 40, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)" }}
+        >
+          <X size={20} color="#fff" />
+        </button>
+
+        {/* Phone */}
+        <div style={{ position: "relative" }}>
+          <PhoneFrame screenW={screenW} screenH={screenH} notch={!loaded} screenRef={screenRef}>
+            {loaded ? (
+              <iframe
+                src={`/demo/${t.id}`}
+                title={`${t.name} demo`}
+                allow="autoplay; fullscreen"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: DEVICE_W,
+                  height: DEVICE_H,
+                  border: "none",
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                }}
+              />
+            ) : (
+              <>
+                <PhoneScreenHero t={t} />
+                <button
+                  onClick={() => setLoaded(true)}
+                  className="absolute left-1/2 -translate-x-1/2 rounded-full font-semibold uppercase tracking-wider text-xs px-6 py-3 transition-transform hover:scale-105 cursor-pointer flex items-center gap-2"
+                  style={{
+                    bottom: 26,
+                    background: "rgba(255,255,255,0.95)",
+                    color: "#0C0C0C",
+                    border: "none",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                  }}
+                >
+                  ▶ Demo ачаалах
+                </button>
+              </>
+            )}
+          </PhoneFrame>
+        </div>
+
+        {/* Info */}
+        <div className="text-center md:text-left max-w-xs">
+          <p className="text-xs tracking-[0.25em] uppercase mb-2" style={{ color: "rgba(215,226,234,0.5)" }}>
+            Загвар
+          </p>
+          <h3
+            className="font-black uppercase leading-none mb-3"
+            style={{ ...goldGrad, fontSize: "clamp(2.2rem, 6vw, 56px)" }}
+          >
+            {t.name}
+          </h3>
+          <p className="text-sm mb-4" style={{ color: "rgba(215,226,234,0.55)", letterSpacing: "0.06em" }}>
+            {t.tagline}
+          </p>
+          <p className="leading-relaxed mb-6 text-sm" style={{ color: "rgba(215,226,234,0.7)" }}>
+            {t.desc}
+          </p>
+          <div className="flex gap-3 mb-7 justify-center md:justify-start">
+            {t.swatches.map((s) => (
+              <div
+                key={s}
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  background: s,
+                  border: "1.5px solid rgba(255,255,255,0.18)",
+                }}
+              />
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+            {!loaded && (
+              <button
+                onClick={() => setLoaded(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-full font-semibold uppercase tracking-wider text-xs px-7 py-3 transition-transform hover:scale-105 cursor-pointer"
+                style={{ background: t.accent, color: dark ? t.bg : "#fff", border: "none" }}
+              >
+                ▶ Demo ачаалах
+              </button>
+            )}
+            <a
+              href={FACEBOOK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-full font-semibold uppercase tracking-wider text-xs px-7 py-3 transition-transform hover:scale-105"
+              style={{ border: "1.5px solid rgba(215,226,234,0.4)", color: "#D7E2EA", textDecoration: "none" }}
+            >
+              Захиалга өгөх
+            </a>
+          </div>
+          <a
+            href={`/demo/${t.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-5 text-xs tracking-wider uppercase hover:opacity-70 transition-opacity"
+            style={{ color: "rgba(215,226,234,0.4)" }}
+          >
+            Шинэ цонхонд нээх ↗
+          </a>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function TemplatesSection() {
   const containerRef = useRef<HTMLElement>(null);
+  const [selected, setSelected] = useState<Template | null>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -832,7 +1068,7 @@ function TemplatesSection() {
           className="mt-4 text-xs tracking-widest uppercase"
           style={{ color: "#9ca3af" }}
         >
-          Demo харж сонгоод захиалгаа өгнө үү
+          Demo үзэж сонгоод захиалгаа өгнө үү
         </p>
       </FadeIn>
 
@@ -844,10 +1080,15 @@ function TemplatesSection() {
               index={i}
               total={TEMPLATES.length}
               scrollProgress={scrollYProgress as ReturnType<typeof useMotionValue<number>>}
+              onOpen={setSelected}
             />
           </div>
         ))}
       </div>
+
+      <AnimatePresence>
+        {selected && <DemoModal t={selected} onClose={() => setSelected(null)} />}
+      </AnimatePresence>
     </section>
   );
 }

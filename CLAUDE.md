@@ -24,9 +24,11 @@
 
 ## URL Бүтэц
 ```
-/               → LandingPage   (загвар showcase, fan carousel)
-/i/:slug        → EventPage     (тухайн хуримын урилга)
+/               → LandingPage   (загвар showcase, fan carousel, demo modal)
+/i/:slug        → EventPage     (тухайн хуримын урилга — Supabase-аас дата)
+/demo/:id       → DemoPage      (загварын demo — hardcoded дата, iframe-д ачаалдаг)
 /create         → CreatePage    (шинэ event үүсгэх form — admin хэрэглэнэ)
+/admin          → AdminPage
 ```
 
 ---
@@ -83,9 +85,10 @@ src/app/templates/
 ```
 
 ### Хэрхэн ажилладаг
+- `templateMap` нь тусдаа файлд: `src/app/templates/templateMap.ts` (`EventPage` ба `DemoPage` хуваалцана)
 - `EventPage.tsx` → `event.template` field-г уншина → `templateMap`-аас тохирох component-г ачаална
-- `templateMap` дотор: `"11" → App` (хуучин загвар), `"12" → Template12`
-- Шинэ template нэмэхдээ: `templateMap`-д key нэмэх + шинэ файл үүсгэх
+- `templateMap` дотор: `"11" → App`, `"12" → Template12`, `"13" → Template13`, `"14" → Template14`, `"15" → Template15`
+- Шинэ template нэмэхдээ: шинэ файл үүсгэх + `templateMap.ts`-д key нэмэх (LandingPage-ийн demo-д автоматаар орно)
 
 ### Template 11 (src/app/App.tsx) — "Classic"
 Одоогийн хуримын загвар. FloatingPetals, WeddingHero carousel, GroomBride гэх мэт.
@@ -118,6 +121,40 @@ ACCENT = "hsl(218 50% 50%)"
 - `useScroll({ offset: ["start start", "end start"] })` → `scrollYProgress` 0→1
 - Зураг тус бүр `useTransform`-аар `y`, `x`, `rotate` scroll-тай шууд холбосон
 - Доош scroll → зураг дээш гарна, дээш scroll → буцаад доошоо орно
+
+---
+
+## Demo / Showcase Систем (LandingPage загвар preview)
+
+LandingPage дээр захиалагч **жинхэнэ template-уудыг утсан дотор интерактив байдлаар** үзэж болдог. Энэ нь дахин код бичээгүй — яг ажиллаж байгаа template component-уудыг **дата сольж** дуудна.
+
+### Гол санаа: нэг component, өөр дата
+Template бүр `event: EventData` prop авдаг.
+- **Жинхэнэ урилга** (`/i/:slug`) → Supabase-аас дата ирнэ
+- **Demo** (`/demo/:id`) → `DEMO_EVENT` (hardcoded дата) ирнэ
+
+→ Template-д засвар хийвэл demo **ба** жинхэнэ урилга хоёулаа автоматаар шинэчлэгдэнэ.
+
+### Файлууд
+| Файл | Үүрэг |
+|------|------|
+| `src/app/templates/templateMap.ts` | `"11"→App, "12"→Template12...` нэг л map. `EventPage` ба `DemoPage` хуваалцана |
+| `src/app/pages/DemoPage.tsx` | `useParams` id → `templateMap[id]` → `<Template event={{...DEMO_EVENT, template: id}} />` |
+| `src/app/demo/demoEvent.ts` | Зөвхөн **дата** (Болд & Сарнай, Unsplash зураг, `music_url`). UI код биш |
+
+### Урсгал
+```
+LandingPage → TemplatesSection → карт дээр дарах
+  → DemoModal нээгдэнэ (утасны frame + "Demo ачаалах" товч)
+  → товч дарах → <iframe src="/demo/:id">
+  → DemoPage → templateMap[id] → жинхэнэ template (App/Template12/13/14)
+```
+
+### Чухал техникийн шийдвэрүүд (LandingPage.tsx)
+- **iframe ашигладаг шалтгаан:** template-ууд `100vh`, `window.scrollY`, `position:fixed` (video intro) ашигладаг. iframe доторх viewport тусгаарлагдсан тул бүгд зөв ажиллана.
+- **Scaled iframe (device emulator арга):** iframe-г `390×844` (стандарт iPhone нягтрал) дээр render хийгээд `transform: scale()`-р утасны screen-д багтаатал жижигрүүлнэ. `scale = screen.clientHeight / 844`, `resize`-д дахин тооцоолно. → template `390px` өргөн гэж "боддог" тул **хэвтээ scroll гарахгүй**, агуулга үргэлж багтана.
+- **Дуу:** `<iframe allow="autoplay">` + `DEMO_EVENT.music_url`. Хэрэглэгч iframe дотор intro дээр дарах нь user gesture болж, видео + ар талын дуу хоёулаа эхэлнэ.
+- **PhoneFrame / PhoneScreenHero:** дахин ашиглагддаг — картны thumbnail ба modal-ийн эхний preview хоёрт.
 
 ---
 

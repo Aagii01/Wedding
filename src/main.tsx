@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { EventPage } from "./app/pages/EventPage";
+import { DemoPage } from "./app/pages/DemoPage";
 import { LandingPage } from "./app/pages/LandingPage";
 import { CreatePage } from "./app/pages/CreatePage";
 import { AdminPage } from "./app/pages/AdminPage";
@@ -11,6 +12,7 @@ const router = createBrowserRouter([
   { path: "/create", element: <CreatePage /> },
   { path: "/admin", element: <AdminPage /> },
   { path: "/i/:slug", element: <EventPage /> },
+  { path: "/demo/:id", element: <DemoPage /> },
   { path: "*", element: <LandingPage /> },
 ]);
 
