@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
@@ -10,10 +10,6 @@ const BURGUNDY       = "#66021F";
 const CREAM          = "#FFFAF8";
 const INK            = "#3A3A3A";
 const ENVELOPE_BG    = "#E8E3DC";
-const NAVY_ENVELOPE  = "#0f1b35";
-const NAVY_TOP_FLAP  = "#162240";
-const NAVY_SIDE_FLAP = "#0d1a32";
-const SHELL_SEAL_PHOTO = ""; // Pearl/shell зургийн URL эндээ оруулна
 
 // ─── font helpers ─────────────────────────────────────────────────────────────
 const playfair  = { fontFamily: "'Playfair Display', serif" } as const;
@@ -25,126 +21,6 @@ function Amp({ size }: { size?: number }) {
     <span style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: size }}>
       &amp;
     </span>
-  );
-}
-
-function NavyWaxSeal({ size = 200 }: { size?: number }) {
-  const S = "rgba(188,212,238,0.90)";  // silver botanical color
-  const SD = "rgba(165,192,220,0.75)"; // slightly darker silver
-  return (
-    <svg width={size} height={size} viewBox="0 0 200 200" fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ filter: "drop-shadow(0 8px 28px rgba(0,0,0,0.70))", display: "block" }}>
-      <defs>
-        <radialGradient id="waxBg" cx="36%" cy="30%" r="72%">
-          <stop offset="0%"   stopColor="#1e3565"/>
-          <stop offset="45%"  stopColor="#0e2248"/>
-          <stop offset="100%" stopColor="#071530"/>
-        </radialGradient>
-        <radialGradient id="waxRim" cx="36%" cy="30%" r="72%">
-          <stop offset="0%"   stopColor="#25407a"/>
-          <stop offset="55%"  stopColor="#152d60"/>
-          <stop offset="100%" stopColor="#0a1c44"/>
-        </radialGradient>
-        <filter id="waxEdge" x="-8%" y="-8%" width="116%" height="116%">
-          <feTurbulence type="turbulence" baseFrequency="0.038" numOctaves="4" seed="5" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="5"
-            xChannelSelector="R" yChannelSelector="G"/>
-        </filter>
-      </defs>
-
-      {/* Outer wax ring — bumpy melted-wax edge */}
-      <circle cx="100" cy="100" r="91" fill="url(#waxRim)" filter="url(#waxEdge)"/>
-
-      {/* Inner face */}
-      <circle cx="100" cy="100" r="77" fill="url(#waxBg)"/>
-
-      {/* Inner rim */}
-      <circle cx="100" cy="100" r="77" fill="none"
-        stroke="rgba(180,205,238,0.22)" strokeWidth="1.2"/>
-
-      {/* ── Botanical embossing ─────────────────────────── */}
-
-      {/* Main center-left large flower — 5 petals */}
-      {([0,1,2,3,4] as number[]).map(i => {
-        const a = (i * 72 - 90) * Math.PI / 180;
-        const pr = 12;
-        const px = 87 + pr * Math.cos(a);
-        const py = 113 + pr * Math.sin(a);
-        return (
-          <ellipse key={i} cx={px} cy={py} rx={7} ry={14}
-            fill={S} transform={`rotate(${i * 72 - 90}, ${px}, ${py})`}/>
-        );
-      })}
-      <circle cx="87" cy="113" r="5.5" fill="rgba(210,230,248,0.95)"/>
-      <circle cx="87" cy="113" r="2.5" fill="rgba(145,175,215,0.85)"/>
-
-      {/* Small top flower — 4 petals */}
-      {([0,1,2,3] as number[]).map(i => {
-        const a = (i * 90 - 45) * Math.PI / 180;
-        const pr = 8;
-        const px = 112 + pr * Math.cos(a);
-        const py = 70 + pr * Math.sin(a);
-        return (
-          <ellipse key={i} cx={px} cy={py} rx={5} ry={9}
-            fill={S} transform={`rotate(${i * 90 - 45}, ${px}, ${py})`}/>
-        );
-      })}
-      <circle cx="112" cy="70" r="3.5" fill="rgba(210,230,248,0.92)"/>
-
-      {/* Main stem */}
-      <path d="M87 143 C86 132,88 120,87 104 C87 88,96 78,112 70"
-        stroke={SD} strokeWidth="1.6" strokeLinecap="round" fill="none"/>
-
-      {/* Side branch stems */}
-      <path d="M87 118 C77 113,65 117,57 112"
-        stroke={SD} strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-      <path d="M88 105 C98 100,114 104,122 100"
-        stroke={SD} strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-
-      {/* Leaves */}
-      <ellipse cx="72" cy="107" rx="13" ry="5"
-        fill={SD} transform="rotate(-28, 72, 107)"/>
-      <ellipse cx="104" cy="98" rx="12" ry="4.5"
-        fill={SD} transform="rotate(22, 104, 98)"/>
-
-      {/* Long grass blades at bottom */}
-      <ellipse cx="83" cy="140" rx="3.5" ry="18"
-        fill={SD} transform="rotate(-8, 83, 140)"/>
-      <ellipse cx="92" cy="142" rx="3" ry="16"
-        fill={SD} transform="rotate(6, 92, 142)"/>
-      <ellipse cx="100" cy="141" rx="2.5" ry="14"
-        fill={SD} transform="rotate(14, 100, 141)"/>
-
-      {/* Baby's breath — left cluster */}
-      {([[58,82],[63,75],[54,89],[69,80],[56,95]] as [number,number][]).map(([x,y],i) => (
-        <circle key={i} cx={x} cy={y} r={2.8} fill={S}/>
-      ))}
-      <path d="M74 104 C68 96,61 90,58 82" stroke={SD} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
-      <path d="M74 104 C69 94,65 84,63 75" stroke={SD} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
-      <path d="M74 104 C66 99,57 93,54 89" stroke={SD} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
-      <path d="M74 104 C70 93,71 86,69 80" stroke={SD} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
-      <path d="M74 104 C65 101,59 97,56 95" stroke={SD} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
-
-      {/* Baby's breath — right cluster */}
-      {([[130,80],[138,87],[132,94],[142,78]] as [number,number][]).map(([x,y],i) => (
-        <circle key={i} cx={x} cy={y} r={2.8} fill={S}/>
-      ))}
-      <path d="M122 105 C130 96,132 87,130 80" stroke={SD} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
-      <path d="M122 105 C130 97,136 91,138 87" stroke={SD} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
-      <path d="M122 105 C128 97,132 97,132 94" stroke={SD} strokeWidth="0.9" strokeLinecap="round" fill="none"/>
-
-      {/* Small buds on right stem */}
-      <ellipse cx="120" cy="110" rx="3.5" ry="6.5"
-        fill={S} transform="rotate(10, 120, 110)"/>
-      <ellipse cx="117" cy="123" rx="3" ry="6"
-        fill={S} transform="rotate(18, 117, 123)"/>
-
-      {/* Bottom right small bud cluster */}
-      <circle cx="127" cy="128" r="4" fill={S}/>
-      <circle cx="121" cy="135" r="3" fill={S}/>
-      <circle cx="133" cy="134" r={2.5} fill={S}/>
-    </svg>
   );
 }
 
@@ -248,174 +124,91 @@ function WaxSeal({ i1 = "V", i2 = "P" }: { i1?: string; i2?: string }) {
   );
 }
 
-// ─── Envelope ─────────────────────────────────────────────────────────────────
-type EnvPhase = "idle" | "opening" | "flying" | "done";
+// ─── Video intro overlay ───────────────────────────────────────────────────────
+const T13_INTRO_VIDEO_URL =
+  "https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4";
 
-function EnvelopeOverlay({ onOpen, event, audioRef }: {
-  onOpen: () => void; event: EventData;
+function VideoIntro({ audioRef }: {
   audioRef: React.RefObject<HTMLAudioElement | null>;
 }) {
-  const [phase, setPhase] = useState<EnvPhase>("idle");
+  const [started, setStarted] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [exiting, setExiting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const handleClick = useCallback(() => {
-    if (phase !== "idle") return;
-    setPhase("opening");
+  const start = () => {
+    if (started) return;
+    setStarted(true);
+    const v = videoRef.current;
+    if (v) {
+      v.muted = false;
+      v.play().catch(() => {
+        v.muted = true;
+        v.play().catch(() => {});
+      });
+    }
     audioRef.current?.play().catch(() => {});
-    setTimeout(() => setPhase("flying"), 3200);
-    setTimeout(() => { setPhase("done"); onOpen(); }, 4400);
-  }, [phase, onOpen, audioRef]);
+  };
 
-  if (phase === "done") return null;
-  const isOpen   = phase !== "idle";
-  const isFlying = phase === "flying";
+  const handleEnded = () => {
+    if (exiting) return;
+    setExiting(true);
+    setTimeout(() => setVisible(false), 1600);
+  };
+
+  if (!visible) return null;
 
   return (
     <motion.div
-      onClick={phase === "idle" ? handleClick : undefined}
-      animate={isFlying ? { y: "110vh" } : { y: 0 }}
-      transition={{ duration: 1.0, ease: [0.4, 0, 0.6, 1], delay: isFlying ? 0.2 : 0 }}
+      onClick={!started ? start : undefined}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: exiting ? 0 : 1 }}
+      transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
       style={{
         position: "fixed", inset: 0,
-        background: NAVY_ENVELOPE,
+        background: "#000",
         zIndex: 9999,
-        cursor: phase === "idle" ? "pointer" : "default",
         overflow: "hidden",
+        cursor: !started ? "pointer" : "default",
+        pointerEvents: exiting ? "none" : "auto",
       }}
     >
-      {/* Subtle fabric texture overlay */}
-      <div style={{
-        position: "absolute", inset: 0,
-        backgroundImage: "radial-gradient(rgba(255,255,255,0.028) 1px, transparent 1px)",
-        backgroundSize: "5px 5px",
-        pointerEvents: "none",
-      }} />
-
-      {/* Bottom flap */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: NAVY_TOP_FLAP,
-        clipPath: "polygon(0 100%, 50% 52%, 100% 100%)",
-        pointerEvents: "none",
-      }} />
-
-      {/* Left flap */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: NAVY_SIDE_FLAP,
-        clipPath: "polygon(0 0, 50% 52%, 0 100%)",
-        pointerEvents: "none",
-      }} />
-
-      {/* Right flap */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: NAVY_SIDE_FLAP,
-        clipPath: "polygon(100% 0, 50% 52%, 100% 100%)",
-        pointerEvents: "none",
-      }} />
-
-      {/* Hero image peek — top flap-н доор, нэгдэх үед харагдана */}
-      {event.main_image && (
-        <motion.div
-          style={{
-            position: "absolute", inset: 0,
-            clipPath: "polygon(0 0, 100% 0, 50% 52%)",
-            overflow: "hidden",
-            pointerEvents: "none",
-          }}
-          initial={{ opacity: 0 }}
-          animate={isOpen ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 1.4, delay: isOpen ? 0.4 : 0 }}
-        >
-          <img src={event.main_image} alt=""
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%" }}
-          />
-          <div style={{ position: "absolute", inset: 0, background: "rgba(8,18,40,0.45)" }} />
-        </motion.div>
-      )}
-
-      {/* Top flap — дарахад дээш хэв нэмэгдэж нэгдэнэ */}
-      <motion.div
+      <video
+        ref={videoRef}
+        src={T13_INTRO_VIDEO_URL}
+        muted
+        playsInline
+        preload="auto"
+        onEnded={handleEnded}
         style={{
           position: "absolute", inset: 0,
-          background: NAVY_TOP_FLAP,
-          clipPath: "polygon(0 0, 100% 0, 50% 52%)",
-          transformOrigin: "top center",
-          pointerEvents: "none",
+          width: "100%", height: "100%",
+          objectFit: "cover",
         }}
-        animate={isOpen ? { scaleY: 0 } : { scaleY: 1 }}
-        transition={{ duration: 1.8, ease: [0.25, 0.46, 0.45, 0.94] }}
       />
 
-      {/* Fold seam lines — corner-аас center рүү */}
-      <svg
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
-        preserveAspectRatio="none"
-        viewBox="0 0 100 100"
-      >
-        <line x1="0"   y1="0"   x2="50" y2="52" stroke="rgba(190,210,240,0.18)" strokeWidth="0.25"/>
-        <line x1="100" y1="0"   x2="50" y2="52" stroke="rgba(190,210,240,0.18)" strokeWidth="0.25"/>
-        <line x1="0"   y1="100" x2="50" y2="52" stroke="rgba(190,210,240,0.13)" strokeWidth="0.25"/>
-        <line x1="100" y1="100" x2="50" y2="52" stroke="rgba(190,210,240,0.13)" strokeWidth="0.25"/>
-      </svg>
-
-      {/* Shell / pearl wax seal — fold intersection дээр */}
-      <motion.div
-        style={{
-          position: "absolute",
-          top: "52%", left: "50%",
-          marginLeft: -100, marginTop: -100,
-          pointerEvents: "none",
-        }}
-        animate={
-          isOpen
-            ? { scale: 0, opacity: 0 }
-            : { scale: [1, 1.04, 1], opacity: 1 }
-        }
-        transition={
-          isOpen
-            ? { duration: 0.35 }
-            : { repeat: Infinity, duration: 2.8, ease: "easeInOut" }
-        }
-      >
-        {SHELL_SEAL_PHOTO ? (
-          <img
-            src={SHELL_SEAL_PHOTO}
-            alt="seal"
-            style={{ width: 200, height: 200, objectFit: "cover", borderRadius: "50%" }}
-          />
-        ) : (
-          <NavyWaxSeal size={200} />
-        )}
-      </motion.div>
-
-      {/* "Дарж нээх" hint */}
-      <motion.div
-        animate={
-          phase === "idle"
-            ? { y: [0, -6, 0], opacity: 1 }
-            : { opacity: 0 }
-        }
-        transition={
-          phase === "idle"
-            ? { repeat: Infinity, duration: 1.8, ease: "easeInOut" }
-            : { duration: 0.2 }
-        }
-        style={{
-          position: "absolute",
-          bottom: "8%",
-          left: 0, right: 0,
-          color: "rgba(210,225,245,0.45)",
-          ...playfairI,
-          fontSize: 14,
-          letterSpacing: "0.14em",
-          pointerEvents: "none",
-          whiteSpace: "nowrap",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-        }}
-      >
-        <span>↓</span> Дарж нээх <span>↓</span>
-      </motion.div>
+      {/* Click-to-start hint */}
+      {!started && (
+        <motion.div
+          animate={{ y: [0, -6, 0], opacity: 1 }}
+          transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+          style={{
+            position: "absolute",
+            bottom: "8%",
+            left: 0, right: 0,
+            color: "rgba(255,255,255,0.9)",
+            ...playfairI,
+            fontSize: 16,
+            letterSpacing: "0.18em",
+            pointerEvents: "none",
+            whiteSpace: "nowrap",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+            textShadow: "0 2px 12px rgba(0,0,0,0.6)",
+          }}
+        >
+          <span>↓</span> Дарж эхлүүлэх <span>↓</span>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
@@ -1335,8 +1128,8 @@ export default function Template13({ event }: { event: EventData }) {
 
   return (
     <div style={{ maxWidth: 523, margin: "0 auto", fontFamily: "'Ovo', serif", overflowX: "hidden" }}>
-      {/* Envelope is position:fixed — content renders behind it, revealed as envelope slides away */}
-      <EnvelopeOverlay onOpen={() => {}} event={event} audioRef={audioRef} />
+      {/* Video intro — position:fixed, content renders behind it, revealed as video fades out */}
+      <VideoIntro audioRef={audioRef} />
 
       <T13Hero event={event} />
       <T13Letter event={event} />
