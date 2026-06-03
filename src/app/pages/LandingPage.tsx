@@ -192,8 +192,8 @@ function CTAButton({
 }
 
 // ─── Fan Carousel (template preview 3D) ──────────────────────────────────────
-const DOUBLED = [...TEMPLATES, ...TEMPLATES];
-const CARD_SPACING = 270;
+const DOUBLED = [...TEMPLATES, ...TEMPLATES, ...TEMPLATES];
+const CARD_SPACING = 300;
 const TOTAL_SHIFT = CARD_SPACING * TEMPLATES.length;
 const CENTER_BASE = -(DOUBLED.length * CARD_SPACING) / 2 + CARD_SPACING / 2;
 
@@ -201,10 +201,10 @@ function FanTemplateCard({ t }: { t: (typeof TEMPLATES)[0] }) {
   return (
     <div
       style={{
-        width: 230,
-        height: 370,
+        width: 264,
+        height: 425,
         background: t.bg,
-        borderRadius: 24,
+        borderRadius: 26,
         boxShadow: "0 12px 48px rgba(0,0,0,0.5)",
         display: "flex",
         flexDirection: "column",
@@ -279,9 +279,9 @@ function FanCard({
   baseX: number;
 }) {
   const x = useTransform(offset, (o: number) => baseX + o);
-  const rotateY = useTransform(x, [-500, -200, 0, 200, 500], [55, 25, 0, -25, -55]);
-  const scale = useTransform(x, [-350, 0, 350], [0.72, 1.0, 0.72]);
-  const opacity = useTransform(x, [-480, -280, 0, 280, 480], [0, 0.65, 1, 0.65, 0]);
+  const rotateY = useTransform(x, [-780, -320, 0, 320, 780], [55, 28, 0, -28, -55]);
+  const scale = useTransform(x, [-560, 0, 560], [0.7, 1.0, 0.7]);
+  const opacity = useTransform(x, [-780, -560, 0, 560, 780], [0, 0.7, 1, 0.7, 0]);
   const zIndex = useTransform(x, (v: number) => Math.round(100 - Math.abs(v) / 5));
   return (
     <motion.div
@@ -300,28 +300,59 @@ function FanCard({
   );
 }
 
+// offset-г seamless loop хязгаарт оруулна
+function wrapOffset(v: number) {
+  let next = v;
+  while (next <= -TOTAL_SHIFT) next += TOTAL_SHIFT;
+  while (next > 0) next -= TOTAL_SHIFT;
+  return next;
+}
+
 function FanCarousel() {
   const offset = useMotionValue(0);
-  const paused = useRef(false);
+  const drag = useRef<{ active: boolean; startX: number; startOffset: number }>({
+    active: false,
+    startX: 0,
+    startOffset: 0,
+  });
 
   useAnimationFrame((_, delta) => {
-    if (!paused.current) {
-      let next = offset.get() - delta * 0.07;
-      if (next <= -TOTAL_SHIFT) next += TOTAL_SHIFT;
-      offset.set(next);
-    }
+    if (drag.current.active) return; // чирэх үед auto-эргэлт зогсоно
+    offset.set(wrapOffset(offset.get() - delta * 0.07));
   });
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    drag.current = {
+      active: true,
+      startX: e.clientX,
+      startOffset: offset.get(),
+    };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!drag.current.active) return;
+    const dx = e.clientX - drag.current.startX;
+    offset.set(wrapOffset(drag.current.startOffset + dx));
+  };
+  const endDrag = (e: React.PointerEvent) => {
+    if (!drag.current.active) return;
+    drag.current.active = false;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      // pointer capture аль хэдийн суларсан байж болно
+    }
+  };
 
   return (
     <div
-      className="relative overflow-hidden"
-      style={{ height: 460, perspective: 1200 }}
-      onMouseEnter={() => {
-        paused.current = true;
-      }}
-      onMouseLeave={() => {
-        paused.current = false;
-      }}
+      className="relative overflow-hidden select-none cursor-grab active:cursor-grabbing"
+      style={{ height: 510, perspective: 1200, touchAction: "pan-y" }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onPointerLeave={endDrag}
     >
       <div className="absolute inset-0 flex items-center justify-center">
         {DOUBLED.map((t, i) => (
