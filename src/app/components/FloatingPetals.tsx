@@ -7,12 +7,6 @@ const PETALS = [
   { id: 5,  left: 65, delay: 4,   dur: 9,  size: 12, drift: -35, rot: 70  },
   { id: 6,  left: 77, delay: 1.5, dur: 11, size: 7,  drift:  60, rot: 160 },
   { id: 7,  left: 88, delay: 3,   dur: 8,  size: 10, drift: -50, rot: 200 },
-  { id: 8,  left: 33, delay: 5,   dur: 10, size: 9,  drift:  40, rot: 240 },
-  { id: 9,  left: 60, delay: 6,   dur: 9,  size: 8,  drift: -30, rot: 300 },
-  { id: 10, left: 91, delay: 2,   dur: 13, size: 11, drift:  35, rot: 330 },
-  { id: 11, left: 48, delay: 7,   dur: 8,  size: 7,  drift: -45, rot: 15  },
-  { id: 12, left: 22, delay: 4.5, dur: 11, size: 10, drift:  55, rot: 80  },
-  { id: 13, left: 73, delay: 8,   dur: 10, size: 8,  drift: -60, rot: 120 },
 ];
 
 const COLORS = ["#f4a7b8", "#e8869e", "#fbc8d4", "#f2a0b5", "#e97a98"];
@@ -38,6 +32,7 @@ export function FloatingPetals() {
               left: `${p.left}%`,
               top: 0,
               animation: `petalFall ${p.dur}s ${p.delay}s ease-in-out infinite`,
+              willChange: "transform, opacity",
               ["--petal-drift" as string]: `${p.drift}px`,
             }}
           >

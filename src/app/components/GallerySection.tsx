@@ -9,7 +9,8 @@ const PLACEHOLDERS = [
   "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
   "https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&q=80",
   "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=600&q=80",
-  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80",
+  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&q=80",
+  "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&q=80",
 ];
 
 type Props = { event: EventData };
@@ -17,7 +18,7 @@ type Props = { event: EventData };
 export function GallerySection({ event }: Props) {
   const [lightbox, setLightbox] = useState<string | null>(null);
 
-  const photos = Array.from({ length: 4 }, (_, i) =>
+  const photos = Array.from({ length: 5 }, (_, i) =>
     event.gallery_photos?.[i] || PLACEHOLDERS[i]
   );
 
@@ -51,45 +52,51 @@ export function GallerySection({ event }: Props) {
               <img
                 src={photos[0]}
                 alt="gallery"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />
             </motion.div>
 
-            {/* Small photos */}
-            {photos.slice(1, 3).map((src, i) => (
+            {/* Small photos — right column */}
+            {photos.slice(1, 4).map((src, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, scale: 0.96 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "-40px 0px" }}
                 transition={{ duration: 0.75, delay: (i + 1) * 0.1, ease: EASE }}
-                className="relative overflow-hidden rounded-2xl cursor-pointer group"
+                className="col-span-1 relative overflow-hidden rounded-2xl cursor-pointer group"
                 style={{ aspectRatio: "1/1" }}
                 onClick={() => setLightbox(src)}
               >
                 <img
                   src={src}
                   alt="gallery"
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />
               </motion.div>
             ))}
 
-            {/* 4th photo — full width bottom */}
+            {/* 5th photo — wide bottom */}
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, margin: "-40px 0px" }}
               transition={{ duration: 0.75, delay: 0.2, ease: EASE }}
-              className="col-span-2 md:col-span-3 relative overflow-hidden rounded-2xl cursor-pointer group"
-              style={{ aspectRatio: "16/7" }}
-              onClick={() => setLightbox(photos[3])}
+              className="col-span-1 md:col-span-2 relative overflow-hidden rounded-2xl cursor-pointer group"
+              style={{ aspectRatio: "1/1" }}
+              onClick={() => setLightbox(photos[4])}
             >
               <img
-                src={photos[3]}
+                src={photos[4]}
                 alt="gallery"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />

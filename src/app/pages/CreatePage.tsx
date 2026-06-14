@@ -26,6 +26,7 @@ type FormData = {
   gallery_photo_2: string;
   gallery_photo_3: string;
   gallery_photo_4: string;
+  gallery_photo_5: string;
   gallery2_photo_1: string;
   gallery2_photo_2: string;
   gallery2_photo_3: string;
@@ -58,6 +59,7 @@ const INITIAL: FormData = {
   gallery_photo_2: "",
   gallery_photo_3: "",
   gallery_photo_4: "",
+  gallery_photo_5: "",
   gallery2_photo_1: "",
   gallery2_photo_2: "",
   gallery2_photo_3: "",
@@ -128,6 +130,7 @@ export function CreatePage() {
       form.gallery_photo_2,
       form.gallery_photo_3,
       form.gallery_photo_4,
+      form.gallery_photo_5,
     ].filter(Boolean);
 
     const gallery2_photos = [
@@ -298,10 +301,10 @@ export function CreatePage() {
           <div className="space-y-4">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Галерей зургууд</p>
             <p className="text-[11px] text-gray-400 -mt-2">Галерей хэсэгт тусдаа харагдана (hero, person зургуудтай давхцахгүй)</p>
-            {([1, 2, 3, 4] as const).map((n) => (
+            {([1, 2, 3, 4, 5] as const).map((n) => (
               <Field
                 key={n}
-                label={`Зураг ${n}${n === 1 ? " (том, featured)" : n === 4 ? " (доод, өргөн)" : ""}`}
+                label={`Зураг ${n}${n === 1 ? " (том, featured)" : n === 5 ? " (доод, өргөн)" : ""}`}
               >
                 <Input
                   className={inputClass}
