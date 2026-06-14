@@ -160,7 +160,8 @@ export function CountdownTimer({ date, time, title, venue, venueAddress }: Props
 
           <TimerNumbers date={date} time={time} />
 
-          {/* Calendar dropdown */}
+          {/* Calendar dropdown — түр нуусан (буцааж асаах: false → true) */}
+          {false && (
           <div className="inline-block relative" ref={ref}>
             <button
               onClick={() => setOpen((v) => !v)}
@@ -202,6 +203,7 @@ export function CountdownTimer({ date, time, title, venue, venueAddress }: Props
               )}
             </AnimatePresence>
           </div>
+          )}
         </motion.div>
       </div>
     </section>
