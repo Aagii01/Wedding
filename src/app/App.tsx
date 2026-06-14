@@ -41,6 +41,9 @@ function VideoIntro({ audioRef }: {
 
   const handleEnded = () => {
     if (exiting) return;
+    // Видео дуусахад ар талын хөгжмийг баталгаатай эхлүүлнэ
+    // (intro товшилт нь user gesture болсон тул энд play() зөвшөөрөгдөнө)
+    audioRef.current?.play().catch(() => {});
     setExiting(true);
     setTimeout(() => setVisible(false), 1600);
   };
