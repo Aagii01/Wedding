@@ -27,24 +27,7 @@ function VideoIntro({ audioRef }: {
   useEffect(() => {
     // Видеог дуугүйгээр шууд автоматаар тоглуулна (browser зөвшөөрдөг)
     videoRef.current?.play().catch(() => {});
-
-    // Ар талын хөгжмийг эхлүүлэх оролдлого. Browser нь дуутай audio-г
-    // user gesture-гүйгээр хориглодог тул хэрэглэгчийн анхны хөдөлгөөн
-    // (tap / scroll / keydown) дээр баталгаатай асаана.
-    const startMusic = () => { audioRef.current?.play().catch(() => {}); };
-    startMusic();
-    const opts = { once: true } as const;
-    window.addEventListener("pointerdown", startMusic, opts);
-    window.addEventListener("touchstart", startMusic, opts);
-    window.addEventListener("keydown", startMusic, opts);
-    window.addEventListener("scroll", startMusic, opts);
-    return () => {
-      window.removeEventListener("pointerdown", startMusic);
-      window.removeEventListener("touchstart", startMusic);
-      window.removeEventListener("keydown", startMusic);
-      window.removeEventListener("scroll", startMusic);
-    };
-  }, [audioRef]);
+  }, []);
 
   const handleEnded = () => {
     if (exiting) return;
@@ -134,6 +117,24 @@ type Props = { event: EventData };
 
 export default function App({ event }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Browser нь дуутай audio-г user gesture-гүйгээр автоматаар тоглуулахыг
+  // хориглодог. Тиймээс хэрэглэгчийн анхны хөдөлгөөн (tap / scroll / keydown)
+  // дээр хөгжмийг асаана. Listener-ууд хөгжим амжилттай эхлэх хүртэл амьд үлдэнэ.
+  useEffect(() => {
+    if (!event.music_url) return;
+    const startMusic = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.play().then(cleanup).catch(() => {});
+    };
+    const events = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
+    const cleanup = () => events.forEach((e) => window.removeEventListener(e, startMusic));
+    // Desktop дээр шууд оролдоно (хориглогдвол доорх listener-ууд барина)
+    startMusic();
+    events.forEach((e) => window.addEventListener(e, startMusic, { passive: true }));
+    return cleanup;
+  }, [event.music_url]);
 
   return (
     <div className="min-h-screen bg-white">
