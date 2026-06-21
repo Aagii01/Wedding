@@ -19,6 +19,7 @@ const TEMPLATES = [
     tagline: "Цагаан · Нарийн · Дэгжин",
     desc: "Цэвэр цагаан фон, хөх лацан дарааст захиа. Хэнд ч таарах сонгодог загвар.",
     bg: "#ffffff",
+    cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover1.jpg",
     accent: "#0f1b35",
     text: "#1a1a2e",
     soft: "#6b7280",
@@ -31,6 +32,7 @@ const TEMPLATES = [
     tagline: "Ногоон · Botanical · Editorial",
     desc: "Cormorant Garamond фонт, scroll-driven анимейшн. Утга уран загвар.",
     bg: "hsl(220 18% 96%)",
+    cover: "",
     accent: "hsl(218 50% 50%)",
     text: "hsl(220 30% 16%)",
     soft: "hsl(220 20% 45%)",
@@ -43,6 +45,7 @@ const TEMPLATES = [
     tagline: "Бургунди · Романтик · Тансаг",
     desc: "Гүн улаан өнгө, алтан ботаникал лац. Хурмын уламжлалт гоёлт загвар.",
     bg: "#66021f",
+    cover: "",
     accent: "#e8c97a",
     text: "#fffaf8",
     soft: "rgba(255,250,248,0.65)",
@@ -55,6 +58,7 @@ const TEMPLATES = [
     tagline: "Хар тэнгэр · Алт · Editorial",
     desc: "Гүн хөх шөнийн тэнгэр, алтан дэлгэрэнгүй. Cormorant Garamond — хаан тайзны загвар.",
     bg: "#0f1b33",
+    cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover2.jpg",
     accent: "#b89a6b",
     text: "#f4eede",
     soft: "rgba(244,238,222,0.6)",
@@ -198,6 +202,53 @@ const TOTAL_SHIFT = CARD_SPACING * TEMPLATES.length;
 const CENTER_BASE = -(DOUBLED.length * CARD_SPACING) / 2 + CARD_SPACING / 2;
 
 function FanTemplateCard({ t }: { t: (typeof TEMPLATES)[0] }) {
+  // Cover зурагтай карт — зөвхөн зургийг дүүрэн харуулж, доор нь нэр
+  if (t.cover) {
+    return (
+      <div
+        style={{
+          width: 264,
+          height: 425,
+          borderRadius: 26,
+          boxShadow: "0 12px 48px rgba(0,0,0,0.5)",
+          border: `1px solid ${t.accent}44`,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <img
+          src={t.cover}
+          alt={t.name}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            padding: "44px 20px 18px",
+            background: "linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0))",
+            textAlign: "center",
+          }}
+        >
+          <p
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.92)",
+              fontWeight: 600,
+              margin: 0,
+            }}
+          >
+            {t.name}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
