@@ -15,8 +15,8 @@ const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61582580015733";
 const TEMPLATES = [
   {
     id: "11",
-    name: "Classic",
-    tagline: "Цагаан · Нарийн · Дэгжин",
+    name: "Pearl",
+    tagline: "Сувд · Цэвэр · Дэгжин",
     desc: "Цэвэр цагаан фон, хөх лацан дарааст захиа. Хэнд ч таарах сонгодог загвар.",
     bg: "#ffffff",
     cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover1.jpg",
@@ -28,21 +28,21 @@ const TEMPLATES = [
   },
   {
     id: "12",
-    name: "Cormorant",
-    tagline: "Ногоон · Botanical · Editorial",
+    name: "Azure",
+    tagline: "Цэнхэр · Botanical · Editorial",
     desc: "Cormorant Garamond фонт, scroll-driven анимейшн. Утга уран загвар.",
-    bg: "hsl(220 18% 96%)",
+    bg: "hsl(218 42% 88%)",
     cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover3.jpg",
     accent: "hsl(218 50% 50%)",
     text: "hsl(220 30% 16%)",
     soft: "hsl(220 20% 45%)",
-    swatches: ["hsl(220 30% 16%)", "hsl(218 50% 50%)", "hsl(220 18% 96%)", "hsl(220 15% 88%)"],
+    swatches: ["hsl(220 30% 16%)", "hsl(218 50% 50%)", "hsl(218 42% 88%)", "hsl(220 15% 88%)"],
     font: "'Cormorant Garamond', serif",
   },
   {
     id: "13",
-    name: "Burgundy",
-    tagline: "Бургунди · Романтик · Тансаг",
+    name: "Ruby",
+    tagline: "Бадмаараг · Романтик · Тансаг",
     desc: "Гүн улаан өнгө, алтан ботаникал лац. Хурмын уламжлалт гоёлт загвар.",
     bg: "#66021f",
     cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover4.jpg",
@@ -54,8 +54,8 @@ const TEMPLATES = [
   },
   {
     id: "14",
-    name: "Navy & Gold",
-    tagline: "Хар тэнгэр · Алт · Editorial",
+    name: "Diamond",
+    tagline: "Очир · Хар тэнгэр · Алт",
     desc: "Гүн хөх шөнийн тэнгэр, алтан дэлгэрэнгүй. Cormorant Garamond — хаан тайзны загвар.",
     bg: "#0f1b33",
     cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover2.jpg",
@@ -75,6 +75,16 @@ const goldGrad: React.CSSProperties = {
   WebkitTextFillColor: "transparent",
   color: "transparent",
 };
+
+// Бүх загварт нийтлэг давуу талууд (showcase картад харуулна)
+const FEATURES = [
+  "Ар талын хөгжим",
+  "Ирц бүртгэл (RSVP)",
+  "Ерөөл, мэндчилгээ",
+  "Цаг тоолуур",
+  "Газрын зураг, чиглэл",
+  "Зургийн цомог",
+];
 
 // ─── FadeIn ────────────────────────────────────────────────────────────────────
 function FadeIn({
@@ -465,7 +475,7 @@ function HeroSection() {
           className="text-xs tracking-[0.3em] uppercase mb-6"
           style={{ color: "rgba(215,226,234,0.45)" }}
         >
-          Монгол хурим · баяр · цахим урилга
+          Монгол · цахим · урилга
         </motion.p>
 
         <div style={{ overflow: "hidden" }}>
@@ -522,9 +532,8 @@ function HeroSection() {
 
 // ─── Marquee Text Strip ───────────────────────────────────────────────────────
 const MARQUEE_ITEMS = [
-  "Хурим", "·", "Баяр", "·", "Цахим урилга", "·", "RSVP", "·",
-  "Онцгой өдөр", "·", "Special Day", "·", "24 цаг", "·",
-  "Загвар", "·", "Линк хуваалцах", "·",
+  "Хурим", "·", "Цахим урилга", "·", "Мэндчилгээ", "·", "Location", "·",
+  "Дуу", "·", "24 цаг", "·", "Загвар", "·", "Link, QR", "·",
 ];
 
 function MarqueeStrip() {
@@ -646,12 +655,12 @@ function AboutSection() {
             className="font-black uppercase leading-none tracking-tight text-center"
             style={{ ...goldGrad, fontSize: "clamp(3rem, 13vw, 140px)" }}
           >
-            Бидний тухай
+            Танилцуулга
           </h2>
         </FadeIn>
 
         <AnimatedText
-          text="Монгол хурим, баяр тойрны онцгой мөчүүдийг гоёлттой цахим урилгаар тэмдэглэнэ. Захиалагч Facebook-р холбогдоно, 24 цагийн дотор бэлэн болсон URL-г хэзээ ч, хаанаас ч нааш нь найзуудадаа хуваалцана."
+          text="Амьдралын хамгийн үнэт мөчүүдийг гоёмсог цахим урилгаар мөнхөлье. Та өөрт тохирох загвараа сонгоход л хангалттай — бид 24 цагийн дотор урилгыг тань бэлдэж, хайртай хүмүүстээ хэзээ ч, хаанаас ч хүргэх Линк, QR-г тань гардуулна."
           className="font-medium text-center leading-relaxed max-w-[560px] mx-auto"
           style={{ color: "#D7E2EA", fontSize: "clamp(1rem, 2vw, 1.35rem)" }}
         />
@@ -734,8 +743,7 @@ function PhoneScreenHero({ t }: { t: Template }) {
           Болд
           <br />& Сарнай
         </h3>
-        <div style={{ width: 34, height: 1, background: t.accent, margin: "13px auto" }} />
-        <p style={{ fontSize: 10, letterSpacing: "0.18em", color: "rgba(255,255,255,0.85)" }}>
+        <p style={{ fontSize: 10, letterSpacing: "0.18em", color: "rgba(255,255,255,0.85)", marginTop: 13 }}>
           2026 · 07 · 15
         </p>
       </div>
@@ -864,15 +872,21 @@ function TemplateCard({
                 >
                   {t.tagline}
                 </p>
-                <p
-                  className="leading-relaxed mt-4 max-w-xs"
-                  style={{
-                    color: t.soft,
-                    fontSize: "clamp(0.8rem, 1.3vw, 1rem)",
-                  }}
-                >
-                  {t.desc}
-                </p>
+                <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 max-w-md">
+                  {FEATURES.map((f) => (
+                    <li
+                      key={f}
+                      className="flex items-center gap-2"
+                      style={{
+                        color: t.soft,
+                        fontSize: "clamp(0.8rem, 1.3vw, 0.95rem)",
+                      }}
+                    >
+                      <span style={{ color: t.accent, fontWeight: 700 }}>✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
               </div>
               <div>
                 <div className="flex gap-3 mb-5 mt-8">
@@ -1170,6 +1184,94 @@ function TemplatesSection() {
   );
 }
 
+// ─── Why Us Section (системийн давуу талууд) ──────────────────────────────────
+const WHY_US = [
+  { icon: "💰", title: "Үнэ хямд", desc: "Хэвлэмэл уриа болон ихэнх захиалгаас хямд, гэхдээ хавьгүй тансаг" },
+  { icon: "👵", title: "Ахмадад ээлтэй", desc: "Жижиг, уйтгартай видео ширтэхээ боль — том, ойлгомжтой" },
+  { icon: "📸", title: "Pre-wedding зураг", desc: "Дурлалын зургаа урьд байгаагүйгээр гайхалтай харуул" },
+  { icon: "🎵", title: "Хөгжимтэй", desc: "Ар талын хөгжим урилгад амь оруулна" },
+  { icon: "⚡", title: "24 цагт бэлэн", desc: "Захиалснаас хойш нэг хоногийн дотор гарт тань" },
+  { icon: "🔗", title: "Хялбар хуваалцах", desc: "Линк болон QR-р зочиддоо хаанаас ч илгээнэ" },
+];
+
+function WhyUsSection() {
+  return (
+    <section
+      className="w-full px-5 md:px-10 py-20 md:py-28 relative z-[1]"
+      style={{ background: "#ffffff" }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-12 md:gap-20">
+        {/* Left — sticky гарчиг */}
+        <div className="md:w-2/5 md:sticky md:top-24 self-start">
+          <FadeIn y={40} duration={0.7}>
+            <h2
+              className="font-black leading-[1.05] tracking-tight"
+              style={{ color: "#0C0C0C", fontSize: "clamp(2rem, 4.5vw, 3.2rem)" }}
+            >
+              Урилгын шинэ
+              <br />
+              эрин үе.
+            </h2>
+            <p
+              className="mt-5 leading-relaxed"
+              style={{ color: "#6b7280", maxWidth: 360, fontSize: "clamp(0.9rem, 1.4vw, 1.05rem)" }}
+            >
+              Гар утсанд төгс, хуваалцахад хялбар. Хэвлэмэл уриагаас хямд ч, хавьгүй
+              тансаг мэдрэмж.
+            </p>
+            <a
+              href={FACEBOOK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-8 rounded-full font-semibold text-sm px-8 py-3.5 text-white transition-transform hover:scale-[1.02]"
+              style={{ background: "#0C0C0C", textDecoration: "none" }}
+            >
+              Загвар сонгох
+            </a>
+          </FadeIn>
+        </div>
+
+        {/* Right — scroll-аар бага багаар давхарлаж стэк болдог давуу талууд */}
+        <div className="md:w-3/5">
+          {WHY_US.map((f, i) => (
+            <div key={f.title} style={{ height: "38vh" }}>
+              <div className="sticky" style={{ top: `calc(6rem + ${i * 16}px)` }}>
+                <div
+                  className="flex items-start gap-5 px-6 py-6"
+                  style={{
+                    background: "#ffffff",
+                    borderRadius: 22,
+                    border: "1px solid #eee",
+                    boxShadow: "0 14px 34px rgba(0,0,0,0.11)",
+                    minHeight: 116,
+                  }}
+                >
+                  <div style={{ fontSize: 40, lineHeight: 1, flexShrink: 0 }}>{f.icon}</div>
+                  <div>
+                    <p className="font-bold mb-2" style={{ color: "#0C0C0C", fontSize: 15 }}>
+                      {f.title}
+                    </p>
+                    <p
+                      className="leading-snug"
+                      style={{
+                        color: "#1a1a2e",
+                        fontSize: "clamp(1.2rem, 2.4vw, 1.85rem)",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {f.desc}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── How It Works Section ─────────────────────────────────────────────────────
 const STEPS = [
   { n: "01", title: "Загвар сонгох", desc: "Та өөрт тохирох загварыг сонгоно (Demo харж сонгох)" },
@@ -1192,7 +1294,6 @@ function HowItWorksSection() {
       className="w-full px-5 md:px-10 py-20 md:py-28 relative z-[2]"
       style={{
         background: "#ffffff",
-        borderRadius: "clamp(28px, 4vw, 56px) clamp(28px, 4vw, 56px) 0 0",
         marginTop: -1,
       }}
     >
@@ -1316,6 +1417,7 @@ export function LandingPage() {
       <MarqueeStrip />
       <AboutSection />
       <TemplatesSection />
+      <WhyUsSection />
       <HowItWorksSection />
       <FooterSection />
     </div>
