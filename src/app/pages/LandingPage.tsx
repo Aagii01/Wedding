@@ -32,7 +32,7 @@ const TEMPLATES = [
     tagline: "Ногоон · Botanical · Editorial",
     desc: "Cormorant Garamond фонт, scroll-driven анимейшн. Утга уран загвар.",
     bg: "hsl(220 18% 96%)",
-    cover: "",
+    cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover3.jpg",
     accent: "hsl(218 50% 50%)",
     text: "hsl(220 30% 16%)",
     soft: "hsl(220 20% 45%)",
@@ -45,7 +45,7 @@ const TEMPLATES = [
     tagline: "Бургунди · Романтик · Тансаг",
     desc: "Гүн улаан өнгө, алтан ботаникал лац. Хурмын уламжлалт гоёлт загвар.",
     bg: "#66021f",
-    cover: "",
+    cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover4.jpg",
     accent: "#e8c97a",
     text: "#fffaf8",
     soft: "rgba(255,250,248,0.65)",
@@ -118,15 +118,10 @@ function AnimChar({
   progress: ReturnType<typeof useMotionValue<number>>;
   range: [number, number];
 }) {
-  const opacity = useTransform(progress, range, [0.12, 1]);
-  return (
-    <span style={{ position: "relative", display: "inline" }}>
-      <span style={{ opacity: 0.12 }}>{children}</span>
-      <motion.span style={{ opacity, position: "absolute", left: 0, top: 0 }}>
-        {children}
-      </motion.span>
-    </span>
-  );
+  // Нэг давхар span — өнгийг бараанаас цагаан болгож scroll-оор илчилнэ.
+  // (Өмнө нь 2 давхар text давхцаж бүрэлзэж байсныг зассан.)
+  const color = useTransform(progress, range, ["#3a3f49", "#D7E2EA"]);
+  return <motion.span style={{ color }}>{children}</motion.span>;
 }
 
 function AnimatedText({
@@ -448,7 +443,7 @@ function HeroSection() {
             ...goldGrad,
           }}
         >
-          One Wedding
+          Special Day
         </span>
         <a
           href={FACEBOOK_URL}
@@ -485,7 +480,7 @@ function HeroSection() {
               whiteSpace: "nowrap",
             }}
           >
-            ONE WEDDING
+            SPECIAL DAY
           </motion.h1>
         </div>
 
@@ -528,7 +523,7 @@ function HeroSection() {
 // ─── Marquee Text Strip ───────────────────────────────────────────────────────
 const MARQUEE_ITEMS = [
   "Хурим", "·", "Баяр", "·", "Цахим урилга", "·", "RSVP", "·",
-  "Онцгой өдөр", "·", "One Wedding", "·", "24 цаг", "·",
+  "Онцгой өдөр", "·", "Special Day", "·", "24 цаг", "·",
   "Загвар", "·", "Линк хуваалцах", "·",
 ];
 
@@ -1177,17 +1172,17 @@ function TemplatesSection() {
 
 // ─── How It Works Section ─────────────────────────────────────────────────────
 const STEPS = [
-  { n: "01", title: "Загвар сонгох", desc: "Demo харж таны хэв маягт тохирсон загварыг сонгоно" },
-  { n: "02", title: "Захиалга өгөх", desc: "Facebook хуудасны маань рүү мессеж илгээнэ" },
+  { n: "01", title: "Загвар сонгох", desc: "Та өөрт тохирох загварыг сонгоно (Demo харж сонгох)" },
+  { n: "02", title: "Захиалга өгөх", desc: "Facebook, Instagram болон утасаар холбогдон захиалгаа өгнө" },
   {
     n: "03",
     title: "Мэдэгдэл хүлээн авах",
-    desc: "24 цагийн дотор урилгыг тань бэлдэж, URL-г явуулна",
+    desc: "24 цагийн дотор урилгыг тань бэлдэж, LINK, QR-г явуулна",
   },
   {
     n: "04",
     title: "Хуваалцах",
-    desc: "Линк хуулаад найз нөхөддөө WhatsApp, Facebook-р явуулна",
+    desc: "Линк болон QR-г зочиддоо Facebook, Instagram, SMS болон бусад бүх сувгаар илгээх боломжтой",
   },
 ];
 
@@ -1299,7 +1294,7 @@ function FooterSection() {
               ...goldGrad,
             }}
           >
-            One Wedding
+            Special Day
           </span>
           <p
             className="text-xs tracking-widest uppercase"

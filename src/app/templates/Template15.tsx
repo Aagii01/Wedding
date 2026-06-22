@@ -591,7 +591,7 @@ function RSVPSection({ event }: { event: EventData }) {
           {event.title}
         </p>
         <p className="font-light text-sm" style={{ color: "rgba(215,226,234,0.3)" }}>
-          One Wedding
+          Special Day
         </p>
       </div>
     </section>

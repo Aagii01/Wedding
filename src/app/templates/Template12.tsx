@@ -1322,7 +1322,7 @@ function T12Footer({ mono, names }: { mono: string; names: string }) {
         {names}
       </div>
       <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
-        One Wedding · Хайраар бүтээсэн
+        Special Day · Хайраар бүтээсэн
       </div>
     </footer>
   );

@@ -39,7 +39,7 @@ export function WeddingFooter({ event }: Props) {
         </motion.div>
       </div>
       <div className="absolute bottom-4 left-0 right-0 text-center">
-        <p className="text-white/30 text-[10px] tracking-widest uppercase">One Wedding</p>
+        <p className="text-white/30 text-[10px] tracking-widest uppercase">Special Day</p>
       </div>
     </footer>
   );
