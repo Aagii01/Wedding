@@ -6,11 +6,12 @@ import {
   useAnimationFrame,
   useScroll,
 } from "motion/react";
-import { Heart, X } from "lucide-react";
+import { Heart, X, Facebook, Instagram, Phone } from "lucide-react";
 import { useRef, useMemo, useState, useEffect } from "react";
 import { DEMO_EVENT } from "../demo/demoEvent";
 
 const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61582580015733";
+const INSTAGRAM_URL = "https://www.instagram.com/e_urilga.mn";
 
 const TEMPLATES = [
   {
@@ -31,12 +32,12 @@ const TEMPLATES = [
     name: "Azure",
     tagline: "Цэнхэр · Botanical · Editorial",
     desc: "Cormorant Garamond фонт, scroll-driven анимейшн. Утга уран загвар.",
-    bg: "hsl(218 42% 88%)",
+    bg: "#0f1b33",
     cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover3.jpg",
-    accent: "hsl(218 50% 50%)",
-    text: "hsl(220 30% 16%)",
-    soft: "hsl(220 20% 45%)",
-    swatches: ["hsl(220 30% 16%)", "hsl(218 50% 50%)", "hsl(218 42% 88%)", "hsl(220 15% 88%)"],
+    accent: "#b89a6b",
+    text: "#f4eede",
+    soft: "rgba(244,238,222,0.6)",
+    swatches: ["#0f1b33", "#28406b", "#b89a6b", "#f4eede"],
     font: "'Cormorant Garamond', serif",
   },
   {
@@ -57,12 +58,12 @@ const TEMPLATES = [
     name: "Diamond",
     tagline: "Очир · Хар тэнгэр · Алт",
     desc: "Гүн хөх шөнийн тэнгэр, алтан дэлгэрэнгүй. Cormorant Garamond — хаан тайзны загвар.",
-    bg: "#0f1b33",
+    bg: "hsl(218 42% 88%)",
     cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover2.jpg",
-    accent: "#b89a6b",
-    text: "#f4eede",
-    soft: "rgba(244,238,222,0.6)",
-    swatches: ["#0f1b33", "#28406b", "#b89a6b", "#f4eede"],
+    accent: "hsl(218 50% 50%)",
+    text: "hsl(220 30% 16%)",
+    soft: "hsl(220 20% 45%)",
+    swatches: ["hsl(220 30% 16%)", "hsl(218 50% 50%)", "hsl(218 42% 88%)", "hsl(220 15% 88%)"],
     font: "'Cormorant Garamond', serif",
   },
 ];
@@ -82,9 +83,21 @@ const FEATURES = [
   "Ирц бүртгэл (RSVP)",
   "Ерөөл, мэндчилгээ",
   "Цаг тоолуур",
-  "Газрын зураг, чиглэл",
+  "Газрын зураг",
   "Зургийн цомог",
 ];
+
+// ─── useIsMobile ─────────────────────────────────────────────────────────────
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < breakpoint);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [breakpoint]);
+  return isMobile;
+}
 
 // ─── FadeIn ────────────────────────────────────────────────────────────────────
 function FadeIn({
@@ -455,15 +468,46 @@ function HeroSection() {
         >
           Special Day
         </span>
-        <a
-          href={FACEBOOK_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs sm:text-sm font-medium uppercase tracking-widest hover:opacity-70 transition-opacity"
-          style={{ color: "#D7E2EA" }}
-        >
-          Захиалах →
-        </a>
+        <div className="flex items-center gap-4 sm:gap-5">
+          <a
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+            className="hover:opacity-70 transition-opacity"
+            style={{ color: "#D7E2EA" }}
+          >
+            <Facebook size={20} strokeWidth={1.6} />
+          </a>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="hover:opacity-70 transition-opacity"
+            style={{ color: "#D7E2EA" }}
+          >
+            <Instagram size={20} strokeWidth={1.6} />
+          </a>
+          <a
+            href="tel:88328085"
+            aria-label="Утас"
+            className="flex items-center gap-1.5 text-xs sm:text-sm font-medium tracking-wide hover:opacity-70 transition-opacity"
+            style={{ color: "#D7E2EA" }}
+          >
+            <Phone size={18} strokeWidth={1.6} />
+            <span className="hidden sm:inline">88328085</span>
+          </a>
+          <a
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs sm:text-sm font-medium uppercase tracking-widest hover:opacity-70 transition-opacity"
+            style={{ color: "#D7E2EA" }}
+          >
+            Захиалах →
+          </a>
+        </div>
       </motion.nav>
 
       {/* Heading block */}
@@ -506,25 +550,11 @@ function HeroSection() {
         >
           Хурим, баярын онцгой урилгыг 24 цагийн дотор бэлдэж тань руу явуулна
         </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.65, duration: 0.6 }}
-        >
-          <CTAButton href={FACEBOOK_URL}>Захиалга өгөх</CTAButton>
-        </motion.div>
       </div>
 
       {/* Fan carousel */}
       <div className="pb-2">
         <FanCarousel />
-        <p
-          className="text-center text-xs tracking-[0.22em] uppercase mt-3 pb-4"
-          style={{ color: "rgba(215,226,234,0.25)" }}
-        >
-          Hover хийж загвар харна уу
-        </p>
       </div>
     </section>
   );
@@ -571,7 +601,7 @@ function AboutSection() {
   return (
     <section
       id="about"
-      className="min-h-screen w-full flex flex-col items-center justify-center relative px-5 md:px-10 py-24"
+      className="md:min-h-screen w-full flex flex-col items-center justify-center relative px-5 md:px-10 py-16 md:py-24"
       style={{ background: "#0C0C0C" }}
     >
       {/* Decorative corners */}
@@ -653,14 +683,14 @@ function AboutSection() {
         <FadeIn y={40} duration={0.7}>
           <h2
             className="font-black uppercase leading-none tracking-tight text-center"
-            style={{ ...goldGrad, fontSize: "clamp(3rem, 13vw, 140px)" }}
+            style={{ ...goldGrad, fontSize: "clamp(1.9rem, 10vw, 140px)" }}
           >
             Танилцуулга
           </h2>
         </FadeIn>
 
         <AnimatedText
-          text="Амьдралын хамгийн үнэт мөчүүдийг гоёмсог цахим урилгаар мөнхөлье. Та өөрт тохирох загвараа сонгоход л хангалттай — бид 24 цагийн дотор урилгыг тань бэлдэж, хайртай хүмүүстээ хэзээ ч, хаанаас ч хүргэх Линк, QR-г тань гардуулна."
+          text="Төгс сэтгэгдэл урилгаас эхэлдэг. Амьдралынхаа үнэ цэнтэй мөчийг дижитал ертөнцөд хамгийн гоёмсог хэлбэрээр тамгалаарай. Загвараа сонгоод, үлдсэнийг нь бидэнд даатга. Ердөө 24 цагийн дотор бэлэн болох Link, QR код тань таныг хайртай хүмүүстэй тань цаг хугацаа, орон зай харгалзахгүйгээр холбох болно."
           className="font-medium text-center leading-relaxed max-w-[560px] mx-auto"
           style={{ color: "#D7E2EA", fontSize: "clamp(1rem, 2vw, 1.35rem)" }}
         />
@@ -829,6 +859,10 @@ function TemplateCard({
   );
   const dark = t.bg === "#66021f" || t.bg === "#0f1b33";
   const numLabel = ["01", "02", "03", "04"][index];
+  const isMobile = useIsMobile();
+  // Mobile дээр phone preview-г илүү том, desktop дээр хэвээр (172×318 харьцаа хадгална)
+  const phoneW = isMobile ? 230 : 172;
+  const phoneH = isMobile ? 425 : 318;
 
   return (
     <div
@@ -846,10 +880,7 @@ function TemplateCard({
         >
           <div className="flex flex-col md:flex-row">
             {/* Left: info */}
-            <div
-              className="flex-1 flex flex-col justify-between p-7 md:p-12"
-              style={{ minHeight: "clamp(260px, 38vw, 480px)" }}
-            >
+            <div className="flex-1 flex flex-col justify-between gap-3 p-7 md:p-12 md:gap-0 md:[min-height:clamp(260px,38vw,480px)]">
               <div>
                 <p
                   className="text-xs tracking-[0.25em] uppercase mb-3"
@@ -866,13 +897,7 @@ function TemplateCard({
                 >
                   {t.name}
                 </h3>
-                <p
-                  className="text-sm mb-2"
-                  style={{ color: t.soft, letterSpacing: "0.07em" }}
-                >
-                  {t.tagline}
-                </p>
-                <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 max-w-md">
+                <ul className="mt-5 hidden md:grid md:grid-cols-2 gap-x-6 gap-y-2.5 max-w-md">
                   {FEATURES.map((f) => (
                     <li
                       key={f}
@@ -889,7 +914,7 @@ function TemplateCard({
                 </ul>
               </div>
               <div>
-                <div className="flex gap-3 mb-5 mt-8">
+                <div className="flex gap-3 mb-5 md:mt-8">
                   {t.swatches.map((s) => (
                     <div
                       key={s}
@@ -948,7 +973,7 @@ function TemplateCard({
                 style={{ background: "transparent", border: "none", padding: 0 }}
                 aria-label={`${t.name} demo`}
               >
-                <PhoneFrame screenW={172} screenH={318}>
+                <PhoneFrame screenW={phoneW} screenH={phoneH}>
                   <PhoneScreenHero t={t} />
                 </PhoneFrame>
               </button>
@@ -1070,17 +1095,11 @@ function DemoModal({ t, onClose }: { t: Template; onClose: () => void }) {
             Загвар
           </p>
           <h3
-            className="font-black uppercase leading-none mb-3"
+            className="font-black uppercase leading-none mb-5"
             style={{ ...goldGrad, fontSize: "clamp(2.2rem, 6vw, 56px)" }}
           >
             {t.name}
           </h3>
-          <p className="text-sm mb-4" style={{ color: "rgba(215,226,234,0.55)", letterSpacing: "0.06em" }}>
-            {t.tagline}
-          </p>
-          <p className="leading-relaxed mb-6 text-sm" style={{ color: "rgba(215,226,234,0.7)" }}>
-            {t.desc}
-          </p>
           <div className="flex gap-3 mb-7 justify-center md:justify-start">
             {t.swatches.map((s) => (
               <div
@@ -1133,6 +1152,7 @@ function DemoModal({ t, onClose }: { t: Template; onClose: () => void }) {
 function TemplatesSection() {
   const containerRef = useRef<HTMLElement>(null);
   const [selected, setSelected] = useState<Template | null>(null);
+  const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -1165,7 +1185,7 @@ function TemplatesSection() {
 
       <div className="max-w-5xl mx-auto">
         {TEMPLATES.map((t, i) => (
-          <div key={t.id} style={{ height: "78vh" }}>
+          <div key={t.id} style={{ height: isMobile ? "104vh" : "78vh" }}>
             <TemplateCard
               t={t}
               index={i}
@@ -1186,13 +1206,103 @@ function TemplatesSection() {
 
 // ─── Why Us Section (системийн давуу талууд) ──────────────────────────────────
 const WHY_US = [
-  { icon: "💰", title: "Үнэ хямд", desc: "Хэвлэмэл уриа болон ихэнх захиалгаас хямд, гэхдээ хавьгүй тансаг" },
-  { icon: "👵", title: "Ахмадад ээлтэй", desc: "Жижиг, уйтгартай видео ширтэхээ боль — том, ойлгомжтой" },
-  { icon: "📸", title: "Pre-wedding зураг", desc: "Дурлалын зургаа урьд байгаагүйгээр гайхалтай харуул" },
-  { icon: "🎵", title: "Хөгжимтэй", desc: "Ар талын хөгжим урилгад амь оруулна" },
-  { icon: "⚡", title: "24 цагт бэлэн", desc: "Захиалснаас хойш нэг хоногийн дотор гарт тань" },
-  { icon: "🔗", title: "Хялбар хуваалцах", desc: "Линк болон QR-р зочиддоо хаанаас ч илгээнэ" },
+  {
+    icon: "🎵",
+    title: "Хөгжимтэй урилга",
+    desc: "Урилга нээгдэхэд таны сонгосон дуу автоматаар эгшиглэнэ.",
+  },
+  {
+    icon: "💌",
+    title: "Ирц бүртгэл (RSVP)",
+    desc: "Зочид «ирнэ / ирэхгүй», хэдэн хүн ирэхээ шууд урилгаар дамжуулан мэдэгдэнэ. Та хэдэн зочинтой болохоо урьдчилан, нэг дороос харна — утсаар нэг бүрчлэн асуух шаардлагагүй.",
+  },
+  {
+    icon: "💝",
+    title: "Мэндчилгээ",
+    desc: "Зочид танд зориулж халуун дулаан мэндчилгээ үлдээнэ. Бүгд хадгалагдах тул хуримын дараа ч эргэн уншиж, дурсамж болгон авах боломжтой.",
+  },
+  {
+    icon: "📍",
+    title: "Газрын зураг",
+    desc: "Тухайн газрыг Google Maps дээр байршуулж, зочид нэг товчоор чиглэл харна.",
+  },
+  {
+    icon: "🎨",
+    title: "Олон загвар сонголт",
+    desc: "Pearl, Azure, Ruby, Diamond гэх мэт олон загвар бэлэн. Special загварыг та зөвхөн өөрийн санаа бодлоо тусган тохируулж хийлгэх боломжтой.",
+  },
+  {
+    icon: "🔗",
+    title: "Урилга илгээх маш амархан",
+    desc: "Хэвлэх, тараах шаардлагагүй. Ганц Link, QR — Facebook, Messenger, Instagram-аар хормын зуур илгээнэ.",
+  },
 ];
+
+function WhyUsCard({ f, i }: { f: (typeof WHY_US)[number]; i: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Карт viewport-ийн доороос орж ирэхэд scroll-оос хамаарч хөдөлнө
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "start center"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [120, 0]);
+  const opacity = useTransform(scrollYProgress, [0, 0.55, 1], [0, 0.4, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], [0.92, 1]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [2, 0]);
+
+  return (
+    // Бүх карт нэг баганад шууд sticky → дараалан наалдаж дээр дээрээ давхарлана
+    <div
+      ref={ref}
+      className="sticky"
+      style={{
+        top: `calc(6rem + ${i * 16}px)`,
+        // Сүүлийн картад ч бас дээш гарч наалдах зай хэрэгтэй
+        marginBottom: "16vh",
+        zIndex: i + 1,
+      }}
+    >
+      <motion.div
+        className="flex items-start gap-5 px-6 py-6"
+        style={{
+          y,
+          opacity,
+          scale,
+          rotate,
+          transformOrigin: "center bottom",
+          background: "#ffffff",
+          borderRadius: 22,
+          border: "1px solid #eee",
+          boxShadow: "0 14px 34px rgba(0,0,0,0.11)",
+          minHeight: 116,
+        }}
+      >
+        <div style={{ fontSize: 40, lineHeight: 1, flexShrink: 0 }}>{f.icon}</div>
+        <div>
+          <p
+            className="font-bold mb-2 leading-tight"
+            style={{
+              color: "#0C0C0C",
+              fontSize: "clamp(1.15rem, 2vw, 1.5rem)",
+            }}
+          >
+            {f.title}
+          </p>
+          <p
+            className="leading-relaxed"
+            style={{
+              color: "#6b7280",
+              fontSize: "clamp(0.92rem, 1.3vw, 1.05rem)",
+              fontWeight: 400,
+            }}
+          >
+            {f.desc}
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 function WhyUsSection() {
   return (
@@ -1216,8 +1326,13 @@ function WhyUsSection() {
               className="mt-5 leading-relaxed"
               style={{ color: "#6b7280", maxWidth: 360, fontSize: "clamp(0.9rem, 1.4vw, 1.05rem)" }}
             >
-              Гар утсанд төгс, хуваалцахад хялбар. Хэвлэмэл уриагаас хямд ч, хавьгүй
-              тансаг мэдрэмж.
+              Анхны сэтгэгдэл урилгаас эхэлнэ.
+            </p>
+            <p
+              className="mt-2 leading-relaxed whitespace-nowrap font-medium"
+              style={{ color: "#0C0C0C", fontSize: "clamp(0.9rem, 1.4vw, 1.05rem)" }}
+            >
+              Таны урилга — Таны нэрийн хуудас.
             </p>
             <a
               href={FACEBOOK_URL}
@@ -1231,40 +1346,10 @@ function WhyUsSection() {
           </FadeIn>
         </div>
 
-        {/* Right — scroll-аар бага багаар давхарлаж стэк болдог давуу талууд */}
+        {/* Right — scroll-аар доороос гарч ирээд давхарлаж стэк болдог давуу талууд */}
         <div className="md:w-3/5">
           {WHY_US.map((f, i) => (
-            <div key={f.title} style={{ height: "38vh" }}>
-              <div className="sticky" style={{ top: `calc(6rem + ${i * 16}px)` }}>
-                <div
-                  className="flex items-start gap-5 px-6 py-6"
-                  style={{
-                    background: "#ffffff",
-                    borderRadius: 22,
-                    border: "1px solid #eee",
-                    boxShadow: "0 14px 34px rgba(0,0,0,0.11)",
-                    minHeight: 116,
-                  }}
-                >
-                  <div style={{ fontSize: 40, lineHeight: 1, flexShrink: 0 }}>{f.icon}</div>
-                  <div>
-                    <p className="font-bold mb-2" style={{ color: "#0C0C0C", fontSize: 15 }}>
-                      {f.title}
-                    </p>
-                    <p
-                      className="leading-snug"
-                      style={{
-                        color: "#1a1a2e",
-                        fontSize: "clamp(1.2rem, 2.4vw, 1.85rem)",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {f.desc}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <WhyUsCard key={f.title} f={f} i={i} />
           ))}
         </div>
       </div>
@@ -1412,7 +1497,7 @@ function FooterSection() {
 // ─── Landing Page ─────────────────────────────────────────────────────────────
 export function LandingPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ background: "#0C0C0C" }}>
+    <div className="min-h-screen" style={{ background: "#0C0C0C", overflowX: "clip" }}>
       <HeroSection />
       <MarqueeStrip />
       <AboutSection />
