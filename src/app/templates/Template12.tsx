@@ -63,27 +63,18 @@ const T12_INTRO_VIDEO_URL =
 function T12VideoIntro({ audioRef }: {
   audioRef: React.RefObject<HTMLAudioElement | null>;
 }) {
-  const [started, setStarted] = useState(false);
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const start = () => {
-    if (started) return;
-    setStarted(true);
-    const v = videoRef.current;
-    if (v) {
-      v.muted = false;
-      v.play().catch(() => {
-        v.muted = true;
-        v.play().catch(() => {});
-      });
-    }
-    audioRef.current?.play().catch(() => {});
-  };
+  useEffect(() => {
+    // Видеог дуугүйгээр шууд автоматаар тоглуулна (browser зөвшөөрдөг)
+    videoRef.current?.play().catch(() => {});
+  }, []);
 
   const handleEnded = () => {
     if (exiting) return;
+    audioRef.current?.play().catch(() => {});
     setExiting(true);
     setTimeout(() => setVisible(false), 1600);
   };
@@ -92,7 +83,6 @@ function T12VideoIntro({ audioRef }: {
 
   return (
     <motion.div
-      onClick={!started ? start : undefined}
       initial={{ opacity: 1 }}
       animate={{ opacity: exiting ? 0 : 1 }}
       transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
@@ -101,13 +91,13 @@ function T12VideoIntro({ audioRef }: {
         background: "#000",
         zIndex: 9999,
         overflow: "hidden",
-        cursor: !started ? "pointer" : "default",
         pointerEvents: exiting ? "none" : "auto",
       }}
     >
       <video
         ref={videoRef}
         src={T12_INTRO_VIDEO_URL}
+        autoPlay
         muted
         playsInline
         preload="auto"
@@ -118,25 +108,6 @@ function T12VideoIntro({ audioRef }: {
           objectFit: "cover",
         }}
       />
-
-      {/* Click-to-start hint */}
-      {!started && (
-        <motion.div
-          animate={{ y: [0, -6, 0], opacity: 1 }}
-          transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-          style={{
-            position: "absolute", bottom: "8%", left: 0, right: 0,
-            color: "rgba(255,255,255,0.9)",
-            fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
-            fontSize: 16, letterSpacing: "0.18em",
-            pointerEvents: "none", whiteSpace: "nowrap",
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
-            textShadow: "0 2px 12px rgba(0,0,0,0.6)",
-          }}
-        >
-          <span>↓</span> Дарж эхлүүлэх <span>↓</span>
-        </motion.div>
-      )}
     </motion.div>
   );
 }
@@ -1377,6 +1348,22 @@ export default function Template12({ event }: { event: EventData }) {
   const mono  = initials(event.person1_name, event.person2_name);
   const allPhotos = [...(event.gallery_photos || []), ...(event.gallery2_photos || [])];
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Дуу шууд автоматаар эхэлнэ. Browser autoplay-г хоригловол хэрэглэгчийн
+  // анхны хөдөлгөөн (tap / scroll / keydown) дээр асаана.
+  useEffect(() => {
+    if (!event.music_url) return;
+    const startMusic = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.play().then(cleanup).catch(() => {});
+    };
+    const events = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
+    const cleanup = () => events.forEach((e) => window.removeEventListener(e, startMusic));
+    startMusic();
+    events.forEach((e) => window.addEventListener(e, startMusic, { passive: true }));
+    return cleanup;
+  }, [event.music_url]);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--t12-cream", CREAM);

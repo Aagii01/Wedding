@@ -116,6 +116,21 @@ function MusicPlayer({ src }: { src: string }) {
     return () => { a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
   }, []);
 
+  // Дуу шууд автоматаар эхэлнэ. Browser autoplay-г хоригловол хэрэглэгчийн
+  // анхны хөдөлгөөн (tap / scroll / keydown) дээр асаана.
+  useEffect(() => {
+    const startMusic = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.play().then(cleanup).catch(() => {});
+    };
+    const events = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
+    const cleanup = () => events.forEach((e) => window.removeEventListener(e, startMusic));
+    startMusic();
+    events.forEach((e) => window.addEventListener(e, startMusic, { passive: true }));
+    return cleanup;
+  }, [src]);
+
   const toggle = () => {
     const a = audioRef.current;
     if (!a) return;
@@ -124,7 +139,7 @@ function MusicPlayer({ src }: { src: string }) {
 
   return (
     <div style={{ position: "fixed", bottom: 28, right: 28, zIndex: 200 }}>
-      <audio ref={audioRef} src={src} loop preload="none" />
+      <audio ref={audioRef} src={src} loop preload="auto" />
       <button
         onClick={toggle}
         aria-label="Toggle sound"
@@ -257,7 +272,7 @@ function T14Verse({ event }: { event: EventData }) {
             ...cg, fontSize: 18, lineHeight: 1.85, color: INK_SOFT,
             textAlign: "center", letterSpacing: "0.02em", maxWidth: 400, margin: "0 auto",
           }}>
-            Бид хоёрын хамгийн тусгай өдөрт та бүхнийг урьж байна — хайр, баяр хөөр, аз жаргалаар дүүрэн шөнийг хамт тэмдэглэх болтугай.
+            Бидний амьдралын хамгийн нандин бөгөөд тусгай өдөр тохиож байна. Хайр, баяр хөөр, аз жаргал бялхсан энэхүү мартагдашгүй үдшийг бидэнтэй хамт хуваалцаж, баярыг минь хуваалцахыг урьж байна.
           </p>
         </FadeUp>
 
@@ -310,7 +325,6 @@ function T14DateCountdown({ event }: { event: EventData }) {
   return (
     <Paper>
       <div style={{ padding: "72px 28px" }}>
-        <FadeUp><Eyebrow>Огноо тэмдэглэх</Eyebrow></FadeUp>
         <FadeUp delay={0.1}>
           <div style={{ ...pinyon, color: WAX, fontSize: "clamp(48px, 12vw, 80px)", lineHeight: 1, textAlign: "center", marginTop: 8, marginBottom: 28 }}>
             Бидний өдөр
@@ -388,25 +402,20 @@ const SCHEDULE_ICONS = [
   </svg>,
 ];
 
-function T14Schedule({ event }: { event: EventData }) {
-  const time = event.time || "16:00";
-  const [hh, mm] = time.split(":").map(Number);
-  const fmt = (h: number, m: number) => `${String(h % 24).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-
+function T14Schedule() {
   const items = [
-    { time: fmt(hh, mm),     label: "Хурим ёслол",     desc: "Мөнхийн тангараг, бөгж, анхны үнсэлт." },
-    { time: fmt(hh + 1, mm), label: "Баяр ёслол",      desc: "Шампань болон яриа, алтан гэрлийн дор." },
-    { time: fmt(hh + 3, mm), label: "Оройн зоог",       desc: "Дэлгэгдсэн ширээний ард, лааны гэрлэн дор." },
-    { time: fmt(hh + 5, mm), label: "Бүжиг ба баяр",   desc: "Хөгжим, шал, дүрэм байхгүй — сайхан байгаарай." },
+    { time: "17:00", label: "Хуримын Ёслол",  desc: "Тангараг, бөгж, анхны үнсэлт. Бидний түүх эхлэх мөч." },
+    { time: "18:00", label: "Хүлээн Авалт",   desc: "Шампань дарс, хөгжүүн яриа, тухтай уур амьсгал." },
+    { time: "20:00", label: "Оройн Зоог",     desc: "Лааны гэрэлт ширээний ард хамтдаа тухлах цаг." },
+    { time: "22:00", label: "Чөлөөт Бүжиг",   desc: "Дүрэм байхгүй, хязгаар байхгүй — Зүгээр л хамтдаа баярлацгаая!" },
   ];
 
   return (
     <Paper>
       <div style={{ padding: "72px 24px" }}>
-        <FadeUp><Eyebrow>Өдрийн дараалал</Eyebrow></FadeUp>
         <FadeUp delay={0.1}>
           <div style={{ ...pinyon, color: WAX, fontSize: "clamp(48px, 12vw, 72px)", lineHeight: 1.1, textAlign: "center", margin: "8px 0 36px" }}>
-            Тэмдэглэх өдөр
+            Үйл ажиллагаа
           </div>
         </FadeUp>
 
@@ -463,10 +472,9 @@ function T14Gallery({ event }: { event: EventData }) {
   return (
     <Paper>
       <div style={{ padding: "72px 24px" }}>
-        <FadeUp><Eyebrow>Бидний түүх зурагт</Eyebrow></FadeUp>
         <FadeUp delay={0.1}>
           <div style={{ ...pinyon, color: WAX, fontSize: "clamp(48px, 12vw, 72px)", lineHeight: 1.1, textAlign: "center", margin: "8px 0 28px" }}>
-            Хэдэн мөч
+            Зургийн цомог
           </div>
         </FadeUp>
 
@@ -799,7 +807,7 @@ export default function Template14({ event }: { event: EventData }) {
       <T14Hero event={event} />
       <T14Verse event={event} />
       <T14DateCountdown event={event} />
-      <T14Schedule event={event} />
+      <T14Schedule />
       <T14Gallery event={event} />
       <T14Venue event={event} />
       <T14RSVP eventId={event.id} />

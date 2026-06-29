@@ -599,6 +599,77 @@ function RSVPSection({ event }: { event: EventData }) {
 }
 
 // ── ROOT ──────────────────────────────────────────────────────────────────────
+// ── Music player ────────────────────────────────────────────────────────────
+function MusicPlayer({ src }: { src: string }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const onPlay  = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    a.addEventListener("play",  onPlay);
+    a.addEventListener("pause", onPause);
+    return () => { a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
+  }, []);
+
+  // Дуу шууд автоматаар эхэлнэ. Browser autoplay-г хоригловол хэрэглэгчийн
+  // анхны хөдөлгөөн (tap / scroll / keydown) дээр асаана.
+  useEffect(() => {
+    const startMusic = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.play().then(cleanup).catch(() => {});
+    };
+    const events = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
+    const cleanup = () => events.forEach((e) => window.removeEventListener(e, startMusic));
+    startMusic();
+    events.forEach((e) => window.addEventListener(e, startMusic, { passive: true }));
+    return cleanup;
+  }, [src]);
+
+  const toggle = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) a.play().catch(() => {}); else a.pause();
+  };
+
+  return (
+    <div style={{ position: "fixed", bottom: 28, right: 28, zIndex: 200 }}>
+      <audio ref={audioRef} src={src} loop preload="auto" />
+      <button
+        onClick={toggle}
+        aria-label="Toggle sound"
+        style={{
+          width: 48, height: 48,
+          borderRadius: "50%",
+          background: "rgba(255,255,255,0.08)",
+          backdropFilter: "blur(10px) saturate(140%)",
+          border: "1px solid rgba(255,255,255,0.18)",
+          boxShadow: "0 4px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.18)",
+          color: "rgba(255,255,255,0.92)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer",
+        }}
+      >
+        {playing ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 5 6 9H3v6h3l5 4z"/>
+            <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+            <path d="M18.5 5.5a9 9 0 0 1 0 13"/>
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 5 6 9H3v6h3l5 4z"/>
+            <path d="M22 9l-6 6"/><path d="M16 9l6 6"/>
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 export default function Template15({ event }: { event: EventData }) {
   return (
     <main style={{ background: "#0C0C0C", overflowX: "clip", ...KANIT }}>
@@ -608,6 +679,7 @@ export default function Template15({ event }: { event: EventData }) {
       <DetailsSection event={event} />
       <GallerySection event={event} />
       <RSVPSection event={event} />
+      {event.music_url && <MusicPlayer src={event.music_url} />}
       <Toaster />
     </main>
   );
