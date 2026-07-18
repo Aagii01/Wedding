@@ -612,6 +612,12 @@ function T14RSVP({ eventId }: { eventId: string }) {
     e.preventDefault();
     if (!name.trim() || !attending) return;
     setSubmitting(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") {
+      setSubmitting(false);
+      setDone(true);
+      return;
+    }
     const { error } = await supabase.from("rsvp").insert({
       event_id: eventId,
       name: name.trim(),

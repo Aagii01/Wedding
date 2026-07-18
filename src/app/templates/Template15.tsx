@@ -524,6 +524,13 @@ function RSVPSection({ event }: { event: EventData }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (event.id === "demo") {
+      setLoading(false);
+      toast.success("Ирэлт амжилттай бүртгэгдлээ!");
+      setName(""); setPhone(""); setGuests("1"); setMessage("");
+      return;
+    }
     const { error } = await supabase.from("rsvp").insert({
       event_id: event.id,
       name,

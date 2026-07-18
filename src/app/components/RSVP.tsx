@@ -19,6 +19,13 @@ export function RSVP({ eventId }: Props) {
   const handleRsvp = async (e: React.FormEvent) => {
     e.preventDefault();
     setRsvpLoading(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") {
+      setRsvpLoading(false);
+      toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
+      setRsvp({ name: "", attending: "yes" });
+      return;
+    }
     const { error } = await supabase.from("rsvp").insert({
       event: eventId,
       name: rsvp.name,
@@ -36,6 +43,13 @@ export function RSVP({ eventId }: Props) {
   const handleWish = async (e: React.FormEvent) => {
     e.preventDefault();
     setWishLoading(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") {
+      setWishLoading(false);
+      toast.success("Баярлалаа! Таны мэндчилгээ хүлээн авлаа.");
+      setWish({ name: "", message: "" });
+      return;
+    }
     const { error } = await supabase.from("wishes").insert({
       event_id: eventId,
       name: wish.name,

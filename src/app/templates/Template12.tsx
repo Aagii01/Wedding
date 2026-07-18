@@ -1179,6 +1179,13 @@ function T12RSVP({ eventId }: { eventId: string }) {
   const handle = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") {
+      setLoading(false);
+      toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
+      setForm({ name: "", phone: "", guests: "1", message: "" });
+      return;
+    }
     const { error } = await supabase.from("rsvp").insert({
       event: eventId,
       name: form.name,

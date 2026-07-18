@@ -771,6 +771,12 @@ function T13Wishes({ eventId }: { eventId: string }) {
   const submit = async () => {
     if (!name.trim() || !message.trim()) return;
     setSending(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") {
+      setSending(false);
+      setSent(true);
+      return;
+    }
     const { error } = await supabase.from("wishes").insert({
       event_id: eventId,
       name: name.trim(),
@@ -881,6 +887,12 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
   const submit = async () => {
     if (!name.trim() || attending === null) return;
     setSubmitting(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") {
+      setSubmitting(false);
+      setDone(true);
+      return;
+    }
     const { error } = await supabase.from("rsvp").insert({
       event_id: eventId,
       name: name.trim(),
