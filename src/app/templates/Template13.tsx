@@ -1058,13 +1058,16 @@ function T13RSVP({ eventId }: { eventId: string }) {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 // "Хүндэтгэсэн" хэсэг — зөвхөн энд бүртгэсэн slug дээр харагдана.
 // Бусад урилга дээр энэ блок огт гарахгүй.
-const HONORED_BY: Record<string, string[]> = {
-  "uuganbayr-baasanbayr": [
-    "Нөхөр Б.Ууганбаяр",
-    "Эхнэр Ш.Баасанбаяр",
-    "Охин У.Анужин",
-    "Охин У.Анунгоо",
-  ],
+const HONORED_BY: Record<string, { names: string[]; phones?: string[] }> = {
+  "uuganbayr-baasanbayr": {
+    names: [
+      "Нөхөр Б.Ууганбаяр",
+      "Эхнэр Ш.Баасанбаяр",
+      "Охин У.Анужин",
+      "Охин У.Анунгоо",
+    ],
+    phones: ["88118273", "80909026"],
+  },
 };
 
 function T13Footer({ event }: { event: EventData }) {
@@ -1106,11 +1109,22 @@ function T13Footer({ event }: { event: EventData }) {
             <div style={{ ...playfairI, fontSize: 19, color: CREAM, opacity: 0.9, marginBottom: 14 }}>
               Хүндэтгэсэн:
             </div>
-            {HONORED_BY[event.slug].map((line) => (
+            {HONORED_BY[event.slug].names.map((line) => (
               <div key={line} style={{ ...ovo, fontSize: 16, color: CREAM, opacity: 0.82, lineHeight: 1.9 }}>
                 {line}
               </div>
             ))}
+            {HONORED_BY[event.slug].phones && (
+              <div style={{ ...ovo, fontSize: 16, color: CREAM, opacity: 0.82, marginTop: 12 }}>
+                Утас :{" "}
+                {HONORED_BY[event.slug].phones!.map((tel, i) => (
+                  <span key={tel}>
+                    {i > 0 && ", "}
+                    <a href={`tel:${tel}`} style={{ color: CREAM, textDecoration: "none" }}>{tel}</a>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </FadeUp>
       )}
