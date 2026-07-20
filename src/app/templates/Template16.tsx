@@ -24,6 +24,19 @@ const label: React.CSSProperties = {
   textTransform: "uppercase",
 };
 
+// Монгол нэрийг "Бямбадоржийн Дашхүү" гэж овогтой бичдэг тул монограмд
+// СҮҮЛИЙН үг буюу өөрийн нэрний эхний үсгийг авна → "Д", "С"
+function initialOf(name: string, fallback: string) {
+  const words = (name || "").trim().split(/\s+/).filter(Boolean);
+  const own = words[words.length - 1];
+  return own ? own.charAt(0).toUpperCase() : fallback;
+}
+
+// Картан дээрх "Газар" нүдэнд гарах газрын нэр (шууд бичсэн)
+const DEFAULT_VENUE = "Gunj Resort";
+// Hero дээр venue_name хоосон үед харагдах байршил
+const DEFAULT_LOCATION = "Дархан-Уул аймаг, Хонгор сум";
+
 const FALLBACK_HERO =
   "https://images.unsplash.com/photo-1519741497674-611481863552?w=1600";
 
@@ -177,8 +190,8 @@ function T16Intro({ event, onDone }: { event: EventData; onDone: () => void }) {
   const [gone, setGone] = useState(false);
   const img = event.main_image || FALLBACK_HERO;
 
-  const i1 = (event.person1_name || "A").charAt(0).toUpperCase();
-  const i2 = (event.person2_name || "B").charAt(0).toUpperCase();
+  const i1 = initialOf(event.person1_name, "Д");
+  const i2 = initialOf(event.person2_name || "", "С");
 
   useEffect(() => {
     const t = setTimeout(() => { setGone(true); onDone(); }, 2600);
@@ -437,13 +450,13 @@ function T16Countdown({ date, time }: { date: string; time: string }) {
           <div style={{
             ...display,
             fontSize: "clamp(30px, 8vw, 46px)",
-            color: CREAM,
+            color: "#FFFFFF",
             lineHeight: 1,
             fontVariantNumeric: "tabular-nums",
           }}>
             {String(v).padStart(2, "0")}
           </div>
-          <div style={{ ...label, fontSize: 9, color: GOLD, marginTop: 8 }}>{l}</div>
+          <div style={{ ...label, fontSize: 10, color: "#FFFFFF", marginTop: 8 }}>{l}</div>
         </div>
       ))}
     </div>
@@ -491,48 +504,56 @@ function T16Hero({ event }: { event: EventData }) {
           rgba(43,42,40,0.60) 100%)`,
       }} />
 
+      {/* Hero-гийн бүх бичвэр цагаан. Ар дэвсгэрийн зураг цайвар байж болох тул
+          хөнгөн сүүдэр нэмж уншигдац хадгална. */}
       <div style={{
         position: "relative",
         textAlign: "center",
         padding: "96px 24px",
         width: "100%",
+        color: "#FFFFFF",
+        textShadow: "0 2px 16px rgba(43,42,40,0.55)",
       }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.4, delay: 2.6, ease: "easeOut" }}
         >
-          <div style={{ ...label, color: GOLD, marginBottom: 26 }}>Save the date</div>
-
+          {/* Овогтой бичигддэг тул нэр бүр тусдаа мөрөнд, & тэмдэггүй */}
           <div style={{
             ...display,
-            fontSize: "clamp(38px, 10vw, 76px)",
-            color: CREAM,
-            lineHeight: 1.15,
-            marginBottom: 18,
+            fontSize: "clamp(30px, 7vw, 58px)",
+            color: "#FFFFFF",
+            lineHeight: 1.25,
+            marginBottom: 20,
           }}>
-            {name1}
-            <span style={{ ...script, color: GOLD, fontSize: "0.9em", margin: "0 0.18em" }}>&amp;</span>
-            {name2}
+            <div>{name1}</div>
+            {name2 && <div>{name2}</div>}
           </div>
 
           <div style={{
             ...display,
-            fontSize: "clamp(18px, 4.5vw, 26px)",
-            color: CREAM,
-            letterSpacing: "0.12em",
-            opacity: 0.95,
+            fontWeight: 500,
+            fontSize: "clamp(23px, 5.6vw, 34px)",
+            color: "#FFFFFF",
+            letterSpacing: "0.08em",
           }}>
             {fmtDate(event.date)}
           </div>
 
-          {event.venue_name && (
-            <div style={{ ...label, color: CREAM, opacity: 0.7, marginTop: 14 }}>
-              {event.venue_name}
-            </div>
-          )}
+          <div style={{
+            ...label,
+            fontSize: 14,
+            fontWeight: 600,
+            letterSpacing: "0.22em",
+            color: "#FFFFFF",
+            marginTop: 16,
+          }}>
+            {/* Hero дээр байршил (аймаг/сум) — Supabase-аас */}
+            {event.venue_name || DEFAULT_LOCATION}
+          </div>
 
-          <GoldRule width={110} margin="34px auto 34px" color={`${GOLD}`} />
+          <GoldRule width={110} margin="34px auto 34px" color="rgba(255,255,255,0.85)" />
 
           <T16Countdown date={event.date} time={event.time} />
         </motion.div>
@@ -542,7 +563,8 @@ function T16Hero({ event }: { event: EventData }) {
       <div className="t16-bob" style={{
         position: "absolute", bottom: 28, left: 0, right: 0,
         textAlign: "center",
-        ...label, fontSize: 9, color: CREAM,
+        ...label, fontSize: 9, color: "#FFFFFF",
+        textShadow: "0 2px 16px rgba(43,42,40,0.55)",
       }}>
         Доош ↓
       </div>
@@ -561,7 +583,8 @@ function T16Celebration({ event }: { event: EventData }) {
   const cells = [
     { l: "Огноо", v: fmtDate(event.date) },
     { l: "Цаг",   v: event.time || "—" },
-    { l: "Газар", v: event.venue_name || "—" },
+    // Газрын нэр — шууд бичсэн (venue_name-д байршил хадгалагддаг)
+    { l: "Газар", v: DEFAULT_VENUE },
   ];
 
   return (
@@ -606,7 +629,13 @@ function T16Celebration({ event }: { event: EventData }) {
             {cells.map(({ l, v }) => (
               <div key={l} style={{ padding: "30px 20px", textAlign: "center" }}>
                 <div style={{ ...label, color: GOLD, marginBottom: 12 }}>{l}</div>
-                <div style={{ ...display, fontSize: "clamp(19px, 4vw, 24px)", color: INK }}>
+                <div style={{
+                  ...display,
+                  fontWeight: 500,
+                  fontSize: "clamp(23px, 5vw, 30px)",
+                  lineHeight: 1.35,
+                  color: INK,
+                }}>
                   {v}
                 </div>
               </div>
@@ -616,15 +645,17 @@ function T16Celebration({ event }: { event: EventData }) {
 
         {event.venue_address && (
           <Reveal delay={0.2}>
+            {/* Хаяг — зочид хамгийн түрүүнд уншдаг мэдээлэл тул тодотгосон */}
             <p style={{
               ...display,
-              fontSize: 15,
+              fontWeight: 500,
+              fontSize: "clamp(18px, 4vw, 22px)",
               color: INK,
-              opacity: 0.65,
               textAlign: "center",
-              lineHeight: 1.8,
-              margin: "28px auto 0",
-              maxWidth: 460,
+              lineHeight: 1.7,
+              letterSpacing: "0.01em",
+              margin: "30px auto 0",
+              maxWidth: 480,
             }}>
               {event.venue_address}
             </p>
@@ -934,8 +965,8 @@ function T16RSVP({ eventId }: { eventId: string }) {
 function T16Footer({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";
   const name2 = event.person2_name || "Сарнай";
-  const i1 = name1.charAt(0).toUpperCase();
-  const i2 = name2.charAt(0).toUpperCase();
+  const i1 = initialOf(name1, "Д");
+  const i2 = initialOf(name2, "С");
 
   const fmtDate = (d: string) => {
     const [y, m, day] = (d || "").split("-");
@@ -965,10 +996,10 @@ function T16Footer({ event }: { event: EventData }) {
 
         <GoldRule width={80} margin="24px auto 28px" />
 
-        <div style={{ ...display, fontSize: "clamp(24px, 5vw, 32px)", marginBottom: 14 }}>
-          {name1}
-          <span style={{ ...script, color: GOLD, fontSize: "0.9em", margin: "0 0.18em" }}>&amp;</span>
-          {name2}
+        {/* Овогтой бичигддэг тул нэр бүр тусдаа мөрөнд, & тэмдэггүй */}
+        <div style={{ ...display, fontSize: "clamp(21px, 4.2vw, 28px)", lineHeight: 1.4, marginBottom: 14 }}>
+          <div>{name1}</div>
+          {name2 && <div>{name2}</div>}
         </div>
 
         <div style={{ ...label, color: CREAM, opacity: 0.6, lineHeight: 2 }}>
