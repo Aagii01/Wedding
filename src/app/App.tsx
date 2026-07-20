@@ -147,9 +147,9 @@ export default function App({ event }: Props) {
       {/* <WeddingDetails event={event} /> */}
       <VenueSection event={event} />
       <GallerySection event={event} />
-      <PoemSection />
+      <PoemSection event={event} />
       <CountdownTimer date={event.date} time={event.time} title={event.title} venue={event.venue_name} venueAddress={event.venue_address} />
-      <HealthProtocol />
+      <HealthProtocol event={event} />
       <RSVP eventId={event.id} />
       {/* <WeddingGifts /> */}
       <WeddingFooter event={event} />

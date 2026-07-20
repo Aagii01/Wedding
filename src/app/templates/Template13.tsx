@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
+import { getPoemLines, getSchedule } from "../../lib/eventContent";
 
 // ─── palette ─────────────────────────────────────────────────────────────────
 const BURGUNDY       = "#66021F";
@@ -467,9 +468,15 @@ function T13Letter({ event }: { event: EventData }) {
             Хайрт найзууд болон гэр бүлийнхэн,
           </div>
           <p style={{ color: "rgba(255,255,255,0.88)", ...ovo, fontSize: 17, lineHeight: 1.85, maxWidth: 420, margin: "0 auto" }}>
-            Бид хоёрын хамгийн тусгай өдөр болох хуримдаа та бүхнийг урьж байна.
-            Та нарын дэмжлэг, хайр бидэнд дэлхийн хамгийн үнэтэй зүйл юм.
-            {name1} ба {name2} нарын шинэ амьдралын эхлэлийг хамт тэмдэглэе.
+            {getPoemLines(event, [
+              "Бид хоёрын хамгийн тусгай өдөр болох хуримдаа та бүхнийг урьж байна.",
+              "Та нарын дэмжлэг, хайр бидэнд дэлхийн хамгийн үнэтэй зүйл юм.",
+              `${name1} ба ${name2} нарын шинэ амьдралын эхлэлийг хамт тэмдэглэе.`,
+            ]).map((line, i) =>
+              line === ""
+                ? <span key={i} style={{ display: "block", height: 14 }} />
+                : <span key={i}>{line}{" "}</span>
+            )}
           </p>
         </FadeUp>
       </div>
@@ -545,7 +552,8 @@ function T13Schedule({ event }: { event: EventData }) {
   const fmt = (h: number, m: number) =>
     `${String(h % 24).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 
-  const items = [
+  // events.schedule хоосон бол event.time-аас тооцсон үндсэн хөтөлбөр гарна
+  const items = getSchedule(event, [
     { time: fmt(hh, mm),         label: "Зочид угтаж авах" },
     { time: fmt(hh + 1, mm),     label: "Дурсгалын зураг авахуулах" },
     { time: fmt(hh + 2, mm),     label: "Нээлтийн үйл ажиллагаа" },
@@ -553,7 +561,7 @@ function T13Schedule({ event }: { event: EventData }) {
     { time: fmt(hh + 4, mm),     label: "Хосын бүжиг" },
     { time: fmt(hh + 5, mm),     label: "Баярын бялуу хөндөх" },
     { time: fmt(hh + 6, mm),     label: "Party time" },
-  ];
+  ]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({

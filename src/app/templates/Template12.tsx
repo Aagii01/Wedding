@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
+import { getPoemLines, getSchedule, type ScheduleItem } from "../../lib/eventContent";
 import { HorizontalCarousel, type CarouselSlide } from "../components/HorizontalCarousel";
 
 // ─── palette ────────────────────────────────────────────────────────────────
@@ -989,7 +990,8 @@ function T12Countdown({ date, title, venue }: { date: string; title: string; ven
 }
 
 // ─── Schedule ────────────────────────────────────────────────────────────────
-const SCHEDULE = [
+// events.schedule хоосон үед харагдах үндсэн хөтөлбөр
+const DEFAULT_SCHEDULE: ScheduleItem[] = [
   { time: "15:30", label: "Зочид цугларах", desc: "Урилгаар ирсэн хүндэт зочид морилно" },
   { time: "16:00", label: "Дурсамж зураг татуулах", desc: "Фото бүсэд зурагчидтай хамт" },
   { time: "16:30", label: "Хурмын танхимд суудал эзлэх", desc: "Зочид байраа эзлэн, ёслолд бэлтгэнэ" },
@@ -1001,7 +1003,8 @@ const SCHEDULE = [
 
 
 
-function T12Schedule() {
+function T12Schedule({ event }: { event: EventData }) {
+  const schedule = getSchedule(event, DEFAULT_SCHEDULE);
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start center", "end center"] });
   const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
@@ -1030,9 +1033,9 @@ function T12Schedule() {
           <motion.div style={{ position: "absolute", left: 86, top: 6, width: 1, height: lineHeight, background: `${INK}55`, originY: 0 }} />
 
           <div style={{ display: "flex", flexDirection: "column", gap: "clamp(28px,5vw,40px)" }}>
-            {SCHEDULE.map(({ time, label, desc }, i) => (
+            {schedule.map(({ time, label, desc }, i) => (
               <motion.div
-                key={time}
+                key={i}
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-20px" }}
@@ -1124,16 +1127,20 @@ function T12Venue({ name, address, mapUrl, image }: { name: string; address: str
 }
 
 // ─── Quote (scroll-driven word reveal) ───────────────────────────────────────
-function T12Quote() {
+// events.poem хоосон үед харагдах үндсэн шүлэг
+const DEFAULT_POEM = [
+  "Хоёр сэтгэл нэгэн зүгт тэмүүлж,",
+  "Хайрын гэгээн замд учирсан бид хоёр",
+  "Хувь заяагаа холбон, Хуримын ариун ёслолоо тэмдэглэх гэж байна.",
+  "Энэхүү аз жаргалт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.",
+];
+
+function T12Quote({ event }: { event: EventData }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 30%"] });
 
-  const lines = [
-    "Хоёр сэтгэл нэгэн зүгт тэмүүлж,",
-    "Хайрын гэгээн замд учирсан бид хоёр",
-    "Хувь заяагаа холбон, Хуримын ариун ёслолоо тэмдэглэх гэж байна.",
-    "Энэхүү аз жаргалт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.",
-  ];
+  // Энэ хэсэг үг тус бүрээр reveal хийдэг тул хоосон мөр ажиллахгүй — шүүнэ
+  const lines = getPoemLines(event, DEFAULT_POEM).filter((l) => l !== "");
   const words = lines.flatMap(l => l.split(" "));
 
   const lineEndIndices = new Set<number>();
@@ -1392,9 +1399,9 @@ export default function Template12({ event }: { event: EventData }) {
       {/* <T12PhotoCollage photos={allPhotos} /> */}
       <T12OurStory photos={allPhotos} />
       <T12Countdown date={event.date} title={event.title} venue={event.venue_name} />
-      <T12Schedule />
+      <T12Schedule event={event} />
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
-      <T12Quote />
+      <T12Quote event={event} />
       <T12RSVP eventId={event.id} />
       <T12Footer mono={mono} names={names} />
       <Toaster />

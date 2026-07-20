@@ -1,8 +1,11 @@
 import { motion } from "motion/react";
+import { EventData } from "../../types/event";
+import { getPoemLines } from "../../lib/eventContent";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-const lines = [
+// events.poem хоосон үед харагдах үндсэн шүлэг
+const DEFAULT_LINES = [
   "Хоёр сэтгэл нэгэн зүгт тэмүүлж,",
   "Хайрын гэгээн замд учирсан бид хоёр",
   "Хувь заяагаа холбон,",
@@ -12,7 +15,8 @@ const lines = [
   "Эрхэм таньтай хамт хуваалцахыг урьж байна.",
 ];
 
-export function PoemSection() {
+export function PoemSection({ event }: { event?: EventData }) {
+  const lines = event ? getPoemLines(event, DEFAULT_LINES) : DEFAULT_LINES;
   let lineIndex = 0;
 
   return (

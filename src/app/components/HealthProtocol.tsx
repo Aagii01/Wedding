@@ -1,8 +1,11 @@
 import { motion } from "motion/react";
+import { EventData } from "../../types/event";
+import { getSchedule, ScheduleItem } from "../../lib/eventContent";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-const schedule = [
+// events.schedule хоосон үед харагдах үндсэн хөтөлбөр
+const DEFAULT_SCHEDULE: ScheduleItem[] = [
   { time: "17:00", label: "Зочдоо хүлээн авах", desc: "Урилгаар ирсэн хүндэт зочид хүрэлцэн ирнэ" },
   { time: "17:30", label: "Хуримын танхимд суудал эзлэх", desc: "Зочид байраа эзлэн, ёслолд бэлтгэнэ" },
   { time: "18:00", label: "Нээлтийн үйл ажиллагаа", desc: "Хуримын нээлтийн үйл ажиллагаа" },
@@ -14,7 +17,9 @@ const schedule = [
   { time: "21:30", label: "Бусад үйл ажиллагаа", desc: "Урлаг уран сайхан болон бусад үйл ажиллагаа явагдана" },
   { time: "22:45", label: "Албан ёсны арга хэмжээ өндөрлөнө", desc: "Албан ёсны арга хэмжээ дуусаж чөлөөт бүжигээр баяр үргэлжилнэ" },
 ];
-export function HealthProtocol() {
+export function HealthProtocol({ event }: { event?: EventData }) {
+  const schedule = event ? getSchedule(event, DEFAULT_SCHEDULE) : DEFAULT_SCHEDULE;
+
   return (
     <section className="py-16 px-4 bg-gray-50">
       <div className="max-w-md mx-auto">
@@ -38,7 +43,7 @@ export function HealthProtocol() {
           <div className="space-y-8">
             {schedule.map(({ time, label, desc }, i) => (
               <motion.div
-                key={time}
+                key={i}
                 initial={{ opacity: 0, x: -20 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-20px 0px" }}

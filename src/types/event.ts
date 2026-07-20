@@ -1,3 +1,5 @@
+import type { ScheduleItem } from "../lib/eventContent";
+
 export type EventData = {
   id: string;
   slug: string;
@@ -22,6 +24,9 @@ export type EventData = {
   gallery2_photos: string[];
   template?: string;
   music_url?: string;
+  // Хурим бүрийн өөрийн агуулга. Хоосон бол template-ийн үндсэн текст гарна.
+  poem?: string;                      // мөр бүрийг шинэ мөрөөр тусгаарлана
+  schedule?: ScheduleItem[] | string; // jsonb: [{ time, label, desc? }, ...]
   // events хүснэгтэд одоогоор багана байхгүй — нэмбэл Template16-ийн footer-т
   // tel: холбоос болж харагдана
   person1_phone?: string;

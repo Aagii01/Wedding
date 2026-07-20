@@ -57,7 +57,17 @@ person2_instagram text nullable
 gallery_photos   text[]             ← GallerySection-д ашигладаг 4 зургийн array
 gallery2_photos  text[]             ← WeddingHero carousel-д ашигладаг 8 зургийн array
 template         text DEFAULT '11'  ← ямар template ашиглахыг тодорхойлно
+poem             text nullable      ← шүлэг/урилгын үг. Мөр бүрийг \n-ээр тусгаарлана
+schedule         jsonb nullable     ← [{ "time": "17:00", "label": "...", "desc": "..." }, ...]
 ```
+
+**`poem` / `schedule` — хурим бүрийн өөрийн агуулга:**
+Хоосон (`null`) бол template тус бүрийн үндсэн текст гарна — хуучин event-үүд эвдрэхгүй.
+Уншихдаа `src/lib/eventContent.ts`-ийн `getPoemLines(event, fallback)` /
+`getSchedule(event, fallback)`-г ашиглана (задлах, шалгах, fallback-ийг нэг дор хийдэг).
+Дэмждэг: T11 (`PoemSection`, `HealthProtocol`), T12 (`T12Quote`, `T12Schedule`),
+T13 (`T13Letter`, `T13Schedule`), T14 (`T14Verse`, `T14Schedule`).
+T15/T16-д эдгээр section байхгүй.
 
 **Баганын нэр өөрчлөлт (хуучин → шинэ):**
 - `hero_image_url` → `main_image`

@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
+import { getPoemLines, getSchedule } from "../../lib/eventContent";
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 const WAX      = "#28406B";
@@ -272,7 +273,13 @@ function T14Verse({ event }: { event: EventData }) {
             ...cg, fontSize: 18, lineHeight: 1.85, color: INK_SOFT,
             textAlign: "center", letterSpacing: "0.02em", maxWidth: 400, margin: "0 auto",
           }}>
-            Бидний амьдралын хамгийн нандин бөгөөд тусгай өдөр тохиож байна. Хайр, баяр хөөр, аз жаргал бялхсан энэхүү мартагдашгүй үдшийг бидэнтэй хамт хуваалцаж, баярыг минь хуваалцахыг урьж байна.
+            {getPoemLines(event, [
+              "Бидний амьдралын хамгийн нандин бөгөөд тусгай өдөр тохиож байна. Хайр, баяр хөөр, аз жаргал бялхсан энэхүү мартагдашгүй үдшийг бидэнтэй хамт хуваалцаж, баярыг минь хуваалцахыг урьж байна.",
+            ]).map((line, i) =>
+              line === ""
+                ? <span key={i} style={{ display: "block", height: 14 }} />
+                : <span key={i}>{line}{" "}</span>
+            )}
           </p>
         </FadeUp>
 
@@ -402,13 +409,14 @@ const SCHEDULE_ICONS = [
   </svg>,
 ];
 
-function T14Schedule() {
-  const items = [
+function T14Schedule({ event }: { event: EventData }) {
+  // events.schedule хоосон үед харагдах үндсэн хөтөлбөр
+  const items = getSchedule(event, [
     { time: "17:00", label: "Хуримын Ёслол",  desc: "Тангараг, бөгж, анхны үнсэлт. Бидний түүх эхлэх мөч." },
     { time: "18:00", label: "Хүлээн Авалт",   desc: "Шампань дарс, хөгжүүн яриа, тухтай уур амьсгал." },
     { time: "20:00", label: "Оройн Зоог",     desc: "Лааны гэрэлт ширээний ард хамтдаа тухлах цаг." },
     { time: "22:00", label: "Чөлөөт Бүжиг",   desc: "Дүрэм байхгүй, хязгаар байхгүй — Зүгээр л хамтдаа баярлацгаая!" },
-  ];
+  ]);
 
   return (
     <Paper>
@@ -440,7 +448,8 @@ function T14Schedule() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   position: "relative", zIndex: 1,
                 }}>
-                  <div style={{ width: 28, height: 28 }}>{SCHEDULE_ICONS[i]}</div>
+                  {/* DB-ээс ирсэн жагсаалт 4-өөс урт байвал icon-ууд давтагдана */}
+                  <div style={{ width: 28, height: 28 }}>{SCHEDULE_ICONS[i % SCHEDULE_ICONS.length]}</div>
                 </div>
 
                 {/* Text */}
@@ -813,7 +822,7 @@ export default function Template14({ event }: { event: EventData }) {
       <T14Hero event={event} />
       <T14Verse event={event} />
       <T14DateCountdown event={event} />
-      <T14Schedule />
+      <T14Schedule event={event} />
       <T14Gallery event={event} />
       <T14Venue event={event} />
       <T14RSVP eventId={event.id} />
