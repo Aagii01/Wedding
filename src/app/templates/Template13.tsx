@@ -242,6 +242,25 @@ function T13Hero({ event }: { event: EventData }) {
     return d;
   };
 
+  // "Ж.Жамбалсанжид" гэх мэт урт нэр дэлгэцэнд багтахгүй байсан тул үсгийн
+  // хэмжээг нэрний уртаас хамааруулж, дээрээс нь vw-ээр хязгаарлана
+  const longest = Math.max(name1.length, name2.length);
+  const nameSize =
+    longest <= 8  ? "clamp(42px, 13vw, 76px)" :
+    longest <= 11 ? "clamp(34px, 10.5vw, 62px)" :
+    longest <= 15 ? "clamp(27px, 8vw, 48px)" :
+                    "clamp(22px, 6.4vw, 38px)";
+  const ampSize =
+    longest <= 8  ? "clamp(26px, 7.5vw, 44px)" :
+    longest <= 11 ? "clamp(22px, 6vw, 36px)" :
+                    "clamp(18px, 5vw, 30px)";
+  // Хэт урт нэг үг мөрөөс халихаас сэргийлнэ
+  const nameWrap: React.CSSProperties = {
+    maxWidth: "100%",
+    overflowWrap: "break-word",
+    wordBreak: "break-word",
+  };
+
   return (
     <div style={{
       minHeight: "100svh",
@@ -285,7 +304,11 @@ function T13Hero({ event }: { event: EventData }) {
         <PeonySVG size={150} color="#F5C8DA" />
       </motion.div>
 
-      <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 24px" }}>
+      <div style={{
+        position: "relative", zIndex: 2, textAlign: "center",
+        padding: "0 24px",
+        maxWidth: "100%", boxSizing: "border-box",
+      }}>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 4, ease: "easeOut" }}
           style={{ color: "white", ...playfairI, fontSize: 36, marginBottom: 8 }}>
@@ -298,17 +321,17 @@ function T13Hero({ event }: { event: EventData }) {
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 4.3, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1, marginBottom: 0 }}>
+          style={{ color: "white", ...playfairI, fontSize: nameSize, lineHeight: 1.05, ...nameWrap }}>
           {name1}
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 4.45, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 44, lineHeight: 1.2 }}>
-          <Amp size={44} />
+          style={{ color: "white", ...playfairI, fontSize: ampSize, lineHeight: 1.3 }}>
+          <Amp />
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 4.6, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 76, lineHeight: 1 }}>
+          style={{ color: "white", ...playfairI, fontSize: nameSize, lineHeight: 1.05, ...nameWrap }}>
           {name2}
         </motion.div>
       </div>
@@ -489,6 +512,13 @@ function T13Letter({ event }: { event: EventData }) {
 }
 
 // ─── Countdown ────────────────────────────────────────────────────────────────
+// "2026-07-29" → "2026 оны 7 сарын 29"
+function fmtEventDate(d: string) {
+  const [y, m, day] = (d || "").split("-");
+  if (!y || !m || !day) return d;
+  return `${y} оны ${Number(m)} сарын ${Number(day)}`;
+}
+
 function T13Countdown({ event }: { event: EventData }) {
   const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
@@ -523,8 +553,13 @@ function T13Countdown({ event }: { event: EventData }) {
         <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10 }}>
           Хурим хүртэл
         </div>
-        <div style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.5, letterSpacing: "0.15em", marginBottom: 36 }}>
+        <div style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.5, letterSpacing: "0.15em", marginBottom: 14 }}>
           ───── ✦ ─────
+        </div>
+        {/* Хурим болох өдөр */}
+        <div style={{ ...playfair, fontSize: 20, color: BURGUNDY, letterSpacing: "0.08em", marginBottom: 34 }}>
+          {fmtEventDate(event.date)}
+          {event.time && ` · ${event.time}`}
         </div>
         <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
           {units.map((u, i) => (
@@ -887,13 +922,12 @@ function T13Wishes({ eventId }: { eventId: string }) {
   );
 }
 
-// ─── RSVP Modal ───────────────────────────────────────────────────────────────
-function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void }) {
-  const [name, setName]         = useState("");
-  const [attending, setAttending] = useState<boolean | null>(null);
-  const [food, setFood]         = useState("");
+// ─── RSVP Section (popup биш — шууд бөглөнө) ──────────────────────────────────
+function T13RSVP({ eventId }: { eventId: string }) {
+  const [name, setName]             = useState("");
+  const [attending, setAttending]   = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone]         = useState(false);
+  const [done, setDone]             = useState(false);
 
   const submit = async () => {
     if (!name.trim() || attending === null) return;
@@ -908,166 +942,102 @@ function RSVPModal({ eventId, onClose }: { eventId: string; onClose: () => void 
       event_id: eventId,
       name: name.trim(),
       guests: attending ? 1 : 0,
-      message: food.trim() || null,
     });
     setSubmitting(false);
     if (error) { toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
     setDone(true);
   };
 
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={(e) => e.target === e.currentTarget && onClose()}
-        style={{
-          position: "fixed", inset: 0,
-          background: "rgba(0,0,0,0.6)",
-          zIndex: 5000,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          padding: 24,
-        }}
-      >
-        <motion.div
-          initial={{ scale: 0.85, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.85, opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          style={{
-            background: CREAM,
-            borderRadius: 12,
-            padding: "36px 32px",
-            maxWidth: 420, width: "100%",
-            position: "relative",
-          }}
-        >
-          <button
-            onClick={onClose}
-            style={{
-              position: "absolute", top: 12, right: 16,
-              background: "none", border: "none",
-              fontSize: 22, cursor: "pointer", color: INK, lineHeight: 1,
-            }}
-          >×</button>
-
-          {done ? (
-            <div style={{ textAlign: "center", padding: "20px 0" }}>
-              <div style={{ ...playfairI, fontSize: 28, color: BURGUNDY, marginBottom: 12 }}>
-                Баярлалаа!
-              </div>
-              <p style={{ ...ovo, color: INK, lineHeight: 1.7 }}>
-                Таны бүртгэлийг хүлээн авлаа.<br />Тантай уулзахыг тэсэн ядан хүлээж байна.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div style={{ ...playfair, fontSize: 22, color: INK, textAlign: "center", marginBottom: 6 }}>
-                Ирцээ бүртгүүлэх
-              </div>
-              <p style={{ ...ovo, fontSize: 14, color: INK, opacity: 0.6, textAlign: "center", marginBottom: 24 }}>
-                Хурмын өдрөөс өмнө бүртгэлээ хийнэ үү
-              </p>
-
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Таны нэр"
-                style={{
-                  width: "100%", padding: "11px 14px",
-                  border: `1px solid rgba(102,2,31,0.25)`,
-                  borderRadius: 6, marginBottom: 18,
-                  ...ovo, fontSize: 15, color: INK,
-                  background: "white", boxSizing: "border-box",
-                  outline: "none",
-                }}
-              />
-
-              <p style={{ ...ovo, fontSize: 14, color: INK, marginBottom: 10 }}>Та ирэх үү?</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
-                {[
-                  { val: true,  label: "Тийм, заавал ирнэ" },
-                  { val: false, label: "Харамсалтай нь очиж чадахгүй" },
-                ].map(({ val, label }) => (
-                  <label key={String(val)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", ...ovo, fontSize: 15, color: INK }}>
-                    <input
-                      type="radio"
-                      name="attending"
-                      checked={attending === val}
-                      onChange={() => setAttending(val)}
-                      style={{ accentColor: BURGUNDY, width: 16, height: 16 }}
-                    />
-                    {label}
-                  </label>
-                ))}
-              </div>
-
-              <input
-                value={food}
-                onChange={(e) => setFood(e.target.value)}
-                placeholder="Хоолны хязгаарлалт байна уу?"
-                style={{
-                  width: "100%", padding: "11px 14px",
-                  border: `1px solid rgba(102,2,31,0.25)`,
-                  borderRadius: 6, marginBottom: 24,
-                  ...ovo, fontSize: 15, color: INK,
-                  background: "white", boxSizing: "border-box",
-                  outline: "none",
-                }}
-              />
-
-              <button
-                onClick={submit}
-                disabled={submitting || !name.trim() || attending === null}
-                style={{
-                  width: "100%", padding: "13px",
-                  background: BURGUNDY, color: "white",
-                  border: "none", borderRadius: 8,
-                  ...ovo, fontSize: 16, fontWeight: 600,
-                  cursor: submitting ? "wait" : "pointer",
-                  opacity: (!name.trim() || attending === null) ? 0.5 : 1,
-                }}
-              >
-                {submitting ? "Илгээж байна..." : "Илгээх"}
-              </button>
-            </>
-          )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
-  );
-}
-
-// ─── RSVP Section ─────────────────────────────────────────────────────────────
-function T13RSVP({ eventId }: { eventId: string }) {
-  const [open, setOpen] = useState(false);
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "12px 14px",
+    border: "1px solid rgba(255,255,255,0.25)",
+    borderRadius: 6,
+    ...ovo, fontSize: 15, color: INK,
+    background: "white",
+    boxSizing: "border-box",
+    outline: "none",
+  };
 
   return (
     <div style={{ background: BURGUNDY, padding: "60px 32px", textAlign: "center" }}>
       <FadeUp>
-        <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 16 }}>
+        <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 10 }}>
           Ирцээ бүртгүүлэх
         </div>
-        <p style={{ ...ovo, fontSize: 17, color: "rgba(255,250,248,0.85)", maxWidth: 380, margin: "0 auto 36px", lineHeight: 1.75 }}>
-          Тантай хамт баярлахын тулд ирцийн мэдээллээ илгээнэ үү.
+        <p style={{ ...ovo, fontSize: 16, color: "rgba(255,250,248,0.8)", maxWidth: 380, margin: "0 auto 32px", lineHeight: 1.7 }}>
+          Хурмын өдрөөс өмнө бүртгэлээ хийнэ үү.
         </p>
-        <motion.button
-          whileHover={{ scale: 1.05, boxShadow: "0 8px 24px rgba(0,0,0,0.25)" }}
-          onClick={() => setOpen(true)}
-          style={{
-            background: CREAM, color: BURGUNDY,
-            border: "none", borderRadius: 30,
-            padding: "13px 52px",
-            ...ovo, fontSize: 20, fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          Бүртгүүлэх
-        </motion.button>
-      </FadeUp>
 
-      {open && <RSVPModal eventId={eventId} onClose={() => setOpen(false)} />}
+        {done ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            style={{ maxWidth: 420, margin: "0 auto" }}
+          >
+            <div style={{ ...playfairI, fontSize: 28, color: CREAM, marginBottom: 10 }}>
+              Баярлалаа!
+            </div>
+            <p style={{ ...ovo, fontSize: 16, color: "rgba(255,250,248,0.85)", lineHeight: 1.75 }}>
+              Таны бүртгэлийг хүлээн авлаа.<br />Тантай уулзахыг тэсэн ядан хүлээж байна.
+            </p>
+          </motion.div>
+        ) : (
+          <div style={{ maxWidth: 420, margin: "0 auto", textAlign: "left" }}>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Таны нэр"
+              style={{ ...inputStyle, marginBottom: 20 }}
+            />
+
+            <p style={{ ...ovo, fontSize: 15, color: CREAM, marginBottom: 10 }}>Та ирэх үү?</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 26 }}>
+              {[
+                { val: true,  label: "Тийм, заавал ирнэ" },
+                { val: false, label: "Харамсалтай нь очиж чадахгүй" },
+              ].map(({ val, label }) => (
+                <label
+                  key={String(val)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
+                    ...ovo, fontSize: 15, color: CREAM,
+                    background: attending === val ? "rgba(255,255,255,0.12)" : "transparent",
+                    border: `1px solid ${attending === val ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.2)"}`,
+                    borderRadius: 6, padding: "11px 14px",
+                    transition: "all 0.25s",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="attending"
+                    checked={attending === val}
+                    onChange={() => setAttending(val)}
+                    style={{ accentColor: CREAM, width: 16, height: 16 }}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+
+            <button
+              onClick={submit}
+              disabled={submitting || !name.trim() || attending === null}
+              style={{
+                width: "100%", padding: "14px",
+                background: CREAM, color: BURGUNDY,
+                border: "none", borderRadius: 8,
+                ...ovo, fontSize: 17, fontWeight: 700,
+                cursor: submitting ? "wait" : "pointer",
+                opacity: (!name.trim() || attending === null) ? 0.55 : 1,
+                transition: "opacity 0.25s",
+              }}
+            >
+              {submitting ? "Илгээж байна..." : "Илгээх"}
+            </button>
+          </div>
+        )}
+      </FadeUp>
     </div>
   );
 }
