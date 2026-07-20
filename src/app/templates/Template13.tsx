@@ -1086,8 +1086,9 @@ function T13Footer({ event }: { event: EventData }) {
             src={event.gallery_photos[0]}
             alt="couple"
             style={{
-              width: "88%", maxWidth: 380, height: 320,
-              objectFit: "cover",
+              // Тогтмол өндөр байсан тул зураг таслагдаж байв — бүтнээр нь
+              // харуулахын тулд өндрийг автоматаар тооцуулна
+              width: "88%", maxWidth: 380, height: "auto",
               borderRadius: 12,
               display: "block", margin: "0 auto 32px",
               boxShadow: "0 12px 40px rgba(0,0,0,0.35)",

@@ -858,7 +858,6 @@ function T16RSVP({ eventId }: { eventId: string }) {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   inputMode="tel"
-                  placeholder="88020013"
                 />
               </div>
 
@@ -974,11 +973,8 @@ function T16Footer({ event }: { event: EventData }) {
     return `${y}.${m}.${day}`;
   };
 
-  // Утасны дугаар — events хүснэгтэд багана байхгүй бол энэ мөр харагдахгүй
-  const phones = [
-    { who: name1, tel: event.person1_phone },
-    { who: name2, tel: event.person2_phone },
-  ].filter((p) => p.tel);
+  // Холбоо барих дугаарууд — events хүснэгтэд багана байхгүй тул шууд бичсэн
+  const phones = ["89733377", "88020013"];
 
   const year = (event.date || "").split("-")[0] || "";
 
@@ -1007,20 +1003,28 @@ function T16Footer({ event }: { event: EventData }) {
           {event.venue_name && ` · ${event.venue_name}`}
         </div>
 
-        {phones.length > 0 && (
-          <div style={{ marginTop: 26, display: "flex", justifyContent: "center", gap: 28, flexWrap: "wrap" }}>
-            {phones.map(({ who, tel }) => (
+        <div style={{ marginTop: 34 }}>
+          <div style={{ ...label, color: GOLD, marginBottom: 14 }}>
+            Холбоо барих утасны дугаар
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", gap: 26, flexWrap: "wrap" }}>
+            {phones.map((tel) => (
               <a
-                key={who}
+                key={tel}
                 href={`tel:${tel}`}
-                style={{ ...display, fontSize: 15, color: CREAM, opacity: 0.8, textDecoration: "none" }}
+                style={{
+                  ...display,
+                  fontSize: "clamp(19px, 4.4vw, 23px)",
+                  letterSpacing: "0.06em",
+                  color: CREAM,
+                  textDecoration: "none",
+                }}
               >
-                <span style={{ ...label, color: GOLD, display: "block", marginBottom: 4 }}>{who}</span>
                 {tel}
               </a>
             ))}
           </div>
-        )}
+        </div>
       </Reveal>
 
       <div style={{
