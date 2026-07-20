@@ -543,16 +543,16 @@ function T13Schedule({ event }: { event: EventData }) {
   const time = event.time || "16:00";
   const [hh, mm] = time.split(":").map(Number);
   const fmt = (h: number, m: number) =>
-    `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    `${String(h % 24).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 
   const items = [
-    { time: fmt(hh, mm),         label: "Зочид цугларах" },
-    { time: fmt(hh + 1, mm),     label: "Дурсамж зураг татуулах" },
-    { time: fmt(hh + 2, mm),     label: "Гэрлэлтийн баярын ёслол" },
-        { time: fmt(hh + 3, mm),     label: "Хүндэтгэлийн зоог" },
-            { time: fmt(hh + 4, mm),     label: "Ерөөл, бэлэг дэвшүүлэх" },
-            { time: fmt(hh + 5, mm),     label: "Чөлөөт хөтөлбөр, диско цаг эхлэх" },
-
+    { time: fmt(hh, mm),         label: "Зочид угтаж авах" },
+    { time: fmt(hh + 1, mm),     label: "Дурсгалын зураг авахуулах" },
+    { time: fmt(hh + 2, mm),     label: "Нээлтийн үйл ажиллагаа" },
+    { time: fmt(hh + 3, mm),     label: "Хуримын 1-р хэсэг" },
+    { time: fmt(hh + 4, mm),     label: "Хосын бүжиг" },
+    { time: fmt(hh + 5, mm),     label: "Баярын бялуу хөндөх" },
+    { time: fmt(hh + 6, mm),     label: "Party time" },
   ];
 
   const containerRef = useRef<HTMLDivElement>(null);
