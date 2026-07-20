@@ -22,4 +22,8 @@ export type EventData = {
   gallery2_photos: string[];
   template?: string;
   music_url?: string;
+  // events хүснэгтэд одоогоор багана байхгүй — нэмбэл Template16-ийн footer-т
+  // tel: холбоос болж харагдана
+  person1_phone?: string;
+  person2_phone?: string;
 };
