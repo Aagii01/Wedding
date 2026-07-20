@@ -456,28 +456,31 @@ function T13Gallery({ event }: { event: EventData }) {
 }
 
 // ─── Letter ───────────────────────────────────────────────────────────────────
+// events.poem хоосон үед харагдах үндсэн шүлэг
+const T13_DEFAULT_POEM = [
+  "Хоёр сэтгэл нэгэн зүгт тэмүүлж,",
+  "Хайрын гэгээн замд учирсан бид хоёр",
+  "Хувь заяагаа холбон,",
+  "Хуримын ариун ёслолоо тэмдэглэх гэж байна.",
+  "",
+  "Энэхүү аз жаргалт мөчийг",
+  "Эрхэм таньтай хамт хуваалцахыг урьж байна.",
+];
+
 function T13Letter({ event }: { event: EventData }) {
-  const name1 = event.person1_name || "Болд";
-  const name2 = event.person2_name || "Сарнай";
   return (
     <div style={{ background: BURGUNDY }}>
       <WavyTop fill={CREAM} />
       <div style={{ background: BURGUNDY, padding: "48px 32px 56px", textAlign: "center" }}>
         <FadeUp>
-          <div style={{ color: "white", ...playfairI, fontSize: 28, marginBottom: 20 }}>
-            Хайрт найзууд болон гэр бүлийнхэн,
-          </div>
-          <p style={{ color: "rgba(255,255,255,0.88)", ...ovo, fontSize: 17, lineHeight: 1.85, maxWidth: 420, margin: "0 auto" }}>
-            {getPoemLines(event, [
-              "Бид хоёрын хамгийн тусгай өдөр болох хуримдаа та бүхнийг урьж байна.",
-              "Та нарын дэмжлэг, хайр бидэнд дэлхийн хамгийн үнэтэй зүйл юм.",
-              `${name1} ба ${name2} нарын шинэ амьдралын эхлэлийг хамт тэмдэглэе.`,
-            ]).map((line, i) =>
+          {/* Шүлэг тул мөр бүр тусдаа эгнээнд, хоосон мөр нь зай болно */}
+          <div style={{ color: "rgba(255,255,255,0.92)", ...ovo, fontSize: 18, lineHeight: 1.9, maxWidth: 420, margin: "0 auto" }}>
+            {getPoemLines(event, T13_DEFAULT_POEM).map((line, i) =>
               line === ""
-                ? <span key={i} style={{ display: "block", height: 14 }} />
-                : <span key={i}>{line}{" "}</span>
+                ? <div key={i} style={{ height: 18 }} />
+                : <div key={i}>{line}</div>
             )}
-          </p>
+          </div>
         </FadeUp>
       </div>
       <WavyBottom fill={CREAM} />
@@ -718,7 +721,7 @@ function T13DressCode() {
 
         <FadeUp delay={0.2}>
           <p style={{ ...ovo, fontSize: 17, color: CREAM, maxWidth: 360, margin: "0 auto 40px", lineHeight: 1.8 }}>
-            Энэхүү онцгой мөчийг хамтдаа бүтэн зүрхээр угтан авч, дурсамж болгон үлдээе.
+            Энэхүү онцгой мөчийг хамтдаа бүтээж, нэгэн үдшийг дурсамж дүүрэн өнгөрүүлье.
           </p>
         </FadeUp>
 
@@ -739,7 +742,7 @@ function T13DressCode() {
               <PeonySVG size={56} color="#D4B0A0" />
             </div>
             <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
-              <strong>Хүлээн авалт:</strong> Чөлөөт цаг эхлэтэл та бүхэн хүлээлгийн зоог барьж, дурсамж зургаа авахуулна уу.
+              <strong>Хүлээн авалт:</strong> Нээлтийн үйл ажиллагаа эхэлтэл хүлээлгийн зоог барьж, дурсамж зургаа авахуулна уу.
             </p>
           </motion.div>
 
@@ -759,7 +762,7 @@ function T13DressCode() {
               <PeonySVG size={56} color="#E8A0BF" />
             </div>
             <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
-              <strong>Цаг:</strong> Ёслол эхлэхээс 15 минутын өмнө ирж суудалдаа заларна уу.
+              <strong>Цаг:</strong> Ёслол эхлэхээс 30 минутын өмнө суудалдаа заларна уу.
             </p>
           </motion.div>
         </div>

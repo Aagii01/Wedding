@@ -858,7 +858,7 @@ function T16RSVP({ eventId }: { eventId: string }) {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   inputMode="tel"
-                  placeholder="9911-2233"
+                  placeholder="88020013"
                 />
               </div>
 
