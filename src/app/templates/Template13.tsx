@@ -992,7 +992,7 @@ function T13RSVP({ eventId }: { eventId: string }) {
               Баярлалаа!
             </div>
             <p style={{ ...ovo, fontSize: 16, color: "rgba(255,250,248,0.85)", lineHeight: 1.75 }}>
-              Таны бүртгэлийг хүлээн авлаа.<br />Тантай уулзахыг тэсэн ядан хүлээж байна.
+              Таны бүртгэлийг хүлээн авлаа.<br />Таньтай уулзахыг тэсэн ядан хүлээж байна.
             </p>
           </motion.div>
         ) : (
@@ -1056,6 +1056,17 @@ function T13RSVP({ eventId }: { eventId: string }) {
 }
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
+// "Хүндэтгэсэн" хэсэг — зөвхөн энд бүртгэсэн slug дээр харагдана.
+// Бусад урилга дээр энэ блок огт гарахгүй.
+const HONORED_BY: Record<string, string[]> = {
+  "uuganbayr-baasanbayr": [
+    "Нөхөр Б.Ууганбаяр",
+    "Эхнэр Ш.Баасанбаяр",
+    "Охин У.Анужин",
+    "Охин У.Анунгоо",
+  ],
+};
+
 function T13Footer({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";
   const name2 = event.person2_name || "Сарнай";
@@ -1082,12 +1093,27 @@ function T13Footer({ event }: { event: EventData }) {
       )}
       <FadeUp delay={0.15}>
         <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 12 }}>
-          Тантай уулзахыг тэсэн ядан хүлээж байна!
+          Таньтай уулзахыг тэсэн ядан хүлээж байна!
         </div>
         <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
           {name1} <Amp /> {name2}
         </div>
       </FadeUp>
+
+      {HONORED_BY[event.slug] && (
+        <FadeUp delay={0.25}>
+          <div style={{ marginTop: 40 }}>
+            <div style={{ ...playfairI, fontSize: 19, color: CREAM, opacity: 0.9, marginBottom: 14 }}>
+              Хүндэтгэсэн:
+            </div>
+            {HONORED_BY[event.slug].map((line) => (
+              <div key={line} style={{ ...ovo, fontSize: 16, color: CREAM, opacity: 0.82, lineHeight: 1.9 }}>
+                {line}
+              </div>
+            ))}
+          </div>
+        </FadeUp>
+      )}
 
       <div style={{ marginTop: 40, opacity: 0.3 }}>
         <PeonySVG size={90} color="#E8A0BF" />
