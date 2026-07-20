@@ -381,15 +381,20 @@ function GalleryCard({ src, quote, size }: {
 function T13Gallery({ event }: { event: EventData }) {
   const [current, setCurrent] = useState(0);
 
-  const slides = QUOTES.map((quote, i) => ({
-    src: event.gallery2_photos?.[i] || FALLBACK_PHOTOS[i],
-    quote,
-  }));
+  // Оруулсан зурагны тоогоор л slide үүсгэнэ — дутууг нь Unsplash зургаар
+  // нөхөхгүй. Огт зураггүй үед л үндсэн (fallback) зургууд гарна.
+  const photos = (event.gallery2_photos || []).filter(Boolean);
+  const sources = photos.length ? photos : FALLBACK_PHOTOS;
+  const slides = sources.map((src, i) => ({ src, quote: QUOTES[i % QUOTES.length] }));
 
   const prev  = (current - 1 + slides.length) % slides.length;
   const prev2 = (current - 2 + slides.length) % slides.length;
   const next  = (current + 1) % slides.length;
   const next2 = (current + 2) % slides.length;
+
+  // Зураг цөөн үед хажуугийн картууд давхардахгүйн тулд нуана
+  const showSide = slides.length >= 3;
+  const showFar  = slides.length >= 5;
 
   return (
     <div style={{ background: CREAM, paddingTop: 60, paddingBottom: 44, overflow: "hidden" }}>
@@ -427,13 +432,17 @@ function T13Gallery({ event }: { event: EventData }) {
         }}
       >
         {/* Far left */}
-        <div style={{ position: "absolute", transform: "translateX(-340px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
-          <GalleryCard src={slides[prev2].src} quote={slides[prev2].quote} size="tiny" />
-        </div>
+        {showFar && (
+          <div style={{ position: "absolute", transform: "translateX(-340px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
+            <GalleryCard src={slides[prev2].src} quote={slides[prev2].quote} size="tiny" />
+          </div>
+        )}
         {/* Left */}
-        <div style={{ position: "absolute", transform: "translateX(-210px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
-          <GalleryCard src={slides[prev].src} quote={slides[prev].quote} size="small" />
-        </div>
+        {showSide && (
+          <div style={{ position: "absolute", transform: "translateX(-210px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
+            <GalleryCard src={slides[prev].src} quote={slides[prev].quote} size="small" />
+          </div>
+        )}
         {/* Center */}
         <div style={{ position: "absolute", zIndex: 10, pointerEvents: "none" }}>
           <AnimatePresence mode="wait">
@@ -449,13 +458,17 @@ function T13Gallery({ event }: { event: EventData }) {
           </AnimatePresence>
         </div>
         {/* Right */}
-        <div style={{ position: "absolute", transform: "translateX(210px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
-          <GalleryCard src={slides[next].src} quote={slides[next].quote} size="small" />
-        </div>
+        {showSide && (
+          <div style={{ position: "absolute", transform: "translateX(210px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
+            <GalleryCard src={slides[next].src} quote={slides[next].quote} size="small" />
+          </div>
+        )}
         {/* Far right */}
-        <div style={{ position: "absolute", transform: "translateX(340px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
-          <GalleryCard src={slides[next2].src} quote={slides[next2].quote} size="tiny" />
-        </div>
+        {showFar && (
+          <div style={{ position: "absolute", transform: "translateX(340px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
+            <GalleryCard src={slides[next2].src} quote={slides[next2].quote} size="tiny" />
+          </div>
+        )}
       </motion.div>
 
       {/* Dots */}
