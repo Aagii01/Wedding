@@ -5,6 +5,7 @@ import Template13 from "./Template13";
 import Template14 from "./Template14";
 import Template15 from "./Template15";
 import Template16 from "./Template16";
+import Template17 from "./Template17";
 
 export const templateMap: Record<string, React.ComponentType<{ event: EventData }>> = {
   "11": App,
@@ -13,4 +14,5 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "14": Template14,
   "15": Template15,
   "16": Template16,
+  "17": Template17,
 };
