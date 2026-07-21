@@ -627,7 +627,7 @@ function T13Schedule({ event }: { event: EventData }) {
       <div style={{ background: BURGUNDY, padding: "52px 24px 60px", textAlign: "center" }}>
         <FadeUp>
           <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 44 }}>
-            Цагийн хуваарь
+            Хөтөлбөр
           </div>
         </FadeUp>
         <div ref={containerRef} style={{ position: "relative", display: "inline-block", textAlign: "left" }}>
