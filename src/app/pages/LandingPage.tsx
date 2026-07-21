@@ -44,7 +44,7 @@ const TEMPLATES = [
     id: "13",
     name: "Ruby",
     tagline: "Бадмаараг · Романтик · Тансаг",
-    desc: "Гүн улаан өнгө, алтан ботаникал лац. Хурмын уламжлалт гоёлт загвар.",
+    desc: "Гүн улаан өнгө, алтан ботаникал лац. Хуримын уламжлалт гоёлт загвар.",
     bg: "#66021f",
     cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/cover4.jpg",
     accent: "#e8c97a",

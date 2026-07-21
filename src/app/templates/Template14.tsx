@@ -557,7 +557,7 @@ function T14Venue({ event }: { event: EventData }) {
         <FadeUp><Eyebrow>Байршил</Eyebrow></FadeUp>
         <FadeUp delay={0.1}>
           <div style={{ ...pinyon, color: WAX, fontSize: "clamp(52px, 13vw, 80px)", lineHeight: 1, textAlign: "center", margin: "8px 0 24px" }}>
-            {event.venue_name || "Хурмын ордон"}
+            {event.venue_name || "Хуримын ордон"}
           </div>
         </FadeUp>
 

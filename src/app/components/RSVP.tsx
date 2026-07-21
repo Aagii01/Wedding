@@ -75,7 +75,7 @@ export function RSVP({ eventId }: Props) {
           transition={{ duration: 0.75, ease: EASE }}
         >
           <h2 className="text-3xl font-serif text-gray-800 mb-1">Ирцээ бүртгүүлэх</h2>
-          <p className="text-sm text-gray-400 mb-7">Хурмын өдрөөс өмнө бүртгэлээ хийнэ үү</p>
+          <p className="text-sm text-gray-400 mb-7">Хуримын өдрөөс өмнө бүртгэлээ хийнэ үү</p>
           <form onSubmit={handleRsvp} className="space-y-4">
             <div>
               <Input

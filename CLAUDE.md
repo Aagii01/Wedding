@@ -180,7 +180,7 @@ LandingPage → TemplatesSection → карт дээр дарах
 | `GallerySection` | Bento grid 4 зураг (`gallery_photos`) + lightbox (AnimatePresence) |
 | `PoemSection` | Cormorant Garamond фонт, дулаан хүрэн өнгө (`#3a2e28`), мөр бүр `whileInView` scroll reveal |
 | `CountdownTimer` | Cream (`#f8f5f0`) bg, `FlipNumber` 3D flip animation, Cormorant Garamond тоо, "Календарьт нэмэх" dropdown |
-| `HealthProtocol` | Хурмын цагийн хуваарь (timeline) — нэр нь хуучин, агуулга шинэ |
+| `HealthProtocol` | Хуримын цагийн хуваарь (timeline) — нэр нь хуучин, агуулга шинэ |
 | `RSVP` | Ирэлтийн бүртгэл form → Supabase `rsvp` table |
 | `WeddingFooter` | Footer |
 
