@@ -744,7 +744,7 @@ function T13DressCode() {
       <div style={{ background: BURGUNDY, padding: "52px 32px 60px", textAlign: "center" }}>
         <FadeUp>
           <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 28 }}>
-            Хурмын хүсэлт
+            Хуримын хүсэлт
           </div>
         </FadeUp>
 
@@ -988,7 +988,7 @@ function T13RSVP({ eventId }: { eventId: string }) {
           Ирцээ бүртгүүлэх
         </div>
         <p style={{ ...ovo, fontSize: 16, color: "rgba(255,250,248,0.8)", maxWidth: 380, margin: "0 auto 32px", lineHeight: 1.7 }}>
-          Хурмын өдрөөс өмнө бүртгэлээ хийнэ үү.
+          Хуримын өдрөөс өмнө бүртгэлээ хийнэ үү.
         </p>
 
         {done ? (
@@ -1108,6 +1108,12 @@ const HONORED_BY: Record<string, { names: string[]; phones?: string[] }> = {
   },
 };
 
+// Footer-ийн доод гарын үсэг — үндсэндээ "нэр1 & нэр2" нэг мөрөөр гарна.
+// Энд бүртгэсэн slug дээр оронд нь мөр тус бүрээр жагсаана.
+const SIGNATURE: Record<string, string[]> = {
+  "enkhbayr-naranchimeg": ["Л.Энхбаяр", "Г.Наранчимэг", "Э.Цэцэнбилиг", "Э.Очир"],
+};
+
 function T13Footer({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";
   const name2 = event.person2_name || "Сарнай";
@@ -1136,9 +1142,17 @@ function T13Footer({ event }: { event: EventData }) {
         <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 12 }}>
           Таньтай уулзахыг тэсэн ядан хүлээж байна!
         </div>
-        <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
-          {name1} <Amp /> {name2}
-        </div>
+        {SIGNATURE[event.slug] ? (
+          SIGNATURE[event.slug].map((line) => (
+            <div key={line} style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8, lineHeight: 1.8 }}>
+              {line}
+            </div>
+          ))
+        ) : (
+          <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
+            {name1} <Amp /> {name2}
+          </div>
+        )}
       </FadeUp>
 
       {HONORED_BY[event.slug] && (
