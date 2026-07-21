@@ -66,6 +66,19 @@ const TEMPLATES = [
     swatches: ["hsl(220 30% 16%)", "hsl(218 50% 50%)", "hsl(218 42% 88%)", "hsl(220 15% 88%)"],
     font: "'Cormorant Garamond', serif",
   },
+  {
+    id: "16",
+    name: "Pure",
+    tagline: "Цэвэр · Цөцгий · Алт",
+    desc: "Цөцгий цагаан фон, нарийн алтан шугам. Pinyon Script гарын үсэг — нам гүм тансаг загвар.",
+    bg: "#F7F3EC",
+    cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/photos/main.jpg",
+    accent: "#B68D5A",
+    text: "#2B2A28",
+    soft: "rgba(43,42,40,0.6)",
+    swatches: ["#2B2A28", "#B68D5A", "#F7F3EC", "#FBF8F2"],
+    font: "'Cormorant Garamond', serif",
+  },
 ];
 
 // Gold gradient text style for dark backgrounds
