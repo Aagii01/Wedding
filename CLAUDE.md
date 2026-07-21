@@ -253,6 +253,19 @@ Toaster (shadcn notification)
 - [ ] Template 14 — Botanical, Blush, Minimal
 - [ ] LandingPage-д template preview carousel-д "available: true" болгоход ажиллах routing
 
+### Хагас хийгдсэн — идэвхжүүлэхэд бэлэн
+- [ ] **Facebook линк preview (OG meta tags)** — `api/invite.js.disabled`
+  Урилгын линкийг Messenger/Facebook-д хуваалцахад зураг + нэр + огноотой
+  preview гаргах. Код бүрэн бичигдэж, бодит датаар тестлэгдсэн (2026-07-21).
+  Одоо `.disabled` өргөтгөлтэй тул Vercel үүнийг build хийхгүй — деплойд
+  огт нөлөөлөхгүй байгаа.
+  **Идэвхжүүлэх:** файлыг `api/invite.js` болгож нэрлээд коммент хашилтыг ав +
+  `vercel.json`-д `/i/:slug` → `/api/invite?slug=:slug` rewrite нэм
+  (`/(.*)`-аас ӨМНӨ байрлуулна). Дэлгэрэнгүй заавар файлын толгойд бий.
+  **⚠️ Үлдсэн асуудал:** FB preview 1.91:1 хэвтээ харьцаагаар тайрдаг ч
+  одоогийн `main_image`-ийн ихэнх нь босоо → толгой тасарч магадгүй.
+  Шийдэл: `og_image` багана нэмж 1200×630 зураг оруулах.
+
 ### Бусад
 - [ ] Admin authentication (одоо `/create` нээлттэй)
 - [ ] `story` text column → "Манай түүх" хэсэг WeddingHero-д
