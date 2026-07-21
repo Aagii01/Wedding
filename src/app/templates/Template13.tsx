@@ -939,6 +939,7 @@ function T13Wishes({ eventId }: { eventId: string }) {
 function T13RSVP({ eventId }: { eventId: string }) {
   const [name, setName]             = useState("");
   const [attending, setAttending]   = useState<boolean | null>(null);
+  const [guests, setGuests]         = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone]             = useState(false);
 
@@ -954,11 +955,20 @@ function T13RSVP({ eventId }: { eventId: string }) {
     const { error } = await supabase.from("rsvp").insert({
       event_id: eventId,
       name: name.trim(),
-      guests: attending ? 1 : 0,
+      guests: attending ? guests : 0,
     });
     setSubmitting(false);
     if (error) { toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
     setDone(true);
+  };
+
+  const counterBtn: React.CSSProperties = {
+    width: 44, height: 44,
+    border: "1px solid rgba(255,255,255,0.2)",
+    background: "transparent",
+    color: CREAM,
+    ...ovo, fontSize: 20, lineHeight: 1,
+    cursor: "pointer",
   };
 
   const inputStyle: React.CSSProperties = {
@@ -1032,6 +1042,34 @@ function T13RSVP({ eventId }: { eventId: string }) {
                 </label>
               ))}
             </div>
+
+            {/* Хүний тоо — "Ирэхгүй" сонгосон үед хэрэггүй тул нуана */}
+            {attending !== false && (
+              <div style={{ marginBottom: 26 }}>
+                <p style={{ ...ovo, fontSize: 15, color: CREAM, marginBottom: 10 }}>Хэдүүлээ ирэх вэ?</p>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <button
+                    onClick={() => setGuests((g) => Math.max(1, g - 1))}
+                    style={counterBtn}
+                    aria-label="Хасах"
+                  >−</button>
+                  <div style={{
+                    ...ovo, fontSize: 18, color: CREAM,
+                    width: 64, height: 44,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    borderTop: "1px solid rgba(255,255,255,0.2)",
+                    borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  }}>
+                    {guests}
+                  </div>
+                  <button
+                    onClick={() => setGuests((g) => Math.min(20, g + 1))}
+                    style={counterBtn}
+                    aria-label="Нэмэх"
+                  >+</button>
+                </div>
+              </div>
+            )}
 
             <button
               onClick={submit}
