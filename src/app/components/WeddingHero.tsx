@@ -52,15 +52,20 @@ type Props = { event: EventData };
 export function WeddingHero({ event }: Props) {
   const [current, setCurrent] = useState(0);
 
-  const slides = QUOTES.map((quote, i) => ({
-    src: event.gallery2_photos?.[i] || FALLBACK_SRCS[i],
-    quote,
-  }));
+  // Оруулсан зурагтаа тааруулж slide үүсгэнэ — дутууг нь placeholder-аар нөхөхгүй.
+  // Огт зураг байхгүй үед л FALLBACK ажиллана (demo, хоосон event эвдрэхгүй).
+  const photos = (event.gallery2_photos || []).filter(Boolean);
+  const sources = photos.length > 0 ? photos : FALLBACK_SRCS;
+  const slides = sources.map((src, i) => ({ src, quote: QUOTES[i % QUOTES.length] }));
 
   const prev  = (current - 1 + slides.length) % slides.length;
   const prev2 = (current - 2 + slides.length) % slides.length;
   const next  = (current + 1) % slides.length;
   const next2 = (current + 2) % slides.length;
+
+  // 5 байрлалтай carousel: зураг цөөн бол хажуугийн картууд давхардана.
+  const showSide = slides.length >= 3;   // зүүн/баруун дунд карт
+  const showFar  = slides.length >= 5;   // хамгийн захын жижиг карт
 
   const heroSrc = event.main_image ||
     "https://images.unsplash.com/photo-1583939003579-730e3918a45a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800";
@@ -144,8 +149,10 @@ export function WeddingHero({ event }: Props) {
         </motion.div>
 
         <motion.div
-          className="relative flex items-center justify-center w-full h-[500px] md:h-[620px] cursor-grab active:cursor-grabbing touch-none select-none"
-          drag="x"
+          className={`relative flex items-center justify-center w-full h-[500px] md:h-[620px] select-none ${
+            slides.length > 1 ? "cursor-grab active:cursor-grabbing touch-none" : ""
+          }`}
+          drag={slides.length > 1 ? "x" : false}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.15}
           onDragEnd={(_, info) => {
@@ -157,20 +164,24 @@ export function WeddingHero({ event }: Props) {
           }}
         >
           {/* Far left */}
-          <div
-            className="absolute pointer-events-none"
-            style={{ transform: "translateX(-410px) scale(0.62)", opacity: 0.3, zIndex: 0 }}
-          >
-            <SlideCard src={slides[prev2].src} quote={slides[prev2].quote} tiny />
-          </div>
+          {showFar && (
+            <div
+              className="absolute pointer-events-none"
+              style={{ transform: "translateX(-410px) scale(0.62)", opacity: 0.3, zIndex: 0 }}
+            >
+              <SlideCard src={slides[prev2].src} quote={slides[prev2].quote} tiny />
+            </div>
+          )}
 
           {/* Left */}
-          <div
-            className="absolute pointer-events-none"
-            style={{ transform: "translateX(-230px) scale(0.8)", opacity: 0.6, zIndex: 1 }}
-          >
-            <SlideCard src={slides[prev].src} quote={slides[prev].quote} small />
-          </div>
+          {showSide && (
+            <div
+              className="absolute pointer-events-none"
+              style={{ transform: "translateX(-230px) scale(0.8)", opacity: 0.6, zIndex: 1 }}
+            >
+              <SlideCard src={slides[prev].src} quote={slides[prev].quote} small />
+            </div>
+          )}
 
           {/* Center */}
           <div className="absolute pointer-events-none" style={{ zIndex: 10 }}>
@@ -188,23 +199,27 @@ export function WeddingHero({ event }: Props) {
           </div>
 
           {/* Right */}
-          <div
-            className="absolute pointer-events-none"
-            style={{ transform: "translateX(230px) scale(0.8)", opacity: 0.6, zIndex: 1 }}
-          >
-            <SlideCard src={slides[next].src} quote={slides[next].quote} small />
-          </div>
+          {showSide && (
+            <div
+              className="absolute pointer-events-none"
+              style={{ transform: "translateX(230px) scale(0.8)", opacity: 0.6, zIndex: 1 }}
+            >
+              <SlideCard src={slides[next].src} quote={slides[next].quote} small />
+            </div>
+          )}
 
           {/* Far right */}
-          <div
-            className="absolute pointer-events-none"
-            style={{ transform: "translateX(410px) scale(0.62)", opacity: 0.3, zIndex: 0 }}
-          >
-            <SlideCard src={slides[next2].src} quote={slides[next2].quote} tiny />
-          </div>
+          {showFar && (
+            <div
+              className="absolute pointer-events-none"
+              style={{ transform: "translateX(410px) scale(0.62)", opacity: 0.3, zIndex: 0 }}
+            >
+              <SlideCard src={slides[next2].src} quote={slides[next2].quote} tiny />
+            </div>
+          )}
         </motion.div>
 
-        <div className="flex items-center gap-2 mt-10">
+        <div className={`items-center gap-2 mt-10 ${slides.length > 1 ? "flex" : "hidden"}`}>
           {slides.map((_, i) => (
             <button
               key={i}

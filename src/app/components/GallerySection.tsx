@@ -13,14 +13,59 @@ const PLACEHOLDERS = [
   "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&q=80",
 ];
 
+// 5-аас цөөн зураг үед bento grid-д нүх үлддэг тул жигд grid болгоно.
+const GRID_COLS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-2 md:grid-cols-3",
+  4: "grid-cols-2",
+};
+
 type Props = { event: EventData };
+
+function Tile({
+  src,
+  ratio,
+  delay,
+  className = "",
+  onClick,
+}: {
+  src: string;
+  ratio: string;
+  delay: number;
+  className?: string;
+  onClick: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-40px 0px" }}
+      transition={{ duration: 0.78, delay, ease: EASE }}
+      className={`relative overflow-hidden rounded-2xl cursor-pointer group ${className}`}
+      style={{ aspectRatio: ratio }}
+      onClick={onClick}
+    >
+      <img
+        src={src}
+        alt="gallery"
+        loading="lazy"
+        decoding="async"
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />
+    </motion.div>
+  );
+}
 
 export function GallerySection({ event }: Props) {
   const [lightbox, setLightbox] = useState<string | null>(null);
 
-  const photos = Array.from({ length: 5 }, (_, i) =>
-    event.gallery_photos?.[i] || PLACEHOLDERS[i]
-  );
+  // Оруулсан зурагтаа тааруулна — дутууг placeholder-аар нөхөхгүй.
+  // Огт зураг байхгүй үед л PLACEHOLDERS ажиллана (demo эвдрэхгүй).
+  const provided = (event.gallery_photos || []).filter(Boolean);
+  const photos = provided.length > 0 ? provided : PLACEHOLDERS;
+  const isBento = photos.length >= 5;
 
   return (
     <>
@@ -37,71 +82,53 @@ export function GallerySection({ event }: Props) {
             <h2 className="text-3xl font-serif text-gray-800">Зургийн цомог</h2>
           </motion.div>
 
-          {/* Bento grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-            {/* Featured large */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-40px 0px" }}
-              transition={{ duration: 0.8, ease: EASE }}
-              className="col-span-2 md:col-span-2 md:row-span-2 relative overflow-hidden rounded-2xl cursor-pointer group"
-              style={{ aspectRatio: "4/3" }}
-              onClick={() => setLightbox(photos[0])}
-            >
-              <img
+          {isBento ? (
+            /* Bento grid — 5+ зурагтай үед */
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+              {/* Featured large */}
+              <Tile
                 src={photos[0]}
-                alt="gallery"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                ratio="4/3"
+                delay={0}
+                className="col-span-2 md:col-span-2 md:row-span-2"
+                onClick={() => setLightbox(photos[0])}
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />
-            </motion.div>
 
-            {/* Small photos — right column */}
-            {photos.slice(1, 4).map((src, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.96 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: "-40px 0px" }}
-                transition={{ duration: 0.75, delay: (i + 1) * 0.1, ease: EASE }}
-                className="col-span-1 relative overflow-hidden rounded-2xl cursor-pointer group"
-                style={{ aspectRatio: "1/1" }}
-                onClick={() => setLightbox(src)}
-              >
-                <img
+              {/* Small photos — right column */}
+              {photos.slice(1, 4).map((src, i) => (
+                <Tile
+                  key={i}
                   src={src}
-                  alt="gallery"
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  ratio="1/1"
+                  delay={(i + 1) * 0.1}
+                  className="col-span-1"
+                  onClick={() => setLightbox(src)}
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />
-              </motion.div>
-            ))}
+              ))}
 
-            {/* 5th photo — wide bottom */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, margin: "-40px 0px" }}
-              transition={{ duration: 0.75, delay: 0.2, ease: EASE }}
-              className="col-span-1 md:col-span-2 relative overflow-hidden rounded-2xl cursor-pointer group"
-              style={{ aspectRatio: "1/1" }}
-              onClick={() => setLightbox(photos[4])}
-            >
-              <img
+              {/* 5th photo — wide bottom */}
+              <Tile
                 src={photos[4]}
-                alt="gallery"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                ratio="1/1"
+                delay={0.2}
+                className="col-span-1 md:col-span-2"
+                onClick={() => setLightbox(photos[4])}
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />
-            </motion.div>
-          </div>
+            </div>
+          ) : (
+            /* 1–4 зураг — нүх үлдээхгүй жигд grid */
+            <div className={`grid gap-2 md:gap-3 ${GRID_COLS[photos.length]}`}>
+              {photos.map((src, i) => (
+                <Tile
+                  key={i}
+                  src={src}
+                  ratio={photos.length === 1 ? "4/3" : "1/1"}
+                  delay={i * 0.1}
+                  onClick={() => setLightbox(src)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
