@@ -335,6 +335,31 @@ function T13Hero({ event }: { event: EventData }) {
           {name2}
         </motion.div>
       </div>
+
+      {/* Доош гүйлгэхийг сануулах — нэрс гарч дууссаны дараа зөөлөн илэрнэ */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.8 }}
+        transition={{ duration: 1.6, delay: 5, ease: "easeOut" }}
+        style={{
+          position: "absolute", bottom: 26, left: 0, right: 0,
+          zIndex: 2, textAlign: "center", color: "white",
+        }}
+      >
+        <motion.div
+          animate={{ y: [0, 7, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <div style={{ ...ovo, fontSize: 13, letterSpacing: "0.1em" }}>
+            Урилгыг доош гүйлгэж үзнэ үү
+          </div>
+          <svg width="18" height="10" viewBox="0 0 18 10" fill="none"
+            style={{ display: "block", margin: "6px auto 0" }}>
+            <path d="M1 1L9 8L17 1" stroke="white" strokeWidth="1.5"
+              strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
