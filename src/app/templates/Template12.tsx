@@ -17,6 +17,13 @@ const POLAROID: React.CSSProperties = {
 };
 
 // ─── helpers ────────────────────────────────────────────────────────────────
+// Монограмыг ерөнхийд нь нэр бүрийн эхний үсгээр гаргана. Гэхдээ овог нэрний
+// байрлал хэл болгонд өөр (монгол: эцгийн нэр эхэнд, англи: овог сүүлд) тул
+// автоматаар таамаглах найдваргүй. Тусгай тохиолдлыг энд slug-аар тогтооно.
+const MONO_OVERRIDE: Record<string, string> = {
+  "abigail-williams": "М&W", // Мондэхүү (өөрийн нэр) & Williams
+};
+
 function initials(p1: string, p2?: string) {
   const a = p1.trim()[0] ?? "";
   const b = p2?.trim()[0] ?? "";
@@ -289,7 +296,14 @@ function T12Hero({ names, date, heroImage }: { names: string; date: string; hero
               fontSize: "clamp(4rem, 13vw, 11rem)", margin: 0,
             }}
           >
-            {names}
+            {(() => {
+              const [n1, ...rest] = names.split(" & ");
+              const n2 = rest.join(" & ");
+              // Зөвхөн & тэмдэгт налуу биш, энгийн байхаар салгаж рендэрлэнэ
+              return n2 ? (
+                <>{n1}<span style={{ fontStyle: "normal" }}> & </span>{n2}</>
+              ) : names;
+            })()}
           </h1>
         </motion.div>
       </motion.div>
@@ -1225,12 +1239,11 @@ function T12RSVP({ eventId }: { eventId: string }) {
     <section id="rsvp" style={{ background: CREAM, paddingInline: 24, paddingBlock: "clamp(80px,12vw,160px)" }}>
       <div style={{ maxWidth: 600, margin: "0 auto" }}>
         <Reveal className="text-center mb-14">
-          <Eyebrow className="mb-4">Ирц бүртгэл</Eyebrow>
           <div style={{
             fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
             fontSize: "clamp(2.2rem, 6vw, 3.8rem)", color: INK, letterSpacing: "-0.01em",
           }}>
-            Та морилно уу
+            Ирц бүртгэл
           </div>
         </Reveal>
 
@@ -1298,7 +1311,8 @@ function T12Footer({ mono, names }: { mono: string; names: string }) {
         {parts.length === 2 ? (
           <>
             <span>{parts[0]}</span>
-            <span style={{ fontSize: "0.42em", color: ACCENT, fontStyle: "italic", margin: "0 6px", lineHeight: 1 }}>&amp;</span>
+            {/* & тэмдэгт ямар ч эффектгүй, энгийн (налуу биш, accent өнгөгүй) */}
+            <span style={{ fontSize: "0.42em", color: INK, fontStyle: "normal", margin: "0 6px", lineHeight: 1 }}>&amp;</span>
             <span>{parts[1]}</span>
           </>
         ) : mono}
@@ -1359,7 +1373,7 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 // ─── Root ────────────────────────────────────────────────────────────────────
 export default function Template12({ event }: { event: EventData }) {
   const names = [event.person1_name, event.person2_name].filter(Boolean).join(" & ");
-  const mono  = initials(event.person1_name, event.person2_name);
+  const mono  = MONO_OVERRIDE[event.slug] ?? initials(event.person1_name, event.person2_name);
   const allPhotos = [...(event.gallery_photos || []), ...(event.gallery2_photos || [])];
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
