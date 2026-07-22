@@ -21,7 +21,7 @@ const POLAROID: React.CSSProperties = {
 // байрлал хэл болгонд өөр (монгол: эцгийн нэр эхэнд, англи: овог сүүлд) тул
 // автоматаар таамаглах найдваргүй. Тусгай тохиолдлыг энд slug-аар тогтооно.
 const MONO_OVERRIDE: Record<string, string> = {
-  "abigail-williams": "М&W", // Мондэхүү (өөрийн нэр) & Williams
+  "abigail-williams": "М&A", // Мондэхүү & Abigail — хоёуланг өөрийн нэрээр
 };
 
 function initials(p1: string, p2?: string) {
@@ -34,6 +34,14 @@ function formatDate(iso: string) {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   return `${d.getFullYear()} оны ${d.getMonth() + 1}-р сарын ${d.getDate()}`;
+}
+
+// Countdown-ын том огноог 2 хэсэг болгож буцаана. Утсан дээр нэг мөрөнд
+// багтахгүй, сүүлийн өдрийн тоо ганцаараа доош унаж байсныг зассан.
+function formatDateParts(iso: string): [string, string] | null {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return [`${d.getFullYear()} оны`, `${d.getMonth() + 1}-р сарын ${d.getDate()}`];
 }
 
 // ─── Reveal ─────────────────────────────────────────────────────────────────
@@ -982,7 +990,12 @@ function T12Countdown({ date, title, venue }: { date: string; title: string; ven
             color: tan, marginTop: 24, lineHeight: 0.95, letterSpacing: "-0.02em",
             fontSize: "clamp(3rem, 11vw, 9rem)",
           }}>
-            {formatDate(date)}
+            {(() => {
+              const parts = formatDateParts(date);
+              if (!parts) return formatDate(date);
+              // Утсан дээр 2 мөр, дэлгэц дээр нэг мөр хэвээр
+              return <>{parts[0]}<br className="md:hidden" /> {parts[1]}</>;
+            })()}
           </div>
         </Reveal>
         <Reveal delay={0.2}>
@@ -1006,13 +1019,13 @@ function T12Countdown({ date, title, venue }: { date: string; title: string; ven
 // ─── Schedule ────────────────────────────────────────────────────────────────
 // events.schedule хоосон үед харагдах үндсэн хөтөлбөр
 const DEFAULT_SCHEDULE: ScheduleItem[] = [
-  { time: "15:30", label: "Зочид цугларах", desc: "Урилгаар ирсэн хүндэт зочид морилно" },
-  { time: "16:00", label: "Дурсамж зураг татуулах", desc: "Фото бүсэд зурагчидтай хамт" },
-  { time: "16:30", label: "Хуримын танхимд суудал эзлэх", desc: "Зочид байраа эзлэн, ёслолд бэлтгэнэ" },
-  { time: "17:00", label: "Гэрлэлтийн баярын ёслол", desc: "Хосууд орж ирэх, бөгж солилцох, гарын үсэг зурах" },
-  { time: "17:40", label: "Хүндэтгэлийн зоог", desc: "Ширээний хундага өргөх, уран бүтээлчдийн тоглолт эхлэх" },
-  { time: "18:20", label: "Ерөөл, бэлэг дэвшүүлэх", desc: "Аав ээж, төрөл төрөгсдийн ерөөлийн үг, бэлэг гардуулах" },
-  { time: "19:30", label: "Хуримын чөлөөт цаг", desc: "Шинэ чөлөөт хөтөлбөр, диско цаг эхлэх" },
+  { time: "11:00", label: "Зочид цугларах", desc: "Урилгаар ирсэн хүндэт зочид морилно" },
+  { time: "11:30", label: "Дурсамж зураг татуулах", desc: "Фото бүсэд зурагчидтай хамт" },
+  { time: "12:00", label: "Хуримын танхимд суудал эзлэх", desc: "Зочид байраа эзлэн, ёслолд бэлтгэнэ" },
+  { time: "12:30", label: "Гэрлэлтийн баярын ёслол", desc: "Хосууд орж ирэх, бөгж солилцох, гарын үсэг зурах" },
+  { time: "13:10", label: "Хүндэтгэлийн зоог", desc: "Ширээний хундага өргөх, уран бүтээлчдийн тоглолт эхлэх" },
+  { time: "13:50", label: "Ерөөл, бэлэг дэвшүүлэх", desc: "Аав ээж, төрөл төрөгсдийн ерөөлийн үг, бэлэг гардуулах" },
+  { time: "15:00", label: "Хуримын чөлөөт цаг", desc: "Шинэ чөлөөт хөтөлбөр, диско цаг эхлэх" },
 ];
 
 

@@ -234,26 +234,28 @@ export function HorizontalCarousel({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                // Leave room for caption below
-                paddingTop:    "clamp(56px,10vh,90px)",
-                paddingBottom: "clamp(150px,28vh,230px)",
+                // Caption нуусан тул доод зайг багасгаж зурагт өгсөн
+                paddingTop:    "clamp(48px,8vh,80px)",
+                paddingBottom: "clamp(64px,11vh,110px)",
               }}
             >
-              <div style={{
-                width:        "clamp(200px, 64vw, 360px)",
-                height:       "100%",
-                maxHeight:    "clamp(270px, 54vh, 430px)",
-                borderRadius: 16,
-                overflow:     "hidden",
-                boxShadow:    "0 28px 80px rgba(29,40,57,0.65)",
-              }}>
-                <img
-                  src={slide.src}
-                  alt={slide.title}
-                  draggable={false}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </div>
+              {/* Зургийг тайрахгүй бүтнээр нь харуулна — хэмжээг өөрөө
+                  авч, max хязгаарт багтана (өмнө нь object-fit: cover
+                  байсан тул хажуу талууд тайрагдаж байв) */}
+              <img
+                src={slide.src}
+                alt={slide.title}
+                draggable={false}
+                style={{
+                  maxWidth:     "clamp(240px, 82vw, 430px)",
+                  maxHeight:    "100%",
+                  width:        "auto",
+                  height:       "auto",
+                  objectFit:    "contain",
+                  borderRadius: 16,
+                  boxShadow:    "0 28px 80px rgba(29,40,57,0.65)",
+                }}
+              />
             </div>
           ))}
 
