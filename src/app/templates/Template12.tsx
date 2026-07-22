@@ -24,6 +24,12 @@ const MONO_OVERRIDE: Record<string, string> = {
   "abigail-williams": "М&A", // Мондэхүү & Abigail — хоёуланг өөрийн нэрээр
 };
 
+// Footer-ийн доод нэрийн мөр. Үндсэндээ Supabase-ийн нэрсийг шууд гаргана.
+// Энд бүртгэсэн slug дээр оронд нь энэ бичиглэл гарна.
+const FOOTER_NAMES_OVERRIDE: Record<string, string> = {
+  "abigail-williams": "Mondekhuu Turmunkh & Abigail Williams",
+};
+
 function initials(p1: string, p2?: string) {
   const a = p1.trim()[0] ?? "";
   const b = p2?.trim()[0] ?? "";
@@ -294,14 +300,14 @@ function T12Hero({ names, date, heroImage }: { names: string; date: string; hero
           transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
           style={{ textAlign: "center" }}
         >
-          <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.4em", marginBottom: 24 }}>
+          <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "clamp(14px,3.4vw,19px)", textTransform: "uppercase", letterSpacing: "0.4em", marginBottom: 24 }}>
             {formatDate(date)}
           </div>
           <h1
             style={{
               fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
-              color: "#fff", lineHeight: 0.85, letterSpacing: "-0.02em",
-              fontSize: "clamp(4rem, 13vw, 11rem)", margin: 0,
+              color: "#fff", lineHeight: 0.9, letterSpacing: "-0.02em",
+              fontSize: "clamp(3.2rem, 10.5vw, 9rem)", margin: 0,
             }}
           >
             {(() => {
@@ -1430,7 +1436,7 @@ export default function Template12({ event }: { event: EventData }) {
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T12Quote event={event} />
       <T12RSVP eventId={event.id} />
-      <T12Footer mono={mono} names={names} />
+      <T12Footer mono={mono} names={FOOTER_NAMES_OVERRIDE[event.slug] ?? names} />
       <Toaster />
     </div>
   );
