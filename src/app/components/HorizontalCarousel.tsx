@@ -257,7 +257,9 @@ export function HorizontalCarousel({
             </div>
           ))}
 
-          {/* ── Caption ──────────────────────────────────────────────────────── */}
+          {/* ── Caption (title + ишлэл) — түр нуусан ──────────────────────────
+              Зурган дээрх story текстийг түр харуулахгүй болгосон.
+              Буцааж асаах: доорх блокийн коммент хашилтыг ав.
           <div style={{
             position:       "absolute",
             bottom:         "clamp(52px,11vh,100px)",
@@ -267,7 +269,7 @@ export function HorizontalCarousel({
             pointerEvents:  "none",
             padding:        "0 32px",
           }}>
-            {/* Title — overflow hidden clips SplitText y-translate */}
+            {/* Title — overflow hidden clips SplitText y-translate * /}
             <div style={{ overflow: "hidden" }}>
               <h3
                 ref={titleEl}
@@ -282,7 +284,7 @@ export function HorizontalCarousel({
               />
             </div>
 
-            {/* Description */}
+            {/* Description * /}
             <div style={{ overflow: "hidden", marginTop: 8 }}>
               <p
                 ref={descEl}
@@ -297,6 +299,7 @@ export function HorizontalCarousel({
               />
             </div>
           </div>
+          ──────────────────────────────────────────────────────────────────── */}
 
           {/* ── Bottom bar: counter · dots · hint ───────────────────────────── */}
           <div style={{
