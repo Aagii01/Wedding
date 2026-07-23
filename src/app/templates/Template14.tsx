@@ -871,7 +871,14 @@ function T14RSVP({ eventId }: { eventId: string }) {
 }
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
+// events хүснэгтэд утасны багана байхгүй тул холбоо барих дугаарыг эндээс
+// slug-аар нь уншина. Бүртгээгүй урилга дээр утасны мөр огт гарахгүй.
+const CONTACT_PHONES: Record<string, string[]> = {
+  "dorjzowd-nomin": ["88777477", "86777477"],
+};
+
 function T14Footer({ event }: { event: EventData }) {
+  const phones = CONTACT_PHONES[event.slug];
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
   const i1 = initialOf(name1);
@@ -908,6 +915,19 @@ function T14Footer({ event }: { event: EventData }) {
           {fmtDate(event.date)}
         </div>
       </FadeUp>
+      {phones && (
+        <FadeUp delay={0.3}>
+          <div style={{ ...cg, fontSize: 15, letterSpacing: "0.12em", color: "rgba(244,238,222,0.6)", marginTop: 22 }}>
+            Утас:{" "}
+            {phones.map((tel, i) => (
+              <span key={tel}>
+                {i > 0 && ", "}
+                <a href={`tel:${tel}`} style={{ color: GOLD_LT, textDecoration: "none" }}>{tel}</a>
+              </span>
+            ))}
+          </div>
+        </FadeUp>
+      )}
     </footer>
   );
 }
