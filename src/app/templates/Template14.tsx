@@ -304,7 +304,6 @@ function T14Verse({ event }: { event: EventData }) {
   return (
     <Paper>
       <div style={{ padding: "80px 32px" }}>
-        <FadeUp><Eyebrow>Гэр бүлийнхэнтэйгээ хамт</Eyebrow></FadeUp>
         <FadeUp delay={0.1}><Flourish /></FadeUp>
 
         <FadeUp delay={0.2}>
@@ -466,10 +465,16 @@ const SCHEDULE_ICONS = [
 function T14Schedule({ event }: { event: EventData }) {
   // events.schedule хоосон үед харагдах үндсэн хөтөлбөр
   const items = getSchedule(event, [
-    { time: "17:00", label: "Хуримын Ёслол",  desc: "Тангараг, бөгж, анхны үнсэлт. Бидний түүх эхлэх мөч." },
-    { time: "18:00", label: "Хүлээн Авалт",   desc: "Шампань дарс, хөгжүүн яриа, тухтай уур амьсгал." },
-    { time: "20:00", label: "Оройн Зоог",     desc: "Лааны гэрэлт ширээний ард хамтдаа тухлах цаг." },
-    { time: "22:00", label: "Чөлөөт Бүжиг",   desc: "Дүрэм байхгүй, хязгаар байхгүй — Зүгээр л хамтдаа баярлацгаая!" },
+    { time: "18:00", label: "Зочдоо хүлээн авах",              desc: "Урилгаар ирсэн хүндэт зочид хүрэлцэн ирнэ" },
+    { time: "18:30", label: "Хуримын танхимд суудал эзлэх",    desc: "Зочид байраа эзлэн, ёслолд бэлтгэнэ" },
+    { time: "19:00", label: "Нээлтийн үйл ажиллагаа",          desc: "Хуримын нээлтийн үйл ажиллагаа" },
+    { time: "19:20", label: "Хуримын 1-р хэсэг",               desc: "Хосууд орж ирэх" },
+    { time: "19:40", label: "Хүндэтгэлийн зоог",               desc: "Баярын зоог барина" },
+    { time: "21:20", label: "Хуримын 2-р хэсэг",               desc: "Хуримын 2-р хэсэг эхлэнэ" },
+    { time: "22:00", label: "Хосын анхны бүжиг",               desc: "Хосын анхны бүжиг" },
+    { time: "22:10", label: "Баярын бялуу хуваах",             desc: "Баярын бялуу хуваах ёслол" },
+    { time: "22:30", label: "Бусад үйл ажиллагаа",             desc: "Урлаг уран сайхан болон бусад үйл ажиллагаа явагдана" },
+    { time: "23:45", label: "Албан ёсны арга хэмжээ өндөрлөнө", desc: "Албан ёсны арга хэмжээ дуусаж чөлөөт бүжигээр баяр үргэлжилнэ" },
   ]);
 
   return (
@@ -664,15 +669,15 @@ function T14Venue({ event }: { event: EventData }) {
 
 // ─── RSVP ─────────────────────────────────────────────────────────────────────
 function T14RSVP({ eventId }: { eventId: string }) {
-  const [name, setName]       = useState("");
-  const [attending, setAttending] = useState("");
-  const [guests, setGuests]   = useState("1");
+  const [name, setName]             = useState("");
+  const [phone, setPhone]           = useState("");
+  const [attending, setAttending]   = useState<boolean | null>(null);
+  const [guests, setGuests]         = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone]       = useState(false);
+  const [done, setDone]             = useState(false);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !attending) return;
+  const submit = async () => {
+    if (!name.trim() || !phone.trim() || attending === null) return;
     setSubmitting(true);
     // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
     if (eventId === "demo") {
@@ -683,25 +688,40 @@ function T14RSVP({ eventId }: { eventId: string }) {
     const { error } = await supabase.from("rsvp").insert({
       event_id: eventId,
       name: name.trim(),
-      guests: attending === "yes" ? parseInt(guests) : 0,
-      message: null,
+      phone: phone.trim(),
+      guests: attending ? guests : 0,
     });
     setSubmitting(false);
     if (error) { toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
     setDone(true);
   };
 
+  const label: React.CSSProperties = {
+    ...cg, fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase",
+    color: "rgba(244,238,222,0.55)", display: "block", marginBottom: 8,
+  };
+
   const inputStyle: React.CSSProperties = {
-    width: "100%",
-    background: "transparent",
-    border: "none",
-    borderBottom: "1px solid rgba(232,217,176,0.30)",
+    width: "100%", padding: "13px 14px",
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(232,217,176,0.28)",
+    borderRadius: 4,
     color: CREAM,
-    ...cg, fontSize: 19,
-    padding: "10px 0 12px",
+    ...cg, fontSize: 17,
     outline: "none",
     boxSizing: "border-box",
   };
+
+  const counterBtn: React.CSSProperties = {
+    width: 46, height: 46,
+    border: "1px solid rgba(232,217,176,0.28)",
+    background: "transparent",
+    color: GOLD_LT,
+    ...cg, fontSize: 22, lineHeight: 1,
+    cursor: "pointer",
+  };
+
+  const canSubmit = !!name.trim() && !!phone.trim() && attending !== null;
 
   return (
     <section style={{
@@ -738,77 +758,111 @@ function T14RSVP({ eventId }: { eventId: string }) {
             >
               <div style={{ ...pinyon, color: GOLD_LT, fontSize: 52, marginBottom: 12 }}>Баярлалаа</div>
               <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.8)", lineHeight: 1.7 }}>
-                {attending === "yes"
+                {attending
                   ? `${name.split(" ")[0]}, та нартай уулзахыг тэсэн ядан хүлээж байна.`
                   : `${name.split(" ")[0]}, та дутагдах болно.`}
               </p>
             </motion.div>
           ) : (
-            <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-              <div>
-                <label style={{ ...cg, fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", color: "rgba(244,238,222,0.55)", display: "block", marginBottom: 6 }}>
-                  Таны нэр
-                </label>
+            <div style={{ maxWidth: 420, margin: "0 auto" }}>
+              <div style={{ marginBottom: 22 }}>
+                <label style={label}>Таны нэр</label>
                 <input
                   value={name} onChange={(e) => setName(e.target.value)}
                   placeholder="Нэр"
-                  required style={inputStyle}
+                  style={inputStyle}
                 />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-                <div>
-                  <label style={{ ...cg, fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", color: "rgba(244,238,222,0.55)", display: "block", marginBottom: 6 }}>
-                    Ирэх эсэх
-                  </label>
-                  <select
-                    value={attending} onChange={(e) => setAttending(e.target.value)}
-                    required
-                    style={{
-                      ...inputStyle,
-                      appearance: "none" as const,
-                      backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1 L 6 6 L 11 1' fill='none' stroke='%23E8D9B0' stroke-width='1.5'/></svg>")`,
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "right 4px center",
-                      paddingRight: 24,
-                    }}
-                  >
-                    <option value="" style={{ background: NIGHT }}>Сонгох</option>
-                    <option value="yes" style={{ background: NIGHT }}>Тийм, заавал ирнэ</option>
-                    <option value="no" style={{ background: NIGHT }}>Харамсалтай нь очиж чадахгүй</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ ...cg, fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", color: "rgba(244,238,222,0.55)", display: "block", marginBottom: 6 }}>
-                    Зочдын тоо
-                  </label>
-                  <select value={guests} onChange={(e) => setGuests(e.target.value)}
-                    style={{ ...inputStyle, appearance: "none" as const }}>
-                    {["1","2","3","4"].map((n) => (
-                      <option key={n} value={n} style={{ background: NIGHT }}>{n} хүн</option>
-                    ))}
-                  </select>
+              <div style={{ marginBottom: 26 }}>
+                <label style={label}>Утасны дугаар</label>
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="99******"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div style={{ marginBottom: 26 }}>
+                <label style={label}>Та ирэх үү?</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {[
+                    { val: true,  text: "Тийм, заавал ирнэ" },
+                    { val: false, text: "Харамсалтай нь очиж чадахгүй" },
+                  ].map(({ val, text }) => (
+                    <label
+                      key={String(val)}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
+                        ...cg, fontSize: 17, color: CREAM,
+                        background: attending === val ? "rgba(232,217,176,0.14)" : "transparent",
+                        border: `1px solid ${attending === val ? "rgba(232,217,176,0.5)" : "rgba(232,217,176,0.24)"}`,
+                        borderRadius: 4, padding: "12px 14px",
+                        transition: "all 0.25s",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="t14-attending"
+                        checked={attending === val}
+                        onChange={() => setAttending(val)}
+                        style={{ accentColor: GOLD_LT, width: 16, height: 16 }}
+                      />
+                      {text}
+                    </label>
+                  ))}
                 </div>
               </div>
 
-              <div style={{ textAlign: "center", marginTop: 8 }}>
-                <motion.button
-                  type="submit"
-                  whileHover={{ background: GOLD_LT, color: NIGHT }}
-                  disabled={submitting}
-                  style={{
-                    ...cg, fontSize: 12, letterSpacing: "0.5em", textTransform: "uppercase",
-                    color: GOLD_LT, padding: "16px 48px",
-                    background: "transparent",
-                    border: `1px solid ${GOLD_LT}`,
-                    cursor: submitting ? "wait" : "pointer",
-                    transition: "background 250ms, color 250ms",
-                  }}
-                >
-                  {submitting ? "Илгээж байна..." : "Илгээх"}
-                </motion.button>
-              </div>
-            </form>
+              {/* "Ирэхгүй" сонгосон үед хүний тоо хэрэггүй тул нуана */}
+              {attending !== false && (
+                <div style={{ marginBottom: 30 }}>
+                  <label style={label}>Хэдүүлээ ирэх вэ?</label>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <button
+                      type="button"
+                      onClick={() => setGuests((g) => Math.max(1, g - 1))}
+                      style={counterBtn}
+                      aria-label="Хасах"
+                    >−</button>
+                    <div style={{
+                      ...cg, fontSize: 19, color: CREAM,
+                      width: 66, height: 46,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      borderTop: "1px solid rgba(232,217,176,0.28)",
+                      borderBottom: "1px solid rgba(232,217,176,0.28)",
+                    }}>
+                      {guests}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setGuests((g) => Math.min(20, g + 1))}
+                      style={counterBtn}
+                      aria-label="Нэмэх"
+                    >+</button>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={submit}
+                disabled={submitting || !canSubmit}
+                style={{
+                  width: "100%", padding: "16px",
+                  ...cg, fontSize: 12, letterSpacing: "0.5em", textTransform: "uppercase",
+                  color: NIGHT, background: GOLD_LT,
+                  border: "none", borderRadius: 4,
+                  cursor: submitting ? "wait" : "pointer",
+                  opacity: canSubmit ? 1 : 0.5,
+                  transition: "opacity 250ms",
+                }}
+              >
+                {submitting ? "Илгээж байна..." : "Илгээх"}
+              </button>
+            </div>
           )}
         </FadeUp>
       </div>
