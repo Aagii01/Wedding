@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
@@ -19,9 +19,22 @@ const NIGHT    = "#0F1B33";
 const NIGHT_LO = "#0B1426";
 
 // ─── Font helpers ─────────────────────────────────────────────────────────────
-const pinyon = { fontFamily: "'Pinyon Script', cursive" } as const;
+// Pinyon Script кирилл үсэг дэмждэггүй тул монгол нэр браузерын default cursive
+// фонтоор гарч, хэт өргөн болдог. Dancing Script-ийг завсрын fallback болгосон:
+// латин нэр Pinyon-оор, кирилл нэр Dancing Script-ээр гоё гарна.
+const pinyon = { fontFamily: "'Pinyon Script', 'Dancing Script', cursive" } as const;
 const cg     = { fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, serif" } as const;
 const cgI    = { fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, serif", fontStyle: "italic" as const } as const;
+// "&" тэмдэгт — script/italic хэлбэргүй, энгийн
+const amp    = { ...cg, fontStyle: "normal" as const, fontWeight: 400 } as const;
+
+// "Б.Доржзовд" → "Д" (овгийн товчлолыг алгасаад өөрийн нэрний эхний үсэг)
+function initialOf(name: string) {
+  const s = (name || "").trim();
+  if (!s) return "";
+  const own = (s.split(".").pop() || s).trim();
+  return (own.split(/\s+/)[0] || own).charAt(0).toUpperCase();
+}
 
 // ─── Paper SVG texture (no # chars so safe in data URI) ──────────────────────
 const PAPER_TEX = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'><g fill='none' stroke='rgba(120,100,70,0.06)' stroke-width='0.5' stroke-linecap='round'><path d='M130 80 C 138 94 138 106 130 120 C 122 106 122 94 130 80 Z'/><path d='M130 140 C 138 154 138 166 130 180 C 122 166 122 154 130 140 Z'/><path d='M80 130 C 94 138 106 138 130 130 C 106 122 94 122 80 130 Z'/><path d='M130 130 C 154 138 166 138 180 130 C 166 122 154 122 130 130 Z'/></g></svg>")`;
@@ -51,6 +64,41 @@ function FadeUp({ children, delay = 0, style = {} }: {
       {children}
     </motion.div>
   );
+}
+
+// ─── Урт нэрийг хүрээндээ багтаах ─────────────────────────────────────────────
+// `data-fit` атрибуттай span-уудын бодит өргөнийг хэмжээд, хамгийн урт нь
+// хүрээнд багтах үсгийн хэмжээг тооцоолно. Нэрүүд ижил хэмжээтэй үлдэнэ.
+function useFitText(key: string, maxSize: number, minSize = 22) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState(maxSize);
+
+  useLayoutEffect(() => {
+    const fit = () => {
+      const wrap = wrapRef.current;
+      if (!wrap) return;
+      const avail = wrap.clientWidth * 0.96; // хоёр талд бага зэрэг зай үлдээнэ
+      const spans = Array.from(wrap.querySelectorAll<HTMLElement>("[data-fit]"));
+      if (avail <= 0 || spans.length === 0) return;
+
+      spans.forEach((s) => { s.style.fontSize = `${maxSize}px`; });
+      const widest = Math.max(...spans.map((s) => s.scrollWidth));
+      const next = widest > avail
+        ? Math.max(minSize, Math.floor((maxSize * avail) / widest))
+        : maxSize;
+      spans.forEach((s) => { s.style.fontSize = `${next}px`; });
+      setSize(next);
+    };
+
+    fit();
+    window.addEventListener("resize", fit);
+    // Фонт ачаалагдаж дуусмагц дахин хэмжинэ (эхний хэмжилт fallback фонтоор
+    // хийгдсэн байж болзошгүй)
+    document.fonts?.ready.then(fit).catch(() => {});
+    return () => window.removeEventListener("resize", fit);
+  }, [key, maxSize, minSize]);
+
+  return { wrapRef, size };
 }
 
 // ─── Flourish divider ─────────────────────────────────────────────────────────
@@ -178,6 +226,7 @@ function T14Hero({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
   const heroImg = event.main_image || FALLBACK[0];
+  const { wrapRef, size } = useFitText(`${name1}|${name2}`, 112, 30);
 
   return (
     <section style={{ position: "relative", minHeight: "100svh", background: "#1a1612", overflow: "hidden", color: "#fff" }}>
@@ -209,18 +258,19 @@ function T14Hero({ event }: { event: EventData }) {
         </motion.div>
 
         <motion.div
+          ref={wrapRef}
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.6, delay: 0.5 }}
-          style={{ ...pinyon, lineHeight: 1, textShadow: "0 2px 22px rgba(0,0,0,0.55)" }}
+          style={{ ...pinyon, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)" }}
         >
-          <span style={{ display: "block", fontSize: "clamp(72px, 18vw, 120px)" }}>{name1}</span>
+          <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name1}</span>
           <span style={{
             display: "block",
-            ...cgI, fontSize: "clamp(28px, 7vw, 44px)",
-            color: "rgba(255,255,255,0.9)", margin: "-6px 0",
+            ...amp, fontSize: Math.max(20, Math.round(size * 0.32)),
+            color: "rgba(255,255,255,0.9)", margin: "2px 0",
             letterSpacing: "0.02em", textShadow: "0 1px 6px rgba(0,0,0,0.4)",
           }}>&amp;</span>
-          <span style={{ display: "block", fontSize: "clamp(72px, 18vw, 120px)" }}>{name2}</span>
+          <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name2}</span>
         </motion.div>
 
         {/* Scroll cue */}
@@ -249,6 +299,7 @@ function T14Hero({ event }: { event: EventData }) {
 function T14Verse({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
+  const { wrapRef, size } = useFitText(`${name1}|${name2}`, 92, 26);
 
   return (
     <Paper>
@@ -257,14 +308,17 @@ function T14Verse({ event }: { event: EventData }) {
         <FadeUp delay={0.1}><Flourish /></FadeUp>
 
         <FadeUp delay={0.2}>
-          <div style={{
-            ...pinyon, color: WAX,
-            fontSize: "clamp(60px, 15vw, 96px)",
-            lineHeight: 1, textAlign: "center", margin: "12px 0 20px",
+          <div ref={wrapRef} style={{
+            ...pinyon, color: WAX, width: "100%",
+            lineHeight: 1.08, textAlign: "center", margin: "12px 0 20px",
           }}>
-            {name1}
-            <span style={{ ...cgI, fontSize: "0.34em", margin: "0 0.25em", color: INK_MUTE, verticalAlign: "middle" }}>&amp;</span>
-            {name2}
+            <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name1}</span>
+            <span style={{
+              display: "block", ...amp,
+              fontSize: Math.max(18, Math.round(size * 0.3)),
+              color: INK_MUTE, margin: "2px 0",
+            }}>&amp;</span>
+            <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name2}</span>
           </div>
         </FadeUp>
 
@@ -333,8 +387,8 @@ function T14DateCountdown({ event }: { event: EventData }) {
     <Paper>
       <div style={{ padding: "72px 28px" }}>
         <FadeUp delay={0.1}>
-          <div style={{ ...pinyon, color: WAX, fontSize: "clamp(48px, 12vw, 80px)", lineHeight: 1, textAlign: "center", marginTop: 8, marginBottom: 28 }}>
-            Бидний өдөр
+          <div style={{ ...pinyon, color: WAX, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.12, textAlign: "center", marginTop: 8, marginBottom: 28 }}>
+            Хурим хүртэлх хугацаа
           </div>
         </FadeUp>
 
@@ -423,7 +477,7 @@ function T14Schedule({ event }: { event: EventData }) {
       <div style={{ padding: "72px 24px" }}>
         <FadeUp delay={0.1}>
           <div style={{ ...pinyon, color: WAX, fontSize: "clamp(48px, 12vw, 72px)", lineHeight: 1.1, textAlign: "center", margin: "8px 0 36px" }}>
-            Үйл ажиллагаа
+            Хөтөлбөр
           </div>
         </FadeUp>
 
@@ -613,7 +667,6 @@ function T14RSVP({ eventId }: { eventId: string }) {
   const [name, setName]       = useState("");
   const [attending, setAttending] = useState("");
   const [guests, setGuests]   = useState("1");
-  const [food, setFood]       = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone]       = useState(false);
 
@@ -631,7 +684,7 @@ function T14RSVP({ eventId }: { eventId: string }) {
       event_id: eventId,
       name: name.trim(),
       guests: attending === "yes" ? parseInt(guests) : 0,
-      message: food.trim() || null,
+      message: null,
     });
     setSubmitting(false);
     if (error) { toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
@@ -698,7 +751,7 @@ function T14RSVP({ eventId }: { eventId: string }) {
                 </label>
                 <input
                   value={name} onChange={(e) => setName(e.target.value)}
-                  placeholder="Нэрийн хуудас дээр гарах нэр"
+                  placeholder="Нэр"
                   required style={inputStyle}
                 />
               </div>
@@ -738,17 +791,6 @@ function T14RSVP({ eventId }: { eventId: string }) {
                 </div>
               </div>
 
-              <div>
-                <label style={{ ...cg, fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase", color: "rgba(244,238,222,0.55)", display: "block", marginBottom: 6 }}>
-                  Хоолны хязгаарлалт (заавал биш)
-                </label>
-                <input
-                  value={food} onChange={(e) => setFood(e.target.value)}
-                  placeholder="Дурын зүйл хэлж болно"
-                  style={inputStyle}
-                />
-              </div>
-
               <div style={{ textAlign: "center", marginTop: 8 }}>
                 <motion.button
                   type="submit"
@@ -778,8 +820,8 @@ function T14RSVP({ eventId }: { eventId: string }) {
 function T14Footer({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
-  const i1 = name1.charAt(0).toUpperCase();
-  const i2 = name2.charAt(0).toUpperCase();
+  const i1 = initialOf(name1);
+  const i2 = initialOf(name2);
 
   const fmtDate = (d: string) => {
     const [y, m, day] = d.split("-");
@@ -791,24 +833,25 @@ function T14Footer({ event }: { event: EventData }) {
       {/* Monogram circle */}
       <FadeUp>
         <div style={{
-          width: 96, height: 96, margin: "0 auto 28px",
+          width: 104, height: 104, margin: "0 auto 28px",
           borderRadius: "50%",
           border: "1px solid rgba(232,217,176,0.45)",
           display: "flex", alignItems: "center", justifyContent: "center",
           color: GOLD_LT,
-          ...pinyon, fontSize: 50, letterSpacing: -2,
         }}>
-          {i1}&amp;{i2}
+          <span style={{ ...pinyon, fontSize: 44, lineHeight: 1 }}>{i1}</span>
+          <span style={{ ...amp, fontSize: 22, lineHeight: 1, margin: "0 6px", opacity: 0.8 }}>&amp;</span>
+          <span style={{ ...pinyon, fontSize: 44, lineHeight: 1 }}>{i2}</span>
         </div>
       </FadeUp>
       <FadeUp delay={0.1}>
-        <div style={{ ...pinyon, color: GOLD_LT, fontSize: 36, marginBottom: 20 }}>
-          Хайртайгаа
+        <div style={{ ...cg, fontSize: 17, fontWeight: 500, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(244,238,222,0.72)", lineHeight: 1.5 }}>
+          {name1} <span style={{ ...amp, opacity: 0.75 }}>&amp;</span> {name2}
         </div>
       </FadeUp>
       <FadeUp delay={0.2}>
-        <div style={{ ...cg, fontSize: 11, letterSpacing: "0.42em", textTransform: "uppercase", color: "rgba(244,238,222,0.45)" }}>
-          {name1} &amp; {name2} · {fmtDate(event.date)}
+        <div style={{ ...cg, fontSize: 14, letterSpacing: "0.36em", textTransform: "uppercase", color: "rgba(244,238,222,0.5)", marginTop: 10 }}>
+          {fmtDate(event.date)}
         </div>
       </FadeUp>
     </footer>
