@@ -291,8 +291,12 @@ function T18Hero({ event }: { event: EventData }) {
       }}>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 4, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 36, marginBottom: 8 }}>
-          Одонгийн найр
+          style={{
+            color: "white", ...playfairI,
+            fontSize: "clamp(24px, 7.5vw, 38px)", lineHeight: 1.25,
+            maxWidth: 420, margin: "0 auto 10px",
+          }}>
+          Алдарт эхийн одонгийн цайллага
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 4.15, ease: "easeOut" }}
@@ -495,13 +499,11 @@ function T18Gallery({ event }: { event: EventData }) {
 // ─── Letter ───────────────────────────────────────────────────────────────────
 // events.poem хоосон үед харагдах үндсэн шүлэг
 const T18_DEFAULT_POEM = [
-  "Хичээл зүтгэлийн үр шим,",
-  "Хүрсэн амжилтын гэрч болсон",
-  "Төрийн дээд одонгоо барьж,",
-  "Одонгийн найраа хийх гэж байна.",
-  "",
-  "Энэхүү дурсгалт мөчийг",
-  "Эрхэм таньтай хамт хуваалцахыг урьж байна.",
+  "Ганган цовоо насыг минь чимж ирсэн үрсүүддээ",
+  "Ганц удаа сэтгэлдээ түүртэж үзээгүй тэвчээр",
+  "Галбирваа сайхан биеэсээ тасарсан олон амиасаа",
+  "Гандуу Эндүү сэтгэлээр нүүр буруулсан удаагүй",
+  "Би Одонтой Ээж ээ",
 ];
 
 function T18Letter({ event }: { event: EventData }) {
@@ -1145,15 +1147,19 @@ const SIGNATURE: Record<string, string[]> = {
 // ашиглах бол дээрх SIGNATURE map-д slug-аар нь бүртгэж дарж бичнэ.
 const INVITED_BY = "Д. Ганцолмонгийн гэр бүл";
 
+// Footer-ийн дурсгалын зураг (Supabase Storage)
+const FOOTER_PHOTO =
+  "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanjaw/gallery5.jpg";
+
 function T18Footer({ event }: { event: EventData }) {
   return (
     <div style={{ background: BURGUNDY, padding: "56px 32px 80px", textAlign: "center" }}>
       <WavyTop fill={BURGUNDY} />
-      {event.gallery_photos?.[0] && (
+      {FOOTER_PHOTO && (
         <FadeUp>
           <img
-            src={event.gallery_photos[0]}
-            alt="couple"
+            src={FOOTER_PHOTO}
+            alt=""
             style={{
               // Тогтмол өндөр байсан тул зураг таслагдаж байв — бүтнээр нь
               // харуулахын тулд өндрийг автоматаар тооцуулна
