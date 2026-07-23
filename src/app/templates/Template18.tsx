@@ -1,0 +1,1264 @@
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
+import { supabase } from "../../lib/supabase";
+import { toast } from "sonner";
+import { Toaster } from "../components/ui/sonner";
+import { EventData } from "../../types/event";
+import { getPoemLines, getSchedule } from "../../lib/eventContent";
+
+// ─── palette ─────────────────────────────────────────────────────────────────
+const BURGUNDY       = "#66021F";
+const CREAM          = "#FFFAF8";
+const INK            = "#3A3A3A";
+const ENVELOPE_BG    = "#E8E3DC";
+
+// ─── font helpers ─────────────────────────────────────────────────────────────
+const playfair  = { fontFamily: "'Playfair Display', serif" } as const;
+const playfairI = { fontFamily: "'Playfair Display', serif", fontStyle: "italic" } as const;
+const ovo       = { fontFamily: "'Ovo', serif" } as const;
+
+// ─── Gallery fallbacks ────────────────────────────────────────────────────────
+// Энэ загвар нь ганц хүний (одонгийн найр) урилга тул зурган дээр шүлэг
+// давхарлахгүй — зөвхөн зураг харагдана.
+const FALLBACK_PHOTOS = [
+  "https://images.unsplash.com/photo-1519741497674-611481863552?w=800",
+  "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800",
+  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800",
+  "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800",
+  "https://images.unsplash.com/photo-1529636798458-92182e662485?w=800",
+  "https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=800",
+  "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800",
+  "https://images.unsplash.com/photo-1761211488173-a7154314420a?w=800",
+];
+
+// ─── Wavy divider ─────────────────────────────────────────────────────────────
+function WavyBottom({ fill = BURGUNDY }: { fill?: string }) {
+  return (
+    <div style={{ lineHeight: 0, marginTop: -1 }}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 523 60" preserveAspectRatio="none" width="100%" height="40">
+        <path d="M0,30 C40,0 80,60 120,30 C160,0 200,60 240,30 C280,0 320,60 360,30 C400,0 440,60 480,30 L523,30 L523,60 L0,60 Z" fill={fill} />
+      </svg>
+    </div>
+  );
+}
+
+function WavyTop({ fill = BURGUNDY }: { fill?: string }) {
+  return (
+    <div style={{ lineHeight: 0, marginBottom: -1 }}>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 523 60" preserveAspectRatio="none" width="100%" height="40">
+        <path d="M0,30 C40,60 80,0 120,30 C160,60 200,0 240,30 C280,60 320,0 360,30 C400,60 440,0 480,30 L523,30 L523,0 L0,0 Z" fill={fill} />
+      </svg>
+    </div>
+  );
+}
+
+// ─── Scroll reveal ─────────────────────────────────────────────────────────────
+function FadeUp({ children, delay = 0, style = {} }: {
+  children: React.ReactNode; delay?: number; style?: React.CSSProperties;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 1.8, delay, ease: "easeOut" }}
+      style={style}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ─── Peony SVG ────────────────────────────────────────────────────────────────
+function PeonySVG({ size = 120, color = "#E8A0BF" }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="60" cy="60" r="12" fill="#F5C2D4" />
+      {[0,45,90,135,180,225,270,315].map((deg, i) => (
+        <ellipse key={i} cx="60" cy="60" rx="10" ry="22" fill={color} opacity="0.85"
+          transform={`rotate(${deg} 60 60) translate(0 -20)`} />
+      ))}
+      {[22,67,112,157,202,247,292,337].map((deg, i) => (
+        <ellipse key={i} cx="60" cy="60" rx="8" ry="18" fill={color} opacity="0.6"
+          transform={`rotate(${deg} 60 60) translate(0 -26)`} />
+      ))}
+      {[0,60,120,180,240,300].map((deg, i) => (
+        <circle key={i}
+          cx={60 + 8 * Math.cos((deg * Math.PI) / 180)}
+          cy={60 + 8 * Math.sin((deg * Math.PI) / 180)}
+          r="2" fill="#F9E0AC" />
+      ))}
+    </svg>
+  );
+}
+
+// ─── Wax seal SVG ─────────────────────────────────────────────────────────────
+function WaxSeal({ i1 = "V", i2 = "P" }: { i1?: string; i2?: string }) {
+  return (
+    <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="60" cy="60" r="55" fill={BURGUNDY} />
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#C8A08A" strokeWidth="1.5" />
+      <circle cx="60" cy="60" r="42" fill="none" stroke="#C8A08A" strokeWidth="0.8" strokeDasharray="4 3" />
+      <text x="60" y="55" textAnchor="middle" fill="#F5E6D8" fontSize="18"
+        fontFamily="Playfair Display, serif" fontStyle="italic">{i1}</text>
+      <text x="60" y="70" textAnchor="middle" fill="#F5E6D8" fontSize="11"
+        fontFamily="Georgia, serif">&amp;</text>
+      <text x="60" y="84" textAnchor="middle" fill="#F5E6D8" fontSize="18"
+        fontFamily="Playfair Display, serif" fontStyle="italic">{i2}</text>
+    </svg>
+  );
+}
+
+// ─── Video intro overlay ───────────────────────────────────────────────────────
+const T18_INTRO_VIDEO_URL =
+  "https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4";
+
+function VideoIntro({ audioRef }: {
+  audioRef: React.RefObject<HTMLAudioElement | null>;
+}) {
+  const [visible, setVisible] = useState(true);
+  const [exiting, setExiting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    // Видеог дуугүйгээр шууд автоматаар тоглуулна (browser зөвшөөрдөг)
+    videoRef.current?.play().catch(() => {});
+  }, []);
+
+  const handleEnded = () => {
+    if (exiting) return;
+    audioRef.current?.play().catch(() => {});
+    setExiting(true);
+    setTimeout(() => setVisible(false), 1600);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={{ opacity: exiting ? 0 : 1 }}
+      transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+      style={{
+        position: "fixed", inset: 0,
+        background: "#000",
+        zIndex: 9999,
+        overflow: "hidden",
+        pointerEvents: exiting ? "none" : "auto",
+      }}
+    >
+      <video
+        ref={videoRef}
+        src={T18_INTRO_VIDEO_URL}
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        onEnded={handleEnded}
+        style={{
+          position: "absolute", inset: 0,
+          width: "100%", height: "100%",
+          objectFit: "cover",
+        }}
+      />
+    </motion.div>
+  );
+}
+
+// ─── Music player ─────────────────────────────────────────────────────────────
+function MusicPlayer({ src, audioRef }: { src?: string; audioRef: React.RefObject<HTMLAudioElement | null> }) {
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const onPlay  = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    a.addEventListener("play",  onPlay);
+    a.addEventListener("pause", onPause);
+    return () => { a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
+  }, [audioRef]);
+
+  const toggle = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) a.play().catch(() => {}); else a.pause();
+  };
+
+  return (
+    <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000 }}>
+      <audio ref={audioRef} loop src={src ?? ""} preload="auto" />
+      <button
+        onClick={toggle}
+        style={{
+          width: 54, height: 54,
+          borderRadius: "50%",
+          background: BURGUNDY,
+          border: "none",
+          cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 4px 16px rgba(102,2,31,0.4)",
+        }}
+      >
+        {playing ? (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+        ) : (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+            <polygon points="6,3 20,12 6,21" />
+          </svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+function T18Hero({ event }: { event: EventData }) {
+  // Одонгийн найр — ганц хүний урилга тул зөвхөн person1_name харуулна
+  const name1 = event.person1_name || "Болд";
+
+  const fmtDate = (d: string) => {
+    const parts = d.split("-");
+    if (parts.length === 3) return `${parts[0]} · ${parts[1]} · ${parts[2]}`;
+    return d;
+  };
+
+  // "Ж.Жамбалсанжид" гэх мэт урт нэр дэлгэцэнд багтахгүй байсан тул үсгийн
+  // хэмжээг нэрний уртаас хамааруулж, дээрээс нь vw-ээр хязгаарлана
+  const longest = name1.length;
+  const nameSize =
+    longest <= 8  ? "clamp(42px, 13vw, 76px)" :
+    longest <= 11 ? "clamp(34px, 10.5vw, 62px)" :
+    longest <= 15 ? "clamp(27px, 8vw, 48px)" :
+                    "clamp(22px, 6.4vw, 38px)";
+  // Хэт урт нэг үг мөрөөс халихаас сэргийлнэ
+  const nameWrap: React.CSSProperties = {
+    maxWidth: "100%",
+    overflowWrap: "break-word",
+    wordBreak: "break-word",
+  };
+
+  return (
+    <div style={{
+      minHeight: "100svh",
+      background: "#1a0812",
+      position: "relative",
+      overflow: "hidden",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    }}>
+      {event.main_image && (
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `url(${event.main_image})`,
+          backgroundSize: "cover", backgroundPosition: "center",
+        }} />
+      )}
+      {/* Subtle gradient so white text stays readable */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0.65) 100%)",
+        zIndex: 0,
+      }} />
+
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
+        transition={{ duration: 2, delay: 4, ease: "easeOut" }}
+        style={{ position: "absolute", top: -20, left: -20, zIndex: 1 }}>
+        <PeonySVG size={160} color="#F5C8DC" />
+      </motion.div>
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
+        transition={{ duration: 2.5, delay: 4.2, ease: "easeOut" }}
+        style={{ position: "absolute", top: 40, right: -30, zIndex: 1 }}>
+        <PeonySVG size={140} color="#F8D0E0" />
+      </motion.div>
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.5, scale: 1 }}
+        transition={{ duration: 2.7, delay: 4.4, ease: "easeOut" }}
+        style={{ position: "absolute", bottom: 20, left: 10, zIndex: 1 }}>
+        <PeonySVG size={120} color="#F0C0D4" />
+      </motion.div>
+      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
+        transition={{ duration: 2.3, delay: 4.6, ease: "easeOut" }}
+        style={{ position: "absolute", bottom: -10, right: 0, zIndex: 1 }}>
+        <PeonySVG size={150} color="#F5C8DA" />
+      </motion.div>
+
+      <div style={{
+        position: "relative", zIndex: 2, textAlign: "center",
+        padding: "0 24px",
+        maxWidth: "100%", boxSizing: "border-box",
+      }}>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 2, delay: 4, ease: "easeOut" }}
+          style={{ color: "white", ...playfairI, fontSize: 36, marginBottom: 8 }}>
+          Одонгийн найр
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 2, delay: 4.15, ease: "easeOut" }}
+          style={{ color: "white", ...ovo, fontSize: 16, fontWeight: 700, letterSpacing: "0.2em", marginBottom: 28, opacity: 0.85 }}>
+          {fmtDate(event.date)}
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 2, delay: 4.3, ease: "easeOut" }}
+          style={{ color: "white", ...playfairI, fontSize: nameSize, lineHeight: 1.05, ...nameWrap }}>
+          {name1}
+        </motion.div>
+      </div>
+
+      {/* Доош гүйлгэхийг сануулах — нэрс гарч дууссаны дараа зөөлөн илэрнэ */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.8 }}
+        transition={{ duration: 1.6, delay: 5, ease: "easeOut" }}
+        style={{
+          position: "absolute", bottom: 26, left: 0, right: 0,
+          zIndex: 2, textAlign: "center", color: "white",
+        }}
+      >
+        <motion.div
+          animate={{ y: [0, 7, 0] }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <div style={{ ...ovo, fontSize: 13, letterSpacing: "0.1em" }}>
+            Урилгыг доош гүйлгэж үзнэ үү
+          </div>
+          <svg width="18" height="10" viewBox="0 0 18 10" fill="none"
+            style={{ display: "block", margin: "6px auto 0" }}>
+            <path d="M1 1L9 8L17 1" stroke="white" strokeWidth="1.5"
+              strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Gallery card ─────────────────────────────────────────────────────────────
+function GalleryCard({ src, size }: {
+  src: string; size: "large" | "small" | "tiny";
+}) {
+  // Зургийг тайрахгүй бүтнээр нь харуулна: өргөн/өндрийн дээд хязгаарт нь
+  // багтаагаад картын хэмжээ зурагны бодит харьцаагаар тодорхойлогдоно.
+  const box = {
+    large: { maxW: 300, maxH: 440 },
+    small: { maxW: 165, maxH: 275 },
+    tiny:  { maxW: 112, maxH: 205 },
+  }[size];
+
+  // Ачаалахаас өмнөх түр хэмжээ (босоо зураг түгээмэл тул 3:4)
+  const [ratio, setRatio] = useState(3 / 4);
+
+  let width = box.maxW;
+  let height = width / ratio;
+  if (height > box.maxH) {
+    height = box.maxH;
+    width = height * ratio;
+  }
+
+  return (
+    <div style={{
+      width, height,
+      borderRadius: 18,
+      overflow: "hidden",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.22)",
+      border: `3px solid rgba(102,2,31,0.35)`,
+      position: "relative",
+      flexShrink: 0,
+      boxSizing: "border-box",
+    }}>
+      <img
+        src={src} alt=""
+        onLoad={(e) => {
+          const img = e.currentTarget;
+          if (img.naturalWidth && img.naturalHeight) {
+            setRatio(img.naturalWidth / img.naturalHeight);
+          }
+        }}
+        style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+      />
+    </div>
+  );
+}
+
+// ─── Gallery carousel ─────────────────────────────────────────────────────────
+function T18Gallery({ event }: { event: EventData }) {
+  const [current, setCurrent] = useState(0);
+
+  // Оруулсан зурагны тоогоор л slide үүсгэнэ — дутууг нь Unsplash зургаар
+  // нөхөхгүй. Огт зураггүй үед л үндсэн (fallback) зургууд гарна.
+  const photos = (event.gallery2_photos || []).filter(Boolean);
+  const slides = photos.length ? photos : FALLBACK_PHOTOS;
+
+  const prev  = (current - 1 + slides.length) % slides.length;
+  const prev2 = (current - 2 + slides.length) % slides.length;
+  const next  = (current + 1) % slides.length;
+  const next2 = (current + 2) % slides.length;
+
+  // Зураг цөөн үед хажуугийн картууд давхардахгүйн тулд нуана
+  const showSide = slides.length >= 3;
+  const showFar  = slides.length >= 5;
+
+  return (
+    <div style={{ background: CREAM, paddingTop: 60, paddingBottom: 44, overflow: "hidden" }}>
+      <FadeUp>
+        <div style={{ textAlign: "center", marginBottom: 44, padding: "0 24px" }}>
+          <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10 }}>
+            Одонгийн найр
+          </div>
+          {event.person1_name && (
+            <div style={{ ...playfair, fontSize: 15, color: INK }}>
+              {event.person1_name}
+            </div>
+          )}
+        </div>
+      </FadeUp>
+
+      {/* 5-card fan carousel */}
+      <motion.div
+        style={{
+          position: "relative",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          height: 460,
+          cursor: "grab",
+          touchAction: "none",
+          userSelect: "none",
+        }}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.15}
+        onDragEnd={(_, info) => {
+          if (info.offset.x < -60 || info.velocity.x < -400) setCurrent(next);
+          else if (info.offset.x > 60 || info.velocity.x > 400) setCurrent(prev);
+        }}
+      >
+        {/* Far left */}
+        {showFar && (
+          <div style={{ position: "absolute", transform: "translateX(-340px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
+            <GalleryCard src={slides[prev2]} size="tiny" />
+          </div>
+        )}
+        {/* Left */}
+        {showSide && (
+          <div style={{ position: "absolute", transform: "translateX(-210px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
+            <GalleryCard src={slides[prev]} size="small" />
+          </div>
+        )}
+        {/* Center */}
+        <div style={{ position: "absolute", zIndex: 10, pointerEvents: "none" }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <GalleryCard src={slides[current]} size="large" />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        {/* Right */}
+        {showSide && (
+          <div style={{ position: "absolute", transform: "translateX(210px) scale(0.82)", opacity: 0.65, zIndex: 1, pointerEvents: "none" }}>
+            <GalleryCard src={slides[next]} size="small" />
+          </div>
+        )}
+        {/* Far right */}
+        {showFar && (
+          <div style={{ position: "absolute", transform: "translateX(340px) scale(0.62)", opacity: 0.3, zIndex: 0, pointerEvents: "none" }}>
+            <GalleryCard src={slides[next2]} size="tiny" />
+          </div>
+        )}
+      </motion.div>
+
+      {/* Dots */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 28 }}>
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            style={{
+              height: 8, borderRadius: 4, border: "none", cursor: "pointer",
+              background: i === current ? BURGUNDY : "rgba(102,2,31,0.22)",
+              width: i === current ? 24 : 8,
+              transition: "all 0.4s",
+              padding: 0,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Letter ───────────────────────────────────────────────────────────────────
+// events.poem хоосон үед харагдах үндсэн шүлэг
+const T18_DEFAULT_POEM = [
+  "Хичээл зүтгэлийн үр шим,",
+  "Хүрсэн амжилтын гэрч болсон",
+  "Төрийн дээд одонгоо барьж,",
+  "Одонгийн найраа хийх гэж байна.",
+  "",
+  "Энэхүү дурсгалт мөчийг",
+  "Эрхэм таньтай хамт хуваалцахыг урьж байна.",
+];
+
+function T18Letter({ event }: { event: EventData }) {
+  return (
+    <div style={{ background: BURGUNDY }}>
+      <WavyTop fill={CREAM} />
+      <div style={{ background: BURGUNDY, padding: "48px 32px 56px", textAlign: "center" }}>
+        <FadeUp>
+          {/* Шүлэг тул мөр бүр тусдаа эгнээнд, хоосон мөр нь зай болно */}
+          <div style={{ color: "rgba(255,255,255,0.92)", ...ovo, fontSize: 18, lineHeight: 1.9, maxWidth: 420, margin: "0 auto" }}>
+            {getPoemLines(event, T18_DEFAULT_POEM).map((line, i) =>
+              line === ""
+                ? <div key={i} style={{ height: 18 }} />
+                : <div key={i}>{line}</div>
+            )}
+          </div>
+        </FadeUp>
+      </div>
+      <WavyBottom fill={CREAM} />
+    </div>
+  );
+}
+
+// ─── Countdown ────────────────────────────────────────────────────────────────
+// "2026-07-29" → "2026 оны 7 сарын 29"
+function fmtEventDate(d: string) {
+  const [y, m, day] = (d || "").split("-");
+  if (!y || !m || !day) return d;
+  return `${y} оны ${Number(m)} сарын ${Number(day)}`;
+}
+
+function T18Countdown({ event }: { event: EventData }) {
+  const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const target = new Date(`${event.date}T${event.time || "16:00"}:00`);
+    const tick = () => {
+      const diff = target.getTime() - Date.now();
+      if (diff <= 0) { setTime({ days: 0, hours: 0, minutes: 0, seconds: 0 }); return; }
+      setTime({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [event.date, event.time]);
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const units = [
+    { val: time.days,    label: "Өдөр" },
+    { val: time.hours,   label: "Цаг" },
+    { val: time.minutes, label: "Минут" },
+    { val: time.seconds, label: "Секунд" },
+  ];
+
+  return (
+    <div style={{ background: CREAM, padding: "56px 24px", textAlign: "center" }}>
+      <FadeUp>
+        <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10 }}>
+          Одонгийн найр хүртэл
+        </div>
+        <div style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.5, letterSpacing: "0.15em", marginBottom: 14 }}>
+          ───── ✦ ─────
+        </div>
+        {/* Найр болох өдөр */}
+        <div style={{ ...playfair, fontSize: 20, color: BURGUNDY, letterSpacing: "0.08em", marginBottom: 34 }}>
+          {fmtEventDate(event.date)}
+          {event.time && ` · ${event.time}`}
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+          {units.map((u, i) => (
+            <div key={u.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ textAlign: "center", minWidth: 56 }}>
+                <div style={{ ...ovo, fontSize: 44, fontWeight: 700, color: INK, lineHeight: 1 }}>
+                  {pad(u.val)}
+                </div>
+                <div style={{ ...ovo, fontSize: 11, color: BURGUNDY, marginTop: 6, letterSpacing: "0.1em" }}>
+                  {u.label}
+                </div>
+              </div>
+              {i < 3 && (
+                <div style={{ ...ovo, fontSize: 36, color: BURGUNDY, marginBottom: 18, opacity: 0.5 }}>:</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </FadeUp>
+    </div>
+  );
+}
+
+// ─── Schedule ─────────────────────────────────────────────────────────────────
+// Хөтөлбөрийн доор гарах буфед хоолны зураг (Supabase Storage)
+const BUFFET_PHOTO =
+  "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanjaw/food.jpg";
+
+function T18Schedule({ event }: { event: EventData }) {
+  // events.schedule хоосон бол доорх үндсэн хөтөлбөр гарна
+  const items = getSchedule(event, [
+    { time: "10:00", label: "Зочид угтаж авах" },
+    { time: "11:00", label: "Дурсгалын зураг авхуулах" },
+    { time: "12:00", label: "Нээлтийн үйл ажиллагаа" },
+    {
+      time: "13:00",
+      label: "Найрын 1-р хэсэг",
+      desc: "Бридж рестораны ахлах тогоочын буфед хоолоор үйлчилнэ.",
+    },
+    { time: "20:00", label: "Оройн тоглолт шоу" },
+  ]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"],
+  });
+  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+
+  return (
+    <div style={{ background: BURGUNDY }}>
+      <WavyTop fill={BURGUNDY} />
+      <div style={{ background: BURGUNDY, padding: "52px 24px 60px", textAlign: "center" }}>
+        <FadeUp>
+          <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 44 }}>
+            Хөтөлбөр
+          </div>
+        </FadeUp>
+        <div ref={containerRef} style={{ position: "relative", display: "inline-block", textAlign: "left" }}>
+          {/* Scroll-driven vertical line — centered on diamond (70+20+5=95px) */}
+          <div style={{
+            position: "absolute",
+            left: 94, top: 0, bottom: 0,
+            width: 2,
+            overflow: "hidden",
+          }}>
+            <motion.div style={{
+              width: "100%",
+              height: lineHeight,
+              background: "rgba(255,255,255,0.35)",
+            }} />
+          </div>
+
+          {items.map((item, i) => (
+            <FadeUp key={i} delay={i * 0.15}>
+              <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 28, position: "relative" }}>
+                <div style={{ ...ovo, fontSize: 20, fontWeight: 700, color: "white", width: 70, textAlign: "right" }}>
+                  {item.time}
+                </div>
+                <div style={{
+                  width: 10, height: 10,
+                  background: "white",
+                  transform: "rotate(45deg)",
+                  flexShrink: 0,
+                  position: "relative", zIndex: 1,
+                }} />
+                <div>
+                  <div style={{ ...ovo, fontSize: 18, color: CREAM }}>{item.label}</div>
+                  {item.desc && (
+                    <div style={{
+                      ...ovo, fontSize: 14, color: CREAM, opacity: 0.72,
+                      lineHeight: 1.6, marginTop: 5, maxWidth: 230,
+                    }}>
+                      {item.desc}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </FadeUp>
+          ))}
+        </div>
+
+        {/* Буфед хоолны зураг — хөтөлбөрийн доор */}
+        <FadeUp delay={0.2}>
+          <img
+            src={BUFFET_PHOTO}
+            alt="Буфед хоол"
+            style={{
+              width: "100%", maxWidth: 420, height: "auto",
+              borderRadius: 10,
+              display: "block", margin: "20px auto 0",
+              border: "3px solid rgba(255,250,248,0.25)",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.35)",
+            }}
+          />
+        </FadeUp>
+      </div>
+      <WavyBottom fill={CREAM} />
+    </div>
+  );
+}
+
+// ─── Location ─────────────────────────────────────────────────────────────────
+function T18Location({ event }: { event: EventData }) {
+  return (
+    <div style={{ background: CREAM, padding: "56px 32px", textAlign: "center" }}>
+      <FadeUp>
+        <div style={{ ...playfairI, fontSize: 34, color: BURGUNDY, marginBottom: 16 }}>
+          Байршил
+        </div>
+        {event.venue_name && (
+          <div style={{ ...playfairI, fontSize: 20, fontWeight: 600, color: INK, marginBottom: 8 }}>
+            {event.venue_name}
+          </div>
+        )}
+        {event.venue_address && (
+          <div style={{ ...ovo, fontSize: 15, color: INK, opacity: 0.7, marginBottom: 28, lineHeight: 1.6 }}>
+            {event.venue_address}
+          </div>
+        )}
+      </FadeUp>
+
+      {event.maps_photo && (
+        <FadeUp delay={0.2}>
+          <img
+            src={event.maps_photo}
+            alt={event.venue_name}
+            style={{
+              width: "100%", maxWidth: 440, height: 260,
+              objectFit: "cover",
+              borderRadius: 6,
+              display: "block", margin: "0 auto 24px",
+              boxShadow: "0 8px 32px rgba(102,2,31,0.15)",
+            }}
+          />
+        </FadeUp>
+      )}
+
+      {event.venue_map_url && (
+        <FadeUp delay={0.3}>
+          <a
+            href={event.venue_map_url}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: "inline-block",
+              background: BURGUNDY, color: "white",
+              ...ovo, fontSize: 15,
+              padding: "12px 36px",
+              borderRadius: 30,
+              textDecoration: "none",
+              boxShadow: "0 4px 14px rgba(102,2,31,0.3)",
+            }}
+          >
+            Газрын зурагт нээх
+          </a>
+        </FadeUp>
+      )}
+    </div>
+  );
+}
+
+// ─── Dress Code ───────────────────────────────────────────────────────────────
+function T18DressCode() {
+  const icons = [
+    { emoji: "🌸", label: "Хүлээн авалт" },
+    { emoji: "📵", label: "Утасгүй мөч" },
+    { emoji: "⏰", label: "Цаг баримтлах" },
+    { emoji: "🥂", label: "Хамтдаа баярлах" },
+  ];
+
+  return (
+    <div style={{ background: BURGUNDY }}>
+      <WavyTop fill={BURGUNDY} />
+      <div style={{ background: BURGUNDY, padding: "52px 32px 60px", textAlign: "center" }}>
+        <FadeUp>
+          <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 28 }}>
+            Одонгийн найрын хүсэлт
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.1}>
+          <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 28 }}>
+            {icons.map(({ emoji, label }) => (
+              <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <div style={{
+                  width: 50, height: 50, borderRadius: "50%",
+                  background: "rgba(255,255,255,0.12)",
+                  border: `2px solid ${CREAM}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 22,
+                }}>
+                  {emoji}
+                </div>
+                <span style={{ ...ovo, fontSize: 10, color: `${CREAM}aa`, letterSpacing: "0.05em" }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        </FadeUp>
+
+        <FadeUp delay={0.2}>
+          <p style={{ ...ovo, fontSize: 17, color: CREAM, maxWidth: 360, margin: "0 auto 40px", lineHeight: 1.8 }}>
+            Энэхүү онцгой мөчийг хамтдаа бүтээж, нэгэн үдшийг дурсамж дүүрэн өнгөрүүлье.
+          </p>
+        </FadeUp>
+
+        <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: 8, padding: "20px 14px",
+              flex: 1, textAlign: "center",
+            }}
+          >
+            <div style={{ marginBottom: 12 }}>
+              <PeonySVG size={56} color="#D4B0A0" />
+            </div>
+            <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
+              <strong>Хүлээн авалт:</strong> Нээлтийн үйл ажиллагаа эхэлтэл хүлээлгийн зоог барьж, дурсамж зургаа авахуулна уу.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            style={{
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              borderRadius: 8, padding: "20px 14px",
+              flex: 1, textAlign: "center",
+            }}
+          >
+            <div style={{ marginBottom: 12 }}>
+              <PeonySVG size={56} color="#E8A0BF" />
+            </div>
+            <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
+              <strong>Цаг:</strong> Ёслол эхлэхээс 30 минутын өмнө суудалдаа заларна уу.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+      <WavyBottom fill={CREAM} />
+    </div>
+  );
+}
+
+// ─── Wishes ───────────────────────────────────────────────────────────────────
+function T18Wishes({ eventId }: { eventId: string }) {
+  const [name, setName]       = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent]       = useState(false);
+
+  const submit = async () => {
+    if (!name.trim() || !message.trim()) return;
+    setSending(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") {
+      setSending(false);
+      setSent(true);
+      return;
+    }
+    const { error } = await supabase.from("wishes").insert({
+      event_id: eventId,
+      name: name.trim(),
+      message: message.trim(),
+    });
+    setSending(false);
+    if (error) { toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
+    setSent(true);
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "12px 14px",
+    border: `1px solid rgba(102,2,31,0.22)`,
+    borderRadius: 8,
+    ...ovo, fontSize: 15, color: INK,
+    background: "white",
+    boxSizing: "border-box",
+    outline: "none",
+  };
+
+  return (
+    <div style={{ background: CREAM, padding: "56px 32px 64px", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: -30, right: -20, opacity: 0.08, pointerEvents: "none" }}>
+        <PeonySVG size={220} color={BURGUNDY} />
+      </div>
+      <div style={{ position: "absolute", bottom: -40, left: -20, opacity: 0.07, pointerEvents: "none" }}>
+        <PeonySVG size={190} color={BURGUNDY} />
+      </div>
+
+      <FadeUp>
+        <div style={{ ...playfairI, fontSize: 34, color: BURGUNDY, marginBottom: 8, textAlign: "center" }}>
+          Мэндчилгээ
+        </div>
+        <p style={{ ...ovo, fontSize: 14, color: INK, opacity: 0.6, textAlign: "center", marginBottom: 32 }}>
+          Баяр хүргэх үгээ үлдээнэ үү
+        </p>
+
+        {sent ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ textAlign: "center", padding: "28px 0" }}
+          >
+            <div style={{ ...playfairI, fontSize: 26, color: BURGUNDY, marginBottom: 10 }}>
+              Баярлалаа!
+            </div>
+            <p style={{ ...ovo, fontSize: 15, color: INK, opacity: 0.75, lineHeight: 1.7 }}>
+              Таны мэндчилгээг хүлээн авлаа.
+            </p>
+          </motion.div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div>
+              <label style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.65, display: "block", marginBottom: 6 }}>
+                Нэр
+              </label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Нэрээ бичнэ үү"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.65, display: "block", marginBottom: 6 }}>
+                Мэндчилгээний үг
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Мэндчилгээ бичнэ үү..."
+                rows={5}
+                style={{ ...inputStyle, resize: "none", lineHeight: 1.65 }}
+              />
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={submit}
+              disabled={sending || !name.trim() || !message.trim()}
+              style={{
+                width: "100%", padding: "13px",
+                background: BURGUNDY, color: "white",
+                border: "none", borderRadius: 8,
+                ...ovo, fontSize: 16, fontWeight: 600,
+                cursor: sending ? "wait" : "pointer",
+                opacity: (!name.trim() || !message.trim()) ? 0.5 : 1,
+                marginTop: 4,
+              }}
+            >
+              {sending ? "Илгээж байна..." : "Илгээх"}
+            </motion.button>
+          </div>
+        )}
+      </FadeUp>
+    </div>
+  );
+}
+
+// ─── RSVP Section (popup биш — шууд бөглөнө) ──────────────────────────────────
+function T18RSVP({ eventId }: { eventId: string }) {
+  const [name, setName]             = useState("");
+  const [attending, setAttending]   = useState<boolean | null>(null);
+  const [guests, setGuests]         = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone]             = useState(false);
+
+  const submit = async () => {
+    if (!name.trim() || attending === null) return;
+    setSubmitting(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") {
+      setSubmitting(false);
+      setDone(true);
+      return;
+    }
+    const { error } = await supabase.from("rsvp").insert({
+      event_id: eventId,
+      name: name.trim(),
+      guests: attending ? guests : 0,
+    });
+    setSubmitting(false);
+    if (error) { toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
+    setDone(true);
+  };
+
+  const counterBtn: React.CSSProperties = {
+    width: 44, height: 44,
+    border: "1px solid rgba(255,255,255,0.2)",
+    background: "transparent",
+    color: CREAM,
+    ...ovo, fontSize: 20, lineHeight: 1,
+    cursor: "pointer",
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "12px 14px",
+    border: "1px solid rgba(255,255,255,0.25)",
+    borderRadius: 6,
+    ...ovo, fontSize: 15, color: INK,
+    background: "white",
+    boxSizing: "border-box",
+    outline: "none",
+  };
+
+  return (
+    <div style={{ background: BURGUNDY, padding: "60px 32px", textAlign: "center" }}>
+      <FadeUp>
+        <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 10 }}>
+          Ирцээ бүртгүүлэх
+        </div>
+        <p style={{ ...ovo, fontSize: 16, color: "rgba(255,250,248,0.8)", maxWidth: 380, margin: "0 auto 32px", lineHeight: 1.7 }}>
+          Одонгийн найрын өдрөөс өмнө бүртгэлээ хийнэ үү.
+        </p>
+
+        {done ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            style={{ maxWidth: 420, margin: "0 auto" }}
+          >
+            <div style={{ ...playfairI, fontSize: 28, color: CREAM, marginBottom: 10 }}>
+              Баярлалаа!
+            </div>
+            <p style={{ ...ovo, fontSize: 16, color: "rgba(255,250,248,0.85)", lineHeight: 1.75 }}>
+              Таны бүртгэлийг хүлээн авлаа.<br />Таньтай уулзахыг тэсэн ядан хүлээж байна.
+            </p>
+          </motion.div>
+        ) : (
+          <div style={{ maxWidth: 420, margin: "0 auto", textAlign: "left" }}>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Таны нэр"
+              style={{ ...inputStyle, marginBottom: 20 }}
+            />
+
+            <p style={{ ...ovo, fontSize: 15, color: CREAM, marginBottom: 10 }}>Та ирэх үү?</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 26 }}>
+              {[
+                { val: true,  label: "Тийм, заавал ирнэ" },
+                { val: false, label: "Харамсалтай нь очиж чадахгүй" },
+              ].map(({ val, label }) => (
+                <label
+                  key={String(val)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
+                    ...ovo, fontSize: 15, color: CREAM,
+                    background: attending === val ? "rgba(255,255,255,0.12)" : "transparent",
+                    border: `1px solid ${attending === val ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.2)"}`,
+                    borderRadius: 6, padding: "11px 14px",
+                    transition: "all 0.25s",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="attending"
+                    checked={attending === val}
+                    onChange={() => setAttending(val)}
+                    style={{ accentColor: CREAM, width: 16, height: 16 }}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+
+            {/* Хүний тоо — "Ирэхгүй" сонгосон үед хэрэггүй тул нуана */}
+            {attending !== false && (
+              <div style={{ marginBottom: 26 }}>
+                <p style={{ ...ovo, fontSize: 15, color: CREAM, marginBottom: 10 }}>Хэдүүлээ ирэх вэ?</p>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <button
+                    onClick={() => setGuests((g) => Math.max(1, g - 1))}
+                    style={counterBtn}
+                    aria-label="Хасах"
+                  >−</button>
+                  <div style={{
+                    ...ovo, fontSize: 18, color: CREAM,
+                    width: 64, height: 44,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    borderTop: "1px solid rgba(255,255,255,0.2)",
+                    borderBottom: "1px solid rgba(255,255,255,0.2)",
+                  }}>
+                    {guests}
+                  </div>
+                  <button
+                    onClick={() => setGuests((g) => Math.min(20, g + 1))}
+                    style={counterBtn}
+                    aria-label="Нэмэх"
+                  >+</button>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={submit}
+              disabled={submitting || !name.trim() || attending === null}
+              style={{
+                width: "100%", padding: "14px",
+                background: CREAM, color: BURGUNDY,
+                border: "none", borderRadius: 8,
+                ...ovo, fontSize: 17, fontWeight: 700,
+                cursor: submitting ? "wait" : "pointer",
+                opacity: (!name.trim() || attending === null) ? 0.55 : 1,
+                transition: "opacity 0.25s",
+              }}
+            >
+              {submitting ? "Илгээж байна..." : "Илгээх"}
+            </button>
+          </div>
+        )}
+      </FadeUp>
+    </div>
+  );
+}
+
+// ─── Footer ───────────────────────────────────────────────────────────────────
+// "Хүндэтгэсэн" хэсэг — зөвхөн энд бүртгэсэн slug дээр харагдана.
+// Бусад урилга дээр энэ блок огт гарахгүй.
+const HONORED_BY: Record<string, { names: string[]; phones?: string[] }> = {
+  "uuganbayr-baasanbayr": {
+    names: [
+      "Нөхөр Б.Ууганбаяр",
+      "Эхнэр Ш.Баасанбаяр",
+      "Охин У.Анужин",
+      "Охин У.Анунгоо",
+    ],
+    phones: ["88118273", "80909026"],
+  },
+};
+
+// Footer-ийн доод гарын үсэг — үндсэндээ "нэр1 & нэр2" нэг мөрөөр гарна.
+// Энд бүртгэсэн slug дээр оронд нь мөр тус бүрээр жагсаана.
+const SIGNATURE: Record<string, string[]> = {
+  "enkhbayr-naranchimeg": ["Л.Энхбаяр", "Г.Наранчимэг", "Э.Цэцэнбилиг", "Э.Очир"],
+};
+
+// Урилга хүргэсэн гэр бүл — footer-ийн доод гарын үсэг. Өөр одонгийн найранд
+// ашиглах бол дээрх SIGNATURE map-д slug-аар нь бүртгэж дарж бичнэ.
+const INVITED_BY = "Д. Ганцолмонгийн гэр бүл";
+
+function T18Footer({ event }: { event: EventData }) {
+  return (
+    <div style={{ background: BURGUNDY, padding: "56px 32px 80px", textAlign: "center" }}>
+      <WavyTop fill={BURGUNDY} />
+      {event.gallery_photos?.[0] && (
+        <FadeUp>
+          <img
+            src={event.gallery_photos[0]}
+            alt="couple"
+            style={{
+              // Тогтмол өндөр байсан тул зураг таслагдаж байв — бүтнээр нь
+              // харуулахын тулд өндрийг автоматаар тооцуулна
+              width: "88%", maxWidth: 380, height: "auto",
+              borderRadius: 12,
+              display: "block", margin: "0 auto 32px",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.35)",
+              border: "4px solid rgba(255,250,248,0.25)",
+            }}
+          />
+        </FadeUp>
+      )}
+      <FadeUp delay={0.15}>
+        <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 12 }}>
+          Таньтай уулзахыг тэсэн ядан хүлээж байна!
+        </div>
+        {SIGNATURE[event.slug] ? (
+          SIGNATURE[event.slug].map((line) => (
+            <div key={line} style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8, lineHeight: 1.8 }}>
+              {line}
+            </div>
+          ))
+        ) : (
+          <div>
+            <div style={{ ...ovo, fontSize: 15, color: CREAM, opacity: 0.7, letterSpacing: "0.08em", marginBottom: 6 }}>
+              Хүндэтгэн урьсан
+            </div>
+            <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.85, lineHeight: 1.5 }}>
+              {INVITED_BY}
+            </div>
+          </div>
+        )}
+      </FadeUp>
+
+      {HONORED_BY[event.slug] && (
+        <FadeUp delay={0.25}>
+          <div style={{ marginTop: 40 }}>
+            <div style={{ ...playfairI, fontSize: 19, color: CREAM, opacity: 0.9, marginBottom: 14 }}>
+              Хүндэтгэсэн:
+            </div>
+            {HONORED_BY[event.slug].names.map((line) => (
+              <div key={line} style={{ ...ovo, fontSize: 16, color: CREAM, opacity: 0.82, lineHeight: 1.9 }}>
+                {line}
+              </div>
+            ))}
+            {HONORED_BY[event.slug].phones && (
+              <div style={{ ...ovo, fontSize: 16, color: CREAM, opacity: 0.82, marginTop: 12 }}>
+                Утас :{" "}
+                {HONORED_BY[event.slug].phones!.map((tel, i) => (
+                  <span key={tel}>
+                    {i > 0 && ", "}
+                    <a href={`tel:${tel}`} style={{ color: CREAM, textDecoration: "none" }}>{tel}</a>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </FadeUp>
+      )}
+
+      <div style={{ marginTop: 40, opacity: 0.3 }}>
+        <PeonySVG size={90} color="#E8A0BF" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Root ─────────────────────────────────────────────────────────────────────
+export default function Template18({ event }: { event: EventData }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Дуу шууд автоматаар эхэлнэ. Browser autoplay-г хоригловол хэрэглэгчийн
+  // анхны хөдөлгөөн (tap / scroll / keydown) дээр асаана.
+  useEffect(() => {
+    if (!event.music_url) return;
+    const startMusic = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.play().then(cleanup).catch(() => {});
+    };
+    const events = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
+    const cleanup = () => events.forEach((e) => window.removeEventListener(e, startMusic));
+    startMusic();
+    events.forEach((e) => window.addEventListener(e, startMusic, { passive: true }));
+    return cleanup;
+  }, [event.music_url]);
+
+  return (
+    <div style={{ maxWidth: 523, margin: "0 auto", fontFamily: "'Ovo', serif", overflowX: "hidden" }}>
+      {/* Video intro — position:fixed, content renders behind it, revealed as video fades out */}
+      <VideoIntro audioRef={audioRef} />
+
+      <T18Hero event={event} />
+      <T18Letter event={event} />
+      <T18Gallery event={event} />
+      <T18Countdown event={event} />
+      <T18Schedule event={event} />
+      <T18Location event={event} />
+      <T18DressCode />
+      <T18Wishes eventId={event.id} />
+      <T18RSVP eventId={event.id} />
+      <T18Footer event={event} />
+
+      {event.music_url && <MusicPlayer src={event.music_url} audioRef={audioRef} />}
+      <Toaster />
+    </div>
+  );
+}

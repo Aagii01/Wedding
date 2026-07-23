@@ -6,6 +6,9 @@ import Template14 from "./Template14";
 import Template15 from "./Template15";
 import Template16 from "./Template16";
 import Template17 from "./Template17";
+// Одонгийн найрын урилга — Template13-ийн хуулбар дээр суурилсан (production
+// дээрх T13-ыг хөндөхгүйгээр тусад нь хөгжүүлж байна)
+import Template18 from "./Template18";
 
 export const templateMap: Record<string, React.ComponentType<{ event: EventData }>> = {
   "11": App,
@@ -15,4 +18,5 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "15": Template15,
   "16": Template16,
   "17": Template17,
+  "18": Template18,
 };
