@@ -872,7 +872,7 @@ const CONTACT_PHONES: Record<string, string[]> = {
 
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
 const CHILDREN: Record<string, string[]> = {
-  "davaa-davaajargal": ["Хүү Д.Тэлмүүн", "Охин Д.Цэлмүүн"],
+  "dawaa-dawaajargal": ["Хүү Д.Тэлмүүн", "Охин Д.Цэлмүүн"],
 };
 
 function T14Footer({ event }: { event: EventData }) {
