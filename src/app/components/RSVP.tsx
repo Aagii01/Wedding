@@ -11,7 +11,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 type Props = { eventId: string };
 
 export function RSVP({ eventId }: Props) {
-  const [rsvp, setRsvp] = useState({ name: "", attending: "yes" });
+  const [rsvp, setRsvp] = useState({ name: "", attending: "yes", guests: "1" });
   const [wish, setWish] = useState({ name: "", message: "" });
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [wishLoading, setWishLoading] = useState(false);
@@ -23,20 +23,21 @@ export function RSVP({ eventId }: Props) {
     if (eventId === "demo") {
       setRsvpLoading(false);
       toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
-      setRsvp({ name: "", attending: "yes" });
+      setRsvp({ name: "", attending: "yes", guests: "1" });
       return;
     }
     const { error } = await supabase.from("rsvp").insert({
       event: eventId,
       name: rsvp.name,
-      guests: rsvp.attending === "yes" ? 1 : 0,
+      // Ирэхгүй бол 0 — бүх загварт нийтлэг дүрэм (Sheets-д "очихгүй" болж очно)
+      guests: rsvp.attending === "yes" ? Number(rsvp.guests) : 0,
     });
     setRsvpLoading(false);
     if (error) {
       toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     } else {
       toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
-      setRsvp({ name: "", attending: "yes" });
+      setRsvp({ name: "", attending: "yes", guests: "1" });
     }
   };
 
@@ -106,6 +107,35 @@ export function RSVP({ eventId }: Props) {
                 ))}
               </div>
             </div>
+            {/* Хүний тоо — зөвхөн ирнэ гэсэн үед асууна */}
+            {rsvp.attending === "yes" && (
+              <div>
+                <p className="text-sm text-gray-500 mb-2">Хэдэн хүн ирэх вэ?</p>
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    aria-label="Хасах"
+                    onClick={() => setRsvp((p) => ({ ...p, guests: String(Math.max(1, Number(p.guests) - 1)) }))}
+                    disabled={Number(rsvp.guests) <= 1}
+                    className="w-10 h-10 rounded-full border border-gray-300 text-gray-600 text-xl leading-none flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+                  >
+                    −
+                  </button>
+                  <span className="text-lg text-gray-800 tabular-nums min-w-16 text-center">
+                    {rsvp.guests} хүн
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Нэмэх"
+                    onClick={() => setRsvp((p) => ({ ...p, guests: String(Math.min(20, Number(p.guests) + 1)) }))}
+                    disabled={Number(rsvp.guests) >= 20}
+                    className="w-10 h-10 rounded-full border border-gray-300 text-gray-600 text-xl leading-none flex items-center justify-center hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
             <button
               type="submit"
               disabled={rsvpLoading}
@@ -157,6 +187,18 @@ export function RSVP({ eventId }: Props) {
           </form>
         </motion.div>
       </div>
+
+      {/* Хаалтын мөр — хоёр баганын доор голлон */}
+      <motion.p
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px 0px" }}
+        transition={{ duration: 0.8, ease: EASE }}
+        className="max-w-4xl mx-auto mt-14 text-center text-2xl md:text-3xl text-gray-700 italic"
+        style={{ fontFamily: "'Cormorant Garamond', serif" }}
+      >
+        Таньтай уулзахыг тэсэн ядан хүлээж байна!
+      </motion.p>
     </section>
   );
 }

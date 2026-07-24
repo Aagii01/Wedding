@@ -76,7 +76,7 @@ export function WeddingHero({ event }: Props) {
 
   return (
     <>
-      <section className="flex justify-center items-center py-10 px-4 bg-white">
+      <section className="flex flex-col justify-center items-center py-10 px-4 bg-white">
         <motion.div
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -121,6 +121,25 @@ export function WeddingHero({ event }: Props) {
               {event.date}
             </motion.p>
           </div>
+        </motion.div>
+
+        {/* Доош гүйлгэхийг сануулах — карт гарч дууссаны дараа зөөлөн илэрнэ */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 1.2, ease: EASE }}
+          className="mt-7 text-center text-gray-400"
+        >
+          <motion.div
+            animate={{ y: [0, 7, 0] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <p className="text-xs tracking-wide">Урилгыг доош гүйлгэж үзнэ үү</p>
+            <svg width="18" height="10" viewBox="0 0 18 10" fill="none" className="mx-auto mt-1.5">
+              <path d="M1 1L9 8L17 1" stroke="currentColor" strokeWidth="1.5"
+                strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </motion.div>
         </motion.div>
       </section>
 
