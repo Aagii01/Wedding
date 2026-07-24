@@ -28,6 +28,14 @@ const cgI    = { fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, seri
 // "&" тэмдэгт — script/italic хэлбэргүй, энгийн
 const amp    = { ...cg, fontStyle: "normal" as const, fontWeight: 400 } as const;
 
+// venue_map_url дээр http(s):// угтвар байхгүй бол браузер харьцангуй зам гэж
+// ойлгож сайтын хаяг дээр наадаг. Угтваргүй бол https:// нэмж бүтэн болгоно.
+function normalizeUrl(u?: string) {
+  if (!u) return u;
+  const s = u.trim();
+  return /^https?:\/\//i.test(s) ? s : `https://${s}`;
+}
+
 // "Б.Доржзовд" → "Д" (овгийн товчлолыг алгасаад өөрийн нэрний эхний үсэг)
 function initialOf(name: string) {
   const s = (name || "").trim();
@@ -640,7 +648,7 @@ function T14Venue({ event }: { event: EventData }) {
           <FadeUp delay={0.4}>
             <div style={{ textAlign: "center" }}>
               <a
-                href={event.venue_map_url}
+                href={normalizeUrl(event.venue_map_url)}
                 target="_blank" rel="noreferrer"
                 style={{
                   display: "inline-block",
