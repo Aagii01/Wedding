@@ -532,9 +532,9 @@ function T14Schedule({ event }: { event: EventData }) {
 
 // ─── Gallery ──────────────────────────────────────────────────────────────────
 function T14Gallery({ event }: { event: EventData }) {
-  const photos = Array.from({ length: 6 }, (_, i) =>
-    event.gallery2_photos?.[i] || FALLBACK[i]
-  );
+  // Оруулсан зургийг л харуулна. Огт байхгүй үед л fallback зургууд гарна.
+  const provided = (event.gallery2_photos || []).filter(Boolean);
+  const photos = provided.length ? provided : FALLBACK;
   const [lightbox, setLightbox] = useState<string | null>(null);
 
   return (
@@ -547,34 +547,27 @@ function T14Gallery({ event }: { event: EventData }) {
         </FadeUp>
 
         <FadeUp delay={0.2}>
-          {/* Bento grid adapted for mobile */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridAutoRows: "140px", gap: 10 }}>
-            {/* Large top-left */}
-            <div
-              onClick={() => setLightbox(photos[0])}
-              style={{ gridColumn: "1 / 2", gridRow: "1 / 3", overflow: "hidden", borderRadius: 2, cursor: "pointer", boxShadow: "0 2px 12px rgba(70,50,20,0.1)" }}
-            >
-              <img src={photos[0]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-            {/* Top-right */}
-            <div onClick={() => setLightbox(photos[1])} style={{ overflow: "hidden", borderRadius: 2, cursor: "pointer", boxShadow: "0 2px 12px rgba(70,50,20,0.1)" }}>
-              <img src={photos[1]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-            {/* Middle-right */}
-            <div onClick={() => setLightbox(photos[2])} style={{ overflow: "hidden", borderRadius: 2, cursor: "pointer", boxShadow: "0 2px 12px rgba(70,50,20,0.1)" }}>
-              <img src={photos[2]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-            {/* Bottom-left */}
-            <div onClick={() => setLightbox(photos[3])} style={{ overflow: "hidden", borderRadius: 2, cursor: "pointer", boxShadow: "0 2px 12px rgba(70,50,20,0.1)" }}>
-              <img src={photos[3]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-            {/* Bottom span */}
-            <div
-              onClick={() => setLightbox(photos[4])}
-              style={{ gridColumn: "2 / 3", overflow: "hidden", borderRadius: 2, cursor: "pointer", boxShadow: "0 2px 12px rgba(70,50,20,0.1)" }}
-            >
-              <img src={photos[4]} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
+          {/* Тэгш тор — нүд бүр ижил харьцаатай, зураг төвдөө багтана */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {photos.map((src, i) => (
+              <div
+                key={i}
+                onClick={() => setLightbox(src)}
+                style={{
+                  aspectRatio: "3 / 4",
+                  overflow: "hidden",
+                  borderRadius: 2,
+                  cursor: "pointer",
+                  boxShadow: "0 2px 12px rgba(70,50,20,0.1)",
+                }}
+              >
+                <img
+                  src={src} alt=""
+                  loading="lazy"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }}
+                />
+              </div>
+            ))}
           </div>
         </FadeUp>
       </div>
@@ -877,8 +870,14 @@ const CONTACT_PHONES: Record<string, string[]> = {
   "dorjzowd-nomin": ["88777477", "86777477"],
 };
 
+// Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+const CHILDREN: Record<string, string[]> = {
+  "davaa-davaajargal": ["Хүү Д.Тэлмүүн", "Охин Д.Цэлмүүн"],
+};
+
 function T14Footer({ event }: { event: EventData }) {
   const phones = CONTACT_PHONES[event.slug];
+  const children = CHILDREN[event.slug];
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
   const i1 = initialOf(name1);
@@ -910,6 +909,15 @@ function T14Footer({ event }: { event: EventData }) {
           {name1} <span style={{ ...amp, opacity: 0.75 }}>&amp;</span> {name2}
         </div>
       </FadeUp>
+      {children && (
+        <FadeUp delay={0.15}>
+          <div style={{ ...cg, fontSize: 15, letterSpacing: "0.06em", color: "rgba(244,238,222,0.6)", marginTop: 12, lineHeight: 1.7 }}>
+            {children.map((c) => (
+              <div key={c}>{c}</div>
+            ))}
+          </div>
+        </FadeUp>
+      )}
       <FadeUp delay={0.2}>
         <div style={{ ...cg, fontSize: 14, letterSpacing: "0.36em", textTransform: "uppercase", color: "rgba(244,238,222,0.5)", marginTop: 10 }}>
           {fmtDate(event.date)}
