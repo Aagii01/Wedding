@@ -15,6 +15,13 @@
 Frontend код огт өөрчлөгдөхгүй. Supabase хэвээрээ үлдэнэ (AdminPage ажиллана).
 Sheet нь зөвхөн **толин тусгал (mirror)** — захиалагчид зориулсан.
 
+**Бүх template-д нэгэн адил хамаарна.** Энэ скрипт нь `rsvp` / `wishes` хүснэгтэд
+орж ирсэн мөрийг л боловсруулдаг тул аль загвараас ирснээс үл хамаарч ижил
+багана, ижил нэршилтэй гарна. `guests` баганын утга загвар бүрт өөр
+(T11 нь зөвхөн `1`/`0`, T12/13/14/15 нь жинхэнэ хүний тоо) — гэхдээ **`0` бол
+ирэхгүй, `≥1` бол ирнэ** гэсэн дүрэм бүх загварт адил тул `очино` / `очихгүй`-г
+найдвартай тооцно.
+
 ---
 
 ## 1. Google Sheet үүсгэх
@@ -41,7 +48,8 @@ Sheet нь зөвхөн **толин тусгал (mirror)** — захиала�
 const SUPABASE_URL = 'https://bjixxbkzttcxgfkxcqvs.supabase.co';
 const SUPABASE_ANON_KEY = 'PASTE_YOUR_ANON_KEY_HERE';
 
-const HEADERS = ['Огноо', 'Төрөл', 'Нэр', 'Утас', 'Зочид', 'Зурвас / Хүсэл'];
+const HEADERS = ['Огноо', 'Төрөл', 'Нэр', 'Утас', 'Ирц', 'Зочид тоо', 'Ерөөл'];
+const DATE_FORMAT = 'yyyy-MM-dd HH:mm';
 
 function doPost(e) {
   try {
@@ -56,11 +64,17 @@ function doPost(e) {
 
     let row;
     if (table === 'rsvp') {
-      row = [created, 'Ирэлт', rec.name || '', rec.phone || '', rec.guests ?? '', rec.message || ''];
+      // Бүх template дээр guests = 0 бол ирэхгүй, >= 1 бол тэр тооны хүнтэй ирнэ.
+      // (T11 нь зөвхөн 1/0 бичдэг, T12/13/14/15 нь жинхэнэ хүний тоог бичнэ.)
+      const n = Number(rec.guests) || 0;
+      row = [created, 'Ирц', rec.name || '', rec.phone || '',
+             n >= 1 ? 'очино' : 'очихгүй', n, rec.message || ''];
     } else { // wishes
-      row = [created, 'Хүсэл', rec.name || '', '', '', rec.message || ''];
+      row = [created, 'Ерөөл', rec.name || '', '', '', '', rec.message || ''];
     }
     sheet.appendRow(row);
+    // Огноог огнооны форматтай харуулна (эс тэгвээс түүхий тоо болж харагдана)
+    sheet.getRange(sheet.getLastRow(), 1).setNumberFormat(DATE_FORMAT);
 
     return json({ ok: true });
   } catch (err) {
@@ -77,9 +91,42 @@ function getOrCreateTab(name) {
     sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
     sheet.setFrozenRows(1);
     sheet.setColumnWidth(1, 150);
-    sheet.setColumnWidth(6, 320);
+    sheet.setColumnWidth(7, 320);
+    sheet.getRange('A:A').setNumberFormat(DATE_FORMAT);
   }
   return sheet;
+}
+
+// ─── НЭГ УДАА ажиллуулах: хуучин таб-уудыг шинэ бүтэц рүү шилжүүлэх ──────────
+// Хуучин таб 6 баганатай (… E Зочид | F Зурвас / Хүсэл). Шинэ мөр 7 утгатай
+// ирэх тул шилжүүлэхгүй бол багана зөрнө. Apps Script editor дээр дээд талын
+// функцын жагсаалтаас `migrateExistingTabs`-г сонгоод ▶ Run дарна. Дахин
+// ажиллуулсан ч аюулгүй (шилжсэн таб-ыг алгасна).
+function migrateExistingTabs() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  ss.getSheets().forEach(sheet => {
+    if (sheet.getRange(1, 5).getValue() === 'Ирц') return;  // аль хэдийн шилжсэн
+    const last = sheet.getLastRow();
+    if (last < 1) return;                                   // хоосон таб
+
+    sheet.insertColumnBefore(5);   // шинэ E = Ирц. Хуучин E→F, F→G болно
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(7, 320);
+    sheet.getRange('A:A').setNumberFormat(DATE_FORMAT);
+    if (last < 2) return;          // зөвхөн толгойтой таб
+
+    const rows = sheet.getRange(2, 2, last - 1, 5).getValues();  // B..F
+    rows.forEach(r => {
+      if (r[0] === 'Ирэлт') r[0] = 'Ирц';
+      else if (r[0] === 'Хүсэл') r[0] = 'Ерөөл';
+      if (r[0] === 'Ирц') {
+        const n = Number(r[4]) || 0;               // F = хуучин Зочид
+        r[3] = n >= 1 ? 'очино' : 'очихгүй';       // E = шинэ Ирц
+      }
+    });
+    sheet.getRange(2, 2, last - 1, 5).setValues(rows);
+  });
 }
 
 // event_id → slug (ойлгомжтой таб нэр). Олдохгүй бол event_id-г өөрийг нь ашиглана.
@@ -104,6 +151,21 @@ function json(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 ```
+
+## 2.5. Хуучин таб байвал — нэг удаагийн шилжүүлэг
+
+Хэрэв Sheet дээр өмнөх хувилбараар үүссэн таб байгаа бол тэдгээр нь **6 баганатай**
+(`… E Зочид | F Зурвас / Хүсэл`), харин шинэ мөр **7 утгатай** ирнэ. Шилжүүлэхгүй
+бол багана зөрж бичигдэнэ.
+
+Apps Script editor дээр дээд талын функцын жагсаалтаас **`migrateExistingTabs`**-г
+сонгоод **▶ Run** дарна. Энэ нь таб бүрт:
+- шинэ `Ирц` багана нэмж, толгойг `Огноо | Төрөл | Нэр | Утас | Ирц | Зочид тоо | Ерөөл` болгоно
+- `Ирэлт` → `Ирц`, `Хүсэл` → `Ерөөл` болгож солино
+- хуучин зочдын тооноос `очино` / `очихгүй`-г бөглөнө
+- огнооны баганад огнооны формат тавина
+
+Дахин ажиллуулсан ч аюулгүй — шилжсэн таб-ыг алгасна.
 
 ## 3. Supabase Database Webhook тохируулах
 
