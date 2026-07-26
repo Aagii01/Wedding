@@ -7,33 +7,63 @@ const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1519741497674-61148186
 type Props = { event: EventData };
 
 export function WeddingFooter({ event }: Props) {
+  const imgSrc = event.main_image || FALLBACK_IMAGE;
+
   const displayTitle = event.person2_name
     ? `${event.person1_name} & ${event.person2_name}`
     : event.person1_name;
 
+  // Урт нэрэнд фонтыг жижигрүүлж багтаана — нэр бүр өөрөө задрахгүй (whitespace-nowrap).
+  const maxNameLen = Math.max(
+    (event.person1_name || "").length,
+    (event.person2_name || "").length,
+  );
+  const nameSize =
+    maxNameLen > 13 ? "text-2xl sm:text-3xl" :
+    maxNameLen > 9  ? "text-3xl sm:text-4xl" :
+                      "text-4xl sm:text-5xl";
+
   return (
     <footer className="relative h-64 md:h-80 overflow-hidden">
+      {/* Дэвсгэр: зургийн бүдэгрүүлсэн хувилбар — босоо зураг contain болоход хажуугийн хоосон зурвасыг дүүргэнэ */}
       <ImageWithFallback
-        src={event.main_image || FALLBACK_IMAGE}
-        alt={displayTitle}
-        className="w-full h-full object-cover"
+        src={imgSrc}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl"
       />
-      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
+      {/* Урд талд: бүтэн зураг тайрагдалгүй багтана */}
+      <ImageWithFallback
+        src={imgSrc}
+        alt={displayTitle}
+        className="absolute inset-0 w-full h-full object-contain"
+      />
+      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center px-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center text-white"
+          className="text-center text-white w-full"
         >
-          <p className="text-xs tracking-widest mb-3 text-white/60 uppercase">
-            {event.type === "wedding" ? " of" : "You're invited to"}
-          </p>
+          {event.type !== "wedding" && (
+            <p className="text-xs tracking-widest mb-3 text-white/60 uppercase">
+              You're invited to
+            </p>
+          )}
           <h2
-            className="text-5xl mb-3"
+            className={`${nameSize} mb-3 leading-tight break-words`}
             style={{ fontFamily: "'Dancing Script', cursive" }}
           >
-            {displayTitle}
+            {event.person2_name ? (
+              <>
+                <span className="whitespace-nowrap">{event.person1_name}</span>
+                <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", margin: "0 6px" }}>&</span>
+                <span className="whitespace-nowrap">{event.person2_name}</span>
+              </>
+            ) : (
+              <span className="whitespace-nowrap">{event.person1_name}</span>
+            )}
           </h2>
           <p className="text-sm text-white/60 tracking-wide">{event.date}</p>
         </motion.div>

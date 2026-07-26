@@ -52,6 +52,10 @@ type Props = { event: EventData };
 export function WeddingHero({ event }: Props) {
   const [current, setCurrent] = useState(0);
 
+  // Нүүр зургийн жинхэнэ харьцаанд тааруулна — босоо зураг тайрагдалгүй бүтнээр гарна.
+  // 3/4 (0.75) хүртэл өргөн, 1/2 (0.5) хүртэл нарийн зөвшөөрнө; бусад тохиолдолд clamp.
+  const [heroRatio, setHeroRatio] = useState(3 / 4);
+
   // Оруулсан зурагтаа тааруулж slide үүсгэнэ — дутууг нь placeholder-аар нөхөхгүй.
   // Огт зураг байхгүй үед л FALLBACK ажиллана (demo, хоосон event эвдрэхгүй).
   const photos = (event.gallery2_photos || []).filter(Boolean);
@@ -74,6 +78,16 @@ export function WeddingHero({ event }: Props) {
     ? `${event.person1_name} & ${event.person2_name}`
     : event.person1_name;
 
+  // Урт нэрэнд фонтыг жижигрүүлж багтаана — нэр бүр өөрөө задрахгүй (whitespace-nowrap).
+  const maxNameLen = Math.max(
+    (event.person1_name || "").length,
+    (event.person2_name || "").length,
+  );
+  const nameSize =
+    maxNameLen > 13 ? "text-lg sm:text-2xl md:text-3xl" :
+    maxNameLen > 9  ? "text-xl sm:text-2xl md:text-4xl" :
+                      "text-2xl sm:text-3xl md:text-4xl";
+
   return (
     <>
       <section className="flex flex-col justify-center items-center py-10 px-4 bg-white">
@@ -81,12 +95,17 @@ export function WeddingHero({ event }: Props) {
           initial={{ opacity: 0, y: 40, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 1.1, ease: EASE }}
-          className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl aspect-[3/4]"
+          style={{ aspectRatio: heroRatio }}
+          className="relative w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto rounded-3xl overflow-hidden shadow-2xl"
         >
           <ImageWithFallback
             src={heroSrc}
             alt={altText}
             className="w-full h-full object-cover"
+            onLoad={(e) => {
+              const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
+              if (w && h) setHeroRatio(Math.min(Math.max(w / h, 0.5), 0.75));
+            }}
           />
           <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-between py-8 px-6">
             <motion.p
@@ -101,16 +120,18 @@ export function WeddingHero({ event }: Props) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.9, ease: EASE }}
-              className="text-white text-2xl sm:text-3xl md:text-4xl text-center leading-tight w-full break-words"
+              className={`text-white ${nameSize} text-center leading-tight w-full break-words`}
               style={{ fontFamily: "'Dancing Script', cursive" }}
             >
               {event.person2_name ? (
                 <>
-                  {event.person1_name}
+                  <span className="whitespace-nowrap">{event.person1_name}</span>
                   <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", margin: "0 6px" }}>&</span>
-                  {event.person2_name}
+                  <span className="whitespace-nowrap">{event.person2_name}</span>
                 </>
-              ) : event.person1_name}
+              ) : (
+                <span className="whitespace-nowrap">{event.person1_name}</span>
+              )}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
