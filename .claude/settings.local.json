@@ -58,7 +58,9 @@
       "PowerShell(npx tsc --noEmit -p tsconfig.json)",
       "PowerShell(git add src/app/templates/Template14.tsx)",
       "PowerShell(git commit -F \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-user-Documents-GitHub-Wedding\\\\96c2c277-7241-4b8a-ae98-efba71637c6c\\\\scratchpad\\\\commitmsg.txt\")",
-      "PowerShell(git push origin main)"
+      "PowerShell(git push origin main)",
+      "Bash(git commit --amend -m 'Template11: hero/footer зургийг босоо зурагт тааруулж бүтнээр харуулах *)",
+      "Bash(git commit -m 'Template14: batsukh-sumya slug дээр Хөтөлбөр нуух, хосын нэрийн доор '\\\\''Охин: Б.Сийлэн'\\\\'' нэмэх *)"
     ]
   }
 }

@@ -881,7 +881,11 @@ const CONTACT_PHONES: Record<string, string[]> = {
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
 const CHILDREN: Record<string, string[]> = {
   "dawaa-dawaajargal": ["Хүү Д.Тэлмүүн", "Охин Д.Цэлмүүн"],
+  "batsukh-sumya": ["Охин: Б.Сийлэн"],
 };
+
+// Хөтөлбөр (T14Schedule) хэсгийг нуух slug-ууд.
+const HIDE_SCHEDULE = new Set<string>(["batsukh-sumya"]);
 
 function T14Footer({ event }: { event: EventData }) {
   const phones = CONTACT_PHONES[event.slug];
@@ -955,7 +959,7 @@ export default function Template14({ event }: { event: EventData }) {
       <T14Hero event={event} />
       <T14Verse event={event} />
       <T14DateCountdown event={event} />
-      <T14Schedule event={event} />
+      {!HIDE_SCHEDULE.has(event.slug) && <T14Schedule event={event} />}
       <T14Gallery event={event} />
       <T14Venue event={event} />
       <T14RSVP eventId={event.id} />
