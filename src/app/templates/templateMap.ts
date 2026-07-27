@@ -9,6 +9,8 @@ import Template17 from "./Template17";
 // Одонгийн найрын урилга — Template13-ийн хуулбар дээр суурилсан (production
 // дээрх T13-ыг хөндөхгүйгээр тусад нь хөгжүүлж байна)
 import Template18 from "./Template18";
+// Эрэгтэй хүүхдийн төрсөн өдрийн урилга — Template12-ийн бүтцэн дээр суурилсан
+import Template19 from "./Template19";
 
 export const templateMap: Record<string, React.ComponentType<{ event: EventData }>> = {
   "11": App,
@@ -19,4 +21,5 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "16": Template16,
   "17": Template17,
   "18": Template18,
+  "19": Template19,
 };
