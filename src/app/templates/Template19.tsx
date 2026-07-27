@@ -956,6 +956,18 @@ function T19Quote({ event }: { event: EventData }) {
   const lines = getPoemLines(event, DEFAULT_POEM).filter((l) => l !== "");
   const words = lines.flatMap(l => l.split(" "));
 
+  // Хүүхдийн нэрийг шүлэг дотор тодруулна (bold + хөх). Нэрийг зай/зураас/цэгээр
+  // салгаж токен болгоод, шүлгийн үг тэдгээртэй тохирвол онцолно. Зураасаар
+  // холбогдсон "Зэс-Эрдэнэ" мэт бүтэн нэрийг ч зөв таниулна.
+  const clean = (s: string) => s.replace(/[^\p{L}]/gu, "").toLowerCase();
+  const nameTokens = new Set(
+    (event.person1_name || "").split(/[\s.\-–]+/).map(clean).filter((t) => t.length >= 2),
+  );
+  const isName = (w: string) => {
+    const parts = w.split(/[-–]/).map(clean).filter(Boolean);
+    return parts.length > 0 && parts.every((p) => nameTokens.has(p));
+  };
+
   const lineEndIndices = new Set<number>();
   let acc = 0;
   lines.forEach((line, li) => {
@@ -976,9 +988,13 @@ function T19Quote({ event }: { event: EventData }) {
             const end = start + 1.5 / words.length;
             // eslint-disable-next-line react-hooks/rules-of-hooks
             const op = useTransform(scrollYProgress, [start, end], [0.15, 1]);
+            const highlight = isName(w);
             return (
               <span key={i}>
-                <motion.span style={{ opacity: op, display: "inline-block", marginRight: "0.22em" }}>
+                <motion.span style={{
+                  opacity: highlight ? 1 : op, display: "inline-block", marginRight: "0.22em",
+                  ...(highlight ? { fontWeight: 700, color: "#1D6FE3" } : {}),
+                }}>
                   {w}
                 </motion.span>
                 {lineEndIndices.has(i) && <br />}
