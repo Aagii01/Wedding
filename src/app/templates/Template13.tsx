@@ -384,7 +384,31 @@ function GalleryCard({ src, quote, size }: {
       position: "relative",
       flexShrink: 0,
     }}>
-      <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      {/* Дэвсгэр: бүдэгрүүлсэн хувилбар — өргөн зураг contain болоход хоосон зурвасыг дүүргэнэ */}
+      <img
+        src={src}
+        alt=""
+        aria-hidden="true"
+        style={{
+          position: "absolute", inset: 0,
+          width: "100%", height: "100%",
+          objectFit: "cover",
+          filter: "blur(14px)",
+          transform: "scale(1.15)",
+          display: "block",
+        }}
+      />
+      {/* Урд талд: бүтэн зураг тайрагдалгүй багтана (өргөн зураг ч бүтнээр) */}
+      <img
+        src={src}
+        alt=""
+        style={{
+          position: "absolute", inset: 0,
+          width: "100%", height: "100%",
+          objectFit: "contain",
+          display: "block",
+        }}
+      />
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
         padding: size === "large" ? "14px 12px" : "8px 8px",
@@ -1175,7 +1199,7 @@ function T13Footer({ event }: { event: EventData }) {
           ))
         ) : (
           <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
-            {name1} <Amp /> {name2}
+            <span style={{ whiteSpace: "nowrap" }}>{name1}</span> <Amp /> <span style={{ whiteSpace: "nowrap" }}>{name2}</span>
           </div>
         )}
       </FadeUp>

@@ -37,6 +37,16 @@ const DEFAULT_VENUE = "Gunj Resort";
 // Hero дээр venue_name хоосон үед харагдах байршил
 const DEFAULT_LOCATION = "Дархан-Уул аймаг, Хонгор сум";
 
+// Эдгээр slug дээр "Газар" нүд нь Gunj Resort default-ийн оронд
+// тухайн event-ийн өөрийн venue_name-ийг харуулна.
+const VENUE_FROM_EVENT = new Set<string>(["batsukh-sumya"]);
+
+// Slug бүрийн холбоо барих утас (events хүснэгтэд багана байхгүй тул шууд бичсэн).
+const CONTACT_PHONES: Record<string, string[]> = {
+  "batsukh-sumya": ["98191922", "94706067"],
+};
+const DEFAULT_PHONES = ["89733377", "88020013"];
+
 const FALLBACK_HERO =
   "https://images.unsplash.com/photo-1519741497674-611481863552?w=1600";
 
@@ -580,11 +590,16 @@ function T16Celebration({ event }: { event: EventData }) {
     return `${y}.${m}.${day}`;
   };
 
+  // Газрын нэр — ихэвчлэн шууд бичсэн default. Тодорхой slug дээр event-ийн
+  // өөрийн venue_name-ийг харуулна.
+  const venue = VENUE_FROM_EVENT.has(event.slug)
+    ? (event.venue_name || DEFAULT_VENUE)
+    : DEFAULT_VENUE;
+
   const cells = [
     { l: "Огноо", v: fmtDate(event.date) },
     { l: "Цаг",   v: event.time || "—" },
-    // Газрын нэр — шууд бичсэн (venue_name-д байршил хадгалагддаг)
-    { l: "Газар", v: DEFAULT_VENUE },
+    { l: "Газар", v: venue },
   ];
 
   return (
@@ -973,8 +988,8 @@ function T16Footer({ event }: { event: EventData }) {
     return `${y}.${m}.${day}`;
   };
 
-  // Холбоо барих дугаарууд — events хүснэгтэд багана байхгүй тул шууд бичсэн
-  const phones = ["89733377", "88020013"];
+  // Холбоо барих дугаарууд — events хүснэгтэд багана байхгүй тул slug бүрээр бичсэн
+  const phones = CONTACT_PHONES[event.slug] || DEFAULT_PHONES;
 
   const year = (event.date || "").split("-")[0] || "";
 
