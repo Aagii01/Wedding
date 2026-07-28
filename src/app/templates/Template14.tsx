@@ -871,6 +871,107 @@ function T14RSVP({ eventId }: { eventId: string }) {
   );
 }
 
+// ─── Wishes (Мэндчилгээ) — бүх Template14-д ────────────────────────────────────
+// Ирц бүртгэлийн доор. wishes хүснэгт рүү бичнэ (event_id, name, message).
+function T14Wishes({ eventId }: { eventId: string }) {
+  const [name, setName]       = useState("");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent]       = useState(false);
+
+  const submit = async () => {
+    if (!name.trim() || !message.trim()) return;
+    setSending(true);
+    // Demo горимд бодит DB руу бичихгүй (event id нь uuid биш)
+    if (eventId === "demo") { setSending(false); setSent(true); return; }
+    const { error } = await supabase.from("wishes").insert({
+      event_id: eventId,
+      name: name.trim(),
+      message: message.trim(),
+    });
+    setSending(false);
+    if (error) { toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
+    setSent(true);
+  };
+
+  const label: React.CSSProperties = {
+    ...cg, fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase",
+    color: "rgba(244,238,222,0.55)", display: "block", marginBottom: 8,
+  };
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "13px 14px",
+    background: "rgba(255,255,255,0.06)",
+    border: "1px solid rgba(232,217,176,0.28)",
+    borderRadius: 4, color: CREAM,
+    ...cg, fontSize: 17, outline: "none", boxSizing: "border-box",
+  };
+
+  return (
+    <section style={{
+      background: `linear-gradient(180deg, #1A2A48 0%, ${NIGHT} 100%)`,
+      color: CREAM, overflow: "hidden",
+    }}>
+      <div style={{ padding: "48px 28px 88px" }}>
+        <FadeUp delay={0.1}>
+          <div style={{ ...pinyon, color: GOLD_LT, fontSize: "clamp(48px, 13vw, 80px)", lineHeight: 1, textAlign: "center", margin: "0 0 12px" }}>
+            Мэндчилгээ
+          </div>
+        </FadeUp>
+        <FadeUp delay={0.2}>
+          <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.75)", textAlign: "center", marginBottom: 36, lineHeight: 1.7 }}>
+            Баяр хүргэх үгээ үлдээнэ үү.
+          </p>
+        </FadeUp>
+
+        <FadeUp delay={0.3}>
+          {sent ? (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              style={{ textAlign: "center", padding: "20px 0" }}
+            >
+              <div style={{ ...pinyon, color: GOLD_LT, fontSize: 52, marginBottom: 12 }}>Баярлалаа</div>
+              <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.8)", lineHeight: 1.7 }}>
+                Таны мэндчилгээг хүлээн авлаа.
+              </p>
+            </motion.div>
+          ) : (
+            <div style={{ maxWidth: 420, margin: "0 auto" }}>
+              <div style={{ marginBottom: 22 }}>
+                <label style={label}>Таны нэр</label>
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Нэр" style={inputStyle} />
+              </div>
+              <div style={{ marginBottom: 26 }}>
+                <label style={label}>Мэндчилгээний үг</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={5}
+                  placeholder="Мэндчилгээ бичнэ үү..."
+                  style={{ ...inputStyle, resize: "vertical", lineHeight: 1.6 }}
+                />
+              </div>
+              <button
+                onClick={submit}
+                disabled={sending || !name.trim() || !message.trim()}
+                style={{
+                  width: "100%", padding: "16px",
+                  ...cg, fontSize: 12, letterSpacing: "0.5em", textTransform: "uppercase",
+                  color: NIGHT, background: GOLD_LT, border: "none", borderRadius: 4,
+                  cursor: sending ? "wait" : "pointer",
+                  opacity: (!name.trim() || !message.trim()) ? 0.5 : 1,
+                  transition: "opacity 250ms",
+                }}
+              >
+                {sending ? "Илгээж байна..." : "Илгээх"}
+              </button>
+            </div>
+          )}
+        </FadeUp>
+      </div>
+    </section>
+  );
+}
+
 // ─── Footer ───────────────────────────────────────────────────────────────────
 // events хүснэгтэд утасны багана байхгүй тул холбоо барих дугаарыг эндээс
 // slug-аар нь уншина. Бүртгээгүй урилга дээр утасны мөр огт гарахгүй.
@@ -885,7 +986,7 @@ const CHILDREN: Record<string, string[]> = {
 };
 
 // Хөтөлбөр (T14Schedule) хэсгийг нуух slug-ууд.
-const HIDE_SCHEDULE = new Set<string>(["batsukh-sumya"]);
+const HIDE_SCHEDULE = new Set<string>(["batsukh-sumya", "ariunbold-pvrewdorj"]);
 
 function T14Footer({ event }: { event: EventData }) {
   const phones = CONTACT_PHONES[event.slug];
@@ -963,6 +1064,7 @@ export default function Template14({ event }: { event: EventData }) {
       <T14Gallery event={event} />
       <T14Venue event={event} />
       <T14RSVP eventId={event.id} />
+      <T14Wishes eventId={event.id} />
       <T14Footer event={event} />
 
       {event.music_url && <MusicPlayer src={event.music_url} />}
