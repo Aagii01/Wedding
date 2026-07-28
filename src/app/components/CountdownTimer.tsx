@@ -10,7 +10,11 @@ type Props = {
   title: string;
   venue: string;
   venueAddress: string;
+  slug?: string;
 };
+
+// Огнооны доор "13:00 цагт" гэж цаг харуулах slug-ууд.
+const SHOW_TIME_UNDER_DATE = new Set<string>(["jargasaikhan-irmuunzaya"]);
 
 function getTimeLeft(target: Date) {
   const diff = target.getTime() - Date.now();
@@ -97,7 +101,7 @@ function addHours(date: string, time: string, hours: number) {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 }
 
-export function CountdownTimer({ date, time, title, venue, venueAddress }: Props) {
+export function CountdownTimer({ date, time, title, venue, venueAddress, slug }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -150,11 +154,20 @@ export function CountdownTimer({ date, time, title, venue, venueAddress }: Props
           </p>
 
           <h2
-            className="text-5xl md:text-6xl text-gray-800 mb-8"
+            className="text-5xl md:text-6xl text-gray-800 mb-4"
             style={{ fontFamily: "'Dancing Script', cursive" }}
           >
             {formatDate(date)}
           </h2>
+
+          {slug && SHOW_TIME_UNDER_DATE.has(slug) && time && (
+            <p
+              className="text-2xl md:text-3xl text-gray-600 mb-6"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              {time} цагт
+            </p>
+          )}
 
           <div className="w-10 h-px bg-gray-300 mx-auto mb-12" />
 
