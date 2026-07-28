@@ -158,9 +158,53 @@ function Paper({ children, style = {} }: { children: React.ReactNode; style?: Re
   );
 }
 
+// ─── Video intro ──────────────────────────────────────────────────────────────
+// Template11-тэй адил эхэнд тоглодог видео. Дуусахад ар талын дуу эхэлнэ.
+const T14_INTRO_VIDEO_URL =
+  "https://tdy-excellence-template.thedigitalyes.com/assets/intro-video-new-CeLMqoNn.mp4";
+
+function T14VideoIntro({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement | null> }) {
+  const [visible, setVisible] = useState(true);
+  const [exiting, setExiting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    videoRef.current?.play().catch(() => {});
+  }, []);
+
+  const handleEnded = () => {
+    if (exiting) return;
+    audioRef.current?.play().catch(() => {});
+    setExiting(true);
+    setTimeout(() => setVisible(false), 1600);
+  };
+
+  if (!visible) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={{ opacity: exiting ? 0 : 1 }}
+      transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+      style={{
+        position: "fixed", inset: 0, background: "#000",
+        zIndex: 9999, overflow: "hidden",
+        pointerEvents: exiting ? "none" : "auto",
+      }}
+    >
+      <video
+        ref={videoRef}
+        src={T14_INTRO_VIDEO_URL}
+        autoPlay muted playsInline preload="auto"
+        onEnded={handleEnded}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+      />
+    </motion.div>
+  );
+}
+
 // ─── Music player ─────────────────────────────────────────────────────────────
-function MusicPlayer({ src }: { src: string }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement | null> }) {
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
@@ -171,22 +215,7 @@ function MusicPlayer({ src }: { src: string }) {
     a.addEventListener("play",  onPlay);
     a.addEventListener("pause", onPause);
     return () => { a.removeEventListener("play", onPlay); a.removeEventListener("pause", onPause); };
-  }, []);
-
-  // Дуу шууд автоматаар эхэлнэ. Browser autoplay-г хоригловол хэрэглэгчийн
-  // анхны хөдөлгөөн (tap / scroll / keydown) дээр асаана.
-  useEffect(() => {
-    const startMusic = () => {
-      const a = audioRef.current;
-      if (!a) return;
-      a.play().then(cleanup).catch(() => {});
-    };
-    const events = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
-    const cleanup = () => events.forEach((e) => window.removeEventListener(e, startMusic));
-    startMusic();
-    events.forEach((e) => window.addEventListener(e, startMusic, { passive: true }));
-    return cleanup;
-  }, [src]);
+  }, [audioRef]);
 
   const toggle = () => {
     const a = audioRef.current;
@@ -196,7 +225,6 @@ function MusicPlayer({ src }: { src: string }) {
 
   return (
     <div style={{ position: "fixed", bottom: 28, right: 28, zIndex: 200 }}>
-      <audio ref={audioRef} src={src} loop preload="auto" />
       <button
         onClick={toggle}
         aria-label="Toggle sound"
@@ -1055,8 +1083,28 @@ function T14Footer({ event }: { event: EventData }) {
 
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export default function Template14({ event }: { event: EventData }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Дуу шууд автоматаар эхэлнэ. Browser autoplay-г хоригловол хэрэглэгчийн
+  // анхны хөдөлгөөн (tap / scroll / keydown) дээр асаана.
+  useEffect(() => {
+    if (!event.music_url) return;
+    const startMusic = () => {
+      const a = audioRef.current;
+      if (!a) return;
+      a.play().then(cleanup).catch(() => {});
+    };
+    const events = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
+    const cleanup = () => events.forEach((e) => window.removeEventListener(e, startMusic));
+    startMusic();
+    events.forEach((e) => window.addEventListener(e, startMusic, { passive: true }));
+    return cleanup;
+  }, [event.music_url]);
+
   return (
     <div style={{ maxWidth: 523, margin: "0 auto", overflowX: "hidden" }}>
+      <T14VideoIntro audioRef={audioRef} />
+      {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       <T14Hero event={event} />
       <T14Verse event={event} />
       <T14DateCountdown event={event} />
@@ -1067,7 +1115,7 @@ export default function Template14({ event }: { event: EventData }) {
       <T14Wishes eventId={event.id} />
       <T14Footer event={event} />
 
-      {event.music_url && <MusicPlayer src={event.music_url} />}
+      {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <Toaster />
     </div>
   );
