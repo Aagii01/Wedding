@@ -441,7 +441,7 @@ function T14DateCountdown({ event }: { event: EventData }) {
             </div>
             {event.time && (
               <div style={{ ...cgI, color: WAX, fontSize: 18, marginTop: 10, opacity: 0.85 }}>
-                {event.time}
+                Эхлэх цаг: {event.time}
               </div>
             )}
           </div>
@@ -550,10 +550,10 @@ function T14Schedule({ event }: { event: EventData }) {
                 {/* Text */}
                 <div style={{ paddingTop: 8 }}>
                   <div style={{ ...cgI, color: WAX, fontSize: 28, lineHeight: 1 }}>{item.time}</div>
-                  <div style={{ ...cg, fontWeight: 500, fontSize: 11, letterSpacing: "0.36em", textTransform: "uppercase", color: INK, marginTop: 4, marginBottom: 4 }}>
+                  <div style={{ ...cg, fontWeight: 700, fontSize: 11, letterSpacing: "0.36em", textTransform: "uppercase", color: WAX, marginTop: 4, marginBottom: 4 }}>
                     {item.label}
                   </div>
-                  <div style={{ ...cg, fontSize: 15, lineHeight: 1.55, color: INK_SOFT }}>
+                  <div style={{ ...cg, fontSize: 15, fontWeight: 500, lineHeight: 1.55, color: INK }}>
                     {item.desc}
                   </div>
                 </div>
