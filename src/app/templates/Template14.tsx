@@ -288,7 +288,7 @@ function T14Hero({ event }: { event: EventData }) {
         <motion.div
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.3 }}
-          style={{ ...cg, fontWeight: 600, fontSize: 12, letterSpacing: "0.42em", textTransform: "uppercase", color: "rgba(255,255,255,0.9)", marginBottom: 36, textShadow: "0 1px 8px rgba(0,0,0,0.4)" }}
+          style={{ ...cg, fontWeight: 700, fontSize: 13, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", marginBottom: 36, textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}
         >
           Бид гэрлэж байна
         </motion.div>
@@ -315,7 +315,7 @@ function T14Hero({ event }: { event: EventData }) {
           transition={{ duration: 1, delay: 1.4 }}
           style={{ marginTop: 56, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}
         >
-          <div style={{ ...cg, fontWeight: 500, fontSize: 10, letterSpacing: "0.42em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>
+          <div style={{ ...cg, fontWeight: 700, fontSize: 11, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}>
             Доошоо гүйлгэх
           </div>
           <motion.div
@@ -436,8 +436,8 @@ function T14DateCountdown({ event }: { event: EventData }) {
             background: "rgba(255,250,235,0.5)",
           }}>
             <div style={{ ...cgI, color: WAX, fontSize: 52, lineHeight: 1 }}>{dt.day}</div>
-            <div style={{ ...cg, fontSize: 11, letterSpacing: "0.38em", textTransform: "uppercase", color: INK_MUTE, marginTop: 4 }}>
-              {dt.month} · {dt.year}
+            <div style={{ ...cg, fontWeight: 600, fontSize: 13, letterSpacing: "0.34em", textTransform: "uppercase", color: WAX, marginTop: 6 }}>
+              {dt.month} · <span style={{ fontSize: 20 }}>{dt.year}</span>
             </div>
             {event.time && (
               <div style={{ ...cgI, color: WAX, fontSize: 18, marginTop: 10, opacity: 0.85 }}>
