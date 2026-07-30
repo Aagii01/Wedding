@@ -1014,7 +1014,11 @@ const CHILDREN: Record<string, string[]> = {
 };
 
 // Хөтөлбөр (T14Schedule) хэсгийг нуух slug-ууд.
-const HIDE_SCHEDULE = new Set<string>(["batsukh-sumya", "ariunbold-pvrewdorj"]);
+const HIDE_SCHEDULE = new Set<string>([
+  "batsukh-sumya",
+  "ariunbold-pvrewdorj",
+  "lashidnym-togtokhsuren",
+]);
 
 function T14Footer({ event }: { event: EventData }) {
   const phones = CONTACT_PHONES[event.slug];
