@@ -27,6 +27,8 @@ const cg     = { fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, seri
 const cgI    = { fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, serif", fontStyle: "italic" as const } as const;
 // "&" тэмдэгт — script/italic хэлбэргүй, энгийн
 const amp    = { ...cg, fontStyle: "normal" as const, fontWeight: 400 } as const;
+// Хосын нэр ба гарчиг — Pinyon Script кирилл дэмждэггүй тул citat-ийн italic Cormorant
+const nameFont = cgI;
 
 // venue_map_url дээр http(s):// угтвар байхгүй бол браузер харьцангуй зам гэж
 // ойлгож сайтын хаяг дээр наадаг. Угтваргүй бол https:// нэмж бүтэн болгоно.
@@ -297,7 +299,7 @@ function T14Hero({ event }: { event: EventData }) {
           ref={wrapRef}
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.6, delay: 0.5 }}
-          style={{ ...pinyon, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)" }}
+          style={{ ...nameFont, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)" }}
         >
           <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name1}</span>
           <span style={{
@@ -344,7 +346,7 @@ function T14Verse({ event }: { event: EventData }) {
 
         <FadeUp delay={0.2}>
           <div ref={wrapRef} style={{
-            ...pinyon, color: WAX, width: "100%",
+            ...nameFont, color: WAX, width: "100%",
             lineHeight: 1.08, textAlign: "center", margin: "12px 0 20px",
           }}>
             <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name1}</span>
@@ -422,7 +424,7 @@ function T14DateCountdown({ event }: { event: EventData }) {
     <Paper>
       <div style={{ padding: "72px 28px" }}>
         <FadeUp delay={0.1}>
-          <div style={{ ...pinyon, color: WAX, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.12, textAlign: "center", marginTop: 8, marginBottom: 28 }}>
+          <div style={{ ...nameFont, color: WAX, fontSize: "clamp(28px, 7vw, 44px)", lineHeight: 1.15, textAlign: "center", marginTop: 8, marginBottom: 28 }}>
             Хурим хүртэлх хугацаа
           </div>
         </FadeUp>
@@ -577,7 +579,7 @@ function T14Gallery({ event }: { event: EventData }) {
     <Paper>
       <div style={{ padding: "72px 24px" }}>
         <FadeUp delay={0.1}>
-          <div style={{ ...pinyon, color: WAX, fontSize: "clamp(48px, 12vw, 72px)", lineHeight: 1.1, textAlign: "center", margin: "8px 0 28px" }}>
+          <div style={{ ...nameFont, color: WAX, fontSize: "clamp(34px, 8.5vw, 52px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 28px" }}>
             Зургийн цомог
           </div>
         </FadeUp>
@@ -644,7 +646,7 @@ function T14Venue({ event }: { event: EventData }) {
       <div style={{ padding: "72px 28px" }}>
         <FadeUp><Eyebrow>Байршил</Eyebrow></FadeUp>
         <FadeUp delay={0.1}>
-          <div style={{ ...pinyon, color: WAX, fontSize: "clamp(52px, 13vw, 80px)", lineHeight: 1, textAlign: "center", margin: "8px 0 24px" }}>
+          <div style={{ ...nameFont, color: WAX, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 24px" }}>
             {event.venue_name || "Хуримын ордон"}
           </div>
         </FadeUp>
@@ -769,7 +771,7 @@ function T14RSVP({ eventId }: { eventId: string }) {
           </div>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <div style={{ ...pinyon, color: GOLD_LT, fontSize: "clamp(52px, 13vw, 80px)", lineHeight: 1, textAlign: "center", margin: "8px 0 16px" }}>
+          <div style={{ ...nameFont, color: GOLD_LT, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 16px" }}>
             Та ирэх үү?
           </div>
         </FadeUp>
@@ -785,7 +787,7 @@ function T14RSVP({ eventId }: { eventId: string }) {
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
               style={{ textAlign: "center", padding: "20px 0" }}
             >
-              <div style={{ ...pinyon, color: GOLD_LT, fontSize: 52, marginBottom: 12 }}>Баярлалаа</div>
+              <div style={{ ...nameFont, color: GOLD_LT, fontSize: 38, marginBottom: 12 }}>Баярлалаа</div>
               <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.8)", lineHeight: 1.7 }}>
                 {attending
                   ? `${name.split(" ")[0]}, та нартай уулзахыг тэсэн ядан хүлээж байна.`
@@ -941,7 +943,7 @@ function T14Wishes({ eventId }: { eventId: string }) {
     }}>
       <div style={{ padding: "48px 28px 88px" }}>
         <FadeUp delay={0.1}>
-          <div style={{ ...pinyon, color: GOLD_LT, fontSize: "clamp(48px, 13vw, 80px)", lineHeight: 1, textAlign: "center", margin: "0 0 12px" }}>
+          <div style={{ ...nameFont, color: GOLD_LT, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "0 0 12px" }}>
             Мэндчилгээ
           </div>
         </FadeUp>
@@ -957,7 +959,7 @@ function T14Wishes({ eventId }: { eventId: string }) {
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
               style={{ textAlign: "center", padding: "20px 0" }}
             >
-              <div style={{ ...pinyon, color: GOLD_LT, fontSize: 52, marginBottom: 12 }}>Баярлалаа</div>
+              <div style={{ ...nameFont, color: GOLD_LT, fontSize: 38, marginBottom: 12 }}>Баярлалаа</div>
               <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.8)", lineHeight: 1.7 }}>
                 Таны мэндчилгээг хүлээн авлаа.
               </p>
@@ -1011,6 +1013,7 @@ const CONTACT_PHONES: Record<string, string[]> = {
 const CHILDREN: Record<string, string[]> = {
   "dawaa-dawaajargal": ["Хүү Д.Тэлмүүн", "Охин Д.Цэлмүүн"],
   "batsukh-sumya": ["Охин: Б.Сийлэн"],
+  "lashidnym-togtokhsuren": ["Охин: Н.Гэгээнхүслэн", "Хүү: Н.Гэгээнжаргал"],
 };
 
 // Хөтөлбөр (T14Schedule) хэсгийг нуух slug-ууд.
@@ -1044,9 +1047,9 @@ function T14Footer({ event }: { event: EventData }) {
           display: "flex", alignItems: "center", justifyContent: "center",
           color: GOLD_LT,
         }}>
-          <span style={{ ...pinyon, fontSize: 44, lineHeight: 1 }}>{i1}</span>
+          <span style={{ ...nameFont, fontSize: 40, lineHeight: 1 }}>{i1}</span>
           <span style={{ ...amp, fontSize: 22, lineHeight: 1, margin: "0 6px", opacity: 0.8 }}>&amp;</span>
-          <span style={{ ...pinyon, fontSize: 44, lineHeight: 1 }}>{i2}</span>
+          <span style={{ ...nameFont, fontSize: 40, lineHeight: 1 }}>{i2}</span>
         </div>
       </FadeUp>
       <FadeUp delay={0.1}>
@@ -1056,7 +1059,7 @@ function T14Footer({ event }: { event: EventData }) {
       </FadeUp>
       {children && (
         <FadeUp delay={0.15}>
-          <div style={{ ...cg, fontSize: 15, letterSpacing: "0.06em", color: "rgba(244,238,222,0.6)", marginTop: 12, lineHeight: 1.7 }}>
+          <div style={{ ...cg, fontSize: 18, letterSpacing: "0.06em", color: "rgba(244,238,222,0.68)", marginTop: 12, lineHeight: 1.7 }}>
             {children.map((c) => (
               <div key={c}>{c}</div>
             ))}
@@ -1064,7 +1067,7 @@ function T14Footer({ event }: { event: EventData }) {
         </FadeUp>
       )}
       <FadeUp delay={0.2}>
-        <div style={{ ...cg, fontSize: 14, letterSpacing: "0.36em", textTransform: "uppercase", color: "rgba(244,238,222,0.5)", marginTop: 10 }}>
+        <div style={{ ...cg, fontSize: 17, letterSpacing: "0.36em", textTransform: "uppercase", color: "rgba(244,238,222,0.58)", marginTop: 12 }}>
           {fmtDate(event.date)}
         </div>
       </FadeUp>
