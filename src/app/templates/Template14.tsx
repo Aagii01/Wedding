@@ -1016,6 +1016,11 @@ const CHILDREN: Record<string, string[]> = {
   "lashidnym-togtokhsuren": ["Охин: Н.Гэгээнхүслэн", "Хүү: Н.Гэгээнжаргал"],
 };
 
+// Хосын нэрийн доор гарах урилгын мөр — зөвхөн бүртгэсэн slug дээр.
+const INVITE_LINE: Record<string, string> = {
+  "dulguun-daariimaa": "Эрхэм хүндэт таныг …........ урьж байна",
+};
+
 // Хөтөлбөр (T14Schedule) хэсгийг нуух slug-ууд.
 const HIDE_SCHEDULE = new Set<string>([
   "batsukh-sumya",
@@ -1027,6 +1032,7 @@ const HIDE_SCHEDULE = new Set<string>([
 function T14Footer({ event }: { event: EventData }) {
   const phones = CONTACT_PHONES[event.slug];
   const children = CHILDREN[event.slug];
+  const inviteLine = INVITE_LINE[event.slug];
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
   const i1 = initialOf(name1);
@@ -1058,6 +1064,13 @@ function T14Footer({ event }: { event: EventData }) {
           {name1} <span style={{ ...amp, opacity: 0.75 }}>&amp;</span> {name2}
         </div>
       </FadeUp>
+      {inviteLine && (
+        <FadeUp delay={0.15}>
+          <div style={{ ...cgI, fontSize: 19, color: "rgba(244,238,222,0.72)", marginTop: 14, lineHeight: 1.7 }}>
+            {inviteLine}
+          </div>
+        </FadeUp>
+      )}
       {children && (
         <FadeUp delay={0.15}>
           <div style={{ ...cg, fontSize: 18, letterSpacing: "0.06em", color: "rgba(244,238,222,0.68)", marginTop: 12, lineHeight: 1.7 }}>
