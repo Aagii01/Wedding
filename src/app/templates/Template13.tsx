@@ -1163,6 +1163,11 @@ const SIGNATURE: Record<string, string[]> = {
   "enkhbayr-naranchimeg": ["Л.Энхбаяр", "Г.Наранчимэг", "Э.Цэцэнбилиг", "Э.Очир"],
 };
 
+// Хосын нэрийн доор гарах холбоо барих утас — зөвхөн бүртгэсэн slug дээр.
+const CONTACT_PHONE: Record<string, string> = {
+  "gan-erdene-misheel": "8908-9999",
+};
+
 function T13Footer({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";
   const name2 = event.person2_name || "Сарнай";
@@ -1200,6 +1205,17 @@ function T13Footer({ event }: { event: EventData }) {
         ) : (
           <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
             <span style={{ whiteSpace: "nowrap" }}>{name1}</span> <Amp /> <span style={{ whiteSpace: "nowrap" }}>{name2}</span>
+          </div>
+        )}
+        {CONTACT_PHONE[event.slug] && (
+          <div style={{ ...ovo, fontSize: 17, color: CREAM, opacity: 0.85, marginTop: 16 }}>
+            Холбогдох утас:{" "}
+            <a
+              href={`tel:${CONTACT_PHONE[event.slug].replace(/\D/g, "")}`}
+              style={{ color: CREAM, textDecoration: "none" }}
+            >
+              {CONTACT_PHONE[event.slug]}
+            </a>
           </div>
         )}
       </FadeUp>

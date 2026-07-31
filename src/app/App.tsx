@@ -151,7 +151,7 @@ export default function App({ event }: Props) {
       <CountdownTimer date={event.date} time={event.time} title={event.title} venue={event.venue_name} venueAddress={event.venue_address} slug={event.slug} />
       {/* jargasaikhan-irmuunzaya slug дээр хөтөлбөрийн хэсгийг нуух */}
       {event.slug !== "jargasaikhan-irmuunzaya" && <HealthProtocol event={event} />}
-      <RSVP eventId={event.id} />
+      <RSVP eventId={event.id} slug={event.slug} />
       {/* <WeddingGifts /> */}
       <WeddingFooter event={event} />
       <Toaster />

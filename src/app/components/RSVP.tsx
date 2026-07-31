@@ -8,9 +8,14 @@ import { supabase } from "../../lib/supabase";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-type Props = { eventId: string };
+type Props = { eventId: string; slug?: string };
 
-export function RSVP({ eventId }: Props) {
+// "Хэдэн хүн ирэх вэ?" тоолуурыг нуух slug-ууд. Нуусан үед guests нь 1-ээр
+// хадгалагдана (ирэхгүй гэсэн бол урьдын адил 0).
+const HIDE_GUEST_COUNT = new Set<string>(["lkhagvatseren-gantogtokh"]);
+
+export function RSVP({ eventId, slug }: Props) {
+  const showGuestCount = !(slug && HIDE_GUEST_COUNT.has(slug));
   const [rsvp, setRsvp] = useState({ name: "", attending: "yes", guests: "1" });
   const [wish, setWish] = useState({ name: "", message: "" });
   const [rsvpLoading, setRsvpLoading] = useState(false);
@@ -108,7 +113,7 @@ export function RSVP({ eventId }: Props) {
               </div>
             </div>
             {/* Хүний тоо — зөвхөн ирнэ гэсэн үед асууна */}
-            {rsvp.attending === "yes" && (
+            {showGuestCount && rsvp.attending === "yes" && (
               <div>
                 <p className="text-sm text-gray-500 mb-2">Хэдэн хүн ирэх вэ?</p>
                 <div className="flex items-center gap-4">
