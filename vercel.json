@@ -2,5 +2,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "functions": {
+    "api/invite.js": { "includeFiles": "dist/index.html" }
+  },
+  "rewrites": [
+    { "source": "/i/:slug", "destination": "/api/invite?slug=:slug" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
