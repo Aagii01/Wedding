@@ -21,10 +21,14 @@
  *   dashboard-аас Instant Rollback хийвэл шууд буцна.
  *
  * Зураг:
- *   og:image нь хосын main_image биш, бүх урилгад НИЙТЛЭГ public/og-default.jpg.
- *   Шалтгаан: main_image ихэвчлэн босоо тул Facebook-ийн 1.91:1 тайралтад
- *   толгой тасардаг. Урилга бүрт өөр зураг хэрэгтэй болбол `og_image` багана
- *   нэмж, FIELDS-д нэмээд `event.og_image || OG_IMAGE` болгоно.
+ *   og:image нь event-ийн main_image биш, төрөл тус бүрт НЭГ нийтлэг зураг:
+ *     хурим (болон бусад) → public/og-default.jpg
+ *     хүүхдийн урилга      → public/og-child.png
+ *   Шалтгаан: main_image ихэвчлэн босоо, зарим event дээр дутуу бөглөгдсөн тул
+ *   Facebook-ийн 1.91:1 тайралтад муу гардаг. Зураг солих бол зөвхөн public/
+ *   доторх файлыг солино — код хөндөх шаардлагагүй.
+ *   Урилга бүрт өөр зураг хэрэгтэй болбол `og_image` багана нэмж, FIELDS-д
+ *   нэмээд `event.og_image || OG_IMAGE` болгоно.
  *   ⚠️ Баганыг Supabase дээр ҮҮСГЭХЭЭС ӨМНӨ FIELDS-д нэмбол 400 алдаа буцаж,
  *   бүх урилгын preview унана.
  *
@@ -46,8 +50,10 @@ const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
 const FIELDS = "title,type,date,venue_name,person1_name,person2_name";
 
-// Бүх урилгад нийтлэг preview зураг (public/ дотор, build-д хуулагдана).
-const OG_IMAGE = "/og-default.jpg";
+// Preview зургууд — event бүрийн өөрийн зураг биш, төрөл тус бүрт нэг нийтлэг
+// зураг (public/ дотор, build-д dist/-руу хуулагдана).
+const OG_IMAGE = "/og-default.jpg";       // хурим болон бусад
+const OG_IMAGE_CHILD = "/og-child.png";   // хүүхдийн (сэвлэг үргээх) урилга
 
 let cachedShell = null;
 
@@ -82,13 +88,19 @@ const KIND = {
   wedding: "Хуримын урилга",
   birthday: "Төрсөн өдрийн урилга",
   reunion: "Уулзалтын урилга",
+  child: "Сэвлэг үргээх ёслолын урилга",
 };
 
 function buildTags(event, url, origin) {
-  const names = [event.person1_name, event.person2_name]
-    .map((name) => name?.trim())
-    .filter(Boolean)
-    .join(" & ");
+  // Хүүхдийн урилга дээр person2_name нь эцэг эхийн нэр эсвэл хоосон байдаг
+  // тул хосын нэр шиг нийлүүлэхгүй — зөвхөн ганц нэр гаргана.
+  const isChild = event.type === "child";
+  const names = isChild
+    ? (event.title || event.person1_name || "").trim()
+    : [event.person1_name, event.person2_name]
+        .map((name) => name?.trim())
+        .filter(Boolean)
+        .join(" & ");
   const kind = KIND[event.type] || "Урилга";
 
   const title = names ? `${names} — ${kind}` : event.title || kind;
@@ -96,7 +108,7 @@ function buildTags(event, url, origin) {
     .filter(Boolean)
     .join(" · ");
 
-  const image = origin + OG_IMAGE;
+  const image = origin + (isChild ? OG_IMAGE_CHILD : OG_IMAGE);
   const tags = [
     `<meta property="og:type" content="website" />`,
     `<meta property="og:site_name" content="One Wedding" />`,
