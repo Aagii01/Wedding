@@ -113,6 +113,9 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 }
 
 // ─── Root ────────────────────────────────────────────────────────────────────
+// Хөтөлбөр (HealthProtocol) хэсгийг нуух slug-ууд.
+const HIDE_SCHEDULE = new Set<string>(["jargasaikhan-irmuunzaya", "erdos-elmira"]);
+
 type Props = { event: EventData };
 
 export default function App({ event }: Props) {
@@ -149,8 +152,8 @@ export default function App({ event }: Props) {
       <GallerySection event={event} />
       <PoemSection event={event} />
       <CountdownTimer date={event.date} time={event.time} title={event.title} venue={event.venue_name} venueAddress={event.venue_address} slug={event.slug} />
-      {/* jargasaikhan-irmuunzaya slug дээр хөтөлбөрийн хэсгийг нуух */}
-      {event.slug !== "jargasaikhan-irmuunzaya" && <HealthProtocol event={event} />}
+      {/* Эдгээр slug дээр хөтөлбөрийн хэсгийг нуух */}
+      {!HIDE_SCHEDULE.has(event.slug) && <HealthProtocol event={event} />}
       <RSVP eventId={event.id} slug={event.slug} />
       {/* <WeddingGifts /> */}
       <WeddingFooter event={event} />

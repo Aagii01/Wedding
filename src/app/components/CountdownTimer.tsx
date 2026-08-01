@@ -14,7 +14,10 @@ type Props = {
 };
 
 // Огнооны доор "13:00 цагт" гэж цаг харуулах slug-ууд.
-const SHOW_TIME_UNDER_DATE = new Set<string>(["jargasaikhan-irmuunzaya"]);
+const SHOW_TIME_UNDER_DATE = new Set<string>([
+  "jargasaikhan-irmuunzaya",
+  "erdos-elmira",
+]);
 
 function getTimeLeft(target: Date) {
   const diff = target.getTime() - Date.now();
