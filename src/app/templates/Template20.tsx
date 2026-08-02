@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { EventData } from "../../types/event";
-import { getPoemLines, getSchedule, type ScheduleItem } from "../../lib/eventContent";
+import { getPoemLines } from "../../lib/eventContent";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Template20 — "Corporate"
@@ -15,8 +15,8 @@ import { getPoemLines, getSchedule, type ScheduleItem } from "../../lib/eventCon
 //   person1_role    → байгууллагын дэд гарчиг (жишээ: "Уул уурхайн компани")
 //   person1_photo   → лого (ил тод дэвсгэртэй PNG байвал тохиромжтой)
 //   gallery_photos  → стандартын тэмдгүүд (1 нийлмэл зураг эсвэл 3 тусдаа)
-//   poem            → урилгын үг (мөр бүрийг Enter-ээр)
-//   schedule        → стандартын жагсаалт: time = код, label = нэр, desc = тайлбар
+//   poem            → урилгын үг (мөр бүрийг Enter-ээр). Хоосон бол Art Mining-ийн
+//                     үндсэн текст бүтэцтэйгээр гарна.
 //   venue_* / maps_photo / date / time → байршил, огноо
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -28,7 +28,10 @@ const MUTED  = "#6B6F76";
 const ORANGE = "#F5A020";
 const LINE   = "rgba(20,22,26,0.12)";
 
-const DISPLAY: React.CSSProperties = { fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" };
+// PT Serif — монгол кирилл ө/ү-г бүрэн агуулдаг. Playfair Display эдгээр
+// үсгийг агуулдаггүй тул тэдгээр нь fallback фонтоор орж, үг дундуур өөр
+// фонт мэт харагддаг байсан.
+const DISPLAY: React.CSSProperties = { fontFamily: "'PT Serif', 'Noto Serif', Georgia, serif" };
 const SANS: React.CSSProperties = {
   fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
 };
@@ -38,6 +41,13 @@ function formatDate(iso: string) {
   const d = new Date(`${iso}T00:00:00`);
   if (isNaN(d.getTime())) return iso;
   return `${d.getFullYear()} оны ${d.getMonth() + 1} сарын ${d.getDate()}`;
+}
+
+// "2026 оны 8 сарын 3-нд 16:00 цагт"
+function formatDateTime(iso: string, time?: string) {
+  const date = formatDate(iso);
+  const t = (time || "").trim();
+  return t ? `${date}-нд ${t} цагт` : date;
 }
 
 // Countdown-д огноо ба цагийг нийлүүлнэ. Цаг байхгүй бол өдрийн эхлэл.
@@ -163,8 +173,13 @@ function T20Hero({ event, org, role, logo }: {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            // Цагаан дэвсгэртэй PNG лого ирвэл multiply-аар цаасан өнгөнд ууна
-            style={{ height: "clamp(34px,7vw,52px)", width: "auto", objectFit: "contain", margin: "0 auto", mixBlendMode: "multiply" }}
+            // Лого хэвтээ хэлбэртэй тул өргөнөөр нь хэмжинэ (өндрөөр хэмжвэл
+            // жижиг харагдана). Цагаан дэвсгэртэй PNG-г multiply-аар уусгана.
+            style={{
+              display: "block", width: "min(72%, 380px)", height: "auto",
+              maxHeight: 140, objectFit: "contain", margin: "0 auto",
+              mixBlendMode: "multiply",
+            }}
           />
         ) : (
           <motion.div
@@ -229,9 +244,7 @@ function T20Hero({ event, org, role, logo }: {
             fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: INK, fontWeight: 600,
           }}
         >
-          <span>{formatDate(event.date)}</span>
-          <span style={{ width: 4, height: 4, borderRadius: "50%", background: ORANGE }} />
-          <span>{event.time}</span>
+          <span>{formatDateTime(event.date, event.time)}</span>
         </motion.div>
       </motion.div>
 
@@ -258,142 +271,159 @@ function T20Hero({ event, org, role, logo }: {
   );
 }
 
-// ─── Урилгын үг — үг тус бүр ээлжлэн гарна ─────────────────────────────────
-const DEFAULT_INVITE = [
-  "Манай хамт олон олон улсын стандартын шаардлагыг бүрэн хангаж,",
-  "Нэгдсэн менежментийн тогтолцооны баталгаажуулалтын гэрчилгээгээ",
-  "хүлээн авах ёслолын арга хэмжээгээ зохион байгуулж байна.",
-  "",
-  "Энэхүү хамтын хөдөлмөрийн үр дүнг Эрхэм Таньтай хамт",
-  "хуваалцахыг хүндэтгэн урьж байна.",
+// ─── Урилгын үг ─────────────────────────────────────────────────────────────
+// events.poem бөглөсөн бол мөр мөрөөр нь энгийнээр гаргана (бусад event-үүдэд).
+// Хоосон бол Art Mining-ийн үндсэн текст бүтэцтэйгээр (уриа → үндсэн үг →
+// уриалга → гарын үсэг) харагдана.
+const INVITE_LEAD = "Хамтдаа илүү сайн ирээдүйг бүтээнэ.";
+
+const INVITE_BODY = [
+  "Манай компани ISO 9001:2015 Чанарын менежмент, ISO 45001:2018 Хөдөлмөрийн эрүүл мэнд, аюулгүй ажиллагааны менежмент, ISO 14001:2015 Байгаль орчны менежментийг нэгтгэсэн Нэгдсэн менежментийн тогтолцооны стандартуудыг нэвтрүүлэх ажлыг амжилттай эхлүүлж, баталгаажуулалтын гэрчилгээг гардан авах үйл ажиллагаагаа зохион байгуулах гэж байна.",
+  "Энэхүү хамтын хөдөлмөрийн үр дүнг Эрхэм таньтай хамт хуваалцахыг хүндэтгэн урьж байна.",
 ];
 
+const INVITE_NOTE = [
+  "Энэ бол зөвхөн стандартын хэрэгжилт бус,",
+  "бидний зөв соёл, хариуцлагатай үйл ажиллагаа,",
+  "тогтвортой хөгжлийн шинэ эхлэл юм.",
+];
+
+const INVITE_SLOGANS = [
+  "Хамтдаа хөгжье.",
+  "Хамтдаа бүтээе.",
+  "Хамтдаа илүү сайн ирээдүйг бүтээе.",
+];
+
+const INVITE_SIGN = ["Хүндэтгэсэн", "АРТ МАЙНИНГ ХХК-ийн", "НМТ нэвтрүүлэх баг"];
+
 function T20Invite({ event }: { event: EventData }) {
-  const lines = getPoemLines(event, DEFAULT_INVITE);
+  const custom = getPoemLines(event, []);
 
   return (
-    <section style={{ background: PAPER, padding: "clamp(80px,14vw,150px) clamp(20px,6vw,48px)" }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
-        <Reveal><Eyebrow>Хүндэт зочид</Eyebrow></Reveal>
-        <Reveal delay={0.1} style={{ marginTop: 22, marginBottom: "clamp(34px,6vw,50px)" }}>
+    <section style={{ background: PAPER, padding: "clamp(76px,13vw,140px) clamp(20px,6vw,48px)" }}>
+      <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
+        <Reveal style={{ marginBottom: "clamp(34px,6vw,50px)" }}>
           <Mark />
         </Reveal>
 
-        <div style={{ ...DISPLAY, color: INK, fontSize: "clamp(1.15rem,4.4vw,1.7rem)", lineHeight: 1.85 }}>
-          {lines.map((line, li) =>
-            line === "" ? (
-              <div key={li} style={{ height: "clamp(14px,3vw,22px)" }} />
-            ) : (
-              <div key={li} style={{ marginBottom: 4 }}>
-                {line.split(" ").map((word, wi) => (
-                  <motion.span
-                    key={wi}
-                    initial={{ opacity: 0, y: 12 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.55, delay: wi * 0.035, ease: "easeOut" }}
-                    style={{ display: "inline-block", marginRight: "0.28em" }}
-                  >
-                    {word}
-                  </motion.span>
+        {custom.length > 0 ? (
+          /* events.poem бөглөсөн event — мөр мөрөөр нь */
+          <div style={{ ...DISPLAY, color: INK, fontSize: "clamp(1.1rem,4.2vw,1.55rem)", lineHeight: 1.85 }}>
+            {custom.map((line, li) =>
+              line === "" ? (
+                <div key={li} style={{ height: "clamp(14px,3vw,22px)" }} />
+              ) : (
+                <Reveal key={li} delay={Math.min(li, 6) * 0.06} y={16}>
+                  <div style={{ marginBottom: 4 }}>{line}</div>
+                </Reveal>
+              )
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Уриа */}
+            <Reveal>
+              <div style={{
+                ...DISPLAY, color: INK, fontWeight: 700,
+                fontSize: "clamp(1.35rem,5.4vw,2.1rem)", lineHeight: 1.35,
+              }}>
+                {INVITE_LEAD}
+              </div>
+            </Reveal>
+
+            {/* Үндсэн үг */}
+            <div style={{ marginTop: "clamp(30px,5vw,44px)" }}>
+              {INVITE_BODY.map((p, i) => (
+                <Reveal key={i} delay={0.08 + i * 0.1}>
+                  <p style={{
+                    ...SANS, margin: i === 0 ? 0 : "clamp(18px,3.5vw,26px) 0 0",
+                    color: MUTED, fontSize: "clamp(14px,3.7vw,16px)", lineHeight: 1.85,
+                  }}>
+                    {p}
+                  </p>
+                </Reveal>
+              ))}
+            </div>
+
+            {/* Тайлбар — налуу */}
+            <Reveal delay={0.28} style={{ marginTop: "clamp(34px,6vw,48px)" }}>
+              <div style={{
+                ...DISPLAY, fontStyle: "italic", color: INK,
+                fontSize: "clamp(1.05rem,4.1vw,1.4rem)", lineHeight: 1.7,
+              }}>
+                {INVITE_NOTE.map((l, i) => (
+                  <div key={i}>{l}</div>
                 ))}
               </div>
-            )
-          )}
-        </div>
+            </Reveal>
+
+            <Reveal delay={0.34} style={{ margin: "clamp(34px,6vw,48px) 0" }}>
+              <Mark width={40} />
+            </Reveal>
+
+            {/* Уриалга */}
+            <div>
+              {INVITE_SLOGANS.map((s, i) => (
+                <Reveal key={i} delay={0.38 + i * 0.1} y={18}>
+                  <div style={{
+                    ...DISPLAY, color: i === INVITE_SLOGANS.length - 1 ? ORANGE : INK,
+                    fontWeight: 700, fontSize: "clamp(1.15rem,4.6vw,1.65rem)",
+                    lineHeight: 1.5, marginBottom: 2,
+                  }}>
+                    {s}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            {/* Гарын үсэг */}
+            <Reveal delay={0.7} style={{ marginTop: "clamp(40px,6.5vw,58px)" }}>
+              <div style={{ ...SANS, color: MUTED, fontSize: "clamp(12.5px,3.4vw,14px)", lineHeight: 1.85 }}>
+                {INVITE_SIGN.map((l, i) => (
+                  <div key={i} style={i === 0 ? { marginBottom: 4 } : { color: INK, fontWeight: 600 }}>
+                    {l}
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </>
+        )}
       </div>
     </section>
   );
 }
 
-// ─── Стандартууд ────────────────────────────────────────────────────────────
-// events.schedule хоосон үед харагдах үндсэн жагсаалт.
-// time = стандартын код, label = нэр, desc = тайлбар
-const DEFAULT_STANDARDS: ScheduleItem[] = [
-  { time: "MNS ISO 9001:2015",  label: "Чанарын менежментийн тогтолцоо",
-    desc: "Үйлчлүүлэгчийн шаардлагыг тогтвортой хангах, үйл ажиллагааны чанарын удирдлага" },
-  { time: "MNS ISO 14001:2015", label: "Байгаль орчны менежментийн тогтолцоо",
-    desc: "Байгаль орчинд үзүүлэх нөлөөллийг бууруулах, тогтвортой хөгжлийн бодлого" },
-  { time: "MNS ISO 45001:2018", label: "Хөдөлмөрийн эрүүл мэнд, аюулгүй байдал",
-    desc: "Ажилтны эрүүл мэнд, аюулгүй ажиллагааг хамгаалах менежментийн тогтолцоо" },
-];
-
-const STANDARD_COLORS = ["#1F5FBF", "#3E9B3E", "#D62828"];
-
+// ─── Стандартын тэмдгүүд ────────────────────────────────────────────────────
 function T20Standards({ event }: { event: EventData }) {
-  const standards = getSchedule(event, DEFAULT_STANDARDS);
   const badges = (event.gallery_photos || []).filter(Boolean);
+  if (badges.length === 0) return null;
 
   return (
-    <section id="standards" style={{ background: PAPER2, padding: "clamp(80px,14vw,150px) clamp(20px,6vw,48px)" }}>
+    <section id="standards" style={{ background: PAPER2, padding: "clamp(64px,11vw,120px) clamp(20px,6vw,48px)" }}>
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-        {/* Тэмдгүүд — 1 нийлмэл зураг эсвэл 3 тусдаа зураг хоёуланг дэмжинэ */}
-        {badges.length > 0 && (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: badges.length >= 3 ? "repeat(3, 1fr)" : "1fr",
-              gap: "clamp(16px,3vw,28px)",
-              alignItems: "center",
-            }}
-          >
-            {(badges.length >= 3 ? badges.slice(0, 3) : badges.slice(0, 1)).map((src, i) => (
-              <motion.img
-                key={i}
-                src={src}
-                alt="Баталгаажуулалтын тэмдэг"
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.85, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                style={{
-                  width: "100%", height: "auto", objectFit: "contain",
-                  display: "block", mixBlendMode: "multiply",
-                }}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Стандарт тус бүрийн тайлбар */}
-        <div style={{ marginTop: "clamp(44px,7vw,72px)", borderTop: `1px solid ${LINE}` }}>
-          {standards.map((s, i) => (
-            <motion.div
+        {/* 1 нийлмэл зураг эсвэл 3 тусдаа зураг хоёуланг дэмжинэ */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: badges.length >= 3 ? "repeat(3, 1fr)" : "1fr",
+            gap: "clamp(16px,3vw,28px)",
+            alignItems: "center",
+          }}
+        >
+          {(badges.length >= 3 ? badges.slice(0, 3) : badges.slice(0, 1)).map((src, i) => (
+            <motion.img
               key={i}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.7, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+              src={src}
+              alt="Баталгаажуулалтын тэмдэг"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.85, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
               style={{
-                display: "flex", gap: "clamp(14px,3vw,28px)", alignItems: "flex-start",
-                padding: "clamp(22px,4vw,32px) 0", borderBottom: `1px solid ${LINE}`,
+                width: "100%", height: "auto", objectFit: "contain",
+                display: "block", mixBlendMode: "multiply",
               }}
-            >
-              <div style={{
-                width: 10, height: 10, borderRadius: "50%", flexShrink: 0, marginTop: 7,
-                background: STANDARD_COLORS[i % STANDARD_COLORS.length],
-              }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  ...SANS, fontSize: "clamp(12px,3vw,13px)", fontWeight: 700,
-                  letterSpacing: "0.14em", textTransform: "uppercase",
-                  color: STANDARD_COLORS[i % STANDARD_COLORS.length],
-                }}>
-                  {s.time}
-                </div>
-                <div style={{
-                  ...DISPLAY, marginTop: 8, color: INK,
-                  fontSize: "clamp(1.15rem,4.4vw,1.6rem)", lineHeight: 1.3,
-                }}>
-                  {s.label}
-                </div>
-                {s.desc && (
-                  <div style={{ ...SANS, marginTop: 10, color: MUTED, fontSize: "clamp(13px,3.4vw,14.5px)", lineHeight: 1.65 }}>
-                    {s.desc}
-                  </div>
-                )}
-              </div>
-            </motion.div>
+            />
           ))}
         </div>
       </div>
@@ -447,7 +477,7 @@ function T20Countdown({ event }: { event: EventData }) {
 
         <Reveal delay={0.24} style={{ marginTop: "clamp(44px,7vw,64px)" }}>
           <div style={{ ...SANS, fontSize: 12, letterSpacing: "0.24em", textTransform: "uppercase", color: "rgba(250,248,245,0.72)" }}>
-            {formatDate(event.date)} · {event.time}
+            {formatDateTime(event.date, event.time)}
           </div>
         </Reveal>
       </div>
@@ -464,7 +494,7 @@ function T20Venue({ event }: { event: EventData }) {
     <section id="venue" style={{ background: PAPER, padding: "clamp(80px,14vw,150px) clamp(20px,6vw,48px)" }}>
       <div style={{ maxWidth: 940, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "clamp(38px,6vw,56px)" }}>
-          <Reveal><Eyebrow>Болох газар</Eyebrow></Reveal>
+          <Reveal><Eyebrow>Үйл ажиллагаа болох газар</Eyebrow></Reveal>
           <Reveal delay={0.08}>
             <div style={{
               ...DISPLAY, marginTop: 18, color: INK, fontWeight: 400,
