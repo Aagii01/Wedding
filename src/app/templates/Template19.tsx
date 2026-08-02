@@ -716,8 +716,8 @@ function Fireworks({ trigger }: { trigger: number }) {
   );
 }
 
-// Огнооны доор "11 цагт" гэж цаг харуулах slug-ууд (CountdownTimer-тэй ижил
-// хэв маяг). Бүтэн цаг бол ":00"-г хасаж "11 цагт" гэж уншина.
+// Огнооны доор "11 цагаас" гэж цаг харуулах slug-ууд (CountdownTimer-тэй ижил
+// хэв маяг). Бүтэн цаг бол ":00"-г хасаж "11 цагаас" гэж уншина.
 const SHOW_TIME_UNDER_DATE = new Set<string>(["anar"]);
 
 function timeLabel(time: string) {
@@ -807,7 +807,7 @@ function T19Countdown({ date, title, time, slug }: {
               color: tan, marginTop: 14, lineHeight: 1.1,
               fontSize: "clamp(1.6rem, 5vw, 2.6rem)",
             }}>
-              {timeLabel(time!)} цагт
+              {timeLabel(time!)} цагаас
             </div>
           </Reveal>
         )}
