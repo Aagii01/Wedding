@@ -21,15 +21,20 @@ import { EventData } from "../../types/event";
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─── palette ────────────────────────────────────────────────────────────────
-// Template13-ийн өнгөний хослол: цөцгийн дэвсгэр дээр бургунди өргөлт.
-const CREAM    = "#FFFAF8"; // үндсэн дэвсгэр
-const CREAM_D  = "#E8E3DC"; // гүнзгий тонн — зургийн ар тал
-const BURGUNDY = "#66021F"; // өргөлт — товч, зураас, footer-ийн дэвсгэр
-const INK      = "#3A3A3A"; // бичиг
-const MUTED    = "#6E6660"; // 2-р зэргийн бичиг
-const LINE     = "rgba(58,58,58,0.16)";
+// Захиалагчийн сонгосон хослол: цайвар цэнхэр дэвсгэр дээр дарсан улаан
+// өргөлт, хар чавга бичиг.
+const BLUE   = "#B7D1EA"; // үндсэн дэвсгэр
+const BLUE_L = "#DCE9F4"; // цайвар тонн — зургийн ар тал, хүрээ
+const WINE   = "#5D1E33"; // өргөлт — товч, зураас
+const PLUM   = "#351E28"; // бичиг, footer-ийн дэвсгэр
+const MUTED  = "#5B4A55"; // 2-р зэргийн бичиг
+const LIGHT  = "#EDF3F9"; // харанхуй дэвсгэр дээрх бичиг
+const LINE   = "rgba(53,30,40,0.20)";
 
-const CARD_SHADOW = "0 12px 32px rgba(102,2,31,0.12)";
+// Лого ба стандартын тэмдэг нь цагаан дэвсгэртэй PNG байдаг тул цэнхэр
+// дэвсгэр дээр шууд тавихад өнгө нь эвдэрдэг — цагаан карт дотор оруулна.
+const CARD = "#FFFFFF";
+const CARD_SHADOW = "0 12px 32px rgba(53,30,40,0.14)";
 
 // PT Serif — монгол кирилл ө/ү-г бүрэн агуулдаг. Playfair Display эдгээр
 // үсгийг агуулдаггүй тул тэдгээр нь fallback фонтоор орж, үг дундуур өөр
@@ -95,7 +100,7 @@ function Contours({ opacity = 0.5 }: { opacity?: number }) {
           key={i}
           d={`M-40 ${180 + i * 42} C 150 ${120 + i * 42}, 260 ${250 + i * 40}, 420 ${200 + i * 41} S 700 ${110 + i * 43}, 860 ${170 + i * 42}`}
           fill="none"
-          stroke={i % 3 === 0 ? BURGUNDY : INK}
+          stroke={i % 3 === 0 ? WINE : PLUM}
           strokeWidth={i % 3 === 0 ? 1 : 0.6}
           strokeOpacity={i % 3 === 0 ? 0.3 : 0.14}
           initial={{ pathLength: 0 }}
@@ -119,7 +124,7 @@ function T20Hero({ event, org, logo }: {
     <section
       id="top"
       style={{
-        position: "relative", minHeight: "100svh", background: CREAM,
+        position: "relative", minHeight: "100svh", background: BLUE,
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
         padding: "clamp(72px,12vw,120px) clamp(20px,6vw,48px)", overflow: "hidden", textAlign: "center",
       }}
@@ -131,26 +136,33 @@ function T20Hero({ event, org, logo }: {
 
       <motion.div style={{ opacity: fade, y: lift, position: "relative", width: "100%", maxWidth: 860 }}>
         {logo ? (
-          <motion.img
-            src={logo}
-            alt={org}
+          // Лого цагаан дэвсгэртэй PNG тул цэнхэр дээр шууд тавьж болохгүй —
+          // цагаан карт дотор оруулж брэндийн өнгийг хэвээр хадгална.
+          <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            // Лого хэвтээ хэлбэртэй тул өргөнөөр нь хэмжинэ. Цагаан дэвсгэртэй
-            // PNG-г multiply-аар цөцгийн өнгөнд уусгана.
             style={{
-              display: "block", width: "min(72%, 380px)", height: "auto",
-              maxHeight: 140, objectFit: "contain", margin: "0 auto",
-              mixBlendMode: "multiply",
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              background: CARD, borderRadius: 10, boxShadow: CARD_SHADOW,
+              padding: "clamp(16px,3.4vw,24px) clamp(24px,5vw,38px)",
             }}
-          />
+          >
+            <img
+              src={logo}
+              alt={org}
+              style={{
+                display: "block", width: "min(58vw, 300px)", height: "auto",
+                maxHeight: 120, objectFit: "contain",
+              }}
+            />
+          </motion.div>
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            style={{ ...DISPLAY, fontSize: "clamp(24px,5vw,34px)", fontWeight: 700, color: INK, letterSpacing: "-0.01em" }}
+            style={{ ...DISPLAY, fontSize: "clamp(24px,5vw,34px)", fontWeight: 700, color: PLUM, letterSpacing: "-0.01em" }}
           >
             {org}
           </motion.div>
@@ -162,7 +174,7 @@ function T20Hero({ event, org, logo }: {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          style={{ width: 64, height: 2, background: BURGUNDY, margin: "clamp(28px,5vw,40px) auto" }}
+          style={{ width: 64, height: 2, background: WINE, margin: "clamp(28px,5vw,40px) auto" }}
         />
 
         <motion.h1
@@ -170,7 +182,7 @@ function T20Hero({ event, org, logo }: {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
           style={{
-            ...DISPLAY, margin: 0, color: INK, fontWeight: 400,
+            ...DISPLAY, margin: 0, color: PLUM, fontWeight: 400,
             fontSize: "clamp(3.4rem,15vw,7rem)", lineHeight: 0.95, letterSpacing: "-0.02em",
           }}
         >
@@ -198,7 +210,7 @@ function T20Hero({ event, org, logo }: {
             justifyContent: "center", marginTop: "clamp(30px,6vw,44px)",
             border: `1px solid ${LINE}`, borderRadius: 9999, padding: "12px 22px",
             background: "rgba(255,255,255,0.7)", backdropFilter: "blur(6px)",
-            fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: INK, fontWeight: 600,
+            fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: PLUM, fontWeight: 600,
           }}
         >
           <span>{formatDateTime(event.date, event.time)}</span>
@@ -221,7 +233,7 @@ function T20Hero({ event, org, logo }: {
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
         >
-          <path d="M7 1v18M1 13l6 6 6-6" stroke={BURGUNDY} strokeWidth="1.4" />
+          <path d="M7 1v18M1 13l6 6 6-6" stroke={WINE} strokeWidth="1.4" />
         </motion.svg>
       </motion.div>
     </section>
@@ -234,33 +246,40 @@ function T20Standards({ event }: { event: EventData }) {
   if (badges.length === 0) return null;
 
   return (
-    <section id="standards" style={{ background: CREAM, padding: "clamp(56px,10vw,110px) clamp(20px,6vw,48px)" }}>
+    <section id="standards" style={{ background: BLUE, padding: "clamp(56px,10vw,110px) clamp(20px,6vw,48px)" }}>
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-        {/* 1 нийлмэл зураг эсвэл 3 тусдаа зураг хоёуланг дэмжинэ */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: badges.length >= 3 ? "repeat(3, 1fr)" : "1fr",
-            gap: "clamp(16px,3vw,28px)",
-            alignItems: "center",
-          }}
-        >
-          {(badges.length >= 3 ? badges.slice(0, 3) : badges.slice(0, 1)).map((src, i) => (
-            <motion.img
-              key={i}
-              src={src}
-              alt="Баталгаажуулалтын тэмдэг"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.85, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+        <Reveal>
+          {/* Тэмдгүүд цагаан дэвсгэртэй тул цагаан карт дотор — ISO-гийн
+              цэнхэр/ногоон/улаан өнгө хэвээрээ үлдэнэ */}
+          <div style={{
+            background: CARD, borderRadius: 10, boxShadow: CARD_SHADOW,
+            padding: "clamp(18px,4vw,34px)",
+          }}>
+            <div
               style={{
-                width: "100%", height: "auto", objectFit: "contain",
-                display: "block", mixBlendMode: "multiply",
+                display: "grid",
+                gridTemplateColumns: badges.length >= 3 ? "repeat(3, 1fr)" : "1fr",
+                gap: "clamp(16px,3vw,28px)",
+                alignItems: "center",
               }}
-            />
-          ))}
-        </div>
+            >
+              {(badges.length >= 3 ? badges.slice(0, 3) : badges.slice(0, 1)).map((src, i) => (
+                <motion.img
+                  key={i}
+                  src={src}
+                  alt="Баталгаажуулалтын тэмдэг"
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.85, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  style={{
+                    width: "100%", height: "auto", objectFit: "contain", display: "block",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -272,13 +291,13 @@ const VENUE_FALLBACK =
 
 function T20Venue({ event }: { event: EventData }) {
   return (
-    <section id="venue" style={{ background: CREAM, padding: "clamp(70px,12vw,140px) clamp(20px,6vw,48px)" }}>
+    <section id="venue" style={{ background: BLUE, padding: "clamp(70px,12vw,140px) clamp(20px,6vw,48px)" }}>
       <div style={{ maxWidth: 940, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "clamp(38px,6vw,56px)" }}>
           <Reveal><Eyebrow>Үйл ажиллагаа болох газар</Eyebrow></Reveal>
           <Reveal delay={0.08}>
             <div style={{
-              ...DISPLAY, marginTop: 18, color: INK, fontWeight: 400,
+              ...DISPLAY, marginTop: 18, color: PLUM, fontWeight: 400,
               fontSize: "clamp(2rem,7vw,3.2rem)", lineHeight: 1.15, letterSpacing: "-0.02em",
             }}>
               {event.venue_name}
@@ -294,7 +313,7 @@ function T20Venue({ event }: { event: EventData }) {
         <Reveal delay={0.1}>
           <div style={{
             borderRadius: 6, overflow: "hidden", aspectRatio: "16/9",
-            border: `1px solid ${LINE}`, background: CREAM_D, boxShadow: CARD_SHADOW,
+            border: `1px solid ${LINE}`, background: BLUE_L, boxShadow: CARD_SHADOW,
           }}>
             <img
               src={event.maps_photo || VENUE_FALLBACK}
@@ -313,10 +332,10 @@ function T20Venue({ event }: { event: EventData }) {
               style={{
                 ...SANS, display: "inline-flex", alignItems: "center", gap: 10,
                 marginTop: "clamp(32px,5vw,44px)", textDecoration: "none",
-                background: BURGUNDY, color: CREAM, borderRadius: 9999,
+                background: WINE, color: LIGHT, borderRadius: 9999,
                 padding: "17px 38px", fontSize: 11.5, fontWeight: 700,
                 letterSpacing: "0.2em", textTransform: "uppercase",
-                boxShadow: "0 12px 30px rgba(102,2,31,0.34)",
+                boxShadow: "0 12px 30px rgba(93,30,51,0.38)",
               }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -335,9 +354,9 @@ function T20Venue({ event }: { event: EventData }) {
 // ─── Footer ─────────────────────────────────────────────────────────────────
 function T20Footer({ org, role, logo }: { org: string; role: string; logo?: string }) {
   return (
-    <footer style={{ background: BURGUNDY, padding: "clamp(64px,11vw,110px) clamp(20px,6vw,48px) clamp(40px,7vw,64px)", textAlign: "center" }}>
+    <footer style={{ background: PLUM, padding: "clamp(64px,11vw,110px) clamp(20px,6vw,48px) clamp(40px,7vw,64px)", textAlign: "center" }}>
       <Reveal>
-        <div style={{ ...SANS, fontSize: 10, letterSpacing: "0.34em", textTransform: "uppercase", color: "rgba(255,250,248,0.45)" }}>
+        <div style={{ ...SANS, fontSize: 10, letterSpacing: "0.34em", textTransform: "uppercase", color: "rgba(237,243,249,0.45)" }}>
           Хүндэтгэсэн
         </div>
       </Reveal>
@@ -348,7 +367,7 @@ function T20Footer({ org, role, logo }: { org: string; role: string; logo?: stri
           // зөв харагдахын тулд цагаан карт дотор тавина
           <div style={{
             display: "inline-flex", alignItems: "center", justifyContent: "center",
-            background: CREAM, borderRadius: 6, padding: "14px 24px",
+            background: CARD, borderRadius: 6, padding: "14px 24px",
           }}>
             <img
               src={logo}
@@ -357,21 +376,21 @@ function T20Footer({ org, role, logo }: { org: string; role: string; logo?: stri
             />
           </div>
         ) : (
-          <div style={{ ...DISPLAY, color: CREAM, fontSize: "clamp(26px,7vw,40px)", fontWeight: 400 }}>
+          <div style={{ ...DISPLAY, color: LIGHT, fontSize: "clamp(26px,7vw,40px)", fontWeight: 400 }}>
             {org}
           </div>
         )}
       </Reveal>
 
       <Reveal delay={0.18}>
-        <div style={{ ...SANS, marginTop: 18, fontSize: 11, letterSpacing: "0.26em", textTransform: "uppercase", color: "rgba(255,250,248,0.62)" }}>
+        <div style={{ ...SANS, marginTop: 18, fontSize: 11, letterSpacing: "0.26em", textTransform: "uppercase", color: "rgba(237,243,249,0.62)" }}>
           {role}
         </div>
       </Reveal>
 
-      <div style={{ maxWidth: 340, height: 1, background: "rgba(255,250,248,0.16)", margin: "clamp(38px,6vw,54px) auto 0" }} />
+      <div style={{ maxWidth: 340, height: 1, background: "rgba(237,243,249,0.16)", margin: "clamp(38px,6vw,54px) auto 0" }} />
 
-      <div style={{ ...SANS, marginTop: 22, fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "rgba(255,250,248,0.34)" }}>
+      <div style={{ ...SANS, marginTop: 22, fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "rgba(237,243,249,0.34)" }}>
         Цахим урилга
       </div>
     </footer>
@@ -405,18 +424,18 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
       style={{
         position: "fixed", bottom: 22, right: 22, zIndex: 1000,
         width: 46, height: 46, borderRadius: "50%",
-        background: BURGUNDY, border: "none", cursor: "pointer",
+        background: WINE, border: "none", cursor: "pointer",
         display: "flex", alignItems: "center", justifyContent: "center",
-        boxShadow: "0 6px 20px rgba(102,2,31,0.42)",
+        boxShadow: "0 6px 20px rgba(93,30,51,0.45)",
       }}
     >
       {playing ? (
-        <svg width="17" height="17" viewBox="0 0 24 24" fill={CREAM}>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill={LIGHT}>
           <rect x="6" y="4" width="4" height="16" rx="1" />
           <rect x="14" y="4" width="4" height="16" rx="1" />
         </svg>
       ) : (
-        <svg width="17" height="17" viewBox="0 0 24 24" fill={CREAM}>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill={LIGHT}>
           <polygon points="7,3 20,12 7,21" />
         </svg>
       )}
@@ -446,7 +465,7 @@ export default function Template20({ event }: { event: EventData }) {
   }, [event.music_url]);
 
   return (
-    <div style={{ background: CREAM, minHeight: "100vh", overflowX: "hidden" }}>
+    <div style={{ background: BLUE, minHeight: "100vh", overflowX: "hidden" }}>
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <T20Hero event={event} org={org} logo={logo} />
