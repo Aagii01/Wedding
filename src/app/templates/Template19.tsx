@@ -25,6 +25,12 @@ const POLAROID: React.CSSProperties = {
 // Тусгай slug дээр footer-ийн нэрийн бичиглэлийг гараар тогтооно.
 const FOOTER_NAMES_OVERRIDE: Record<string, string> = {};
 
+// events хүснэгтэд утасны багана байхгүй тул холбоо барих дугаарыг slug тус
+// бүрээр энд бүртгэнэ. Footer-т нэрийн доор гарна.
+const FOOTER_PHONES: Record<string, string[]> = {
+  anar: ["99099146", "99039420"],
+};
+
 function formatDate(iso: string) {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
@@ -1136,12 +1142,25 @@ function T19RSVP({ eventId }: { eventId: string }) {
 }
 
 // ─── Footer ──────────────────────────────────────────────────────────────────
-function T19Footer({ names }: { names: string }) {
+function T19Footer({ names, phones = [] }: { names: string; phones?: string[] }) {
   return (
     <footer style={{ background: CREAM, paddingTop: 96, paddingBottom: 64, textAlign: "center", position: "relative" }}>
       <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})` }}>
         {names}
       </div>
+      {phones.length > 0 && (
+        <div style={{ marginTop: 10, fontSize: 12, letterSpacing: "0.06em", color: `color-mix(in srgb, ${INK} 60%, ${CREAM})` }}>
+          Утас:{" "}
+          {phones.map((phone, i) => (
+            <span key={phone}>
+              {i > 0 && ", "}
+              <a href={`tel:${phone}`} style={{ color: "inherit", textDecoration: "none" }}>
+                {phone}
+              </a>
+            </span>
+          ))}
+        </div>
+      )}
       <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
         Сэвлэг үргээх ёслол
       </div>
@@ -1193,6 +1212,9 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 }
 
 // ─── Root ────────────────────────────────────────────────────────────────────
+// Хөтөлбөр (T19Schedule) хэсгийг нуух slug-ууд.
+const HIDE_SCHEDULE = new Set<string>(["anar"]);
+
 export default function Template19({ event }: { event: EventData }) {
   // Төрсөн өдрийн урилга — ганц хүүхдийн нэр
   const name  = event.person1_name || "Билгүүн";
@@ -1233,11 +1255,12 @@ export default function Template19({ event }: { event: EventData }) {
       <T19Hero name={name} date={event.date} heroImage={event.main_image} />
       <T19Story photos={allPhotos} />
       <T19Countdown date={event.date} title={event.title} />
-      <T19Schedule event={event} />
+      {/* Эдгээр slug дээр хөтөлбөрийн хэсгийг нуух */}
+      {!HIDE_SCHEDULE.has(event.slug) && <T19Schedule event={event} />}
       <T19Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T19Quote event={event} />
       <T19RSVP eventId={event.id} />
-      <T19Footer names={names} />
+      <T19Footer names={names} phones={FOOTER_PHONES[event.slug]} />
       <Toaster />
     </div>
   );
