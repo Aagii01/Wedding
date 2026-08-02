@@ -1,9 +1,39 @@
 import { motion } from "motion/react";
-import { Instagram } from "lucide-react";
+import { Instagram, Facebook } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { EventData } from "../../types/event";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+// person*_instagram талбарт Instagram handle эсвэл бүтэн Facebook/Instagram
+// линк орж ирж болно. Аль болохыг таньж зөв icon + богино текст харуулна.
+function parseSocial(raw?: string | null) {
+  const value = (raw || "").trim();
+  if (!value) return null;
+
+  const withProtocol = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+  const lower = value.toLowerCase();
+
+  if (lower.includes("facebook.com") || lower.includes("fb.com") || lower.includes("fb.me")) {
+    return { network: "facebook" as const, href: withProtocol, label: "Facebook" };
+  }
+
+  if (lower.includes("instagram.com")) {
+    const handle = value.replace(/[?#].*$/, "").replace(/\/+$/, "").split("/").pop() || "";
+    return {
+      network: "instagram" as const,
+      href: withProtocol,
+      label: handle ? `@${handle}` : "Instagram",
+    };
+  }
+
+  const handle = value.replace(/^@/, "");
+  return {
+    network: "instagram" as const,
+    href: `https://instagram.com/${handle}`,
+    label: `@${handle}`,
+  };
+}
 
 const FALLBACK_GROOM = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&fit=crop&q=80";
 const FALLBACK_BRIDE = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&fit=crop&q=80";
@@ -51,17 +81,22 @@ export function GroomBride({ event }: Props) {
             </div>
             <p className="text-[10px] tracking-widest text-gray-400 uppercase mb-1">{person.role}</p>
             <h3 className="text-xl font-serif mb-1">{person.name}</h3>
-            {person.instagram && (
-              <a
-                href={`https://instagram.com/${person.instagram.replace("@", "")}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors mt-2"
-              >
-                <Instagram className="w-3.5 h-3.5" />
-                {person.instagram.startsWith("@") ? person.instagram : `@${person.instagram}`}
-              </a>
-            )}
+            {(() => {
+              const social = parseSocial(person.instagram);
+              if (!social) return null;
+              const Icon = social.network === "facebook" ? Facebook : Instagram;
+              return (
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 max-w-full text-xs text-gray-400 hover:text-gray-700 transition-colors mt-2"
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{social.label}</span>
+                </a>
+              );
+            })()}
           </motion.div>
         ))}
       </div>
