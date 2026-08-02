@@ -24,6 +24,9 @@
  *   og:image нь event-ийн main_image биш, төрөл тус бүрт НЭГ нийтлэг зураг:
  *     хурим (болон бусад) → public/og-default.jpg
  *     хүүхдийн урилга      → public/og-child.png
+ *     байгууллагын урилга  → event-ийн өөрийн зураг (gallery_photos[0] →
+ *       person1_photo). Хуримын og-default.jpg-г ХЭЗЭЭ Ч ашиглахгүй; зураг
+ *       олдохгүй бол og:image огт бичихгүй (текстэн preview).
  *   Шалтгаан: main_image ихэвчлэн босоо, зарим event дээр дутуу бөглөгдсөн тул
  *   Facebook-ийн 1.91:1 тайралтад муу гардаг. Зураг солих бол зөвхөн public/
  *   доторх файлыг солино — код хөндөх шаардлагагүй.
@@ -48,7 +51,8 @@ import { join } from "node:path";
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
-const FIELDS = "title,type,date,venue_name,person1_name,person2_name";
+const FIELDS =
+  "title,type,template,date,venue_name,person1_name,person2_name,person1_photo,gallery_photos";
 
 // Preview зургууд — event бүрийн өөрийн зураг биш, төрөл тус бүрт нэг нийтлэг
 // зураг (public/ дотор, build-д dist/-руу хуулагдана).
@@ -89,37 +93,72 @@ const KIND = {
   birthday: "Төрсөн өдрийн урилга",
   reunion: "Уулзалтын урилга",
   child: "Сэвлэг үргээх ёслолын урилга",
+  corporate: "Албан ёсны урилга",
 };
+
+// Байгууллагын урилга дээр хуримын нэр (One Wedding) ба хуримын preview зураг
+// гарах ёсгүй. type='corporate' эсвэл Template20 бол компанийн мэдээлэл гарна.
+function isCorporate(event) {
+  return event.type === "corporate" || String(event.template) === "20";
+}
+
+// Байгууллагын preview зураг: өөрийн байгууллагын зургийг ашиглана. Нийтлэг
+// хуримын og-default.jpg-г ХЭЗЭЭ Ч ашиглахгүй — байхгүй бол зураггүй preview
+// (Facebook текстээр л харуулна) нь хуримын зураг гарснаас дээр.
+function corporateImage(event) {
+  const badge = Array.isArray(event.gallery_photos)
+    ? event.gallery_photos.find(Boolean)
+    : null;
+  return badge || event.person1_photo || null;
+}
 
 function buildTags(event, url, origin) {
   // Хүүхдийн урилга дээр person2_name нь эцэг эхийн нэр эсвэл хоосон байдаг
   // тул хосын нэр шиг нийлүүлэхгүй — зөвхөн ганц нэр гаргана.
   const isChild = event.type === "child";
+  const corporate = isCorporate(event);
+  const org = (event.person1_name || "").trim();
   const names = isChild
     ? (event.title || event.person1_name || "").trim()
     : [event.person1_name, event.person2_name]
         .map((name) => name?.trim())
         .filter(Boolean)
         .join(" & ");
-  const kind = KIND[event.type] || "Урилга";
+  const kind = KIND[corporate ? "corporate" : event.type] || "Урилга";
 
-  const title = names ? `${names} — ${kind}` : event.title || kind;
-  const description = [formatDate(event.date), event.venue_name]
-    .filter(Boolean)
-    .join(" · ");
+  const title = corporate
+    ? (org ? `${org} — ${kind}` : event.title || kind)
+    : names ? `${names} — ${kind}` : event.title || kind;
 
-  const image = origin + (isChild ? OG_IMAGE_CHILD : OG_IMAGE);
+  // Байгууллагын урилга дээр арга хэмжээний нэр нь гол мэдээлэл тул
+  // тайлбарын эхэнд орно.
+  const description = (corporate
+    ? [event.title, formatDate(event.date), event.venue_name]
+    : [formatDate(event.date), event.venue_name]
+  ).filter(Boolean).join(" · ");
+
+  const image = corporate
+    ? corporateImage(event)
+    : origin + (isChild ? OG_IMAGE_CHILD : OG_IMAGE);
+
   const tags = [
     `<meta property="og:type" content="website" />`,
-    `<meta property="og:site_name" content="One Wedding" />`,
+    `<meta property="og:site_name" content="${esc(corporate ? (org || "Цахим урилга") : "One Wedding")}" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
     `<meta property="og:title" content="${esc(title)}" />`,
     `<meta property="og:locale" content="mn_MN" />`,
-    `<meta property="og:image" content="${esc(image)}" />`,
-    `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:card" content="${image ? "summary_large_image" : "summary"}" />`,
     `<meta name="twitter:title" content="${esc(title)}" />`,
-    `<meta name="twitter:image" content="${esc(image)}" />`,
   ];
+
+  // Зураг байхгүй бол og:image-г огт бичихгүй — хоосон content нь Facebook
+  // дээр эвдэрсэн preview үүсгэдэг.
+  if (image) {
+    tags.push(
+      `<meta property="og:image" content="${esc(image)}" />`,
+      `<meta name="twitter:image" content="${esc(image)}" />`,
+    );
+  }
 
   if (description) {
     tags.push(
