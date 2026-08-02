@@ -267,7 +267,10 @@ function T19Navbar({ mono, names }: { mono: string; names: string }) {
 // ─── Hero ────────────────────────────────────────────────────────────────────
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=2400&q=80";
 
-function T19Hero({ name, date, heroImage }: { name: string; date: string; heroImage?: string }) {
+function T19Hero({ name, date, heroImage, time, slug }: {
+  name: string; date: string; heroImage?: string; time?: string; slug?: string;
+}) {
+  const showTime = !!time && !!slug && SHOW_TIME_UNDER_DATE.has(slug);
   const ref = useRef<HTMLElement>(null);
   const { scrollY } = useScroll();
   const yBg = useTransform(scrollY, [0, 800], [0, 160]);
@@ -308,6 +311,11 @@ function T19Hero({ name, date, heroImage }: { name: string; date: string; heroIm
           <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "clamp(14px,3.4vw,19px)", textTransform: "uppercase", letterSpacing: "0.35em", marginTop: 24 }}>
             {formatDate(date)}
           </div>
+          {showTime && (
+            <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "clamp(14px,3.4vw,19px)", textTransform: "uppercase", letterSpacing: "0.35em", marginTop: 10 }}>
+              {timeLabel(time!)} цагаас
+            </div>
+          )}
         </motion.div>
       </motion.div>
 
@@ -717,7 +725,8 @@ function Fireworks({ trigger }: { trigger: number }) {
 }
 
 // Огнооны доор "11 цагаас" гэж цаг харуулах slug-ууд (CountdownTimer-тэй ижил
-// хэв маяг). Бүтэн цаг бол ":00"-г хасаж "11 цагаас" гэж уншина.
+// хэв маяг). Hero ба countdown хоёуланд нь үйлчилнэ. Бүтэн цаг бол ":00"-г
+// хасаж "11 цагаас" гэж уншина.
 const SHOW_TIME_UNDER_DATE = new Set<string>(["anar"]);
 
 function timeLabel(time: string) {
@@ -1274,7 +1283,7 @@ export default function Template19({ event }: { event: EventData }) {
       <T19VideoIntro audioRef={audioRef} />
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
-      <T19Hero name={name} date={event.date} heroImage={event.main_image} />
+      <T19Hero name={name} date={event.date} heroImage={event.main_image} time={event.time} slug={event.slug} />
       <T19Story photos={allPhotos} />
       <T19Countdown date={event.date} title={event.title} time={event.time} slug={event.slug} />
       {/* Эдгээр slug дээр хөтөлбөрийн хэсгийг нуух */}
