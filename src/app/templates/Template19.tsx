@@ -716,8 +716,19 @@ function Fireworks({ trigger }: { trigger: number }) {
   );
 }
 
-function T19Countdown({ date, title }: { date: string; title: string }) {
+// Огнооны доор "11 цагт" гэж цаг харуулах slug-ууд (CountdownTimer-тэй ижил
+// хэв маяг). Бүтэн цаг бол ":00"-г хасаж "11 цагт" гэж уншина.
+const SHOW_TIME_UNDER_DATE = new Set<string>(["anar"]);
+
+function timeLabel(time: string) {
+  return time.replace(/:00$/, "");
+}
+
+function T19Countdown({ date, title, time, slug }: {
+  date: string; title: string; time?: string; slug?: string;
+}) {
   const { days, hours, minutes, seconds } = useCountdown(date);
+  const showTime = !!time && !!slug && SHOW_TIME_UNDER_DATE.has(slug);
   const tan = `color-mix(in srgb, ${ACCENT} 65%, ${CREAM})`;
   const sectionRef  = useRef<HTMLElement>(null);
   const [fwTrigger, setFwTrigger] = useState(0);
@@ -789,6 +800,17 @@ function T19Countdown({ date, title }: { date: string; title: string }) {
             })()}
           </div>
         </Reveal>
+        {showTime && (
+          <Reveal delay={0.15}>
+            <div style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              color: tan, marginTop: 14, lineHeight: 1.1,
+              fontSize: "clamp(1.6rem, 5vw, 2.6rem)",
+            }}>
+              {timeLabel(time!)} цагт
+            </div>
+          </Reveal>
+        )}
         <Reveal delay={0.2}>
           <div style={{ marginTop: "clamp(48px,8vw,80px)", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "clamp(16px,4vw,40px)", maxWidth: 700, margin: "clamp(48px,8vw,80px) auto 0" }}>
             {cell("Өдөр", days)}
@@ -1254,7 +1276,7 @@ export default function Template19({ event }: { event: EventData }) {
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <T19Hero name={name} date={event.date} heroImage={event.main_image} />
       <T19Story photos={allPhotos} />
-      <T19Countdown date={event.date} title={event.title} />
+      <T19Countdown date={event.date} title={event.title} time={event.time} slug={event.slug} />
       {/* Эдгээр slug дээр хөтөлбөрийн хэсгийг нуух */}
       {!HIDE_SCHEDULE.has(event.slug) && <T19Schedule event={event} />}
       <T19Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
