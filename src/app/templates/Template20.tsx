@@ -144,8 +144,8 @@ function Contours({ opacity = 0.5 }: { opacity?: number }) {
 }
 
 // ─── Hero ───────────────────────────────────────────────────────────────────
-function T20Hero({ event, org, role, logo }: {
-  event: EventData; org: string; role: string; logo?: string;
+function T20Hero({ event, org, logo }: {
+  event: EventData; org: string; logo?: string;
 }) {
   const { scrollY } = useScroll();
   const fade = useTransform(scrollY, [0, 420], [1, 0]);
@@ -192,14 +192,7 @@ function T20Hero({ event, org, role, logo }: {
           </motion.div>
         )}
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.35 }}
-          style={{ marginTop: 14 }}
-        >
-          <Eyebrow>{role}</Eyebrow>
-        </motion.div>
+        {/* Байгууллагын нэр логон дээр аль хэдийн байгаа тул давхардуулахгүй */}
 
         <motion.div
           initial={{ scaleX: 0 }}
@@ -290,7 +283,6 @@ const INVITE_NOTE = [
 
 const INVITE_SLOGANS = [
   "Хамтдаа хөгжье.",
-  "Хамтдаа бүтээе.",
   "Хамтдаа илүү сайн ирээдүйг бүтээе.",
 ];
 
@@ -668,7 +660,7 @@ export default function Template20({ event }: { event: EventData }) {
     <div style={{ background: PAPER, minHeight: "100vh", overflowX: "hidden" }}>
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
-      <T20Hero event={event} org={org} role={role} logo={logo} />
+      <T20Hero event={event} org={org} logo={logo} />
       <T20Invite event={event} />
       <T20Standards event={event} />
       <T20Countdown event={event} />
