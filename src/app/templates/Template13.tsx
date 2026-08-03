@@ -779,13 +779,23 @@ function T13Location({ event }: { event: EventData }) {
 }
 
 // ─── Dress Code ───────────────────────────────────────────────────────────────
-function T13DressCode() {
+// "Утасгүй мөч" тэмдгийг нуух slug-ууд.
+const HIDE_NO_PHONE = new Set<string>(["batbayr-bilegsvren"]);
+
+// "Цаг" картын төгсгөлд нэмэлт өгүүлбэр гаргах slug-ууд.
+const TIME_CARD_EXTRA: Record<string, string> = {
+  "batbayr-bilegsvren": "Хуримын урилгатай ирж зогсоолд орно уу.",
+};
+
+function T13DressCode({ slug }: { slug?: string }) {
   const icons = [
     { emoji: "🌸", label: "Хүлээн авалт" },
     { emoji: "📵", label: "Утасгүй мөч" },
     { emoji: "⏰", label: "Цаг баримтлах" },
     { emoji: "🥂", label: "Хамтдаа баярлах" },
-  ];
+  ].filter(({ label }) => !(label === "Утасгүй мөч" && slug && HIDE_NO_PHONE.has(slug)));
+
+  const timeExtra = slug ? TIME_CARD_EXTRA[slug] : undefined;
 
   return (
     <div style={{ background: BURGUNDY }}>
@@ -860,6 +870,7 @@ function T13DressCode() {
             </div>
             <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
               <strong>Цаг:</strong> Ёслол эхлэхээс 30 минутын өмнө суудалдаа заларна уу.
+              {timeExtra ? ` ${timeExtra}` : ""}
             </p>
           </motion.div>
         </div>
@@ -1284,7 +1295,7 @@ export default function Template13({ event }: { event: EventData }) {
       <T13Countdown event={event} />
       <T13Schedule event={event} />
       <T13Location event={event} />
-      <T13DressCode />
+      <T13DressCode slug={event.slug} />
       <T13Wishes eventId={event.id} />
       <T13RSVP eventId={event.id} />
       <T13Footer event={event} />
