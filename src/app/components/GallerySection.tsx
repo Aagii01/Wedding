@@ -13,24 +13,27 @@ const PLACEHOLDERS = [
   "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&q=80",
 ];
 
-// Зургийг тайрахгүйн тулд masonry (CSS columns) — өндөр нь зурагны
-// жинхэнэ харьцаагаар тодорхойлогдоно. Босоо, хэвтээ хоёулаа бүтэн харагдана.
-const COLUMNS: Record<number, string> = {
-  1: "columns-1",
-  2: "columns-2",
-  3: "columns-2 md:columns-3",
-  4: "columns-2",
+// 5-аас цөөн зураг үед bento grid-д нүх үлддэг тул жигд grid болгоно.
+const GRID_COLS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-2 md:grid-cols-3",
+  4: "grid-cols-2",
 };
 
 type Props = { event: EventData };
 
 function Tile({
   src,
+  ratio,
   delay,
+  className = "",
   onClick,
 }: {
   src: string;
+  ratio: string;
   delay: number;
+  className?: string;
   onClick: () => void;
 }) {
   return (
@@ -39,7 +42,8 @@ function Tile({
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, margin: "-40px 0px" }}
       transition={{ duration: 0.78, delay, ease: EASE }}
-      className="relative overflow-hidden rounded-2xl cursor-pointer group mb-2 md:mb-3 break-inside-avoid"
+      className={`relative overflow-hidden rounded-2xl cursor-pointer group ${className}`}
+      style={{ aspectRatio: ratio }}
       onClick={onClick}
     >
       <img
@@ -47,7 +51,7 @@ function Tile({
         alt="gallery"
         loading="lazy"
         decoding="async"
-        className="block w-full h-auto transition-transform duration-700 group-hover:scale-105"
+        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors duration-300 rounded-2xl" />
     </motion.div>
@@ -61,7 +65,7 @@ export function GallerySection({ event }: Props) {
   // Огт зураг байхгүй үед л PLACEHOLDERS ажиллана (demo эвдрэхгүй).
   const provided = (event.gallery_photos || []).filter(Boolean);
   const photos = provided.length > 0 ? provided : PLACEHOLDERS;
-  const columns = COLUMNS[photos.length] || "columns-2 md:columns-3";
+  const isBento = photos.length >= 5;
 
   return (
     <>
@@ -78,17 +82,53 @@ export function GallerySection({ event }: Props) {
             <h2 className="text-3xl font-serif text-gray-800">Зургийн цомог</h2>
           </motion.div>
 
-          {/* Masonry — зураг бүр тайрагдалгүй бүтнээрээ орно */}
-          <div className={`${columns} gap-2 md:gap-3`}>
-            {photos.map((src, i) => (
+          {isBento ? (
+            /* Bento grid — 5+ зурагтай үед */
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+              {/* Featured large */}
               <Tile
-                key={i}
-                src={src}
-                delay={Math.min(i, 4) * 0.1}
-                onClick={() => setLightbox(src)}
+                src={photos[0]}
+                ratio="4/3"
+                delay={0}
+                className="col-span-2 md:col-span-2 md:row-span-2"
+                onClick={() => setLightbox(photos[0])}
               />
-            ))}
-          </div>
+
+              {/* Small photos — right column */}
+              {photos.slice(1, 4).map((src, i) => (
+                <Tile
+                  key={i}
+                  src={src}
+                  ratio="1/1"
+                  delay={(i + 1) * 0.1}
+                  className="col-span-1"
+                  onClick={() => setLightbox(src)}
+                />
+              ))}
+
+              {/* 5th photo — wide bottom */}
+              <Tile
+                src={photos[4]}
+                ratio="1/1"
+                delay={0.2}
+                className="col-span-1 md:col-span-2"
+                onClick={() => setLightbox(photos[4])}
+              />
+            </div>
+          ) : (
+            /* 1–4 зураг — нүх үлдээхгүй жигд grid */
+            <div className={`grid gap-2 md:gap-3 ${GRID_COLS[photos.length]}`}>
+              {photos.map((src, i) => (
+                <Tile
+                  key={i}
+                  src={src}
+                  ratio={photos.length === 1 ? "4/3" : "1/1"}
+                  delay={i * 0.1}
+                  onClick={() => setLightbox(src)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
