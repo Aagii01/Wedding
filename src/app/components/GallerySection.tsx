@@ -13,13 +13,15 @@ const PLACEHOLDERS = [
   "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1200&q=80",
 ];
 
-// Зургийг тайрахгүйн тулд masonry (CSS columns) — өндөр нь зурагны
-// жинхэнэ харьцаагаар тодорхойлогдоно. Босоо, хэвтээ хоёулаа бүтэн харагдана.
-const COLUMNS: Record<number, string> = {
-  1: "columns-1",
-  2: "columns-2",
-  3: "columns-2 md:columns-3",
-  4: "columns-2",
+// Зургийг тайрахгүйн тулд өндрийг нь чөлөөтэй үлдээнэ (h-auto).
+// CSS columns (masonry) ашиглаж байсныг grid болгов: багана хуваарилалт нь
+// зураг ачаалахаас өмнө (өндөр нь 0 байхад) тооцогддог тул iOS Safari дээр
+// бүх зураг эхний баганад орж, нөгөө тал нь хоосон үлддэг байсан.
+const GRID_COLS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-2 md:grid-cols-3",
+  4: "grid-cols-2",
 };
 
 type Props = { event: EventData };
@@ -39,7 +41,7 @@ function Tile({
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, margin: "-40px 0px" }}
       transition={{ duration: 0.78, delay, ease: EASE }}
-      className="relative overflow-hidden rounded-2xl cursor-pointer group mb-2 md:mb-3 break-inside-avoid"
+      className="relative overflow-hidden rounded-2xl cursor-pointer group"
       onClick={onClick}
     >
       <img
@@ -61,7 +63,7 @@ export function GallerySection({ event }: Props) {
   // Огт зураг байхгүй үед л PLACEHOLDERS ажиллана (demo эвдрэхгүй).
   const provided = (event.gallery_photos || []).filter(Boolean);
   const photos = provided.length > 0 ? provided : PLACEHOLDERS;
-  const columns = COLUMNS[photos.length] || "columns-2 md:columns-3";
+  const cols = GRID_COLS[photos.length] || "grid-cols-2 md:grid-cols-3";
 
   return (
     <>
@@ -78,8 +80,9 @@ export function GallerySection({ event }: Props) {
             <h2 className="text-3xl font-serif text-gray-800">Зургийн цомог</h2>
           </motion.div>
 
-          {/* Masonry — зураг бүр тайрагдалгүй бүтнээрээ орно */}
-          <div className={`${columns} gap-2 md:gap-3`}>
+          {/* Grid — зураг бүр тайрагдалгүй бүтнээрээ орно. items-start тул
+              өөр өөр өндөртэй зургууд сунахгүй. */}
+          <div className={`grid ${cols} gap-2 md:gap-3 items-start`}>
             {photos.map((src, i) => (
               <Tile
                 key={i}
