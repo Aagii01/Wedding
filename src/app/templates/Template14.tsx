@@ -448,9 +448,9 @@ function T14DateCountdown({ event }: { event: EventData }) {
             textAlign: "center", marginBottom: 28,
             background: "rgba(255,250,235,0.5)",
           }}>
-            <div style={{ ...cgI, color: WAX, fontSize: 52, lineHeight: 1 }}>{dt.day}</div>
-            <div style={{ ...cg, fontWeight: 600, fontSize: 18, letterSpacing: "0.3em", textTransform: "uppercase", color: WAX, marginTop: 8 }}>
-              {dt.month} · <span style={{ fontSize: 26 }}>{dt.year}</span>
+            <div style={{ ...cgI, color: WAX, fontSize: 52, lineHeight: 1 }}>{dt.year}</div>
+            <div style={{ ...cg, fontWeight: 600, fontSize: 18, letterSpacing: "0.24em", textTransform: "uppercase", color: WAX, marginTop: 8 }}>
+              {dt.month} · <span style={{ fontSize: 26 }}>{dt.day}</span>
             </div>
             {event.time && (
               <div style={{ ...cgI, fontWeight: 700, color: WAX, fontSize: 24, marginTop: 12, opacity: 0.85 }}>
