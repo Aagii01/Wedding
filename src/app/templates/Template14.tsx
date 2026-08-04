@@ -283,8 +283,8 @@ function T14Hero({ event }: { event: EventData }) {
       <div style={{
         position: "relative", zIndex: 2,
         minHeight: "100svh",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        padding: "80px 24px 100px",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between",
+        padding: "56px 24px 28px",
         textAlign: "center",
       }}>
         <motion.div
@@ -299,7 +299,10 @@ function T14Hero({ event }: { event: EventData }) {
           ref={wrapRef}
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.6, delay: 0.5 }}
-          style={{ ...nameFont, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)" }}
+          // marginTop:auto → нэрийн блок доод хэсэг рүү шахагдана (гэхдээ
+          // "Доошоо гүйлгэх" мөрийн дээр). Дээд/доод текст нь зурагны хамгийн
+          // дээд ба хамгийн доод талд байрлана.
+          style={{ ...nameFont, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)", marginTop: "auto", marginBottom: 28 }}
         >
           <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name1}</span>
           <span style={{
@@ -315,7 +318,7 @@ function T14Hero({ event }: { event: EventData }) {
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.4 }}
-          style={{ marginTop: 56, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}
         >
           <div style={{ ...cg, fontWeight: 700, fontSize: 11, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}>
             Доошоо гүйлгэх
@@ -365,7 +368,7 @@ function T14Verse({ event }: { event: EventData }) {
             textAlign: "center", letterSpacing: "0.02em", maxWidth: 400, margin: "0 auto",
           }}>
             {getPoemLines(event, [
-              "Бидний амьдралын хамгийн нандин бөгөөд тусгай өдөр тохиож байна. Хайр, баяр хөөр, аз жаргал бялхсан энэхүү мартагдашгүй үдшийг бидэнтэй хамт хуваалцаж, баярыг минь хуваалцахыг урьж байна.",
+              "Бидний амьдралын хамгийн нандин бөгөөд тусгай өдөр тохиож байна. Хайр, аз жаргалаар дүүрэн энэхүү онцгой үдшийн гэрч нь болж, бидний баярыг хамтдаа хуваалцахыг хүндэтгэн урьж байна.",
             ]).map((line, i) =>
               line === ""
                 ? <span key={i} style={{ display: "block", height: 14 }} />
@@ -438,11 +441,11 @@ function T14DateCountdown({ event }: { event: EventData }) {
             background: "rgba(255,250,235,0.5)",
           }}>
             <div style={{ ...cgI, color: WAX, fontSize: 52, lineHeight: 1 }}>{dt.day}</div>
-            <div style={{ ...cg, fontWeight: 600, fontSize: 13, letterSpacing: "0.34em", textTransform: "uppercase", color: WAX, marginTop: 6 }}>
-              {dt.month} · <span style={{ fontSize: 20 }}>{dt.year}</span>
+            <div style={{ ...cg, fontWeight: 600, fontSize: 18, letterSpacing: "0.3em", textTransform: "uppercase", color: WAX, marginTop: 8 }}>
+              {dt.month} · <span style={{ fontSize: 26 }}>{dt.year}</span>
             </div>
             {event.time && (
-              <div style={{ ...cgI, color: WAX, fontSize: 18, marginTop: 10, opacity: 0.85 }}>
+              <div style={{ ...cgI, fontWeight: 700, color: WAX, fontSize: 24, marginTop: 12, opacity: 0.85 }}>
                 Эхлэх цаг: {event.time}
               </div>
             )}
@@ -1016,6 +1019,21 @@ const CHILDREN: Record<string, string[]> = {
   "lashidnym-togtokhsuren": ["Охин: Н.Гэгээнхүслэн", "Хүү: Н.Гэгээнжаргал"],
 };
 
+// Footer-ийн нэрийн мөр. Үндсэндээ Supabase-ийн "Х.Адъяасүрэн & М.Хулан"
+// хэлбэрээр гарна. Энд бүртгэсэн slug дээр оронд нь эдгээр мөрүүд гарна
+// (овгийг товчлолгүй бүтнээр нь бичих тохиолдол).
+const FOOTER_NAMES: Record<string, string[]> = {
+  "adyasuren-khulan": ["Хишигсүрэн Адъяасүрэн", "Мянган Хулан"],
+};
+
+// Монограмын үсэг. initialOf нь "Х.Адъяасүрэн" → "А" гэж овгийн товчлолыг
+// алгасдаг ч "Хишигсүрэн Адъяасүрэн" шиг цэггүй бүтэн нэр дээр эхний үг нь
+// овог мөн үү, өөрийн нэр мөн үү гэдгийг таамаглах найдваргүй. Тиймээс
+// FOOTER_NAMES-тэй slug дээр монограмыг энд гараар тогтооно.
+const MONO_OVERRIDE: Record<string, [string, string]> = {
+  "adyasuren-khulan": ["А", "Х"], // Адъяасүрэн & Хулан
+};
+
 // Хөтөлбөр (T14Schedule) хэсгийг нуух slug-ууд.
 const HIDE_SCHEDULE = new Set<string>([
   "batsukh-sumya",
@@ -1030,8 +1048,10 @@ function T14Footer({ event }: { event: EventData }) {
   const children = CHILDREN[event.slug];
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
-  const i1 = initialOf(name1);
-  const i2 = initialOf(name2);
+  const mono = MONO_OVERRIDE[event.slug];
+  const i1 = mono ? mono[0] : initialOf(name1);
+  const i2 = mono ? mono[1] : initialOf(name2);
+  const footerNames = FOOTER_NAMES[event.slug];
 
   const fmtDate = (d: string) => {
     const [y, m, day] = d.split("-");
@@ -1056,7 +1076,11 @@ function T14Footer({ event }: { event: EventData }) {
       </FadeUp>
       <FadeUp delay={0.1}>
         <div style={{ ...cg, fontSize: 17, fontWeight: 500, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(244,238,222,0.72)", lineHeight: 1.5 }}>
-          {name1} <span style={{ ...amp, opacity: 0.75 }}>&amp;</span> {name2}
+          {footerNames ? (
+            footerNames.map((line) => <div key={line}>{line}</div>)
+          ) : (
+            <>{name1} <span style={{ ...amp, opacity: 0.75 }}>&amp;</span> {name2}</>
+          )}
         </div>
       </FadeUp>
       {children && (

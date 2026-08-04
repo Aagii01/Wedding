@@ -26,8 +26,10 @@ const MONO_OVERRIDE: Record<string, string> = {
 
 // Footer-ийн доод нэрийн мөр. Үндсэндээ Supabase-ийн нэрсийг шууд гаргана.
 // Энд бүртгэсэн slug дээр оронд нь энэ бичиглэл гарна.
+// "\n" бичвэл олон мөр болж гарна (whiteSpace: pre-line).
 const FOOTER_NAMES_OVERRIDE: Record<string, string> = {
   "abigail-williams": "Mondekhuu Turmunkh & Abigail Williams",
+  "adyasuren2-khulan2": "Хишигсүрэн Адъяасүрэн\nМянган Хулан",
 };
 
 // Хөтөлбөр (T12Schedule) хэсгийг нуух slug-ууд.
@@ -43,9 +45,19 @@ function normalizeUrl(u?: string) {
   return /^https?:\/\//i.test(s) ? s : `https://${s}`;
 }
 
+// "Х.Адъяасүрэн" → "А". Монгол бичиглэлд цэгийн өмнөх үсэг бол овгийн товчлол
+// тул цэг байвал түүний ард талын өөрийн нэрний эхний үсгийг авна. Цэггүй
+// (жишээ нь англи "Abigail") бол шууд эхний үсгийг авна.
+function initialOf(name: string) {
+  const s = (name || "").trim();
+  if (!s) return "";
+  const own = (s.split(".").pop() || s).trim();
+  return (own.split(/\s+/)[0] || own).charAt(0).toUpperCase();
+}
+
 function initials(p1: string, p2?: string) {
-  const a = p1.trim()[0] ?? "";
-  const b = p2?.trim()[0] ?? "";
+  const a = initialOf(p1);
+  const b = p2 ? initialOf(p2) : "";
   return b ? `${a}&${b}` : a;
 }
 
@@ -943,7 +955,7 @@ function Fireworks({ trigger }: { trigger: number }) {
   );
 }
 
-function T12Countdown({ date, title, venue }: { date: string; title: string; venue: string }) {
+function T12Countdown({ date, title, venue, time, showTime }: { date: string; title: string; venue: string; time?: string; showTime?: boolean }) {
   const { days, hours, minutes, seconds } = useCountdown(date);
   const tan = `color-mix(in srgb, ${ACCENT} 55%, ${CREAM})`;
   const sectionRef  = useRef<HTMLElement>(null);
@@ -1017,6 +1029,17 @@ function T12Countdown({ date, title, venue }: { date: string; title: string; ven
             })()}
           </div>
         </Reveal>
+        {/* Хөтөлбөрийн хэсэг нуугдсан урилга дээр эхлэх цагийг энд харуулна */}
+        {showTime && time && (
+          <Reveal delay={0.15}>
+            <div style={{
+              fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 700,
+              color: INK, fontSize: "clamp(1.7rem, 6vw, 2.5rem)", marginTop: 24,
+            }}>
+              Эхлэх цаг: {time}
+            </div>
+          </Reveal>
+        )}
         <Reveal delay={0.2}>
           <div style={{ marginTop: "clamp(48px,8vw,80px)", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "clamp(16px,4vw,40px)", maxWidth: 700, margin: "clamp(48px,8vw,80px) auto 0" }}>
             {cell("Өдөр", days)}
@@ -1349,7 +1372,7 @@ function T12Footer({ mono, names }: { mono: string; names: string }) {
           </>
         ) : mono}
       </div>
-      <div style={{ marginTop: 24, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})` }}>
+      <div style={{ marginTop: 24, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})`, whiteSpace: "pre-line", lineHeight: 1.9 }}>
         {names}
       </div>
       <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
@@ -1444,7 +1467,7 @@ export default function Template12({ event }: { event: EventData }) {
       <T12Hero names={names} date={event.date} heroImage={event.main_image} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
       <T12OurStory photos={allPhotos} />
-      <T12Countdown date={event.date} title={event.title} venue={event.venue_name} />
+      <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} showTime={HIDE_SCHEDULE.has(event.slug)} />
       {!HIDE_SCHEDULE.has(event.slug) && <T12Schedule event={event} />}
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T12Quote event={event} />
