@@ -337,9 +337,16 @@ function T14Hero({ event }: { event: EventData }) {
 }
 
 // ─── Verse / Invitation text ──────────────────────────────────────────────────
+// Урилгын үг дээрх хосын нэрийг өөрөөр бичих slug-ууд (овгийг товчлолгүй
+// бүтнээр нь). Бүртгээгүй урилга дээр Supabase-ийн нэр шууд гарна.
+const VERSE_NAMES: Record<string, [string, string]> = {
+  "adyasuren-khulan": ["Хишигсүрэнгийн Адъяасүрэн", "Мянганы Хулан"],
+};
+
 function T14Verse({ event }: { event: EventData }) {
-  const name1 = event.person1_name || "Diana";
-  const name2 = event.person2_name || "Richard";
+  const verseNames = VERSE_NAMES[event.slug];
+  const name1 = verseNames?.[0] || event.person1_name || "Diana";
+  const name2 = verseNames?.[1] || event.person2_name || "Richard";
   const { wrapRef, size } = useFitText(`${name1}|${name2}`, 92, 26);
 
   return (
@@ -1023,7 +1030,7 @@ const CHILDREN: Record<string, string[]> = {
 // хэлбэрээр гарна. Энд бүртгэсэн slug дээр оронд нь эдгээр мөрүүд гарна
 // (овгийг товчлолгүй бүтнээр нь бичих тохиолдол).
 const FOOTER_NAMES: Record<string, string[]> = {
-  "adyasuren-khulan": ["Хишигсүрэн Адъяасүрэн", "Мянган Хулан"],
+  // "slug": ["Хишигсүрэн Адъяасүрэн", "Мянган Хулан"],
 };
 
 // Монограмын үсэг. initialOf нь "Х.Адъяасүрэн" → "А" гэж овгийн товчлолыг
