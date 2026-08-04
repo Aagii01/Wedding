@@ -35,6 +35,14 @@ const HIDE_SCHEDULE = new Set<string>([
   "adyasuren2-khulan2",
 ]);
 
+// venue_map_url дээр http(s):// угтвар байхгүй бол браузер харьцангуй зам гэж
+// ойлгож сайтын хаяг дээр наадаг. Угтваргүй бол https:// нэмж бүтэн болгоно.
+function normalizeUrl(u?: string) {
+  if (!u) return u;
+  const s = u.trim();
+  return /^https?:\/\//i.test(s) ? s : `https://${s}`;
+}
+
 function initials(p1: string, p2?: string) {
   const a = p1.trim()[0] ?? "";
   const b = p2?.trim()[0] ?? "";
@@ -1143,7 +1151,7 @@ function T12Venue({ name, address, mapUrl, image }: { name: string; address: str
           {mapUrl && (
             <Reveal delay={0.4}>
               <a
-                href={mapUrl}
+                href={normalizeUrl(mapUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
