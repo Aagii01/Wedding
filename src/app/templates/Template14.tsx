@@ -420,7 +420,7 @@ function T14DateCountdown({ event }: { event: EventData }) {
     const [y, m, day] = d.split("-");
     const months = ["Нэгдүгээр","Хоёрдугаар","Гуравдугаар","Дөрөвдүгээр","Тавдугаар","Зургадугаар","Долдугаар","Наймдугаар","Есдүгээр","Аравдугаар","Арван нэгдүгээр","Арван хоёрдугаар"];
     const name = months[(parseInt(m) - 1)];
-    return { day: day, month: name ? `${name} сар` : m, year: y };
+    return { day: day, month: name ? `${name} сарын` : m, year: y };
   };
 
   const dt = fmtDate(event.date);
@@ -450,7 +450,7 @@ function T14DateCountdown({ event }: { event: EventData }) {
           }}>
             <div style={{ ...cgI, color: WAX, fontSize: 52, lineHeight: 1 }}>{dt.year}</div>
             <div style={{ ...cg, fontWeight: 600, fontSize: 18, letterSpacing: "0.24em", textTransform: "uppercase", color: WAX, marginTop: 8 }}>
-              {dt.month} · <span style={{ fontSize: 26 }}>{dt.day}</span>
+              {dt.month} <span style={{ fontSize: 26 }}>{dt.day}</span>
             </div>
             {event.time && (
               <div style={{ ...cgI, fontWeight: 700, color: WAX, fontSize: 24, marginTop: 12, opacity: 0.85 }}>
