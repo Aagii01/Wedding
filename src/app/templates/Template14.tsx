@@ -419,7 +419,8 @@ function T14DateCountdown({ event }: { event: EventData }) {
   const fmtDate = (d: string) => {
     const [y, m, day] = d.split("-");
     const months = ["Нэгдүгээр","Хоёрдугаар","Гуравдугаар","Дөрөвдүгээр","Тавдугаар","Зургадугаар","Долдугаар","Наймдугаар","Есдүгээр","Аравдугаар","Арван нэгдүгээр","Арван хоёрдугаар"];
-    return { day: day, month: months[(parseInt(m) - 1)] || m, year: y };
+    const name = months[(parseInt(m) - 1)];
+    return { day: day, month: name ? `${name} сар` : m, year: y };
   };
 
   const dt = fmtDate(event.date);
