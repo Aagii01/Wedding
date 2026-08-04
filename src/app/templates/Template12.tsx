@@ -30,6 +30,11 @@ const FOOTER_NAMES_OVERRIDE: Record<string, string> = {
   "abigail-williams": "Mondekhuu Turmunkh & Abigail Williams",
 };
 
+// Хөтөлбөр (T12Schedule) хэсгийг нуух slug-ууд.
+const HIDE_SCHEDULE = new Set<string>([
+  "adyasuren2-khulan2",
+]);
+
 function initials(p1: string, p2?: string) {
   const a = p1.trim()[0] ?? "";
   const b = p2?.trim()[0] ?? "";
@@ -1432,7 +1437,7 @@ export default function Template12({ event }: { event: EventData }) {
       {/* <T12PhotoCollage photos={allPhotos} /> */}
       <T12OurStory photos={allPhotos} />
       <T12Countdown date={event.date} title={event.title} venue={event.venue_name} />
-      <T12Schedule event={event} />
+      {!HIDE_SCHEDULE.has(event.slug) && <T12Schedule event={event} />}
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T12Quote event={event} />
       <T12RSVP eventId={event.id} />

@@ -1022,6 +1022,7 @@ const HIDE_SCHEDULE = new Set<string>([
   "ariunbold-pvrewdorj",
   "lashidnym-togtokhsuren",
   "dulguun-daariimaa",
+  "adyasuren-khulan",
 ]);
 
 function T14Footer({ event }: { event: EventData }) {
