@@ -1018,6 +1018,7 @@ function T14Wishes({ eventId }: { eventId: string }) {
 // slug-аар нь уншина. Бүртгээгүй урилга дээр утасны мөр огт гарахгүй.
 const CONTACT_PHONES: Record<string, string[]> = {
   "dorjzowd-nomin": ["88777477", "86777477"],
+  "tumbayr-dulguun": ["90343333", "91492222"],
 };
 
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
@@ -1049,6 +1050,7 @@ const HIDE_SCHEDULE = new Set<string>([
   "lashidnym-togtokhsuren",
   "dulguun-daariimaa",
   "adyasuren-khulan",
+  "tumbayr-dulguun",
 ]);
 
 function T14Footer({ event }: { event: EventData }) {
