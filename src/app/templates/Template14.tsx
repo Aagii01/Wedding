@@ -284,7 +284,7 @@ function T14Hero({ event }: { event: EventData }) {
         position: "relative", zIndex: 2,
         minHeight: "100svh",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between",
-        padding: "56px 24px 28px",
+        padding: "24px 24px 28px",
         textAlign: "center",
       }}>
         <motion.div
@@ -1051,7 +1051,39 @@ const HIDE_SCHEDULE = new Set<string>([
   "dulguun-daariimaa",
   "adyasuren-khulan",
   "tumbayr-dulguun",
+  "samdanjigmid-munkhzul",
 ]);
+
+// Хөтөлбөрийн оронд QR зураг харуулах slug-ууд. HIDE_SCHEDULE-д мөн нэмсэн
+// байх ёстой — тэгвэл хөтөлбөр алга болж, оронд нь энэ зураг гарна.
+const SCHEDULE_QR: Record<string, string> = {
+  "samdanjigmid-munkhzul":
+    "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/samdan/qr2.png",
+};
+
+function T14ScheduleQR({ src }: { src: string }) {
+  return (
+    <Paper>
+      <div style={{ padding: "56px 24px" }}>
+        <FadeUp>
+          <div style={{
+            ...cg, fontSize: 17, fontWeight: 500, lineHeight: 1.6,
+            color: WAX, textAlign: "center", margin: "0 auto 26px", maxWidth: 340,
+          }}>
+            Та доорх QR-ыг уншуулж хөтөлбөртэй танилцаарай
+          </div>
+        </FadeUp>
+        <FadeUp delay={0.1}>
+          <img
+            src={src}
+            alt="QR"
+            style={{ display: "block", width: "100%", maxWidth: 420, margin: "0 auto", borderRadius: 6 }}
+          />
+        </FadeUp>
+      </div>
+    </Paper>
+  );
+}
 
 function T14Footer({ event }: { event: EventData }) {
   const phones = CONTACT_PHONES[event.slug];
@@ -1152,6 +1184,7 @@ export default function Template14({ event }: { event: EventData }) {
       <T14Verse event={event} />
       <T14DateCountdown event={event} />
       {!HIDE_SCHEDULE.has(event.slug) && <T14Schedule event={event} />}
+      {SCHEDULE_QR[event.slug] && <T14ScheduleQR src={SCHEDULE_QR[event.slug]} />}
       <T14Gallery event={event} />
       <T14Venue event={event} />
       <T14RSVP eventId={event.id} />
