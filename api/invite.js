@@ -52,7 +52,7 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
 const FIELDS =
-  "title,type,template,date,venue_name,person1_name,person2_name,person1_photo,gallery_photos";
+  "title,type,template,date,venue_name,person1_name,person2_name,person1_photo,main_image,gallery_photos";
 
 // Preview зургууд — event бүрийн өөрийн зураг биш, төрөл тус бүрт нэг нийтлэг
 // зураг (public/ дотор, build-д dist/-руу хуулагдана).
@@ -112,11 +112,16 @@ function isCorporate(event) {
 // Байгууллагын preview зураг: өөрийн байгууллагын зургийг ашиглана. Нийтлэг
 // хуримын og-default.jpg-г ХЭЗЭЭ Ч ашиглахгүй — байхгүй бол зураггүй preview
 // (Facebook текстээр л харуулна) нь хуримын зураг гарснаас дээр.
-function corporateImage(event) {
-  const badge = Array.isArray(event.gallery_photos)
-    ? event.gallery_photos.find(Boolean)
-    : null;
-  return badge || event.person1_photo || null;
+// Зарим event дээр зургийн талбарт "https://.../g1.jpg" гэх мэт орлуулах
+// (placeholder) утга үлдсэн байдаг. Ийм хаягийг og:image-д өгвөл Facebook
+// татаж чадахгүй, preview эвдэрнэ — тиймээс хэлбэрийг нь шалгана.
+function isValidImageUrl(url) {
+  return typeof url === "string" && /^https?:\/\/[^\s/.]+(\.[^\s/.]+)+\//.test(url);
+}
+
+function ownImage(event) {
+  const gallery = Array.isArray(event.gallery_photos) ? event.gallery_photos : [];
+  return [...gallery, event.main_image, event.person1_photo].find(isValidImageUrl) || null;
 }
 
 function buildTags(event, url, origin) {
@@ -152,7 +157,7 @@ function buildTags(event, url, origin) {
   // Хуримын биш урилга дээр нийтлэг og-default.jpg (хуримын зураг) хэрэглэхгүй —
   // event-ийн өөрийн зураг, байхгүй бол зураггүй текстэн preview.
   const image = nonWedding
-    ? corporateImage(event)
+    ? ownImage(event)
     : origin + (isChild ? OG_IMAGE_CHILD : OG_IMAGE);
 
   const tags = [
