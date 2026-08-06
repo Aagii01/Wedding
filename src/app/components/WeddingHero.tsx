@@ -107,12 +107,14 @@ export function WeddingHero({ event }: Props) {
               if (w && h) setHeroRatio(Math.min(Math.max(w / h, 0.5), 0.75));
             }}
           />
-          <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-between py-8 px-6">
+          {/* Нэр, огноо хоёр картны ДООД хэсэгт зэрэгцэнэ. Дээд талын жижиг
+              бичиг (wedding дээр хоосон) mb-auto-гоор дээрээ тогтоно. */}
+          <div className="absolute inset-0 bg-black/45 flex flex-col items-center justify-end py-8 px-6">
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.8, ease: EASE }}
-              className="text-white/80 text-xs tracking-widest italic"
+              className="text-white/80 text-xs tracking-widest italic mb-auto"
             >
               {event.type === "wedding" ? "" : "You're invited to"}
             </motion.p>
@@ -120,13 +122,15 @@ export function WeddingHero({ event }: Props) {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.9, ease: EASE }}
-              className={`text-white ${nameSize} text-center leading-tight w-full break-words`}
-              style={{ fontFamily: "'Dancing Script', cursive" }}
+              className={`text-white ${nameSize} text-center leading-tight w-full break-words mb-3`}
+              // PT Serif — монгол кирилл ө, ү-г бүрэн дэмждэг. Dancing Script
+              // эдгээр үсгийг агуулдаггүй тул нэр fallback фонтоор гардаг байв.
+              style={{ fontFamily: "'PT Serif', serif" }}
             >
               {event.person2_name ? (
                 <>
                   <span className="whitespace-nowrap">{event.person1_name}</span>
-                  <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", margin: "0 6px" }}>&</span>
+                  <span style={{ fontStyle: "italic", margin: "0 6px" }}>&</span>
                   <span className="whitespace-nowrap">{event.person2_name}</span>
                 </>
               ) : (

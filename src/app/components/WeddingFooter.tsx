@@ -53,12 +53,13 @@ export function WeddingFooter({ event }: Props) {
           )}
           <h2
             className={`${nameSize} mb-3 leading-tight break-words`}
-            style={{ fontFamily: "'Dancing Script', cursive" }}
+            // PT Serif — монгол кирилл ө, ү-г бүрэн дэмждэг (Dancing Script үгүй)
+            style={{ fontFamily: "'PT Serif', serif" }}
           >
             {event.person2_name ? (
               <>
                 <span className="whitespace-nowrap">{event.person1_name}</span>
-                <span style={{ fontFamily: "Georgia, serif", fontStyle: "italic", margin: "0 6px" }}>&</span>
+                <span style={{ fontStyle: "italic", margin: "0 6px" }}>&</span>
                 <span className="whitespace-nowrap">{event.person2_name}</span>
               </>
             ) : (
