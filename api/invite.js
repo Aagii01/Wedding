@@ -94,7 +94,14 @@ const KIND = {
   reunion: "Уулзалтын урилга",
   child: "Сэвлэг үргээх ёслолын урилга",
   corporate: "Албан ёсны урилга",
+  apartment: "Шинэ байрны цайллагын урилга",
 };
+
+// Хуримын урилга биш төрлүүд — preview дээр "One Wedding" нэр ба хуримын
+// og-default.jpg гарах ёсгүй. (Байгууллагынхыг isCorporate тусад нь мэднэ.)
+function isNonWedding(event) {
+  return isCorporate(event) || event.type === "apartment";
+}
 
 // Байгууллагын урилга дээр хуримын нэр (One Wedding) ба хуримын preview зураг
 // гарах ёсгүй. type='corporate' эсвэл Template20 бол компанийн мэдээлэл гарна.
@@ -117,6 +124,7 @@ function buildTags(event, url, origin) {
   // тул хосын нэр шиг нийлүүлэхгүй — зөвхөн ганц нэр гаргана.
   const isChild = event.type === "child";
   const corporate = isCorporate(event);
+  const nonWedding = isNonWedding(event);
   const org = (event.person1_name || "").trim();
   const names = isChild
     ? (event.title || event.person1_name || "").trim()
@@ -126,8 +134,12 @@ function buildTags(event, url, origin) {
         .join(" & ");
   const kind = KIND[corporate ? "corporate" : event.type] || "Урилга";
 
+  // Шинэ байрны цайллага дээр эзэдийн нэр preview-д гарахгүй — зөвхөн төрөл.
+  const hideNames = event.type === "apartment";
+
   const title = corporate
     ? (org ? `${org} — ${kind}` : event.title || kind)
+    : hideNames ? kind
     : names ? `${names} — ${kind}` : event.title || kind;
 
   // Байгууллагын урилга дээр арга хэмжээний нэр нь гол мэдээлэл тул
@@ -137,13 +149,15 @@ function buildTags(event, url, origin) {
     : [formatDate(event.date), event.venue_name]
   ).filter(Boolean).join(" · ");
 
-  const image = corporate
+  // Хуримын биш урилга дээр нийтлэг og-default.jpg (хуримын зураг) хэрэглэхгүй —
+  // event-ийн өөрийн зураг, байхгүй бол зураггүй текстэн preview.
+  const image = nonWedding
     ? corporateImage(event)
     : origin + (isChild ? OG_IMAGE_CHILD : OG_IMAGE);
 
   const tags = [
     `<meta property="og:type" content="website" />`,
-    `<meta property="og:site_name" content="${esc(corporate ? (org || "Цахим урилга") : "One Wedding")}" />`,
+    `<meta property="og:site_name" content="${esc(nonWedding ? (corporate && org ? org : "Цахим урилга") : "One Wedding")}" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
     `<meta property="og:title" content="${esc(title)}" />`,
     `<meta property="og:locale" content="mn_MN" />`,

@@ -516,17 +516,23 @@ function T16Hero({ event }: { event: EventData }) {
   return (
     <header style={{
       position: "relative",
-      minHeight: "100vh",
+      // Бичвэргүй үед зургийг тайрахгүй, өөрийнх нь харьцаагаар бүтнээр
+      // харуулна — тиймээс 100vh өндөр шаардахгүй.
+      minHeight: hideText ? 0 : "100vh",
       display: "flex", alignItems: "center", justifyContent: "center",
       overflow: "hidden",
       background: INK,
     }}>
-      {/* Ken Burns ар дэвсгэр */}
+      {/* Ken Burns ар дэвсгэр. hideText үед zoom хийвэл зураг тайрагдах тул
+          энгийн, бүтэн харагдах зураг болгоно. */}
       <img
-        className="t16-kenburns"
+        className={hideText ? undefined : "t16-kenburns"}
         src={img}
         alt={`${name1} & ${name2}`}
-        style={{
+        style={hideText ? {
+          display: "block",
+          width: "100%", height: "auto",
+        } : {
           position: "absolute", inset: 0,
           width: "100%", height: "100%",
           objectFit: "cover",
@@ -605,8 +611,8 @@ function T16Hero({ event }: { event: EventData }) {
       <div className="t16-bob" style={{
         position: "absolute", bottom: 28, left: 0, right: 0,
         textAlign: "center",
-        ...label, fontSize: 9, color: "#FFFFFF",
-        textShadow: "0 2px 16px rgba(43,42,40,0.55)",
+        ...label, fontSize: 19, color: "#FFFFFF",
+        textShadow: "0 2px 16px rgba(43,42,40,0.75)",
       }}>
         Доош ↓
       </div>
