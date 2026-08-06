@@ -1022,6 +1022,7 @@ function T14Wishes({ eventId }: { eventId: string }) {
 const CONTACT_PHONES: Record<string, string[]> = {
   "dorjzowd-nomin": ["88777477", "86777477"],
   "tumbayr-dulguun": ["90343333", "91492222"],
+  "itgelt-lham": ["99991218", "99974928"],
 };
 
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
