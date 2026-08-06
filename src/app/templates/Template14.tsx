@@ -530,7 +530,10 @@ function T14Schedule({ event }: { event: EventData }) {
     <Paper>
       <div style={{ padding: "72px 24px" }}>
         <FadeUp delay={0.1}>
-          <div style={{ ...pinyon, color: WAX, fontSize: "clamp(48px, 12vw, 72px)", lineHeight: 1.1, textAlign: "center", margin: "8px 0 36px" }}>
+          {/* "Мэндчилгээ" гарчигтай ижил фонт — Pinyon Script кирилл дэмждэггүй
+              тул "Хөтөлбөр" нь fallback фонтоор гарч, бусад гарчгаас өөр
+              харагддаг байв. */}
+          <div style={{ ...nameFont, color: WAX, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 36px" }}>
             Хөтөлбөр
           </div>
         </FadeUp>
@@ -1026,6 +1029,8 @@ const CHILDREN: Record<string, string[]> = {
   "dawaa-dawaajargal": ["Хүү Д.Тэлмүүн", "Охин Д.Цэлмүүн"],
   "batsukh-sumya": ["Охин: Б.Сийлэн"],
   "lashidnym-togtokhsuren": ["Охин: Н.Гэгээнхүслэн", "Хүү: Н.Гэгээнжаргал"],
+  // Эцэг эх, хүүхдүүд нэг блокоор — дээр нь "Хүндэтгэсэн:" гэсэн мөр гарна.
+  "itgelt-lham": ["Нөхөр: Э.Итгэлт", "Эхнэр: С.Лхам", "Хүү: И.Ананд", "Хүү: И.Билэгт"],
 };
 
 // Footer-ийн нэрийн мөр. Үндсэндээ Supabase-ийн "Х.Адъяасүрэн & М.Хулан"
@@ -1033,6 +1038,7 @@ const CHILDREN: Record<string, string[]> = {
 // (овгийг товчлолгүй бүтнээр нь бичих тохиолдол).
 const FOOTER_NAMES: Record<string, string[]> = {
   // "slug": ["Хишигсүрэн Адъяасүрэн", "Мянган Хулан"],
+  "itgelt-lham": ["Хүндэтгэсэн:"],
 };
 
 // Монограмын үсэг. initialOf нь "Х.Адъяасүрэн" → "А" гэж овгийн товчлолыг
@@ -1052,6 +1058,11 @@ const HIDE_SCHEDULE = new Set<string>([
   "adyasuren-khulan",
   "tumbayr-dulguun",
   "samdanjigmid-munkhzul",
+]);
+
+// Зургийн цомог (T14Gallery) хэсгийг харуулахгүй slug-ууд.
+const HIDE_GALLERY = new Set<string>([
+  "itgelt-lham",
 ]);
 
 // Хөтөлбөрийн оронд QR зураг харуулах slug-ууд. HIDE_SCHEDULE-д мөн нэмсэн
@@ -1185,7 +1196,7 @@ export default function Template14({ event }: { event: EventData }) {
       <T14DateCountdown event={event} />
       {!HIDE_SCHEDULE.has(event.slug) && <T14Schedule event={event} />}
       {SCHEDULE_QR[event.slug] && <T14ScheduleQR src={SCHEDULE_QR[event.slug]} />}
-      <T14Gallery event={event} />
+      {!HIDE_GALLERY.has(event.slug) && <T14Gallery event={event} />}
       <T14Venue event={event} />
       <T14RSVP eventId={event.id} />
       <T14Wishes eventId={event.id} />

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
 import { getPoemLines, getSchedule } from "../../lib/eventContent";
+import { normalizeUrl } from "../../lib/url";
 
 // ─── palette ─────────────────────────────────────────────────────────────────
 const BURGUNDY       = "#66021F";
@@ -737,7 +738,7 @@ function T18Location({ event }: { event: EventData }) {
       {event.venue_map_url && (
         <FadeUp delay={0.3}>
           <a
-            href={event.venue_map_url}
+            href={normalizeUrl(event.venue_map_url)}
             target="_blank"
             rel="noreferrer"
             style={{

@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { MapPin } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { EventData } from "../../types/event";
+import { normalizeUrl } from "../../lib/url";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -48,7 +49,7 @@ export function VenueSection({ event }: Props) {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.3, duration: 0.6, ease: EASE }}
-                  href={event.venue_map_url}
+                  href={normalizeUrl(event.venue_map_url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-white text-gray-800 text-xs font-medium px-5 py-2.5 rounded-full hover:bg-gray-100 transition-colors flex-shrink-0 ml-4"

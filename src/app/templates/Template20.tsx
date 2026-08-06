@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { EventData } from "../../types/event";
+import { normalizeUrl } from "../../lib/url";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Template20 — "Corporate"
@@ -326,7 +327,7 @@ function T20Venue({ event }: { event: EventData }) {
         {event.venue_map_url && (
           <Reveal delay={0.2} style={{ textAlign: "center" }}>
             <a
-              href={event.venue_map_url}
+              href={normalizeUrl(event.venue_map_url)}
               target="_blank"
               rel="noopener noreferrer"
               style={{

@@ -6,6 +6,7 @@ import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
 import { getPoemLines, getSchedule, type ScheduleItem } from "../../lib/eventContent";
 import { HorizontalCarousel, type CarouselSlide } from "../components/HorizontalCarousel";
+import { normalizeUrl } from "../../lib/url";
 
 // ─── Template 19 — "Little Prince" ────────────────────────────────────────────
 // Template12 ("Cormorant")-ийн бүтцэн дээр суурилсан ЭРЭГТЭЙ ХҮҮХДИЙН ТӨРСӨН
@@ -956,7 +957,7 @@ function T19Venue({ name, address, mapUrl, image }: { name: string; address: str
           {mapUrl && (
             <Reveal delay={0.4}>
               <a
-                href={mapUrl}
+                href={normalizeUrl(mapUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

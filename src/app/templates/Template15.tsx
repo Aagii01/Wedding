@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
+import { normalizeUrl } from "../../lib/url";
 
 // ── palette ───────────────────────────────────────────────────────────────────
 const KANIT: React.CSSProperties = { fontFamily: "'Kanit', sans-serif" };
@@ -407,7 +408,7 @@ function DetailsSection({ event }: { event: EventData }) {
       {event.venue_map_url && (
         <div className="flex justify-center mt-12 sm:mt-16">
           <a
-            href={event.venue_map_url}
+            href={normalizeUrl(event.venue_map_url)}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-full border-2 font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-sm sm:text-base transition-colors duration-200"

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
 import { getPoemLines } from "../../lib/eventContent";
+import { normalizeUrl } from "../../lib/url";
 
 // ─── palette ─────────────────────────────────────────────────────────────────
 const CREAM = "#F7F3EC";
@@ -739,7 +740,7 @@ function T16Celebration({ event }: { event: EventData }) {
           <Reveal delay={0.25}>
             <div style={{ textAlign: "center", marginTop: 32 }}>
               <a
-                href={event.venue_map_url}
+                href={normalizeUrl(event.venue_map_url)}
                 target="_blank"
                 rel="noreferrer"
                 style={{
