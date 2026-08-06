@@ -25,11 +25,15 @@ const label: React.CSSProperties = {
   textTransform: "uppercase",
 };
 
-// Монгол нэрийг "Бямбадоржийн Дашхүү" гэж овогтой бичдэг тул монограмд
-// СҮҮЛИЙН үг буюу өөрийн нэрний эхний үсгийг авна → "Д", "С"
+// Монгол нэрийг овогтой бичдэг тул монограмд ӨӨРИЙН нэрний эхний үсгийг авна.
+// Хоёр бичлэгийг ч дэмжинэ:
+//   "Бямбадоржийн Дашхүү" → "Д"   (сүүлийн үг)
+//   "У.Тамир"             → "Т"   (цэгийн дараах хэсэг)
 function initialOf(name: string, fallback: string) {
-  const words = (name || "").trim().split(/\s+/).filter(Boolean);
-  const own = words[words.length - 1];
+  const s = (name || "").trim();
+  if (!s) return fallback;
+  const afterDot = (s.split(".").pop() || s).trim();
+  const own = afterDot.split(/\s+/).filter(Boolean).pop() || afterDot;
   return own ? own.charAt(0).toUpperCase() : fallback;
 }
 
