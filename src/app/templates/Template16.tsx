@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
+import { getPoemLines } from "../../lib/eventContent";
 
 // ─── palette ─────────────────────────────────────────────────────────────────
 const CREAM = "#F7F3EC";
@@ -39,13 +40,22 @@ const DEFAULT_LOCATION = "Дархан-Уул аймаг, Хонгор сум";
 
 // Эдгээр slug дээр "Газар" нүд нь Gunj Resort default-ийн оронд
 // тухайн event-ийн өөрийн venue_name-ийг харуулна.
-const VENUE_FROM_EVENT = new Set<string>(["batsukh-sumya"]);
+const VENUE_FROM_EVENT = new Set<string>(["batsukh-sumya", "tamir-nymdawaa"]);
 
 // Slug бүрийн холбоо барих утас (events хүснэгтэд багана байхгүй тул шууд бичсэн).
 const CONTACT_PHONES: Record<string, string[]> = {
   "batsukh-sumya": ["98191922", "94706067"],
+  "tamir-nymdawaa": ["99335300", "99963114"],
 };
 const DEFAULT_PHONES = ["89733377", "88020013"];
+
+// Footer-ийн монограм ("Ч & Б") болон хосын нэрийг харуулахгүй slug-ууд.
+const HIDE_FOOTER_NAMES = new Set<string>(["tamir-nymdawaa"]);
+
+// Footer дээр огнооны дээр гарах "Хүндэтгэсэн" нэрс — зөвхөн бүртгэсэн slug дээр.
+const FOOTER_HOSTS: Record<string, string[]> = {
+  "tamir-nymdawaa": ["Хүндэтгэсэн:", "У.Тамир", "Э.Нямдаваа", "Хүү: Т.Артасэд", "Хүү: Т.Хас"],
+};
 
 const FALLBACK_HERO =
   "https://images.unsplash.com/photo-1519741497674-611481863552?w=1600";
@@ -248,6 +258,23 @@ function T16Intro({ event, onDone }: { event: EventData; onDone: () => void }) {
 // ─── Зургийн дэлгэц (intro-гийн дараа 5 секунд харагдана) ─────────────────────
 // Бүдгэрсэн ар дэвсгэр дээр 4 зураг эгнээнд гарч ирнэ. 5 секундын дараа
 // автоматаар хаагдана; "Үргэлжлүүлэх" эсвэл × дарж эрт өнгөрч болно.
+// Зургийн дэлгэцийг ("Үргэлжлүүлэх" товчтой) огт харуулахгүй slug-ууд.
+const HIDE_PHOTO_INTRO = new Set<string>([
+  "tamir-nymdawaa",
+]);
+
+// Hero (эхний зураг) дээрх бүх бичвэрийг — нэр, огноо, байршил, countdown —
+// нуух slug-ууд. Зөвхөн зураг харагдана.
+const HIDE_HERO_TEXT = new Set<string>([
+  "tamir-nymdawaa",
+]);
+
+// Хуримын урилга биш тохиолдол (шинэ байрны цайллага гэх мэт). Section-ий
+// гарчгийг сольж, footer-ийн "One Wedding" мөрийг нуухад ашиглана.
+const HEAD_OVERRIDE: Record<string, { eyebrow: string; title: string; scriptWord: string }> = {
+  "tamir-nymdawaa": { eyebrow: "Хүндэтгэн урьж байна", title: "Шинэ байрны", scriptWord: "цайллага" },
+};
+
 function T16PhotoIntro({ event, onDone }: { event: EventData; onDone: () => void }) {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
@@ -478,6 +505,7 @@ function T16Hero({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";
   const name2 = event.person2_name || "Сарнай";
   const img = event.main_image || FALLBACK_HERO;
+  const hideText = HIDE_HERO_TEXT.has(event.slug);
 
   const fmtDate = (d: string) => {
     const [y, m, day] = (d || "").split("-");
@@ -505,17 +533,20 @@ function T16Hero({ event }: { event: EventData }) {
           transformOrigin: "center",
         }}
       />
-      {/* Текстийг тод харуулах ink gradient */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: `linear-gradient(to bottom,
-          rgba(43,42,40,0.40) 0%,
-          rgba(43,42,40,0.30) 45%,
-          rgba(43,42,40,0.60) 100%)`,
-      }} />
+      {/* Текстийг тод харуулах ink gradient. Бичвэргүй үед зургийг бүрхэхгүй. */}
+      {!hideText && (
+        <div style={{
+          position: "absolute", inset: 0,
+          background: `linear-gradient(to bottom,
+            rgba(43,42,40,0.40) 0%,
+            rgba(43,42,40,0.30) 45%,
+            rgba(43,42,40,0.60) 100%)`,
+        }} />
+      )}
 
       {/* Hero-гийн бүх бичвэр цагаан. Ар дэвсгэрийн зураг цайвар байж болох тул
           хөнгөн сүүдэр нэмж уншигдац хадгална. */}
+      {!hideText && (
       <div style={{
         position: "relative",
         textAlign: "center",
@@ -568,6 +599,7 @@ function T16Hero({ event }: { event: EventData }) {
           <T16Countdown date={event.date} time={event.time} />
         </motion.div>
       </div>
+      )}
 
       {/* Scroll indicator */}
       <div className="t16-bob" style={{
@@ -596,6 +628,11 @@ function T16Celebration({ event }: { event: EventData }) {
     ? (event.venue_name || DEFAULT_VENUE)
     : DEFAULT_VENUE;
 
+  const poemLines = getPoemLines(event, [
+    "Бидний амьдралын хамгийн онцгой өдрийг та бүхэнтэй хамт өнгөрүүлэхийг",
+    "хүсэн, энэхүү урилгыг хүргэж байна.",
+  ]);
+
   const cells = [
     { l: "Огноо", v: fmtDate(event.date) },
     { l: "Цаг",   v: event.time || "—" },
@@ -618,22 +655,33 @@ function T16Celebration({ event }: { event: EventData }) {
       </div>
 
       <div style={{ position: "relative", maxWidth: 760, margin: "0 auto" }}>
-        <SectionHead eyebrow="Хүндэтгэн урьж байна" title="Хуримын" scriptWord="ёслол" />
+        {(() => {
+          const h = HEAD_OVERRIDE[event.slug] ?? {
+            eyebrow: "Хүндэтгэн урьж байна", title: "Хуримын", scriptWord: "ёслол",
+          };
+          return <SectionHead eyebrow={h.eyebrow} title={h.title} scriptWord={h.scriptWord} />;
+        })()}
 
         <Reveal delay={0.1}>
-          <p style={{
+          {/* events.poem байвал түүнийг мөр мөрөөр нь харуулна. Хоосон бол
+              доорх үндсэн текст гарна (хуучин урилгууд хэвээрээ). */}
+          <div style={{
             ...display,
-            fontSize: "clamp(16px, 3.4vw, 19px)",
+            fontWeight: 400,
+            fontSize: "clamp(19px, 4.2vw, 23px)",
             color: INK,
-            opacity: 0.78,
-            lineHeight: 1.9,
+            opacity: 0.92,
+            lineHeight: 1.85,
             textAlign: "center",
             maxWidth: 540,
             margin: "28px auto clamp(44px, 8vw, 64px)",
           }}>
-            Бидний амьдралын хамгийн онцгой өдрийг та бүхэнтэй хамт өнгөрүүлэхийг
-            хүсэн, энэхүү урилгыг хүргэж байна.
-          </p>
+            {poemLines.map((line, i) =>
+              line === ""
+                ? <div key={i} style={{ height: "0.9em" }} />
+                : <div key={i}>{line}</div>
+            )}
+          </div>
         </Reveal>
 
         <Reveal delay={0.15}>
@@ -990,6 +1038,8 @@ function T16Footer({ event }: { event: EventData }) {
 
   // Холбоо барих дугаарууд — events хүснэгтэд багана байхгүй тул slug бүрээр бичсэн
   const phones = CONTACT_PHONES[event.slug] || DEFAULT_PHONES;
+  const hideNames = HIDE_FOOTER_NAMES.has(event.slug);
+  const hosts = FOOTER_HOSTS[event.slug];
 
   const year = (event.date || "").split("-")[0] || "";
 
@@ -1001,19 +1051,35 @@ function T16Footer({ event }: { event: EventData }) {
       textAlign: "center",
     }}>
       <Reveal>
-        <div style={{ ...display, fontSize: 34, letterSpacing: "0.06em" }}>
-          {i1} <span style={{ ...script, color: GOLD, fontSize: 40 }}>&amp;</span> {i2}
-        </div>
+        {!hideNames && (
+          <>
+            <div style={{ ...display, fontSize: 34, letterSpacing: "0.06em" }}>
+              {i1} <span style={{ ...script, color: GOLD, fontSize: 40 }}>&amp;</span> {i2}
+            </div>
 
-        <GoldRule width={80} margin="24px auto 28px" />
+            <GoldRule width={80} margin="24px auto 28px" />
 
-        {/* Овогтой бичигддэг тул нэр бүр тусдаа мөрөнд, & тэмдэггүй */}
-        <div style={{ ...display, fontSize: "clamp(21px, 4.2vw, 28px)", lineHeight: 1.4, marginBottom: 14 }}>
-          <div>{name1}</div>
-          {name2 && <div>{name2}</div>}
-        </div>
+            {/* Овогтой бичигддэг тул нэр бүр тусдаа мөрөнд, & тэмдэггүй */}
+            <div style={{ ...display, fontSize: "clamp(21px, 4.2vw, 28px)", lineHeight: 1.4, marginBottom: 14 }}>
+              <div>{name1}</div>
+              {name2 && <div>{name2}</div>}
+            </div>
+          </>
+        )}
 
-        <div style={{ ...label, color: CREAM, opacity: 0.6, lineHeight: 2 }}>
+        {hosts && (
+          <div style={{
+            ...display,
+            fontSize: "clamp(20px, 4.2vw, 26px)",
+            lineHeight: 1.55,
+            color: CREAM,
+            marginBottom: 20,
+          }}>
+            {hosts.map((line) => <div key={line}>{line}</div>)}
+          </div>
+        )}
+
+        <div style={{ ...label, fontSize: 14, letterSpacing: "0.24em", color: CREAM, opacity: 0.8, lineHeight: 1.9 }}>
           {fmtDate(event.date)}
           {event.venue_name && ` · ${event.venue_name}`}
         </div>
@@ -1046,7 +1112,7 @@ function T16Footer({ event }: { event: EventData }) {
         ...label, fontSize: 9, color: CREAM, opacity: 0.35,
         marginTop: 56,
       }}>
-        © {year} · One Wedding
+        © {year}{!HEAD_OVERRIDE[event.slug] && " · One Wedding"}
       </div>
     </footer>
   );
@@ -1085,7 +1151,7 @@ export default function Template16({ event }: { event: EventData }) {
           setIntroDone(true);
         }}
       />
-      {introDone && (
+      {introDone && !HIDE_PHOTO_INTRO.has(event.slug) && (
         <T16PhotoIntro event={event} onDone={() => audioRef.current?.play().catch(() => {})} />
       )}
 
