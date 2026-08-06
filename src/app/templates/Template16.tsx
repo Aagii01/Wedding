@@ -40,21 +40,21 @@ const DEFAULT_LOCATION = "Дархан-Уул аймаг, Хонгор сум";
 
 // Эдгээр slug дээр "Газар" нүд нь Gunj Resort default-ийн оронд
 // тухайн event-ийн өөрийн venue_name-ийг харуулна.
-const VENUE_FROM_EVENT = new Set<string>(["batsukh-sumya", "tamir-nymdawaa"]);
+const VENUE_FROM_EVENT = new Set<string>(["batsukh-sumya", "tamir-nymdawaa2"]);
 
 // Slug бүрийн холбоо барих утас (events хүснэгтэд багана байхгүй тул шууд бичсэн).
 const CONTACT_PHONES: Record<string, string[]> = {
   "batsukh-sumya": ["98191922", "94706067"],
-  "tamir-nymdawaa": ["99335300", "99963114"],
+  "tamir-nymdawaa2": ["99335300", "99963114"],
 };
 const DEFAULT_PHONES = ["89733377", "88020013"];
 
 // Footer-ийн монограм ("Ч & Б") болон хосын нэрийг харуулахгүй slug-ууд.
-const HIDE_FOOTER_NAMES = new Set<string>(["tamir-nymdawaa"]);
+const HIDE_FOOTER_NAMES = new Set<string>(["tamir-nymdawaa2"]);
 
 // Footer дээр огнооны дээр гарах "Хүндэтгэсэн" нэрс — зөвхөн бүртгэсэн slug дээр.
 const FOOTER_HOSTS: Record<string, string[]> = {
-  "tamir-nymdawaa": ["Хүндэтгэсэн:", "У.Тамир", "Э.Нямдаваа", "Хүү: Т.Артасэд", "Хүү: Т.Хас"],
+  "tamir-nymdawaa2": ["Хүндэтгэсэн:", "У.Тамир", "Э.Нямдаваа", "Хүү: Т.Артасэд", "Хүү: Т.Хас"],
 };
 
 const FALLBACK_HERO =
@@ -260,19 +260,19 @@ function T16Intro({ event, onDone }: { event: EventData; onDone: () => void }) {
 // автоматаар хаагдана; "Үргэлжлүүлэх" эсвэл × дарж эрт өнгөрч болно.
 // Зургийн дэлгэцийг ("Үргэлжлүүлэх" товчтой) огт харуулахгүй slug-ууд.
 const HIDE_PHOTO_INTRO = new Set<string>([
-  "tamir-nymdawaa",
+  "tamir-nymdawaa2",
 ]);
 
 // Hero (эхний зураг) дээрх бүх бичвэрийг — нэр, огноо, байршил, countdown —
 // нуух slug-ууд. Зөвхөн зураг харагдана.
 const HIDE_HERO_TEXT = new Set<string>([
-  "tamir-nymdawaa",
+  "tamir-nymdawaa2",
 ]);
 
 // Хуримын урилга биш тохиолдол (шинэ байрны цайллага гэх мэт). Section-ий
 // гарчгийг сольж, footer-ийн "One Wedding" мөрийг нуухад ашиглана.
 const HEAD_OVERRIDE: Record<string, { eyebrow: string; title: string; scriptWord: string }> = {
-  "tamir-nymdawaa": { eyebrow: "Хүндэтгэн урьж байна", title: "Шинэ байрны", scriptWord: "цайллага" },
+  "tamir-nymdawaa2": { eyebrow: "Хүндэтгэн урьж байна", title: "Шинэ байрны", scriptWord: "цайллага" },
 };
 
 function T16PhotoIntro({ event, onDone }: { event: EventData; onDone: () => void }) {

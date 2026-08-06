@@ -121,7 +121,13 @@ function isValidImageUrl(url) {
 
 function ownImage(event) {
   const gallery = Array.isArray(event.gallery_photos) ? event.gallery_photos : [];
-  return [...gallery, event.main_image, event.person1_photo].find(isValidImageUrl) || null;
+  // Байгууллагын урилгад gallery-гийн эхний зураг нь лого/гэрчилгээ тул түрүүнд.
+  // Бусад дээр (шинэ байрны цайллага гэх мэт) урилгын нүүр зураг илүү тохирно —
+  // gallery-д өөр event-ээс хуулагдсан зураг үлдсэн байх тохиолдол цөөнгүй.
+  const order = isCorporate(event)
+    ? [...gallery, event.main_image, event.person1_photo]
+    : [event.main_image, ...gallery, event.person1_photo];
+  return order.find(isValidImageUrl) || null;
 }
 
 function buildTags(event, url, origin) {
