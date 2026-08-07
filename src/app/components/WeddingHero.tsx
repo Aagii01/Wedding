@@ -6,6 +6,12 @@ import { EventData } from "../../types/event";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
+// Hero картан дээр Supabase-ийн person1_name / person2_name-ийн оронд гарах нэр.
+// Зөвхөн энд бүртгэсэн slug дээр — footer болон бусад хэсэг хэвээрээ.
+const HERO_NAMES: Record<string, [string, string]> = {
+  "batzaya-delgersaihan": ["ЗАЯА", "ДЭЭГИЙ"],
+};
+
 const QUOTES = [
   '"Чамайг хайрлах нь үүлсийн цаанаас ч дулаацуулах нарны гэрэл мэт Үзэгдэхгүй атлаа зүрхэнд үргэлж оршдог."',
   '"Хоёр зүрх нэгэн хэмнэлээр цохилох үед Орчлон ертөнц сая нэг бүрэн бүтэн болдог."',
@@ -74,15 +80,14 @@ export function WeddingHero({ event }: Props) {
   const heroSrc = event.main_image ||
     "https://images.unsplash.com/photo-1583939003579-730e3918a45a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800";
 
-  const altText = event.person2_name
-    ? `${event.person1_name} & ${event.person2_name}`
-    : event.person1_name;
+  // Hero дээр Supabase-ийн нэрийн оронд өөр нэр (хочит нэр гэх мэт) харуулах
+  // slug-ууд. Footer болон бусад хэсэг хэвээрээ.
+  const [name1, name2] = HERO_NAMES[event.slug] ?? [event.person1_name, event.person2_name];
+
+  const altText = name2 ? `${name1} & ${name2}` : name1;
 
   // Урт нэрэнд фонтыг жижигрүүлж багтаана — нэр бүр өөрөө задрахгүй (whitespace-nowrap).
-  const maxNameLen = Math.max(
-    (event.person1_name || "").length,
-    (event.person2_name || "").length,
-  );
+  const maxNameLen = Math.max((name1 || "").length, (name2 || "").length);
   const nameSize =
     maxNameLen > 13 ? "text-lg sm:text-2xl md:text-3xl" :
     maxNameLen > 9  ? "text-xl sm:text-2xl md:text-4xl" :
@@ -127,14 +132,14 @@ export function WeddingHero({ event }: Props) {
               // эдгээр үсгийг агуулдаггүй тул нэр fallback фонтоор гардаг байв.
               style={{ fontFamily: "'PT Serif', serif" }}
             >
-              {event.person2_name ? (
+              {name2 ? (
                 <>
-                  <span className="whitespace-nowrap">{event.person1_name}</span>
+                  <span className="whitespace-nowrap">{name1}</span>
                   <span style={{ fontStyle: "italic", margin: "0 6px" }}>&</span>
-                  <span className="whitespace-nowrap">{event.person2_name}</span>
+                  <span className="whitespace-nowrap">{name2}</span>
                 </>
               ) : (
-                <span className="whitespace-nowrap">{event.person1_name}</span>
+                <span className="whitespace-nowrap">{name1}</span>
               )}
             </motion.h1>
             <motion.p

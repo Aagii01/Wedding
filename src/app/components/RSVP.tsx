@@ -16,7 +16,7 @@ const HIDE_GUEST_COUNT = new Set<string>(["lkhagvatseren-gantogtokh"]);
 
 export function RSVP({ eventId, slug }: Props) {
   const showGuestCount = !(slug && HIDE_GUEST_COUNT.has(slug));
-  const [rsvp, setRsvp] = useState({ name: "", attending: "yes", guests: "1" });
+  const [rsvp, setRsvp] = useState({ name: "", phone: "", attending: "yes", guests: "1" });
   const [wish, setWish] = useState({ name: "", message: "" });
   const [rsvpLoading, setRsvpLoading] = useState(false);
   const [wishLoading, setWishLoading] = useState(false);
@@ -28,12 +28,13 @@ export function RSVP({ eventId, slug }: Props) {
     if (eventId === "demo") {
       setRsvpLoading(false);
       toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
-      setRsvp({ name: "", attending: "yes", guests: "1" });
+      setRsvp({ name: "", phone: "", attending: "yes", guests: "1" });
       return;
     }
     const { error } = await supabase.from("rsvp").insert({
       event: eventId,
       name: rsvp.name,
+      phone: rsvp.phone.trim(),
       // Ирэхгүй бол 0 — бүх загварт нийтлэг дүрэм (Sheets-д "очихгүй" болж очно)
       guests: rsvp.attending === "yes" ? Number(rsvp.guests) : 0,
     });
@@ -42,7 +43,7 @@ export function RSVP({ eventId, slug }: Props) {
       toast.error("Алдаа гарлаа. Дахин оролдоно уу.");
     } else {
       toast.success("Баярлалаа! Таны ирц баталгаажлаа.");
-      setRsvp({ name: "", attending: "yes", guests: "1" });
+      setRsvp({ name: "", phone: "", attending: "yes", guests: "1" });
     }
   };
 
@@ -81,13 +82,24 @@ export function RSVP({ eventId, slug }: Props) {
           transition={{ duration: 0.75, ease: EASE }}
         >
           <h2 className="text-3xl font-serif text-gray-800 mb-1">Ирцээ бүртгүүлэх</h2>
-          <p className="text-sm text-gray-400 mb-7">Хуримын өдрөөс өмнө бүртгэлээ хийнэ үү</p>
+          <p className="text-sm text-gray-400 mb-1">Хуримын өдрөөс өмнө бүртгэлээ хийнэ үү</p>
+          <p className="text-sm text-gray-600 mb-7">Овог нэр утасны дугаараа заавал бичээрэй</p>
           <form onSubmit={handleRsvp} className="space-y-4">
             <div>
               <Input
-                placeholder="Таны нэр"
+                placeholder="Таны овог нэр"
                 value={rsvp.name}
                 onChange={(e) => setRsvp({ ...rsvp, name: e.target.value })}
+                required
+              />
+            </div>
+            <div>
+              <Input
+                type="tel"
+                inputMode="tel"
+                placeholder="Утасны дугаар"
+                value={rsvp.phone}
+                onChange={(e) => setRsvp({ ...rsvp, phone: e.target.value })}
                 required
               />
             </div>
