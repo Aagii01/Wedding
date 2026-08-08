@@ -427,9 +427,16 @@ function GalleryCard({ src, quote, size }: {
   );
 }
 
+// Цомгийн гарчгийг өөрчлөх slug-ууд. Бүртгээгүй урилга дээр үндсэн
+// "Бидний хайрын түүх" гарчиг хэвээрээ.
+const GALLERY_TITLE: Record<string, string> = {
+  "zadragchaa-otgonjargal": "Хайр бол хамтдаа бүтээх хамгийн сайхан аялал",
+};
+
 // ─── Gallery carousel ─────────────────────────────────────────────────────────
 function T13Gallery({ event }: { event: EventData }) {
   const [current, setCurrent] = useState(0);
+  const title = GALLERY_TITLE[event.slug] ?? "Бидний хайрын түүх";
 
   // Оруулсан зурагны тоогоор л slide үүсгэнэ — дутууг нь Unsplash зургаар
   // нөхөхгүй. Огт зураггүй үед л үндсэн (fallback) зургууд гарна.
@@ -450,8 +457,8 @@ function T13Gallery({ event }: { event: EventData }) {
     <div style={{ background: CREAM, paddingTop: 60, paddingBottom: 44, overflow: "hidden" }}>
       <FadeUp>
         <div style={{ textAlign: "center", marginBottom: 44, padding: "0 24px" }}>
-          <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10 }}>
-            Бидний хайрын түүх
+          <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10, lineHeight: 1.3 }}>
+            {title}
           </div>
           {event.person2_name && (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
