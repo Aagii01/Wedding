@@ -264,7 +264,8 @@ function T14Hero({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
   const heroImg = event.main_image || FALLBACK[0];
-  const { wrapRef, size } = useFitText(`${name1}|${name2}`, 112, 30);
+  // Нэрийн дээд хэмжээ 112 → 96: бага зэрэг жижигрүүлсэн
+  const { wrapRef, size } = useFitText(`${name1}|${name2}`, 96, 30);
 
   return (
     <section style={{ position: "relative", minHeight: "100svh", background: "#1a1612", overflow: "hidden", color: "#fff" }}>
@@ -284,7 +285,7 @@ function T14Hero({ event }: { event: EventData }) {
         position: "relative", zIndex: 2,
         minHeight: "100svh",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between",
-        padding: "24px 24px 28px",
+        padding: "24px 24px 16px",
         textAlign: "center",
       }}>
         <motion.div
@@ -302,7 +303,7 @@ function T14Hero({ event }: { event: EventData }) {
           // marginTop:auto → нэрийн блок доод хэсэг рүү шахагдана (гэхдээ
           // "Доошоо гүйлгэх" мөрийн дээр). Дээд/доод текст нь зурагны хамгийн
           // дээд ба хамгийн доод талд байрлана.
-          style={{ ...nameFont, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)", marginTop: "auto", marginBottom: 28 }}
+          style={{ ...nameFont, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)", marginTop: "auto", marginBottom: 10 }}
         >
           <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name1}</span>
           <span style={{
@@ -314,22 +315,13 @@ function T14Hero({ event }: { event: EventData }) {
           <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name2}</span>
         </motion.div>
 
-        {/* Scroll cue */}
+        {/* Scroll cue — доод сум байхгүй, бичиг нь зурагны доод ирмэгт ойрхон */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.4 }}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}
+          style={{ ...cg, fontWeight: 700, fontSize: 11, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}
         >
-          <div style={{ ...cg, fontWeight: 700, fontSize: 11, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}>
-            Доошоо гүйлгэх
-          </div>
-          <motion.div
-            animate={{ y: [0, 8, 0], opacity: [0.6, 1, 0.6] }}
-            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-            style={{ color: "rgba(255,255,255,0.7)", fontSize: 18 }}
-          >
-            ↓
-          </motion.div>
+          Доошоо гүйлгэх
         </motion.div>
       </div>
     </section>
