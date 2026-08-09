@@ -405,7 +405,7 @@ export function HorizontalCarousel({
                 minWidth:      44,
               }}
             >
-              scroll ↓
+              Доош гүйлгэх ↓
             </div>
           </div>
 

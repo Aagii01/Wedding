@@ -356,7 +356,7 @@ function T12Hero({ names, date, heroImage }: { names: string; date: string; hero
           color: "rgba(255,255,255,0.85)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.3em",
         }}
       >
-        <span>Scroll</span>
+        <span>Доош гүйлгэх</span>
         <motion.svg
           width="14" height="22" viewBox="0 0 14 22" fill="none"
           animate={{ y: [0, 6, 0] }}
