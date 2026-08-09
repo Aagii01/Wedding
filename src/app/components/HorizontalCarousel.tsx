@@ -167,6 +167,19 @@ export function HorizontalCarousel({
     };
   }, [slides, scrollYProgress]);
 
+  // Сум дарахад — carousel нь хуудасны гүйлгээгээр удирддаг тул тухайн
+  // slide-ийн харгалзах scroll байрлал руу зөөлөн гүйлгэнэ.
+  const goTo = (dir: 1 | -1) => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const n = slides.length;
+    const target = Math.min(n - 1, Math.max(0, dotActive + dir));
+    const sectionTop = el.getBoundingClientRect().top + window.scrollY;
+    const range = el.offsetHeight - window.innerHeight;
+    // slide бүр [i/n, (i+1)/n) мужийг эзэлдэг — мужийнх нь голд байрлуулна
+    window.scrollTo({ top: sectionTop + ((target + 0.5) / n) * range, behavior: "smooth" });
+  };
+
   if (!slides.length) return null;
 
   return (
@@ -258,6 +271,42 @@ export function HorizontalCarousel({
               />
             </div>
           ))}
+
+          {/* ── Зүүн / баруун сум ────────────────────────────────────────────
+              Зочид энэ хэсгийг хэрхэн гүйлгэхээ мэдэхгүй байсан тул зурагны
+              хоёр талд сум нэмэв. Дарахад дараагийн slide руу гүйлгэнэ. */}
+          {[-1, 1].map((dir) => {
+            const disabled = dir < 0 ? dotActive === 0 : dotActive === slides.length - 1;
+            return (
+              <button
+                key={dir}
+                type="button"
+                onClick={() => goTo(dir as 1 | -1)}
+                aria-label={dir < 0 ? "Өмнөх зураг" : "Дараагийн зураг"}
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  [dir < 0 ? "left" : "right"]: "clamp(6px,2.5vw,22px)",
+                  width: 42, height: 42,
+                  border: "none",
+                  background: "transparent",
+                  color: "rgba(230,240,255,0.9)",
+                  filter: "drop-shadow(0 2px 10px rgba(8,14,23,0.85))",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: disabled ? "default" : "pointer",
+                  opacity: disabled ? 0.25 : 1,
+                  transition: "opacity 0.3s ease",
+                  zIndex: 6,
+                  padding: 0,
+                } as React.CSSProperties}
+              >
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  {dir < 0 ? <path d="M15 5 8 12l7 7" /> : <path d="M9 5l7 7-7 7" />}
+                </svg>
+              </button>
+            );
+          })}
 
           {/* ── Caption (title + ишлэл) — түр нуусан ──────────────────────────
               Зурган дээрх story текстийг түр харуулахгүй болгосон.
