@@ -653,7 +653,8 @@ function StoryChapter({
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", maxWidth: 1000, width: "100%", padding: "0 clamp(20px,4vw,48px)" }}>
           <div style={{ position: "relative", height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {srcs.map((src, i) => (
+            {/* Desktop: байрлал (slot) ба орж ирэх интервал 3-т тохируулсан */}
+            {srcs.slice(0, slots.length).map((src, i) => (
               <ScrollPhoto
                 key={i}
                 src={src}
@@ -671,12 +672,16 @@ function StoryChapter({
   );
 }
 
+const PHOTOS_PER_CHAPTER = 4;
+
 function T12OurStory({ photos }: { photos: string[] }) {
   const allImgs = [...photos, ...STORY_FALLBACKS];
 
   const chapters = DEFAULT_CHAPTERS.map((ch, ci) => ({
     ...ch,
-    srcs: allImgs.slice(ci * 3, ci * 3 + 3),
+    // Бүлэг тус бүрт 4 зураг: гар утасны carousel бүгдийг нь харуулна
+    // (desktop-ийн polaroid өрөлт эхний 3-ыг л байрлуулж чадна).
+    srcs: allImgs.slice(ci * PHOTOS_PER_CHAPTER, ci * PHOTOS_PER_CHAPTER + PHOTOS_PER_CHAPTER),
     slots: STACK_SLOTS[ci % 2],
     reverse: ci % 2 === 1,
   }));
@@ -955,7 +960,7 @@ function Fireworks({ trigger }: { trigger: number }) {
   );
 }
 
-function T12Countdown({ date, title, venue, time, showTime }: { date: string; title: string; venue: string; time?: string; showTime?: boolean }) {
+function T12Countdown({ date, title, venue, time }: { date: string; title: string; venue: string; time?: string }) {
   const { days, hours, minutes, seconds } = useCountdown(date);
   const tan = `color-mix(in srgb, ${ACCENT} 55%, ${CREAM})`;
   const sectionRef  = useRef<HTMLElement>(null);
@@ -1029,8 +1034,8 @@ function T12Countdown({ date, title, venue, time, showTime }: { date: string; ti
             })()}
           </div>
         </Reveal>
-        {/* Хөтөлбөрийн хэсэг нуугдсан урилга дээр эхлэх цагийг энд харуулна */}
-        {showTime && time && (
+        {/* Эхлэх цаг — бүх Template12 урилга дээр (time бөглөсөн бол) */}
+        {time && (
           <Reveal delay={0.15}>
             <div style={{
               fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontWeight: 700,
@@ -1429,7 +1434,11 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 export default function Template12({ event }: { event: EventData }) {
   const names = [event.person1_name, event.person2_name].filter(Boolean).join(" & ");
   const mono  = MONO_OVERRIDE[event.slug] ?? initials(event.person1_name, event.person2_name);
-  const allPhotos = [...(event.gallery_photos || []), ...(event.gallery2_photos || [])];
+  // gallery_photos ба gallery2_photos-д ижил зураг давхардаж бичигдсэн байх нь
+  // элбэг — давхардлыг нь хасаж, өөр өөр зургууд л цомогт орно.
+  const allPhotos = Array.from(
+    new Set([...(event.gallery_photos || []), ...(event.gallery2_photos || [])].filter(Boolean))
+  );
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Дуу шууд автоматаар эхэлнэ. Browser autoplay-г хоригловол хэрэглэгчийн
@@ -1467,7 +1476,7 @@ export default function Template12({ event }: { event: EventData }) {
       <T12Hero names={names} date={event.date} heroImage={event.main_image} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
       <T12OurStory photos={allPhotos} />
-      <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} showTime={HIDE_SCHEDULE.has(event.slug)} />
+      <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} />
       {!HIDE_SCHEDULE.has(event.slug) && <T12Schedule event={event} />}
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T12Quote event={event} />
