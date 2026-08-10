@@ -1359,7 +1359,13 @@ function T12RSVP({ eventId }: { eventId: string }) {
 }
 
 // ─── Footer ──────────────────────────────────────────────────────────────────
-function T12Footer({ mono, names }: { mono: string; names: string }) {
+// Footer-т хосын нэрийн доор гарах холбоо барих утас (events хүснэгтэд багана
+// байхгүй тул slug-аар нь энд бичнэ). Бүртгээгүй урилга дээр огт гарахгүй.
+const FOOTER_PHONES: Record<string, string[]> = {
+  "enkhsanaa-dolgormaa": ["88118379", "86617777", "86657777"],
+};
+
+function T12Footer({ mono, names, phones }: { mono: string; names: string; phones?: string[] }) {
   const parts = mono.split("&");
   return (
     <footer style={{ background: CREAM, paddingTop: 96, paddingBottom: 64, textAlign: "center", position: "relative" }}>
@@ -1380,6 +1386,22 @@ function T12Footer({ mono, names }: { mono: string; names: string }) {
       <div style={{ marginTop: 24, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})`, whiteSpace: "pre-line", lineHeight: 1.9 }}>
         {names}
       </div>
+      {phones && phones.length > 0 && (
+        <div style={{
+          marginTop: 18,
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 17, letterSpacing: "0.08em",
+          color: `color-mix(in srgb, ${INK} 70%, ${CREAM})`,
+        }}>
+          Утас:{" "}
+          {phones.map((tel, i) => (
+            <span key={tel}>
+              {i > 0 && ", "}
+              <a href={`tel:${tel}`} style={{ color: "inherit", textDecoration: "none" }}>{tel}</a>
+            </span>
+          ))}
+        </div>
+      )}
       <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
         Special Day · Хайраар бүтээсэн
       </div>
@@ -1481,7 +1503,7 @@ export default function Template12({ event }: { event: EventData }) {
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T12Quote event={event} />
       <T12RSVP eventId={event.id} />
-      <T12Footer mono={mono} names={FOOTER_NAMES_OVERRIDE[event.slug] ?? names} />
+      <T12Footer mono={mono} names={FOOTER_NAMES_OVERRIDE[event.slug] ?? names} phones={FOOTER_PHONES[event.slug]} />
       <Toaster />
     </div>
   );
