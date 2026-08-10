@@ -12,6 +12,9 @@ const HERO_NAMES: Record<string, [string, string]> = {
   "batzaya-delgersaihan": ["ЗАЯА", "ДЭЭГИЙ"],
 };
 
+// "Бидний хайрын түүх" гарчгийн доорх "нэр ♥ нэр" мөрийг нуух slug-ууд.
+const HIDE_STORY_NAMES = new Set<string>(["ganbaatar-maralgua"]);
+
 const QUOTES = [
   '"Чамайг хайрлах нь үүлсийн цаанаас ч дулаацуулах нарны гэрэл мэт Үзэгдэхгүй атлаа зүрхэнд үргэлж оршдог."',
   '"Хоёр зүрх нэгэн хэмнэлээр цохилох үед Орчлон ертөнц сая нэг бүрэн бүтэн болдог."',
@@ -182,7 +185,7 @@ export function WeddingHero({ event }: Props) {
           className="text-center mb-14"
         >
           <h2 className="text-4xl md:text-5xl font-serif text-gray-800 mb-2">Бидний хайрын түүх</h2>
-          {event.person2_name && (
+          {event.person2_name && !HIDE_STORY_NAMES.has(event.slug) && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}

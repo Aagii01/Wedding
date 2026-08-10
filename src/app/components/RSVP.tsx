@@ -14,6 +14,11 @@ type Props = { eventId: string; slug?: string };
 // хадгалагдана (ирэхгүй гэсэн бол урьдын адил 0).
 const HIDE_GUEST_COUNT = new Set<string>(["lkhagvatseren-gantogtokh"]);
 
+// Хаалтын мөрийг өөрчлөх slug-ууд.
+const CLOSING_LINE: Record<string, string> = {
+  "ganbaatar-maralgua": "WE CAN’T WAIT TO CELEBRATE WITH YOU!",
+};
+
 export function RSVP({ eventId, slug }: Props) {
   const showGuestCount = !(slug && HIDE_GUEST_COUNT.has(slug));
   const [rsvp, setRsvp] = useState({ name: "", phone: "", attending: "yes", guests: "1" });
@@ -214,7 +219,7 @@ export function RSVP({ eventId, slug }: Props) {
         className="max-w-4xl mx-auto mt-14 text-center text-2xl md:text-3xl text-gray-700 italic"
         style={{ fontFamily: "'Cormorant Garamond', serif" }}
       >
-        Таньтай уулзахыг тэсэн ядан хүлээж байна!
+        {(slug && CLOSING_LINE[slug]) || "Таньтай уулзахыг тэсэн ядан хүлээж байна!"}
       </motion.p>
     </section>
   );

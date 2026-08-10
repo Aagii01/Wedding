@@ -17,8 +17,14 @@ const DEFAULT_SCHEDULE: ScheduleItem[] = [
   { time: "21:30", label: "Бусад үйл ажиллагаа", desc: "Урлаг уран сайхан болон бусад үйл ажиллагаа явагдана" },
   { time: "22:45", label: "Албан ёсны арга хэмжээ өндөрлөнө", desc: "Албан ёсны арга хэмжээ дуусаж чөлөөт бүжигээр баяр үргэлжилнэ" },
 ];
+// Гарчгийг өөрчлөх slug-ууд. Бүртгээгүй урилга дээр "Хуримын хөтөлбөр".
+const TITLE_OVERRIDE: Record<string, string> = {
+  "ganbaatar-maralgua": "Wedding timeline",
+};
+
 export function HealthProtocol({ event }: { event?: EventData }) {
   const schedule = event ? getSchedule(event, DEFAULT_SCHEDULE) : DEFAULT_SCHEDULE;
+  const title = (event && TITLE_OVERRIDE[event.slug]) || "Хуримын хөтөлбөр";
 
   return (
     <section className="py-16 px-4 bg-gray-50">
@@ -33,7 +39,7 @@ export function HealthProtocol({ event }: { event?: EventData }) {
           <p className="text-[10px] tracking-[0.25em] uppercase text-gray-400 mb-3">
             Өдрийн цагийн хуваарь
           </p>
-          <h2 className="text-3xl font-serif text-gray-800">Хуримын хөтөлбөр</h2>
+          <h2 className="text-3xl font-serif text-gray-800">{title}</h2>
         </motion.div>
 
         <div className="relative">
