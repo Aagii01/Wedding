@@ -58,6 +58,11 @@ function Tile({
   );
 }
 
+// Цомгийн гарчгийг солих slug-ууд.
+const TITLE_OVERRIDE: Record<string, string> = {
+  "ganbaatar-maralgua": "Photo Album",
+};
+
 export function GallerySection({ event }: Props) {
   const [lightbox, setLightbox] = useState<string | null>(null);
 
@@ -79,7 +84,9 @@ export function GallerySection({ event }: Props) {
             className="text-center mb-10"
           >
       
-            <h2 className="text-3xl font-serif text-gray-800">Зургийн цомог</h2>
+            <h2 className="text-3xl font-serif text-gray-800">
+              {TITLE_OVERRIDE[event.slug] ?? "Зургийн цомог"}
+            </h2>
           </motion.div>
 
           {isBento ? (

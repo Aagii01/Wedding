@@ -26,6 +26,23 @@ const QUOTES = [
   '"Чамтай өнгөрүүлсэн хором бүр Зүрхний гүнд хэзээ ч бүдгэршгүй дурсамж болон мөнхөрнө."',
 ];
 
+// QUOTES-ийн англи орчуулга — ЯГ ижил дараалалтай байх ёстой. Доорх slug
+// дээр монгол ишлэлийн оронд эдгээр гарна (орчуулга байгаа эхний 5 дээр;
+// үлдсэн дээр монголоороо хэвээр).
+const QUOTES_EN = [
+  '"Loving you is like sunlight that warms me even from beyond the mountains — unseen, yet always present in my heart."',
+  '"When two hearts beat in the same rhythm, the universe finally becomes whole."',
+  '"Even across the distance of space and the passage of time, the delicate thread of love never breaks."',
+  '"Your smile is the brightest color that lights up the boring days of my life."',
+  '"Every moment we spend together seems to make time rush by far too quickly."',
+];
+const ENGLISH_QUOTES = new Set<string>(["ganbaatar-maralgua"]);
+
+// "Бидний хайрын түүх" гарчгийг солих slug-ууд.
+const STORY_TITLE: Record<string, string> = {
+  "ganbaatar-maralgua": "Our love story",
+};
+
 // Carousel-ийн зураг тус бүрийн тайлбар. Түлхүүр нь зурагны бүтэн URL.
 // Бүртгээгүй зураг дээр нийтлэг QUOTES эргэлдэнэ. "\n" нь шинэ мөр.
 const BAASANBAT = "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanbat";
@@ -85,10 +102,14 @@ export function WeddingHero({ event }: Props) {
   const sources = photos.length > 0 ? photos : FALLBACK_SRCS;
   // Зурагт тусгайлан бичсэн тайлбар байвал түүнийг, үгүй бол нийтлэг ишлэлийг
   const captions = PHOTO_CAPTIONS[event.slug];
-  const slides = sources.map((src, i) => ({
-    src,
-    quote: captions?.[src] ?? QUOTES[i % QUOTES.length],
-  }));
+  const useEnglish = ENGLISH_QUOTES.has(event.slug);
+  const slides = sources.map((src, i) => {
+    const n = i % QUOTES.length;
+    return {
+      src,
+      quote: captions?.[src] ?? (useEnglish ? QUOTES_EN[n] ?? QUOTES[n] : QUOTES[n]),
+    };
+  });
 
   const prev  = (current - 1 + slides.length) % slides.length;
   const prev2 = (current - 2 + slides.length) % slides.length;
@@ -203,7 +224,9 @@ export function WeddingHero({ event }: Props) {
           transition={{ duration: 0.8, ease: EASE }}
           className="text-center mb-14"
         >
-          <h2 className="text-4xl md:text-5xl font-serif text-gray-800 mb-2">Бидний хайрын түүх</h2>
+          <h2 className="text-4xl md:text-5xl font-serif text-gray-800 mb-2">
+            {STORY_TITLE[event.slug] ?? "Бидний хайрын түүх"}
+          </h2>
           {event.person2_name && !HIDE_STORY_NAMES.has(event.slug) && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
