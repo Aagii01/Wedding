@@ -176,7 +176,7 @@ export function RSVP({ eventId, slug }: Props) {
           transition={{ duration: 0.75, delay: 0.12, ease: EASE }}
         >
           <h2 className="text-3xl font-serif text-gray-800 mb-1">Мэндчилгээ</h2>
-          <p className="text-sm text-gray-400 mb-7">Баяр хүргэх үгээ үлдээнэ үү</p>
+          <p className="text-sm text-gray-400 mb-7">Сэтгэлийн үгээ үлдээнэ үү</p>
           <form onSubmit={handleWish} className="space-y-4">
             <div>
               <Label htmlFor="w-name" className="text-xs text-gray-500">Нэр</Label>
@@ -219,7 +219,7 @@ export function RSVP({ eventId, slug }: Props) {
         className="max-w-4xl mx-auto mt-14 text-center text-2xl md:text-3xl text-gray-700 italic"
         style={{ fontFamily: "'Cormorant Garamond', serif" }}
       >
-        {(slug && CLOSING_LINE[slug]) || "Таньтай уулзахыг тэсэн ядан хүлээж байна!"}
+        {(slug && CLOSING_LINE[slug]) || "Тантай уулзахыг тэсэн ядан хүлээж байна!"}
       </motion.p>
     </section>
   );

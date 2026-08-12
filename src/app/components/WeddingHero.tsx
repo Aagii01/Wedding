@@ -26,6 +26,19 @@ const QUOTES = [
   '"Чамтай өнгөрүүлсэн хором бүр Зүрхний гүнд хэзээ ч бүдгэршгүй дурсамж болон мөнхөрнө."',
 ];
 
+// Carousel-ийн зураг тус бүрийн тайлбар. Түлхүүр нь зурагны бүтэн URL.
+// Бүртгээгүй зураг дээр нийтлэг QUOTES эргэлдэнэ. "\n" нь шинэ мөр.
+const BAASANBAT = "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanbat";
+const PHOTO_CAPTIONS: Record<string, Record<string, string>> = {
+  "baasanbat-buyn-od": {
+    [`${BAASANBAT}/gallery1.jpg`]: "Бидний үерхсэн өдөр\n2023.10.10",
+    [`${BAASANBAT}/gallery2.jpg`]: "Бэр болсон өдөр\n2026.03.27",
+    [`${BAASANBAT}/gallery3.jpg`]: "Сүй тавьсан өдөр\n2026.07.17",
+    [`${BAASANBAT}/gallery4.jpg`]: QUOTES[3],
+    [`${BAASANBAT}/gallery5.jpg`]: QUOTES[1],
+  },
+};
+
 const FALLBACK_SRCS = [
   "https://images.unsplash.com/photo-1761211488173-a7154314420a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
   "https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
@@ -48,7 +61,8 @@ function SlideCard({ src, quote, small, tiny }: { src: string; quote: string; sm
     >
       <ImageWithFallback src={src} alt="Wedding photo" className="w-full h-full object-cover" />
       <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
-        <p className={`text-white leading-relaxed italic ${small ? "text-[10px]" : "text-xs"}`}>
+        {/* whitespace-pre-line — тайлбар доторх шинэ мөр хадгалагдана */}
+        <p className={`text-white leading-relaxed italic whitespace-pre-line ${small ? "text-[10px]" : "text-xs"}`}>
           {quote}
         </p>
       </div>
@@ -69,7 +83,12 @@ export function WeddingHero({ event }: Props) {
   // Огт зураг байхгүй үед л FALLBACK ажиллана (demo, хоосон event эвдрэхгүй).
   const photos = (event.gallery2_photos || []).filter(Boolean);
   const sources = photos.length > 0 ? photos : FALLBACK_SRCS;
-  const slides = sources.map((src, i) => ({ src, quote: QUOTES[i % QUOTES.length] }));
+  // Зурагт тусгайлан бичсэн тайлбар байвал түүнийг, үгүй бол нийтлэг ишлэлийг
+  const captions = PHOTO_CAPTIONS[event.slug];
+  const slides = sources.map((src, i) => ({
+    src,
+    quote: captions?.[src] ?? QUOTES[i % QUOTES.length],
+  }));
 
   const prev  = (current - 1 + slides.length) % slides.length;
   const prev2 = (current - 2 + slides.length) % slides.length;

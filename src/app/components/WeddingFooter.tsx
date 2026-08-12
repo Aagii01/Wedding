@@ -4,10 +4,16 @@ import { EventData } from "../../types/event";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200";
 
+// Footer-ийн зургийг main_image-ээс өөр зургаар солих slug-ууд.
+const FOOTER_IMAGE: Record<string, string> = {
+  "baasanbat-buyn-od":
+    "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanbat/tugsgul.jpg",
+};
+
 type Props = { event: EventData };
 
 export function WeddingFooter({ event }: Props) {
-  const imgSrc = event.main_image || FALLBACK_IMAGE;
+  const imgSrc = FOOTER_IMAGE[event.slug] || event.main_image || FALLBACK_IMAGE;
 
   const displayTitle = event.person2_name
     ? `${event.person1_name} & ${event.person2_name}`
