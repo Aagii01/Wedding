@@ -340,7 +340,10 @@ function T12Navbar({ mono, names }: { mono: string; names: string }) {
 // ─── Hero ────────────────────────────────────────────────────────────────────
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1519741497674-611481863552?w=2400&q=80";
 
-function T12Hero({ names, date, heroImage }: { names: string; date: string; heroImage?: string }) {
+// Нэрийг нэг мөрөнд багтаах slug-ууд — нэрийн фонт бага зэрэг жижигрэнэ.
+const ONE_LINE_NAMES = new Set<string>(["togoo-enkhnasan"]);
+
+function T12Hero({ names, date, heroImage, oneLine }: { names: string; date: string; heroImage?: string; oneLine?: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollY } = useScroll();
   const yBg = useTransform(scrollY, [0, 800], [0, 160]);
@@ -372,8 +375,10 @@ function T12Hero({ names, date, heroImage }: { names: string; date: string; hero
           <h1
             style={{
               fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
-              color: "#fff", lineHeight: 0.9, letterSpacing: "-0.02em",
-              fontSize: "clamp(3.2rem, 10.5vw, 9rem)", margin: 0,
+              color: "#fff", lineHeight: oneLine ? 1.05 : 0.9, letterSpacing: "-0.02em",
+              fontSize: oneLine ? "clamp(2rem, 7.6vw, 6rem)" : "clamp(3.2rem, 10.5vw, 9rem)",
+              whiteSpace: oneLine ? "nowrap" : undefined,
+              margin: 0,
             }}
           >
             {(() => {
@@ -392,8 +397,8 @@ function T12Hero({ names, date, heroImage }: { names: string; date: string; hero
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
         transition={{ delay: 1.4, duration: 0.8 }}
         style={{
-          position: "absolute", right: "clamp(24px,4vw,40px)", bottom: 32,
-          display: "flex", alignItems: "center", gap: 12,
+          position: "absolute", left: 0, right: 0, bottom: 32,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
           color: "rgba(255,255,255,0.85)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.3em",
         }}
       >
@@ -1173,7 +1178,9 @@ function T12Schedule({ event, texts }: { event: EventData; texts: T12Texts }) {
                   <div style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 700, fontSize: 17, color: INK, letterSpacing: "-0.01em" }}>
                     {label}
                   </div>
-                  <div style={{ fontSize: 12, color: `color-mix(in srgb, ${INK} 45%, ${CREAM})`, marginTop: 3, letterSpacing: "0.02em" }}>
+                  {/* Тайлбар нь гарчигтайгаа ижил фонттой (Cormorant), зөвхөн
+                      хэмжээ, өнгөөрөө зөөлөрнө */}
+                  <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, color: `color-mix(in srgb, ${INK} 45%, ${CREAM})`, marginTop: 3, letterSpacing: "0.02em" }}>
                     {desc}
                   </div>
                 </div>
@@ -1539,7 +1546,7 @@ export default function Template12({ event }: { event: EventData }) {
       <T12VideoIntro audioRef={audioRef} />
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
-      <T12Hero names={names} date={event.date} heroImage={event.main_image} />
+      <T12Hero names={names} date={event.date} heroImage={event.main_image} oneLine={ONE_LINE_NAMES.has(event.slug)} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
       <T12OurStory photos={allPhotos} texts={texts} />
       <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} texts={texts} />
