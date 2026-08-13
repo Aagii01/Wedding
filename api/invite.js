@@ -95,12 +95,13 @@ const KIND = {
   child: "Сэвлэг үргээх ёслолын урилга",
   corporate: "Албан ёсны урилга",
   apartment: "Шинэ байрны цайллагын урилга",
+  nair: "Хүндэтгэлийн арга хэмжээний урилга",
 };
 
 // Хуримын урилга биш төрлүүд — preview дээр "One Wedding" нэр ба хуримын
 // og-default.jpg гарах ёсгүй. (Байгууллагынхыг isCorporate тусад нь мэднэ.)
 function isNonWedding(event) {
-  return isCorporate(event) || event.type === "apartment";
+  return isCorporate(event) || event.type === "apartment" || event.type === "nair";
 }
 
 // Байгууллагын урилга дээр хуримын нэр (One Wedding) ба хуримын preview зураг

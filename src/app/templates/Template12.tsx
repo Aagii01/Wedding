@@ -37,6 +37,47 @@ const HIDE_SCHEDULE = new Set<string>([
   "adyasuren2-khulan2",
 ]);
 
+// Template12 нь хуримын урилга гэж бичигдсэн тул хэд хэдэн газар "хурим",
+// "хос", "хайр" гэсэн үг шууд бичээстэй байдаг. Хуримын биш баяр (гэр бүлийн
+// найр, ой, хүндэтгэлийн ёслол) дээр эдгээрийг slug-аар нь энд солино.
+// Бүртгээгүй slug дээр үндсэн (DEFAULT_TEXTS) бичиглэл хэвээр гарна.
+type T12Texts = {
+  countdownEyebrow: string;
+  scheduleEyebrow: string;
+  scheduleTitle: string;
+  rsvpTitle: string;
+  rsvpPlaceholder: string;
+  footerTagline: string;
+  storyWatermark: string;
+};
+
+const DEFAULT_TEXTS: T12Texts = {
+  countdownEyebrow: "Хуримын өдөр хүртэл",
+  scheduleEyebrow: "Өдрийн цагийн хуваарь",
+  scheduleTitle: "Хуримын хөтөлбөр",
+  rsvpTitle: "Ирц бүртгэл",
+  rsvpPlaceholder: "Эрхэм хос нарт...",
+  footerTagline: "Special Day · Хайраар бүтээсэн",
+  storyWatermark: "манай түүх",
+};
+
+const TEXT_OVERRIDE: Record<string, Partial<T12Texts>> = {
+  // Ө.Тогоо & Б.Энхнасан — гэр бүл болсны 36 жилийн ой, төрийн хүндэтгэлийн ёслол
+  "togoo-enkhnasan": {
+    countdownEyebrow: "Найрын өдөр хүртэл",
+    scheduleEyebrow: "Өдрийн цагийн хуваарь",
+    scheduleTitle: "Найрын хөтөлбөр",
+    rsvpTitle: "Ирцээ бүртгүүлэх",
+    rsvpPlaceholder: "Эрхэм гэр бүлд...",
+    footerTagline: "Special Day · Хүндэтгэлтэйгээр",
+    storyWatermark: "бидний түүх",
+  },
+};
+
+function textsFor(slug?: string): T12Texts {
+  return { ...DEFAULT_TEXTS, ...((slug && TEXT_OVERRIDE[slug]) || {}) };
+}
+
 // venue_map_url дээр http(s):// угтвар байхгүй бол браузер харьцангуй зам гэж
 // ойлгож сайтын хаяг дээр наадаг. Угтваргүй бол https:// нэмж бүтэн болгоно.
 function normalizeUrl(u?: string) {
@@ -575,12 +616,13 @@ function useIsMobile() {
 }
 
 function StoryChapter({
-  srcs, captions, num, title, body, bodies, slots, reverse,
+  srcs, captions, num, title, body, bodies, slots, reverse, watermark: watermarkText,
 }: {
   srcs: string[]; captions: string[];
   num: string; title: string; body: string; bodies?: string[];
   slots: typeof STACK_SLOTS[0];
   reverse: boolean;
+  watermark: string;
 }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -607,7 +649,7 @@ function StoryChapter({
           userSelect: "none",
         }}
       >
-        манай түүх
+        {watermarkText}
       </div>
     </div>
   );
@@ -674,7 +716,7 @@ function StoryChapter({
 
 const PHOTOS_PER_CHAPTER = 4;
 
-function T12OurStory({ photos }: { photos: string[] }) {
+function T12OurStory({ photos, texts }: { photos: string[]; texts: T12Texts }) {
   const allImgs = [...photos, ...STORY_FALLBACKS];
 
   const chapters = DEFAULT_CHAPTERS.map((ch, ci) => ({
@@ -689,7 +731,7 @@ function T12OurStory({ photos }: { photos: string[] }) {
   return (
     <div style={{ background: CREAM }}>
       {chapters.map((ch, i) => (
-        <StoryChapter key={i} {...ch} />
+        <StoryChapter key={i} {...ch} watermark={texts.storyWatermark} />
       ))}
     </div>
   );
@@ -960,7 +1002,7 @@ function Fireworks({ trigger }: { trigger: number }) {
   );
 }
 
-function T12Countdown({ date, title, venue, time }: { date: string; title: string; venue: string; time?: string }) {
+function T12Countdown({ date, title, venue, time, texts }: { date: string; title: string; venue: string; time?: string; texts: T12Texts }) {
   const { days, hours, minutes, seconds } = useCountdown(date);
   const tan = `color-mix(in srgb, ${ACCENT} 55%, ${CREAM})`;
   const sectionRef  = useRef<HTMLElement>(null);
@@ -1018,7 +1060,7 @@ function T12Countdown({ date, title, venue, time }: { date: string; title: strin
 
       <div style={{ position: "relative", maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
         <Reveal>
-          <Eyebrow>Хуримын өдөр хүртэл</Eyebrow>
+          <Eyebrow>{texts.countdownEyebrow}</Eyebrow>
         </Reveal>
         <Reveal delay={0.1}>
           <div style={{
@@ -1077,7 +1119,7 @@ const DEFAULT_SCHEDULE: ScheduleItem[] = [
 
 
 
-function T12Schedule({ event }: { event: EventData }) {
+function T12Schedule({ event, texts }: { event: EventData; texts: T12Texts }) {
   const schedule = getSchedule(event, DEFAULT_SCHEDULE);
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start center", "end center"] });
@@ -1094,10 +1136,10 @@ function T12Schedule({ event }: { event: EventData }) {
           style={{ textAlign: "center", marginBottom: "clamp(48px,8vw,80px)" }}
         >
           <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.32em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})`, marginBottom: 12 }}>
-            Өдрийн цагийн хуваарь
+            {texts.scheduleEyebrow}
           </div>
           <div style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "clamp(2rem,6vw,3.2rem)", color: INK, letterSpacing: "-0.01em" }}>
-            Хуримын хөтөлбөр
+            {texts.scheduleTitle}
           </div>
         </motion.div>
 
@@ -1253,7 +1295,7 @@ function T12Quote({ event }: { event: EventData }) {
 }
 
 // ─── RSVP ────────────────────────────────────────────────────────────────────
-function T12RSVP({ eventId }: { eventId: string }) {
+function T12RSVP({ eventId, texts }: { eventId: string; texts: T12Texts }) {
   const [form, setForm] = useState({ name: "", phone: "", guests: "1", message: "" });
   const [loading, setLoading] = useState(false);
 
@@ -1303,7 +1345,7 @@ function T12RSVP({ eventId }: { eventId: string }) {
             fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
             fontSize: "clamp(2.2rem, 6vw, 3.8rem)", color: INK, letterSpacing: "-0.01em",
           }}>
-            Ирц бүртгэл
+            {texts.rsvpTitle}
           </div>
         </Reveal>
 
@@ -1335,7 +1377,7 @@ function T12RSVP({ eventId }: { eventId: string }) {
             <textarea
               style={{ ...inputStyle, height: 100, resize: "vertical" }}
               value={form.message}
-              placeholder="Эрхэм хос нарт..."
+              placeholder={texts.rsvpPlaceholder}
               onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
             />
           </div>
@@ -1363,9 +1405,10 @@ function T12RSVP({ eventId }: { eventId: string }) {
 // байхгүй тул slug-аар нь энд бичнэ). Бүртгээгүй урилга дээр огт гарахгүй.
 const FOOTER_PHONES: Record<string, string[]> = {
   "enkhsanaa-dolgormaa": ["88118379", "86617777", "86657777"],
+  "togoo-enkhnasan": ["99351108", "94357011"],
 };
 
-function T12Footer({ mono, names, phones }: { mono: string; names: string; phones?: string[] }) {
+function T12Footer({ mono, names, phones, tagline }: { mono: string; names: string; phones?: string[]; tagline: string }) {
   const parts = mono.split("&");
   return (
     <footer style={{ background: CREAM, paddingTop: 96, paddingBottom: 64, textAlign: "center", position: "relative" }}>
@@ -1403,7 +1446,7 @@ function T12Footer({ mono, names, phones }: { mono: string; names: string; phone
         </div>
       )}
       <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
-        Special Day · Хайраар бүтээсэн
+        {tagline}
       </div>
     </footer>
   );
@@ -1456,6 +1499,7 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 export default function Template12({ event }: { event: EventData }) {
   const names = [event.person1_name, event.person2_name].filter(Boolean).join(" & ");
   const mono  = MONO_OVERRIDE[event.slug] ?? initials(event.person1_name, event.person2_name);
+  const texts = textsFor(event.slug);
   // gallery_photos ба gallery2_photos-д ижил зураг давхардаж бичигдсэн байх нь
   // элбэг — давхардлыг нь хасаж, өөр өөр зургууд л цомогт орно.
   const allPhotos = Array.from(
@@ -1497,13 +1541,13 @@ export default function Template12({ event }: { event: EventData }) {
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <T12Hero names={names} date={event.date} heroImage={event.main_image} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
-      <T12OurStory photos={allPhotos} />
-      <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} />
-      {!HIDE_SCHEDULE.has(event.slug) && <T12Schedule event={event} />}
+      <T12OurStory photos={allPhotos} texts={texts} />
+      <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} texts={texts} />
+      {!HIDE_SCHEDULE.has(event.slug) && <T12Schedule event={event} texts={texts} />}
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T12Quote event={event} />
-      <T12RSVP eventId={event.id} />
-      <T12Footer mono={mono} names={FOOTER_NAMES_OVERRIDE[event.slug] ?? names} phones={FOOTER_PHONES[event.slug]} />
+      <T12RSVP eventId={event.id} texts={texts} />
+      <T12Footer mono={mono} names={FOOTER_NAMES_OVERRIDE[event.slug] ?? names} phones={FOOTER_PHONES[event.slug]} tagline={texts.footerTagline} />
       <Toaster />
     </div>
   );
