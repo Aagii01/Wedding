@@ -13,12 +13,6 @@ type Props = {
   slug?: string;
 };
 
-// Огнооны доор "13:00 цагт" гэж цаг харуулах slug-ууд.
-const SHOW_TIME_UNDER_DATE = new Set<string>([
-  "jargasaikhan-irmuunzaya",
-  "erdos-elmira",
-]);
-
 function getTimeLeft(target: Date) {
   const diff = target.getTime() - Date.now();
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
@@ -163,12 +157,13 @@ export function CountdownTimer({ date, time, title, venue, venueAddress, slug }:
             {formatDate(date)}
           </h2>
 
-          {slug && SHOW_TIME_UNDER_DATE.has(slug) && time && (
+          {/* Эхлэх цаг — урилга бүр өөрийн events.time-аа харуулна */}
+          {time && (
             <p
               className="text-2xl md:text-3xl text-gray-600 mb-6"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
-              {time} цагт
+              Эхлэх цаг: {time}
             </p>
           )}
 

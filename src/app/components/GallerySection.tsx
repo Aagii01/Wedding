@@ -60,7 +60,7 @@ function Tile({
 
 // Цомгийн гарчгийг солих slug-ууд.
 const TITLE_OVERRIDE: Record<string, string> = {
-  "ganbaatar-maralgua": "Photo Album",
+  // "slug": "Photo Album",
 };
 
 export function GallerySection({ event }: Props) {

@@ -268,7 +268,8 @@ function T13Hero({ event }: { event: EventData }) {
       background: "#1a0812",
       position: "relative",
       overflow: "hidden",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      // Огноо, нэрс зурагны доод хэсэгт байрлана (голд биш)
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end",
     }}>
       {event.main_image && (
         <div style={{
@@ -307,14 +308,9 @@ function T13Hero({ event }: { event: EventData }) {
 
       <div style={{
         position: "relative", zIndex: 2, textAlign: "center",
-        padding: "0 24px",
+        padding: "0 24px 18vh",
         maxWidth: "100%", boxSizing: "border-box",
       }}>
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2, delay: 4, ease: "easeOut" }}
-          style={{ color: "white", ...playfairI, fontSize: 36, marginBottom: 8 }}>
-          Хурим
-        </motion.div>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2, delay: 4.15, ease: "easeOut" }}
           style={{ color: "white", ...ovo, fontSize: 16, fontWeight: 700, letterSpacing: "0.2em", marginBottom: 28, opacity: 0.85 }}>
@@ -654,6 +650,11 @@ function T13Countdown({ event }: { event: EventData }) {
 }
 
 // ─── Schedule ─────────────────────────────────────────────────────────────────
+// Хөтөлбөрийн хэсгийг харуулахгүй slug-ууд.
+const HIDE_SCHEDULE = new Set<string>([
+  "oyunsukh-tuwshinjargal",
+]);
+
 function T13Schedule({ event }: { event: EventData }) {
   const time = event.time || "16:00";
   const [hh, mm] = time.split(":").map(Number);
@@ -1301,7 +1302,7 @@ export default function Template13({ event }: { event: EventData }) {
       <T13Letter event={event} />
       <T13Gallery event={event} />
       <T13Countdown event={event} />
-      <T13Schedule event={event} />
+      {!HIDE_SCHEDULE.has(event.slug) && <T13Schedule event={event} />}
       <T13Location event={event} />
       <T13DressCode slug={event.slug} />
       <T13Wishes eventId={event.id} />

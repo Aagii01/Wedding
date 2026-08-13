@@ -30,11 +30,11 @@ const QUOTES = [
 // дээр монгол ишлэлийн оронд эдгээр гарна (орчуулга байгаа эхний 5 дээр;
 // үлдсэн дээр монголоороо хэвээр).
 const QUOTES_EN = [
-  '"Loving you is like sunlight that warms me even from beyond the mountains — unseen, yet always present in my heart."',
-  '"When two hearts beat in the same rhythm, the universe finally becomes whole."',
+  '"Every moment we spend together makes time fly by all too quickly."',
+  '"Your smile is the brightest color that brings light to the gray days of my life."',
   '"Even across the distance of space and the passage of time, the delicate thread of love never breaks."',
-  '"Your smile is the brightest color that lights up the boring days of my life."',
-  '"Every moment we spend together seems to make time rush by far too quickly."',
+  '"When two hearts beat in the same rhythm, the universe finally becomes whole."',
+  '"Loving you is like sunlight that warms me even from beyond the mountains — unseen, yet always present in my heart."',
 ];
 const ENGLISH_QUOTES = new Set<string>(["ganbaatar-maralgua"]);
 
