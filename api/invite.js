@@ -52,7 +52,7 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
 
 const FIELDS =
-  "title,type,template,date,venue_name,person1_name,person2_name,person1_photo,main_image,gallery_photos";
+  "slug,title,type,template,date,venue_name,person1_name,person2_name,person1_photo,main_image,gallery_photos";
 
 // Preview зургууд — event бүрийн өөрийн зураг биш, төрөл тус бүрт нэг нийтлэг
 // зураг (public/ дотор, build-д dist/-руу хуулагдана).
@@ -120,6 +120,14 @@ function isValidImageUrl(url) {
   return typeof url === "string" && /^https?:\/\/[^\s/.]+(\.[^\s/.]+)+\//.test(url);
 }
 
+// Preview-д тодорхой зураг гаргах урилгууд. events хүснэгтэд og_image багана
+// байхгүй тул slug-аар нь энд бичнэ (багана нэмэх нь FIELDS-ийг хөндөх тул
+// бүх урилгын preview эрсдэлд ордог — дэлгэрэнгүйг файлын толгойгоос).
+const OG_IMAGE_BY_SLUG = {
+  "togoo-enkhnasan":
+    "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/togoo/gallery5.jpg",
+};
+
 function ownImage(event) {
   const gallery = Array.isArray(event.gallery_photos) ? event.gallery_photos : [];
   // Байгууллагын урилгад gallery-гийн эхний зураг нь лого/гэрчилгээ тул түрүүнд.
@@ -161,11 +169,15 @@ function buildTags(event, url, origin) {
     : [formatDate(event.date), event.venue_name]
   ).filter(Boolean).join(" · ");
 
-  // Хуримын биш урилга дээр нийтлэг og-default.jpg (хуримын зураг) хэрэглэхгүй —
-  // event-ийн өөрийн зураг, байхгүй бол зураггүй текстэн preview.
-  const image = nonWedding
-    ? ownImage(event)
-    : origin + (isChild ? OG_IMAGE_CHILD : OG_IMAGE);
+  // Slug-аар тогтоосон зураг хамгийн түрүүнд. Дараа нь: хуримын биш урилга дээр
+  // нийтлэг og-default.jpg (хуримын зураг) хэрэглэхгүй — event-ийн өөрийн зураг,
+  // байхгүй бол зураггүй текстэн preview.
+  const pinned = OG_IMAGE_BY_SLUG[event.slug];
+  const image = isValidImageUrl(pinned)
+    ? pinned
+    : nonWedding
+      ? ownImage(event)
+      : origin + (isChild ? OG_IMAGE_CHILD : OG_IMAGE);
 
   const tags = [
     `<meta property="og:type" content="website" />`,

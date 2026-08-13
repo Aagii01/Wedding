@@ -40,7 +40,7 @@ const ENGLISH_QUOTES = new Set<string>(["ganbaatar-maralgua"]);
 
 // "Бидний хайрын түүх" гарчгийг солих slug-ууд.
 const STORY_TITLE: Record<string, string> = {
-  "ganbaatar-maralgua": "Our love story",
+  // "slug": "Our love story",
 };
 
 // Carousel-ийн зураг тус бүрийн тайлбар. Түлхүүр нь зурагны бүтэн URL.
