@@ -406,19 +406,22 @@ function GalleryCard({ src, quote, size }: {
           display: "block",
         }}
       />
-      <div style={{
-        position: "absolute", bottom: 0, left: 0, right: 0,
-        padding: size === "large" ? "14px 12px" : "8px 8px",
-        background: "linear-gradient(to top, rgba(0,0,0,0.72), transparent)",
-      }}>
-        <p style={{
-          ...playfairI,
-          fontSize: size === "large" ? 11 : 9,
-          color: "white", lineHeight: 1.55, margin: 0,
+      {/* Ишлэлгүй үед бараан давхарга ч гарахгүй — зураг цэвэр харагдана */}
+      {quote && (
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0,
+          padding: size === "large" ? "14px 12px" : "8px 8px",
+          background: "linear-gradient(to top, rgba(0,0,0,0.72), transparent)",
         }}>
-          {quote}
-        </p>
-      </div>
+          <p style={{
+            ...playfairI,
+            fontSize: size === "large" ? 11 : 9,
+            color: "white", lineHeight: 1.55, margin: 0,
+          }}>
+            {quote}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -427,6 +430,21 @@ function GalleryCard({ src, quote, size }: {
 // "Бидний хайрын түүх" гарчиг хэвээрээ.
 const GALLERY_TITLE: Record<string, string> = {
   "zadragchaa-otgonjargal": "Хайр бол хамтдаа бүтээх хамгийн сайхан аялал",
+  "ganzorig-bulgantugs": "Бидний замнал",
+};
+
+// Зурган дээрх хайрын ишлэлийг харуулахгүй slug-ууд.
+const HIDE_PHOTO_QUOTES = new Set<string>(["ganzorig-bulgantugs"]);
+
+// Ирц бүртгэлийн (T13RSVP) хэсгийг нуух slug-ууд.
+const HIDE_RSVP = new Set<string>(["ganzorig-bulgantugs"]);
+
+// Хуримын урилга биш үед гарчгуудаас "хурим" гэсэн үгийг авна.
+const COUNTDOWN_TITLE: Record<string, string> = {
+  "ganzorig-bulgantugs": "Ёслол хүртэл",
+};
+const REQUEST_TITLE: Record<string, string> = {
+  "ganzorig-bulgantugs": "Хүсэлт",
 };
 
 // ─── Gallery carousel ─────────────────────────────────────────────────────────
@@ -438,7 +456,11 @@ function T13Gallery({ event }: { event: EventData }) {
   // нөхөхгүй. Огт зураггүй үед л үндсэн (fallback) зургууд гарна.
   const photos = (event.gallery2_photos || []).filter(Boolean);
   const sources = photos.length ? photos : FALLBACK_PHOTOS;
-  const slides = sources.map((src, i) => ({ src, quote: QUOTES[i % QUOTES.length] }));
+  const hideQuotes = HIDE_PHOTO_QUOTES.has(event.slug);
+  const slides = sources.map((src, i) => ({
+    src,
+    quote: hideQuotes ? "" : QUOTES[i % QUOTES.length],
+  }));
 
   const prev  = (current - 1 + slides.length) % slides.length;
   const prev2 = (current - 2 + slides.length) % slides.length;
@@ -617,7 +639,7 @@ function T13Countdown({ event }: { event: EventData }) {
     <div style={{ background: CREAM, padding: "56px 24px", textAlign: "center" }}>
       <FadeUp>
         <div style={{ ...playfairI, fontSize: 32, color: INK, marginBottom: 10 }}>
-          Хурим хүртэл
+          {COUNTDOWN_TITLE[event.slug] ?? "Хурим хүртэл"}
         </div>
         <div style={{ ...ovo, fontSize: 13, color: INK, opacity: 0.5, letterSpacing: "0.15em", marginBottom: 14 }}>
           ───── ✦ ─────
@@ -655,6 +677,11 @@ const HIDE_SCHEDULE = new Set<string>([
   "oyunsukh-tuwshinjargal",
 ]);
 
+// Хөтөлбөрийн гарчгийг солих slug-ууд (жишээ нь цол хүртсэн замнал).
+const SCHEDULE_TITLE: Record<string, string> = {
+  "ganzorig-bulgantugs": "Хамтын замнал",
+};
+
 function T13Schedule({ event }: { event: EventData }) {
   const time = event.time || "16:00";
   const [hh, mm] = time.split(":").map(Number);
@@ -685,7 +712,7 @@ function T13Schedule({ event }: { event: EventData }) {
       <div style={{ background: BURGUNDY, padding: "52px 24px 60px", textAlign: "center" }}>
         <FadeUp>
           <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 44 }}>
-            Хөтөлбөр
+            {SCHEDULE_TITLE[event.slug] ?? "Хөтөлбөр"}
           </div>
         </FadeUp>
         <div ref={containerRef} style={{ position: "relative", display: "inline-block", textAlign: "left" }}>
@@ -706,7 +733,9 @@ function T13Schedule({ event }: { event: EventData }) {
           {items.map((item, i) => (
             <FadeUp key={i} delay={i * 0.15}>
               <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 28, position: "relative" }}>
-                <div style={{ ...ovo, fontSize: 20, fontWeight: 700, color: "white", width: 70, textAlign: "right" }}>
+                {/* minWidth — "17:00" 70px-д багтана, "2024 · 2026" шиг урт
+                    утга гарвал баганаа өөрөө өргөсгөнө */}
+                <div style={{ ...ovo, fontSize: 20, fontWeight: 700, color: "white", minWidth: 70, textAlign: "right" }}>
                   {item.time}
                 </div>
                 <div style={{
@@ -812,7 +841,7 @@ function T13DressCode({ slug }: { slug?: string }) {
       <div style={{ background: BURGUNDY, padding: "52px 32px 60px", textAlign: "center" }}>
         <FadeUp>
           <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 28 }}>
-            Хуримын хүсэлт
+            {(slug && REQUEST_TITLE[slug]) ?? "Хуримын хүсэлт"}
           </div>
         </FadeUp>
 
@@ -1306,7 +1335,7 @@ export default function Template13({ event }: { event: EventData }) {
       <T13Location event={event} />
       <T13DressCode slug={event.slug} />
       <T13Wishes eventId={event.id} />
-      <T13RSVP eventId={event.id} />
+      {!HIDE_RSVP.has(event.slug) && <T13RSVP eventId={event.id} />}
       <T13Footer event={event} />
 
       {event.music_url && <MusicPlayer src={event.music_url} audioRef={audioRef} />}
