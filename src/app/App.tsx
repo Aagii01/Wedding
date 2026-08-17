@@ -117,7 +117,10 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 const HIDE_SCHEDULE = new Set<string>(["jargasaikhan-irmuunzaya", "erdos-elmira"]);
 
 // Хосын танилцуулга (GroomBride) хэсгийг нуух slug-ууд.
-const HIDE_GROOM_BRIDE = new Set<string>(["enkhamar-lhagwazaya"]);
+const HIDE_GROOM_BRIDE = new Set<string>([
+  "enkhamar-lhagwazaya",
+  "enkhamar-lhagwazaya2",
+]);
 
 type Props = { event: EventData };
 
