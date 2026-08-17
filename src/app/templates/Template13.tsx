@@ -233,6 +233,10 @@ function MusicPlayer({ src, audioRef }: { src?: string; audioRef: React.RefObjec
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
+// Нүүр зураг дээрх цэцгийн чимэглэл / бичвэрийг нуух slug-ууд.
+const HIDE_HERO_FLOWERS = new Set<string>(["ganzorig-bulgantugs"]);
+const HIDE_HERO_TEXT    = new Set<string>(["ganzorig-bulgantugs"]);
+
 function T13Hero({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";
   const name2 = event.person2_name || "Сарнай";
@@ -262,6 +266,9 @@ function T13Hero({ event }: { event: EventData }) {
     wordBreak: "break-word",
   };
 
+  const hideFlowers  = HIDE_HERO_FLOWERS.has(event.slug);
+  const hideHeroText = HIDE_HERO_TEXT.has(event.slug);
+
   return (
     <div style={{
       minHeight: "100svh",
@@ -285,27 +292,32 @@ function T13Hero({ event }: { event: EventData }) {
         zIndex: 0,
       }} />
 
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
-        transition={{ duration: 2, delay: 4, ease: "easeOut" }}
-        style={{ position: "absolute", top: -20, left: -20, zIndex: 1 }}>
-        <PeonySVG size={160} color="#F5C8DC" />
-      </motion.div>
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
-        transition={{ duration: 2.5, delay: 4.2, ease: "easeOut" }}
-        style={{ position: "absolute", top: 40, right: -30, zIndex: 1 }}>
-        <PeonySVG size={140} color="#F8D0E0" />
-      </motion.div>
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.5, scale: 1 }}
-        transition={{ duration: 2.7, delay: 4.4, ease: "easeOut" }}
-        style={{ position: "absolute", bottom: 20, left: 10, zIndex: 1 }}>
-        <PeonySVG size={120} color="#F0C0D4" />
-      </motion.div>
-      <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
-        transition={{ duration: 2.3, delay: 4.6, ease: "easeOut" }}
-        style={{ position: "absolute", bottom: -10, right: 0, zIndex: 1 }}>
-        <PeonySVG size={150} color="#F5C8DA" />
-      </motion.div>
+      {!hideFlowers && (
+        <>
+          <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
+            transition={{ duration: 2, delay: 4, ease: "easeOut" }}
+            style={{ position: "absolute", top: -20, left: -20, zIndex: 1 }}>
+            <PeonySVG size={160} color="#F5C8DC" />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
+            transition={{ duration: 2.5, delay: 4.2, ease: "easeOut" }}
+            style={{ position: "absolute", top: 40, right: -30, zIndex: 1 }}>
+            <PeonySVG size={140} color="#F8D0E0" />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.5, scale: 1 }}
+            transition={{ duration: 2.7, delay: 4.4, ease: "easeOut" }}
+            style={{ position: "absolute", bottom: 20, left: 10, zIndex: 1 }}>
+            <PeonySVG size={120} color="#F0C0D4" />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 0.55, scale: 1 }}
+            transition={{ duration: 2.3, delay: 4.6, ease: "easeOut" }}
+            style={{ position: "absolute", bottom: -10, right: 0, zIndex: 1 }}>
+            <PeonySVG size={150} color="#F5C8DA" />
+          </motion.div>
+        </>
+      )}
 
+      {!hideHeroText && (
       <div style={{
         position: "relative", zIndex: 2, textAlign: "center",
         padding: "0 24px 18vh",
@@ -332,6 +344,7 @@ function T13Hero({ event }: { event: EventData }) {
           {name2}
         </motion.div>
       </div>
+      )}
 
       {/* Доош гүйлгэхийг сануулах — нэрс гарч дууссаны дараа зөөлөн илэрнэ */}
       <motion.div
@@ -675,11 +688,13 @@ function T13Countdown({ event }: { event: EventData }) {
 // Хөтөлбөрийн хэсгийг харуулахгүй slug-ууд.
 const HIDE_SCHEDULE = new Set<string>([
   "oyunsukh-tuwshinjargal",
+  "ganzorig-bulgantugs",
 ]);
 
 // Хөтөлбөрийн гарчгийг солих slug-ууд (жишээ нь цол хүртсэн замнал).
 const SCHEDULE_TITLE: Record<string, string> = {
-  "ganzorig-bulgantugs": "Хамтын замнал",
+  // Хоосон мөр = гарчиг огт гарахгүй
+  "ganzorig-bulgantugs": "",
 };
 
 function T13Schedule({ event }: { event: EventData }) {
@@ -710,11 +725,13 @@ function T13Schedule({ event }: { event: EventData }) {
     <div style={{ background: BURGUNDY }}>
       <WavyTop fill={BURGUNDY} />
       <div style={{ background: BURGUNDY, padding: "52px 24px 60px", textAlign: "center" }}>
-        <FadeUp>
-          <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 44 }}>
-            {SCHEDULE_TITLE[event.slug] ?? "Хөтөлбөр"}
-          </div>
-        </FadeUp>
+        {(SCHEDULE_TITLE[event.slug] ?? "Хөтөлбөр") !== "" && (
+          <FadeUp>
+            <div style={{ ...playfairI, fontSize: 34, color: CREAM, marginBottom: 44 }}>
+              {SCHEDULE_TITLE[event.slug] ?? "Хөтөлбөр"}
+            </div>
+          </FadeUp>
+        )}
         <div ref={containerRef} style={{ position: "relative", display: "inline-block", textAlign: "left" }}>
           {/* Scroll-driven vertical line — centered on diamond (70+20+5=95px) */}
           <div style={{
@@ -830,7 +847,7 @@ function T13DressCode({ slug }: { slug?: string }) {
     { emoji: "🌸", label: "Хүлээн авалт" },
     { emoji: "📵", label: "Утасгүй мөч" },
     { emoji: "⏰", label: "Цаг баримтлах" },
-    { emoji: "🥂", label: "Хамтдаа баярлах" },
+    { emoji: "🥂", label: "Хамтдаа баярлах +18" },
   ].filter(({ label }) => !(label === "Утасгүй мөч" && slug && HIDE_NO_PHONE.has(slug)));
 
   const timeExtra = slug ? TIME_CARD_EXTRA[slug] : undefined;
@@ -1217,17 +1234,26 @@ const CONTACT_PHONE: Record<string, string> = {
   "gan-erdene-misheel": "8908-9999",
 };
 
+// Footer-ийн зургийг slug-аар нь тогтоох.
+const FOOTER_IMAGE: Record<string, string> = {
+  "ganzorig-bulgantugs":
+    "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/ganzorig/gallery1.jpg",
+};
+
 function T13Footer({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";
   const name2 = event.person2_name || "Сарнай";
+  // Үндсэндээ gallery_photos-ийн эхний зураг гарна. Энд бүртгэсэн slug дээр
+  // цомгийн дарааллыг хөндөлгүйгээр өөр зураг тавина.
+  const footerImg = FOOTER_IMAGE[event.slug] || event.gallery_photos?.[0];
 
   return (
     <div style={{ background: BURGUNDY, padding: "56px 32px 80px", textAlign: "center" }}>
       <WavyTop fill={BURGUNDY} />
-      {event.gallery_photos?.[0] && (
+      {footerImg && (
         <FadeUp>
           <img
-            src={event.gallery_photos[0]}
+            src={footerImg}
             alt="couple"
             style={{
               // Тогтмол өндөр байсан тул зураг таслагдаж байв — бүтнээр нь
