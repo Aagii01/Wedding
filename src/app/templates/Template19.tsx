@@ -1245,7 +1245,7 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 
 // ─── Root ────────────────────────────────────────────────────────────────────
 // Хөтөлбөр (T19Schedule) хэсгийг нуух slug-ууд.
-const HIDE_SCHEDULE = new Set<string>(["anar"]);
+const HIDE_SCHEDULE = new Set<string>(["anar", "tsogtslon"]);
 
 export default function Template19({ event }: { event: EventData }) {
   // Төрсөн өдрийн урилга — ганц хүүхдийн нэр

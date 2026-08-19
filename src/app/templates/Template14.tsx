@@ -260,6 +260,9 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 }
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
+// Нүүрэн дэх "Бид гэрлэж байна" бичвэрийг нуух slug-ууд (хурим биш арга хэмжээ).
+const HIDE_HERO_TAGLINE = new Set<string>(["khongorzul"]);
+
 function T14Hero({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
@@ -288,13 +291,15 @@ function T14Hero({ event }: { event: EventData }) {
         padding: "24px 24px 16px",
         textAlign: "center",
       }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.3 }}
-          style={{ ...cg, fontWeight: 700, fontSize: 13, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", marginBottom: 36, textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}
-        >
-          Бид гэрлэж байна
-        </motion.div>
+        {!HIDE_HERO_TAGLINE.has(event.slug) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.3 }}
+            style={{ ...cg, fontWeight: 700, fontSize: 13, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", marginBottom: 36, textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}
+          >
+            Бид гэрлэж байна
+          </motion.div>
+        )}
 
         <motion.div
           ref={wrapRef}
@@ -334,6 +339,9 @@ function T14Hero({ event }: { event: EventData }) {
 const VERSE_NAMES: Record<string, [string, string]> = {
   "adyasuren-khulan": ["Хишигсүрэнгийн Адъяасүрэн", "Мянганы Хулан"],
 };
+
+// Шүлгийн доорх "Хоёр зүрх нэгдэхэд..." ишлэлийг нуух slug-ууд.
+const HIDE_VERSE_QUOTE = new Set<string>(["khongorzul"]);
 
 function T14Verse({ event }: { event: EventData }) {
   const verseNames = VERSE_NAMES[event.slug];
@@ -378,17 +386,24 @@ function T14Verse({ event }: { event: EventData }) {
           </p>
         </FadeUp>
 
-        <FadeUp delay={0.4}>
-          <p style={{ ...cgI, fontSize: 17, color: WAX, textAlign: "center", marginTop: 24, lineHeight: 1.7 }}>
-            "Хоёр зүрх нэгдэхэд дэлхий бүхэл бүтэн болно."
-          </p>
-        </FadeUp>
+        {!HIDE_VERSE_QUOTE.has(event.slug) && (
+          <FadeUp delay={0.4}>
+            <p style={{ ...cgI, fontSize: 17, color: WAX, textAlign: "center", marginTop: 24, lineHeight: 1.7 }}>
+              "Хоёр зүрх нэгдэхэд дэлхий бүхэл бүтэн болно."
+            </p>
+          </FadeUp>
+        )}
       </div>
     </Paper>
   );
 }
 
 // ─── Date + Countdown ─────────────────────────────────────────────────────────
+// Тоологчийн гарчгийг солих slug-ууд (хурим биш арга хэмжээнүүд).
+const COUNTDOWN_TITLE: Record<string, string> = {
+  khongorzul: "Шинэ байрны цайллага хүртэлх хугацаа",
+};
+
 function T14DateCountdown({ event }: { event: EventData }) {
   const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
@@ -430,7 +445,7 @@ function T14DateCountdown({ event }: { event: EventData }) {
       <div style={{ padding: "72px 28px" }}>
         <FadeUp delay={0.1}>
           <div style={{ ...nameFont, color: WAX, fontSize: "clamp(28px, 7vw, 44px)", lineHeight: 1.15, textAlign: "center", marginTop: 8, marginBottom: 28 }}>
-            Хурим хүртэлх хугацаа
+            {COUNTDOWN_TITLE[event.slug] ?? "Хурим хүртэлх хугацаа"}
           </div>
         </FadeUp>
 
@@ -1017,6 +1032,7 @@ const CONTACT_PHONES: Record<string, string[]> = {
   "dorjzowd-nomin": ["88777477", "86777477"],
   "tumbayr-dulguun": ["90343333", "91492222"],
   "itgelt-lham": ["99991218", "99974928"],
+  "khongorzul": ["99239222", "88592826"],
 };
 
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
@@ -1036,6 +1052,12 @@ const FOOTER_NAMES: Record<string, string[]> = {
   "itgelt-lham": ["Хүндэтгэсэн:"],
 };
 
+// Footer-ийн утасны мөрийн яг дээр гарах "Хүндэтгэсэн:" блок — зөвхөн энд
+// бүртгэсэн slug дээр. Мөр тус бүр шинэ мөрөөр гарна.
+const HONORED_BY: Record<string, string[]> = {
+  "khongorzul": ["Хүндэтгэсэн: П.Дэлгэрбаяр", "Т.Хонгорзул", "Охин Д.Гэгээн-Эгшиглэн"],
+};
+
 // Монограмын үсэг. initialOf нь "Х.Адъяасүрэн" → "А" гэж овгийн товчлолыг
 // алгасдаг ч "Хишигсүрэн Адъяасүрэн" шиг цэггүй бүтэн нэр дээр эхний үг нь
 // овог мөн үү, өөрийн нэр мөн үү гэдгийг таамаглах найдваргүй. Тиймээс
@@ -1053,6 +1075,7 @@ const HIDE_SCHEDULE = new Set<string>([
   "adyasuren-khulan",
   "tumbayr-dulguun",
   "samdanjigmid-munkhzul",
+  "khongorzul",
 ]);
 
 // Зургийн цомог (T14Gallery) хэсгийг харуулахгүй slug-ууд.
@@ -1093,6 +1116,7 @@ function T14ScheduleQR({ src }: { src: string }) {
 
 function T14Footer({ event }: { event: EventData }) {
   const phones = CONTACT_PHONES[event.slug];
+  const honored = HONORED_BY[event.slug];
   const children = CHILDREN[event.slug];
   const name1 = event.person1_name || "Diana";
   const name2 = event.person2_name || "Richard";
@@ -1145,6 +1169,15 @@ function T14Footer({ event }: { event: EventData }) {
           {fmtDate(event.date)}
         </div>
       </FadeUp>
+      {honored && (
+        <FadeUp delay={0.25}>
+          <div style={{ ...cg, fontSize: 17, letterSpacing: "0.06em", color: "rgba(244,238,222,0.68)", marginTop: 22, lineHeight: 1.7 }}>
+            {honored.map((line) => (
+              <div key={line}>{line}</div>
+            ))}
+          </div>
+        </FadeUp>
+      )}
       {phones && (
         <FadeUp delay={0.3}>
           <div style={{ ...cg, fontSize: 15, letterSpacing: "0.12em", color: "rgba(244,238,222,0.6)", marginTop: 22 }}>

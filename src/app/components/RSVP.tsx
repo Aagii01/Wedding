@@ -12,7 +12,15 @@ type Props = { eventId: string; slug?: string };
 
 // "Хэдэн хүн ирэх вэ?" тоолуурыг нуух slug-ууд. Нуусан үед guests нь 1-ээр
 // хадгалагдана (ирэхгүй гэсэн бол урьдын адил 0).
-const HIDE_GUEST_COUNT = new Set<string>(["lkhagvatseren-gantogtokh"]);
+const HIDE_GUEST_COUNT = new Set<string>([
+  "lkhagvatseren-gantogtokh",
+  "munkhjin-khishigdari",
+]);
+
+// "Ирэхгүй" сонголтын бичвэрийг өөрчлөх slug-ууд.
+const DECLINE_LABEL: Record<string, string> = {
+  "munkhjin-khishigdari": "Очиж амжихгүй нь",
+};
 
 // Хаалтын мөрийг өөрчлөх slug-ууд.
 const CLOSING_LINE: Record<string, string> = {
@@ -113,7 +121,7 @@ export function RSVP({ eventId, slug }: Props) {
               <div className="space-y-2">
                 {[
                   { value: "yes", label: "Тийм, заавал ирнэ" },
-                  { value: "no",  label: "Харамсалтай нь очиж чадахгүй" },
+                  { value: "no",  label: (slug && DECLINE_LABEL[slug]) ?? "Харамсалтай нь очиж чадахгүй" },
                 ].map(({ value, label }) => (
                   <label key={value} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
                     <input
