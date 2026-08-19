@@ -320,13 +320,26 @@ function T14Hero({ event }: { event: EventData }) {
           <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name2}</span>
         </motion.div>
 
-        {/* Scroll cue — доод сум байхгүй, бичиг нь зурагны доод ирмэгт ойрхон */}
+        {/* Scroll cue — бичиг нь зурагны доод ирмэгт ойрхон, доор нь доошоо сум */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.4 }}
-          style={{ ...cg, fontWeight: 700, fontSize: 11, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}
         >
-          Доошоо гүйлгэх
+          <div style={{ ...cg, fontWeight: 700, fontSize: 14, letterSpacing: "0.38em", textTransform: "uppercase", color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.9), 0 0 22px rgba(0,0,0,0.55)" }}>
+            Доошоо гүйлгэх
+          </div>
+          {/* Зөөлөн доош үсрэх сум */}
+          <motion.svg
+            width="22" height="22" viewBox="0 0 24 24" fill="none"
+            stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.85))" }}
+          >
+            <path d="M12 5v14" />
+            <path d="M19 12l-7 7-7-7" />
+          </motion.svg>
         </motion.div>
       </div>
     </section>
