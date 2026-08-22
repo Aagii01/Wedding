@@ -605,11 +605,17 @@ function T14Schedule({ event }: { event: EventData }) {
 }
 
 // ─── Gallery ──────────────────────────────────────────────────────────────────
+// Template 11-ийн цомог шиг bento байрлалтай болгох slug-ууд: эхний зураг
+// мөр дүүрэн өргөн (4/3), үлдсэн нь 2 баганаар квадрат нүдэнд.
+// Бүртгээгүй урилга дээр урьдын адил бүх нүд 3/4 хэлбэртэй.
+const BENTO_GALLERY = new Set<string>(["barkhas-darisuren"]);
+
 function T14Gallery({ event }: { event: EventData }) {
   // Оруулсан зургийг л харуулна. Огт байхгүй үед л fallback зургууд гарна.
   const provided = (event.gallery2_photos || []).filter(Boolean);
   const photos = provided.length ? provided : FALLBACK;
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const bento = BENTO_GALLERY.has(event.slug) && photos.length > 1;
 
   return (
     <Paper>
@@ -621,14 +627,16 @@ function T14Gallery({ event }: { event: EventData }) {
         </FadeUp>
 
         <FadeUp delay={0.2}>
-          {/* Тэгш тор — нүд бүр ижил харьцаатай, зураг төвдөө багтана */}
+          {/* bento: эхний зураг мөр дүүрэн (4/3), үлдсэн нь 2 баганаар квадрат.
+              Бусад урилга дээр урьдын адил 2 баганатай тэгш тор (3/4). */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {photos.map((src, i) => (
               <div
                 key={i}
                 onClick={() => setLightbox(src)}
                 style={{
-                  aspectRatio: "3 / 4",
+                  gridColumn: bento && i === 0 ? "1 / -1" : undefined,
+                  aspectRatio: bento ? (i === 0 ? "4 / 3" : "1 / 1") : "3 / 4",
                   overflow: "hidden",
                   borderRadius: 2,
                   cursor: "pointer",
