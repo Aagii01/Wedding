@@ -840,6 +840,14 @@ const HIDE_NO_PHONE = new Set<string>(["batbayr-bilegsvren"]);
 // "Цаг" картын төгсгөлд нэмэлт өгүүлбэр гаргах slug-ууд.
 const TIME_CARD_EXTRA: Record<string, string> = {
   "batbayr-bilegsvren": "Хуримын урилгатай ирж зогсоолд орно уу.",
+  "bilguun-uuriintsolmon":
+    "Цагтаа ирэх нь — бидний баярт өгч буй хамгийн сайхан хүндэтгэл байх болно. ✨",
+};
+
+// "Хүлээн авалт" картын төгсгөлд нэмэлт өгүүлбэр гаргах slug-ууд.
+const RECEPTION_CARD_EXTRA: Record<string, string> = {
+  "bilguun-uuriintsolmon":
+    "Манай хуримын ёслол дуу чимээ ихтэй орчинд зохион байгуулагдах тул та бүхнийг бяцхан үрсээ гэрт нь үлдээн, нэгэн үдшийг бидэнтэй хамт тухлан өнгөрүүлнэ үү хэмээн хүсэж байна.",
 };
 
 function T13DressCode({ slug }: { slug?: string }) {
@@ -851,6 +859,7 @@ function T13DressCode({ slug }: { slug?: string }) {
   ].filter(({ label }) => !(label === "Утасгүй мөч" && slug && HIDE_NO_PHONE.has(slug)));
 
   const timeExtra = slug ? TIME_CARD_EXTRA[slug] : undefined;
+  const receptionExtra = slug ? RECEPTION_CARD_EXTRA[slug] : undefined;
 
   return (
     <div style={{ background: BURGUNDY }}>
@@ -905,6 +914,7 @@ function T13DressCode({ slug }: { slug?: string }) {
             </div>
             <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
               <strong>Хүлээн авалт:</strong> Нээлтийн үйл ажиллагаа эхэлтэл хүлээлгийн зоог барьж, дурсамж зургаа авахуулна уу.
+              {receptionExtra ? ` ${receptionExtra}` : ""}
             </p>
           </motion.div>
 
@@ -1229,6 +1239,11 @@ const SIGNATURE: Record<string, string[]> = {
   "enkhbayr-naranchimeg": ["Л.Энхбаяр", "Г.Наранчимэг", "Э.Цэцэнбилиг", "Э.Очир"],
 };
 
+// Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+const FOOTER_CHILDREN: Record<string, string[]> = {
+  "bilguun-uuriintsolmon": ["Хүү: Аригун"],
+};
+
 // Хосын нэрийн доор гарах холбоо барих утас — зөвхөн бүртгэсэн slug дээр.
 const CONTACT_PHONE: Record<string, string> = {
   "gan-erdene-misheel": "8908-9999",
@@ -1280,6 +1295,15 @@ function T13Footer({ event }: { event: EventData }) {
         ) : (
           <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
             <span style={{ whiteSpace: "nowrap" }}>{name1}</span> <Amp /> <span style={{ whiteSpace: "nowrap" }}>{name2}</span>
+          </div>
+        )}
+        {FOOTER_CHILDREN[event.slug] && (
+          <div style={{ marginTop: 10 }}>
+            {FOOTER_CHILDREN[event.slug].map((line) => (
+              <div key={line} style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8, lineHeight: 1.8 }}>
+                {line}
+              </div>
+            ))}
           </div>
         )}
         {CONTACT_PHONE[event.slug] && (
