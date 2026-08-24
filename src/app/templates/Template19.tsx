@@ -314,7 +314,7 @@ function T19Hero({ name, date, heroImage, time, slug }: {
           </div>
           {showTime && (
             <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "clamp(14px,3.4vw,19px)", textTransform: "uppercase", letterSpacing: "0.35em", marginTop: 10 }}>
-              {timeLabel(time!)} цагаас
+              {timeText(time!, slug)}
             </div>
           )}
         </motion.div>
@@ -728,10 +728,21 @@ function Fireworks({ trigger }: { trigger: number }) {
 // Огнооны доор "11 цагаас" гэж цаг харуулах slug-ууд (CountdownTimer-тэй ижил
 // хэв маяг). Hero ба countdown хоёуланд нь үйлчилнэ. Бүтэн цаг бол ":00"-г
 // хасаж "11 цагаас" гэж уншина.
-const SHOW_TIME_UNDER_DATE = new Set<string>(["anar"]);
+const SHOW_TIME_UNDER_DATE = new Set<string>(["anar", "tsogtslon"]);
+
+// Дуусах цаг бүртгэсэн slug дээр "11 цагаас 18 цаг хүртэл" гэж бүтнээр гарна.
+const TIME_END: Record<string, string> = {
+  tsogtslon: "18",
+};
 
 function timeLabel(time: string) {
   return time.replace(/:00$/, "");
+}
+
+// Огнооны доор гарах цагийн мөр.
+function timeText(time: string, slug?: string) {
+  const end = slug ? TIME_END[slug] : undefined;
+  return end ? `${timeLabel(time)} цагаас ${end} цаг хүртэл` : `${timeLabel(time)} цагаас`;
 }
 
 function T19Countdown({ date, title, time, slug }: {
@@ -817,7 +828,7 @@ function T19Countdown({ date, title, time, slug }: {
               color: tan, marginTop: 14, lineHeight: 1.1,
               fontSize: "clamp(1.6rem, 5vw, 2.6rem)",
             }}>
-              {timeLabel(time!)} цагаас
+              {timeText(time!, slug)}
             </div>
           </Reveal>
         )}
