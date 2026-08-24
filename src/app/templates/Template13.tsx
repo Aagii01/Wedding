@@ -1061,7 +1061,13 @@ function T13Wishes({ eventId }: { eventId: string }) {
 }
 
 // ─── RSVP Section (popup биш — шууд бөглөнө) ──────────────────────────────────
-function T13RSVP({ eventId }: { eventId: string }) {
+// Ирцийн дээд тоог slug-аар хязгаарлана. Бүртгээгүй урилга дээр 20 хэвээр.
+const MAX_GUESTS: Record<string, number> = {
+  "bilguun-uuriintsolmon": 3,
+};
+
+function T13RSVP({ eventId, slug }: { eventId: string; slug?: string }) {
+  const maxGuests = (slug && MAX_GUESTS[slug]) ?? 20;
   const [name, setName]             = useState("");
   const [attending, setAttending]   = useState<boolean | null>(null);
   const [guests, setGuests]         = useState(1);
@@ -1171,7 +1177,12 @@ function T13RSVP({ eventId }: { eventId: string }) {
             {/* Хүний тоо — "Ирэхгүй" сонгосон үед хэрэггүй тул нуана */}
             {attending !== false && (
               <div style={{ marginBottom: 26 }}>
-                <p style={{ ...ovo, fontSize: 15, color: CREAM, marginBottom: 10 }}>Хэдүүлээ ирэх вэ?</p>
+                <p style={{ ...ovo, fontSize: 15, color: CREAM, marginBottom: 10 }}>
+                  Хэдүүлээ ирэх вэ?
+                  {maxGuests < 20 && (
+                    <span style={{ opacity: 0.7 }}> (дээд тал нь {maxGuests})</span>
+                  )}
+                </p>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <button
                     onClick={() => setGuests((g) => Math.max(1, g - 1))}
@@ -1188,7 +1199,7 @@ function T13RSVP({ eventId }: { eventId: string }) {
                     {guests}
                   </div>
                   <button
-                    onClick={() => setGuests((g) => Math.min(20, g + 1))}
+                    onClick={() => setGuests((g) => Math.min(maxGuests, g + 1))}
                     style={counterBtn}
                     aria-label="Нэмэх"
                   >+</button>
@@ -1385,7 +1396,7 @@ export default function Template13({ event }: { event: EventData }) {
       <T13Location event={event} />
       <T13DressCode slug={event.slug} />
       <T13Wishes eventId={event.id} />
-      {!HIDE_RSVP.has(event.slug) && <T13RSVP eventId={event.id} />}
+      {!HIDE_RSVP.has(event.slug) && <T13RSVP eventId={event.id} slug={event.slug} />}
       <T13Footer event={event} />
 
       {event.music_url && <MusicPlayer src={event.music_url} audioRef={audioRef} />}
