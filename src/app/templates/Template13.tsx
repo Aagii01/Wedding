@@ -1232,7 +1232,17 @@ function T13RSVP({ eventId, slug }: { eventId: string; slug?: string }) {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 // "Хүндэтгэсэн" хэсэг — зөвхөн энд бүртгэсэн slug дээр харагдана.
 // Бусад урилга дээр энэ блок огт гарахгүй.
-const HONORED_BY: Record<string, { names: string[]; phones?: string[] }> = {
+const HONORED_BY: Record<string, { names: string[]; phones?: string[]; phoneLabel?: string }> = {
+  "gantulga-uranbileg": {
+    names: [
+      "Нөхөр: Б.Гантулга",
+      "Эхнэр: П.Уранбилэг",
+      "Хүү: Г.Тэмүүлэн",
+      "Охин: Г.Цэцүгэн",
+    ],
+    phones: ["88114721"],
+    phoneLabel: "Утасны дугаар:",
+  },
   "uuganbayr-baasanbayr": {
     names: [
       "Нөхөр Б.Ууганбаяр",
@@ -1249,6 +1259,10 @@ const HONORED_BY: Record<string, { names: string[]; phones?: string[] }> = {
 const SIGNATURE: Record<string, string[]> = {
   "enkhbayr-naranchimeg": ["Л.Энхбаяр", "Г.Наранчимэг", "Э.Цэцэнбилиг", "Э.Очир"],
 };
+
+// Footer-ийн "нэр1 & нэр2" мөрийг огт харуулахгүй slug-ууд (оронд нь
+// HONORED_BY блок ганцаараа гарна).
+const HIDE_COUPLE_NAMES = new Set<string>(["gantulga-uranbileg"]);
 
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
 const FOOTER_CHILDREN: Record<string, string[]> = {
@@ -1303,7 +1317,7 @@ function T13Footer({ event }: { event: EventData }) {
               {line}
             </div>
           ))
-        ) : (
+        ) : HIDE_COUPLE_NAMES.has(event.slug) ? null : (
           <div style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8 }}>
             <span style={{ whiteSpace: "nowrap" }}>{name1}</span> <Amp /> <span style={{ whiteSpace: "nowrap" }}>{name2}</span>
           </div>
@@ -1343,7 +1357,7 @@ function T13Footer({ event }: { event: EventData }) {
             ))}
             {HONORED_BY[event.slug].phones && (
               <div style={{ ...ovo, fontSize: 16, color: CREAM, opacity: 0.82, marginTop: 12 }}>
-                Утас :{" "}
+                {HONORED_BY[event.slug].phoneLabel ?? "Утас :"}{" "}
                 {HONORED_BY[event.slug].phones!.map((tel, i) => (
                   <span key={tel}>
                     {i > 0 && ", "}
