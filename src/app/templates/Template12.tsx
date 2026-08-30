@@ -62,6 +62,17 @@ const DEFAULT_TEXTS: T12Texts = {
 };
 
 const TEXT_OVERRIDE: Record<string, Partial<T12Texts>> = {
+  // Д.Чулуунбүргэд — "Үйлчилгээний гавъяат ажилтан" цол хүртсэний
+  // хүндэтгэлийн ёслол (хурим биш, ганц хүний баяр)
+  "chuluunburged": {
+    countdownEyebrow: "Ёслолын өдөр хүртэл",
+    scheduleEyebrow: "Өдрийн цагийн хуваарь",
+    scheduleTitle: "Ёслолын хөтөлбөр",
+    rsvpTitle: "Ирцээ бүртгүүлэх",
+    rsvpPlaceholder: "Хүндэтгэлийн үг...",
+    footerTagline: "Special Day · Хүндэтгэлтэйгээр",
+    storyWatermark: "дурсамж",
+  },
   // Ө.Тогоо & Б.Энхнасан — гэр бүл болсны 36 жилийн ой, төрийн хүндэтгэлийн ёслол
   "togoo-enkhnasan": {
     countdownEyebrow: "Найрын өдөр хүртэл",
@@ -722,7 +733,9 @@ function StoryChapter({
 const PHOTOS_PER_CHAPTER = 4;
 
 function T12OurStory({ photos, texts }: { photos: string[]; texts: T12Texts }) {
-  const allImgs = [...photos, ...STORY_FALLBACKS];
+  // Оруулсан зургийг л харуулна. Огт зураг байхгүй үед л fallback ажиллана —
+  // 3 зурагтай урилга дээр 4 дэх нь танихгүй хүний зураг болохоос сэргийлнэ.
+  const allImgs = photos.length ? photos : STORY_FALLBACKS;
 
   const chapters = DEFAULT_CHAPTERS.map((ch, ci) => ({
     ...ch,
@@ -1122,10 +1135,24 @@ const DEFAULT_SCHEDULE: ScheduleItem[] = [
   { time: "15:00", label: "Хуримын чөлөөт цаг", desc: "Шинэ чөлөөт хөтөлбөр, диско цаг эхлэх" },
 ];
 
+// Хуримын биш урилга дээр events.schedule хоосон бол энэ хөтөлбөр гарна
+// (slug-аар). Захиалагч өөрийн хөтөлбөрөө schedule багананд бичвэл энэ дарагдана.
+const SCHEDULE_OVERRIDE: Record<string, ScheduleItem[]> = {
+  "chuluunburged": [
+    { time: "17:00", label: "Зочид цугларах",          desc: "Урилгаар ирсэн хүндэт зочид морилно" },
+    { time: "17:30", label: "Дурсамж зураг татуулах",  desc: "Фото бүсэд зурагчидтай хамт" },
+    { time: "18:00", label: "Танхимд суудал эзлэх",    desc: "Зочид байраа эзлэн, ёслолд бэлтгэнэ" },
+    { time: "18:30", label: "Ёслолын нээлт",           desc: "Хүндэтгэлийн ёслол эхлэх" },
+    { time: "19:10", label: "Хүндэтгэлийн зоог",       desc: "Ширээний хундага өргөх, уран бүтээлчдийн тоглолт" },
+    { time: "19:50", label: "Ерөөл, бэлэг дэвшүүлэх",  desc: "Төрөл төрөгсөд, хамт олны ерөөлийн үг" },
+    { time: "21:00", label: "Чөлөөт цаг",              desc: "Хөгжимт баяр үргэлжилнэ" },
+  ],
+};
+
 
 
 function T12Schedule({ event, texts }: { event: EventData; texts: T12Texts }) {
-  const schedule = getSchedule(event, DEFAULT_SCHEDULE);
+  const schedule = getSchedule(event, SCHEDULE_OVERRIDE[event.slug] ?? DEFAULT_SCHEDULE);
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start center", "end center"] });
   const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
@@ -1258,12 +1285,22 @@ const DEFAULT_POEM = [
   "Энэхүү аз жаргалт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.",
 ];
 
+// events.poem хоосон үед хуримын биш урилга дээр гарах өөр үг (slug-аар).
+const POEM_OVERRIDE: Record<string, string[]> = {
+  "chuluunburged": [
+    "Олон жилийн хөдөлмөр, зүтгэлийн үр шим болж",
+    "\"Үйлчилгээний гавъяат ажилтан\" цол хүртсэн",
+    "энэхүү дурсгалт өдрөө тэмдэглэн өнгөрүүлэх гэж байна.",
+    "Энэхүү баяр хөөрт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.",
+  ],
+};
+
 function T12Quote({ event }: { event: EventData }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 30%"] });
 
   // Энэ хэсэг үг тус бүрээр reveal хийдэг тул хоосон мөр ажиллахгүй — шүүнэ
-  const lines = getPoemLines(event, DEFAULT_POEM).filter((l) => l !== "");
+  const lines = getPoemLines(event, POEM_OVERRIDE[event.slug] ?? DEFAULT_POEM).filter((l) => l !== "");
   const words = lines.flatMap(l => l.split(" "));
 
   const lineEndIndices = new Set<number>();
@@ -1413,26 +1450,46 @@ function T12RSVP({ eventId, texts }: { eventId: string; texts: T12Texts }) {
 const FOOTER_PHONES: Record<string, string[]> = {
   "enkhsanaa-dolgormaa": ["88118379", "86617777", "86657777"],
   "togoo-enkhnasan": ["99351108", "94357011"],
+  "chuluunburged": ["88095111", "99184783"],
 };
 
-function T12Footer({ mono, names, phones, tagline }: { mono: string; names: string; phones?: string[]; tagline: string }) {
+// Утасны мөрийн гарчгийг солих slug-ууд. Үндсэндээ "Утас:".
+const PHONES_LABEL: Record<string, string> = {
+  "chuluunburged": "Утасны дугаар:",
+};
+
+// Утасны доор гарах "Хүндэтгэсэн:" мөр — зөвхөн бүртгэсэн slug дээр.
+const FOOTER_HONORED: Record<string, string> = {
+  "chuluunburged": "Хүндэтгэсэн: Д.Чулуунбүргэдийн гэр бүл",
+};
+
+// Ганц хүний урилга дээр овгийн ганц үсэг доор ганцаараа гарах нь эвгүй тул
+// монограмыг энд бүртгэсэн slug дээр огт харуулахгүй.
+const HIDE_MONO = new Set<string>(["chuluunburged"]);
+
+function T12Footer({ mono, names, phones, phonesLabel, honored, tagline }: {
+  mono: string; names: string; phones?: string[];
+  phonesLabel?: string; honored?: string; tagline: string;
+}) {
   const parts = mono.split("&");
   return (
     <footer style={{ background: CREAM, paddingTop: 96, paddingBottom: 64, textAlign: "center", position: "relative" }}>
-      <div style={{
-        fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
-        fontSize: "clamp(56px,14vw,100px)", lineHeight: 1, color: INK,
-        display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
-      }}>
-        {parts.length === 2 ? (
-          <>
-            <span>{parts[0]}</span>
-            {/* & тэмдэгт ямар ч эффектгүй, энгийн (налуу биш, accent өнгөгүй) */}
-            <span style={{ fontSize: "0.42em", color: INK, fontStyle: "normal", margin: "0 6px", lineHeight: 1 }}>&amp;</span>
-            <span>{parts[1]}</span>
-          </>
-        ) : mono}
-      </div>
+      {mono && (
+        <div style={{
+          fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
+          fontSize: "clamp(56px,14vw,100px)", lineHeight: 1, color: INK,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
+        }}>
+          {parts.length === 2 ? (
+            <>
+              <span>{parts[0]}</span>
+              {/* & тэмдэгт ямар ч эффектгүй, энгийн (налуу биш, accent өнгөгүй) */}
+              <span style={{ fontSize: "0.42em", color: INK, fontStyle: "normal", margin: "0 6px", lineHeight: 1 }}>&amp;</span>
+              <span>{parts[1]}</span>
+            </>
+          ) : mono}
+        </div>
+      )}
       <div style={{ marginTop: 24, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 50%, ${CREAM})`, whiteSpace: "pre-line", lineHeight: 1.9 }}>
         {names}
       </div>
@@ -1443,13 +1500,23 @@ function T12Footer({ mono, names, phones, tagline }: { mono: string; names: stri
           fontSize: 17, letterSpacing: "0.08em",
           color: `color-mix(in srgb, ${INK} 70%, ${CREAM})`,
         }}>
-          Утас:{" "}
+          {phonesLabel ?? "Утас:"}{" "}
           {phones.map((tel, i) => (
             <span key={tel}>
               {i > 0 && ", "}
               <a href={`tel:${tel}`} style={{ color: "inherit", textDecoration: "none" }}>{tel}</a>
             </span>
           ))}
+        </div>
+      )}
+      {honored && (
+        <div style={{
+          marginTop: 10,
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 17, letterSpacing: "0.08em",
+          color: `color-mix(in srgb, ${INK} 70%, ${CREAM})`,
+        }}>
+          {honored}
         </div>
       )}
       <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
@@ -1554,7 +1621,14 @@ export default function Template12({ event }: { event: EventData }) {
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
       <T12Quote event={event} />
       <T12RSVP eventId={event.id} texts={texts} />
-      <T12Footer mono={mono} names={FOOTER_NAMES_OVERRIDE[event.slug] ?? names} phones={FOOTER_PHONES[event.slug]} tagline={texts.footerTagline} />
+      <T12Footer
+        mono={HIDE_MONO.has(event.slug) ? "" : mono}
+        names={FOOTER_NAMES_OVERRIDE[event.slug] ?? names}
+        phones={FOOTER_PHONES[event.slug]}
+        phonesLabel={PHONES_LABEL[event.slug]}
+        honored={FOOTER_HONORED[event.slug]}
+        tagline={texts.footerTagline}
+      />
       <Toaster />
     </div>
   );
