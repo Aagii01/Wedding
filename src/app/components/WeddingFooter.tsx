@@ -10,6 +10,11 @@ const FOOTER_IMAGE: Record<string, string> = {
     "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanbat/tugsgul.jpg",
 };
 
+// Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+const FOOTER_CHILDREN: Record<string, string[]> = {
+  "dawaajargal-otgondawaa": ["Хүү: Д.Саруул-Эрдэнэ"],
+};
+
 type Props = { event: EventData };
 
 export function WeddingFooter({ event }: Props) {
@@ -44,7 +49,7 @@ export function WeddingFooter({ event }: Props) {
         alt={displayTitle}
         className="absolute inset-0 w-full h-full object-contain"
       />
-      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center px-6">
+      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center px-6 pt-14 md:pt-20">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -72,11 +77,17 @@ export function WeddingFooter({ event }: Props) {
               <span className="whitespace-nowrap">{event.person1_name}</span>
             )}
           </h2>
+          {FOOTER_CHILDREN[event.slug] && (
+            <div className="mb-3 space-y-1" style={{ fontFamily: "'PT Serif', serif" }}>
+              {FOOTER_CHILDREN[event.slug].map((line) => (
+                <p key={line} className="text-base sm:text-lg text-white/85">
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
           <p className="text-sm text-white/60 tracking-wide">{event.date}</p>
         </motion.div>
-      </div>
-      <div className="absolute bottom-4 left-0 right-0 text-center">
-        <p className="text-white/30 text-[10px] tracking-widest uppercase">Special Day</p>
       </div>
     </footer>
   );
