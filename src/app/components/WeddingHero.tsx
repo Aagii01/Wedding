@@ -43,6 +43,11 @@ const STORY_TITLE: Record<string, string> = {
   // "slug": "Our love story",
 };
 
+// "нэр ♥ нэр" мөрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+const STORY_CHILDREN: Record<string, string[]> = {
+  "dawaajargal-otgondawaa": ["Хүү: Д.Саруул-Эрдэнэ"],
+};
+
 // Carousel-ийн зураг тус бүрийн тайлбар. Түлхүүр нь зурагны бүтэн URL.
 // Бүртгээгүй зураг дээр нийтлэг QUOTES эргэлдэнэ. "\n" нь шинэ мөр.
 const BAASANBAT = "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanbat";
@@ -238,6 +243,21 @@ export function WeddingHero({ event }: Props) {
               <span className="text-base font-serif">{event.person1_name}</span>
               <Heart className="w-3 h-3 fill-rose-400 text-rose-400" />
               <span className="text-base font-serif">{event.person2_name}</span>
+            </motion.div>
+          )}
+          {STORY_CHILDREN[event.slug] && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.35, duration: 0.7, ease: EASE }}
+              className="mt-2 space-y-1 text-gray-600"
+            >
+              {STORY_CHILDREN[event.slug].map((line) => (
+                <div key={line} className="text-base font-serif">
+                  {line}
+                </div>
+              ))}
             </motion.div>
           )}
         </motion.div>
