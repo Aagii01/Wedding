@@ -15,6 +15,7 @@ type Props = { eventId: string; slug?: string };
 const HIDE_GUEST_COUNT = new Set<string>([
   "lkhagvatseren-gantogtokh",
   "munkhjin-khishigdari",
+  "odbayr-bujinlham",
 ]);
 
 // "Ирэхгүй" сонголтын бичвэрийг өөрчлөх slug-ууд.
@@ -25,6 +26,11 @@ const DECLINE_LABEL: Record<string, string> = {
 // Хаалтын мөрийг өөрчлөх slug-ууд.
 const CLOSING_LINE: Record<string, string> = {
   "ganbaatar-maralgua": "WE CAN’T WAIT TO CELEBRATE WITH YOU!",
+};
+
+// Хаалтын мөрийн доор гарах холбоо барих утас — зөвхөн бүртгэсэн slug дээр.
+const CLOSING_PHONES: Record<string, string[]> = {
+  "odbayr-bujinlham": ["88102682", "80102682"],
 };
 
 export function RSVP({ eventId, slug }: Props) {
@@ -229,6 +235,26 @@ export function RSVP({ eventId, slug }: Props) {
       >
         {(slug && CLOSING_LINE[slug]) || "Тантай уулзахыг тэсэн ядан хүлээж байна!"}
       </motion.p>
+
+      {slug && CLOSING_PHONES[slug] && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-40px 0px" }}
+          transition={{ delay: 0.2, duration: 0.8, ease: EASE }}
+          className="max-w-4xl mx-auto mt-4 text-center text-base md:text-lg text-gray-600"
+        >
+          Утасны дугаар:{" "}
+          {CLOSING_PHONES[slug].map((tel, i) => (
+            <span key={tel}>
+              {i > 0 && ", "}
+              <a href={`tel:${tel}`} className="hover:text-gray-900 transition-colors">
+                {tel}
+              </a>
+            </span>
+          ))}
+        </motion.p>
+      )}
     </section>
   );
 }
