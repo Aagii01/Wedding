@@ -15,6 +15,18 @@ const HERO_NAMES: Record<string, [string, string]> = {
 // "Бидний хайрын түүх" гарчгийн доорх "нэр ♥ нэр" мөрийг нуух slug-ууд.
 const HIDE_STORY_NAMES = new Set<string>(["ganbaatar-maralgua"]);
 
+// Hero картан дээрх хосын нэрийг гар бичмэл фонтоор харуулах slug-ууд.
+// ⚠ Сонгосон фонт нь монгол кирилл ө (U+04E9), ү (U+04AF)-г агуулсан байх
+// ёстой. Dancing Script, Great Vibes эдгээрийг агуулдаггүй тул тохирохгүй.
+// Caveat, Bad Script хоёр бүрэн дэмждэг (index.html-д ачаалсан).
+// `size` — гар бичмэл фонт оптикоор жижиг харагддаг тул томруулж өгнө.
+const HERO_NAME_FONT: Record<string, { family: string; size: string }> = {
+  "odbayr-bujinlham": {
+    family: "'Caveat', cursive",
+    size: "text-3xl sm:text-4xl md:text-5xl",
+  },
+};
+
 const QUOTES = [
   '"Чамайг хайрлах нь үүлсийн цаанаас ч дулаацуулах нарны гэрэл мэт Үзэгдэхгүй атлаа зүрхэнд үргэлж оршдог."',
   '"Хоёр зүрх нэгэн хэмнэлээр цохилох үед Орчлон ертөнц сая нэг бүрэн бүтэн болдог."',
@@ -136,10 +148,11 @@ export function WeddingHero({ event }: Props) {
 
   // Урт нэрэнд фонтыг жижигрүүлж багтаана — нэр бүр өөрөө задрахгүй (whitespace-nowrap).
   const maxNameLen = Math.max((name1 || "").length, (name2 || "").length);
-  const nameSize =
-    maxNameLen > 13 ? "text-lg sm:text-2xl md:text-3xl" :
-    maxNameLen > 9  ? "text-xl sm:text-2xl md:text-4xl" :
-                      "text-2xl sm:text-3xl md:text-4xl";
+  const heroFont = HERO_NAME_FONT[event.slug];
+  const nameSize = heroFont?.size ??
+    (maxNameLen > 13 ? "text-lg sm:text-2xl md:text-3xl" :
+     maxNameLen > 9  ? "text-xl sm:text-2xl md:text-4xl" :
+                       "text-2xl sm:text-3xl md:text-4xl");
 
   return (
     <>
@@ -178,7 +191,7 @@ export function WeddingHero({ event }: Props) {
               className={`text-white ${nameSize} text-center leading-tight w-full break-words mb-3`}
               // PT Serif — монгол кирилл ө, ү-г бүрэн дэмждэг. Dancing Script
               // эдгээр үсгийг агуулдаггүй тул нэр fallback фонтоор гардаг байв.
-              style={{ fontFamily: "'PT Serif', serif" }}
+              style={{ fontFamily: heroFont?.family ?? "'PT Serif', serif" }}
             >
               {name2 ? (
                 <>
