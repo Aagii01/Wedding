@@ -15,6 +15,16 @@ const FOOTER_CHILDREN: Record<string, string[]> = {
   "dawaajargal-otgondawaa": ["Хүү: Д.Саруул-Эрдэнэ"],
 };
 
+// Footer дэх хосын нэрийг гар бичмэл фонтоор харуулах slug-ууд. Hero дээрх
+// HERO_NAME_FONT-той хосолж, урилга даяар нэг фонттой байлгана.
+// ⚠ Фонт нь монгол кирилл ө (U+04E9), ү (U+04AF)-г агуулсан байх ёстой.
+const FOOTER_NAME_FONT: Record<string, { family: string; size: string }> = {
+  "odbayr-bujinlham": {
+    family: "'Caveat', cursive",
+    size: "text-4xl sm:text-5xl",
+  },
+};
+
 type Props = { event: EventData };
 
 export function WeddingFooter({ event }: Props) {
@@ -29,10 +39,11 @@ export function WeddingFooter({ event }: Props) {
     (event.person1_name || "").length,
     (event.person2_name || "").length,
   );
-  const nameSize =
-    maxNameLen > 13 ? "text-2xl sm:text-3xl" :
-    maxNameLen > 9  ? "text-3xl sm:text-4xl" :
-                      "text-4xl sm:text-5xl";
+  const nameFont = FOOTER_NAME_FONT[event.slug];
+  const nameSize = nameFont?.size ??
+    (maxNameLen > 13 ? "text-2xl sm:text-3xl" :
+     maxNameLen > 9  ? "text-3xl sm:text-4xl" :
+                       "text-4xl sm:text-5xl");
 
   return (
     <footer className="relative h-64 md:h-80 overflow-hidden">
@@ -65,7 +76,7 @@ export function WeddingFooter({ event }: Props) {
           <h2
             className={`${nameSize} mb-3 leading-tight break-words`}
             // PT Serif — монгол кирилл ө, ү-г бүрэн дэмждэг (Dancing Script үгүй)
-            style={{ fontFamily: "'PT Serif', serif" }}
+            style={{ fontFamily: nameFont?.family ?? "'PT Serif', serif" }}
           >
             {event.person2_name ? (
               <>
