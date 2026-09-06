@@ -35,6 +35,11 @@ function parseSocial(raw?: string | null) {
   };
 }
 
+// Хоёр баганын доор голлон гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+const CHILDREN: Record<string, string[]> = {
+  "odbayr-bujinlham": ["Охин: О.Ундармал", "Хүү: О.Нэгүүн", "Хүү: О.Мөнхгал"],
+};
+
 const FALLBACK_GROOM = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&fit=crop&q=80";
 const FALLBACK_BRIDE = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&fit=crop&q=80";
 
@@ -100,6 +105,22 @@ export function GroomBride({ event }: Props) {
           </motion.div>
         ))}
       </div>
+
+      {CHILDREN[event.slug] && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px 0px" }}
+          transition={{ duration: 0.75, delay: 0.24, ease: EASE }}
+          className="max-w-2xl mx-auto mt-12 text-center space-y-1"
+        >
+          {CHILDREN[event.slug].map((line) => (
+            <p key={line} className="text-base font-serif text-gray-700">
+              {line}
+            </p>
+          ))}
+        </motion.div>
+      )}
     </section>
   );
 }
