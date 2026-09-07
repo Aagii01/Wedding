@@ -23,9 +23,12 @@ const DECLINE_LABEL: Record<string, string> = {
   "munkhjin-khishigdari": "Очиж амжихгүй нь",
 };
 
-// Хаалтын мөрийг өөрчлөх slug-ууд.
+// Хаалтын мөрийг өөрчлөх slug-ууд. "\n" нь шинэ мөр болно
+// (хаалтын хэсэг whitespace-pre-line-тэй).
 const CLOSING_LINE: Record<string, string> = {
   "ganbaatar-maralgua": "WE CAN’T WAIT TO CELEBRATE WITH YOU!",
+  "ganzul-dulguunjargal":
+    "Урьсан бидний ураг батжиж,\nуригдсан таны өлмий бат\nоршиг!",
 };
 
 // Хаалтын мөрийн доор гарах холбоо барих утас — зөвхөн бүртгэсэн slug дээр.
@@ -230,7 +233,7 @@ export function RSVP({ eventId, slug }: Props) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px 0px" }}
         transition={{ duration: 0.8, ease: EASE }}
-        className="max-w-4xl mx-auto mt-14 text-center text-2xl md:text-3xl text-gray-700 italic"
+        className="max-w-4xl mx-auto mt-14 text-center text-2xl md:text-3xl text-gray-700 italic whitespace-pre-line"
         style={{ fontFamily: "'Cormorant Garamond', serif" }}
       >
         {(slug && CLOSING_LINE[slug]) || "Тантай уулзахыг тэсэн ядан хүлээж байна!"}
