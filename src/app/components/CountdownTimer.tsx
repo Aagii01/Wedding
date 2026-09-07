@@ -13,6 +13,11 @@ type Props = {
   slug?: string;
 };
 
+// Тоологч ("Хуримд үлдсэн хугацаа" тоонууд) болон "Эхлэх цаг" мөрийг нуух
+// slug-ууд. Гарчиг ба огноо хэвээр харагдана — зөвхөн цагтай холбоотой хэсэг
+// алга болно.
+const HIDE_TIMER = new Set<string>(["tseween-narmandakh2"]);
+
 function getTimeLeft(target: Date) {
   const diff = target.getTime() - Date.now();
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
@@ -101,6 +106,7 @@ function addHours(date: string, time: string, hours: number) {
 export function CountdownTimer({ date, time, title, venue, venueAddress, slug }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const hideTimer = !!slug && HIDE_TIMER.has(slug);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -158,7 +164,7 @@ export function CountdownTimer({ date, time, title, venue, venueAddress, slug }:
           </h2>
 
           {/* Эхлэх цаг — урилга бүр өөрийн events.time-аа харуулна */}
-          {time && (
+          {time && !hideTimer && (
             <p
               className="text-2xl md:text-3xl text-gray-600 mb-6"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
@@ -167,9 +173,12 @@ export function CountdownTimer({ date, time, title, venue, venueAddress, slug }:
             </p>
           )}
 
-          <div className="w-10 h-px bg-gray-300 mx-auto mb-12" />
-
-          <TimerNumbers date={date} time={time} />
+          {!hideTimer && (
+            <>
+              <div className="w-10 h-px bg-gray-300 mx-auto mb-12" />
+              <TimerNumbers date={date} time={time} />
+            </>
+          )}
 
           {/* Calendar dropdown — түр нуусан (буцааж асаах: false → true) */}
           {false && (

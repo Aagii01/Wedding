@@ -114,7 +114,11 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 
 // ─── Root ────────────────────────────────────────────────────────────────────
 // Хөтөлбөр (HealthProtocol) хэсгийг нуух slug-ууд.
-const HIDE_SCHEDULE = new Set<string>(["jargasaikhan-irmuunzaya", "erdos-elmira"]);
+const HIDE_SCHEDULE = new Set<string>([
+  "jargasaikhan-irmuunzaya",
+  "erdos-elmira",
+  "tseween-narmandakh2",
+]);
 
 // Хосын танилцуулга (GroomBride) хэсгийг нуух slug-ууд.
 const HIDE_GROOM_BRIDE = new Set<string>([
