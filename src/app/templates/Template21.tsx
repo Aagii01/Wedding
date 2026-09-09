@@ -56,7 +56,7 @@ const HIDE_WISHES   = new Set<string>([]);
 
 // Footer-ийн хамгийн доор гарах мөрүүд (Хүндэтгэсэн, хүүхдийн нэр г.м.) ба утас.
 const FOOTER_FAMILY: Record<string, { lines: string[]; phones?: string[] }> = {
-  "bella": { lines: ["Хүндэтгэсэн: Энхбаяр, Нандин-эрдэнэ"] },
+  "bella": { lines: ["Хүндэтгэсэн: Эрхбаяр, Нандин-эрдэнэ"] },
 };
 
 // Footer-ийн зургийг slug-аар нь тогтооно. Бүртгээгүй урилга дээр
