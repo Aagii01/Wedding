@@ -54,8 +54,23 @@ const HIDE_SCHEDULE = new Set<string>([]);
 const HIDE_RSVP     = new Set<string>([]);
 const HIDE_WISHES   = new Set<string>([]);
 
-// Footer-ийн доор гарах гэр бүлийн нэр ба утас.
-const FOOTER_FAMILY: Record<string, { lines: string[]; phones?: string[] }> = {};
+// Footer-ийн хамгийн доор гарах мөрүүд (Хүндэтгэсэн, хүүхдийн нэр г.м.) ба утас.
+const FOOTER_FAMILY: Record<string, { lines: string[]; phones?: string[] }> = {
+  "bella": { lines: ["Хүндэтгэсэн: Энхбаяр, Нандин-эрдэнэ"] },
+};
+
+// Footer-ийн зургийг slug-аар нь тогтооно. Бүртгээгүй урилга дээр
+// gallery_photos-ийн эхний зураг хэвээр гарна.
+const FOOTER_IMAGE: Record<string, string> = {
+  "bella":
+    "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/bella/belle.jpeg",
+};
+
+// "Таньтай уулзахыг тэсэн ядан хүлээж байна" мөрийн доор гарах хувцаслалтын
+// хүсэлт — зөвхөн бүртгэсэн slug дээр.
+const DRESS_NOTE: Record<string, string> = {
+  "bella": "Хүүхэд бүр “Belle” хүүхэлдэй баатрын дүрээр ирэхийг хүсэж байна.",
+};
 
 // Ирцийн дээд тоо. Бүртгээгүй урилга дээр 20.
 const MAX_GUESTS: Record<string, number> = {};
@@ -1164,8 +1179,10 @@ function T21Footer({ event }: { event: EventData }) {
   const name = event.person1_name || "Белла";
   const age  = AGE[event.slug];
   const family = FOOTER_FAMILY[event.slug];
-  // Үндсэндээ gallery_photos-ийн эхний зураг гарна
-  const footerImg = event.gallery_photos?.[0];
+  const dressNote = DRESS_NOTE[event.slug];
+  // Үндсэндээ gallery_photos-ийн эхний зураг гарна. Энд бүртгэсэн slug дээр
+  // цомгийн дарааллыг хөндөлгүйгээр өөр зураг тавина.
+  const footerImg = FOOTER_IMAGE[event.slug] || event.gallery_photos?.[0];
 
   return (
     <div style={{ background: DEEP, padding: "0 32px 76px", textAlign: "center" }}>
@@ -1190,6 +1207,14 @@ function T21Footer({ event }: { event: EventData }) {
         <div style={{ ...serifI, fontSize: 30, color: CREAM, marginBottom: 14, lineHeight: 1.35 }}>
           Таньтай уулзахыг тэсэн ядан хүлээж байна!
         </div>
+        {dressNote && (
+          <p style={{
+            ...serif, fontSize: 16, color: GOLD_LT, opacity: 0.95,
+            maxWidth: 340, margin: "0 auto 18px", lineHeight: 1.8,
+          }}>
+            {dressNote}
+          </p>
+        )}
         <GoldDivider color={GOLD_LT} width={200} />
         <div style={{ ...serifI, fontSize: 24, color: GOLD_LT, marginTop: 16 }}>
           {name}{age ? " · " + age + " нас" : ""}
