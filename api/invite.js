@@ -144,13 +144,15 @@ function ownImage(event) {
 }
 
 function buildTags(event, url, origin) {
-  // Хүүхдийн урилга дээр person2_name нь эцэг эхийн нэр эсвэл хоосон байдаг
-  // тул хосын нэр шиг нийлүүлэхгүй — зөвхөн ганц нэр гаргана.
-  const isChild = event.type === "child";
+  // Хүүхдийн (сэвлэг үргээх) ба төрсөн өдрийн урилга дээр person2_name нь
+  // эцэг эхийн нэр, давхардсан нэр эсвэл хоосон байдаг. Ийм урилга нэг
+  // хүний баяр тул хосын нэр шиг нийлүүлэхгүй — ганц нэр гаргана. Preview
+  // зураг нь мөн хуримын og-default.jpg биш, хүүхдийн зураг байна.
+  const isSolo = event.type === "child" || event.type === "birthday";
   const corporate = isCorporate(event);
   const nonWedding = isNonWedding(event);
   const org = (event.person1_name || "").trim();
-  const names = isChild
+  const names = isSolo
     ? (event.title || event.person1_name || "").trim()
     : [event.person1_name, event.person2_name]
         .map((name) => name?.trim())
@@ -181,7 +183,7 @@ function buildTags(event, url, origin) {
     ? pinned
     : nonWedding
       ? ownImage(event)
-      : origin + (isChild ? OG_IMAGE_CHILD : OG_IMAGE);
+      : origin + (isSolo ? OG_IMAGE_CHILD : OG_IMAGE);
 
   const tags = [
     `<meta property="og:type" content="website" />`,
