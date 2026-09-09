@@ -13,6 +13,9 @@ import Template18 from "./Template18";
 import Template19 from "./Template19";
 // Байгууллагын албан ёсны арга хэмжээ (ISO гэрчилгээ гардуулах, нээлт г.м.)
 import Template20 from "./Template20";
+// Хүүхдийн төрсөн өдөр — "Гоо бүсгүй ба мангас" сэдэвтэй, Template13-ийн
+// бүтцэн дээр суурилсан тусдаа загвар
+import Template21 from "./Template21";
 
 export const templateMap: Record<string, React.ComponentType<{ event: EventData }>> = {
   "11": App,
@@ -25,4 +28,5 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "18": Template18,
   "19": Template19,
   "20": Template20,
+  "21": Template21,
 };
