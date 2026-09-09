@@ -30,11 +30,20 @@ const MONO_OVERRIDE: Record<string, string> = {
 const FOOTER_NAMES_OVERRIDE: Record<string, string> = {
   "abigail-williams": "Mondekhuu Turmunkh & Abigail Williams",
   "adyasuren2-khulan2": "Хишигсүрэн Адъяасүрэн\nМянган Хулан",
+  // Ганц хүний урилга — нэрийн оронд бүтэн цол, овог нэрийг гаргана.
+  "ariunaa": "Монгол Улсын хүний гавьяат эмч\nЖадамбаа овогтой Ариунаа",
 };
 
 // Хөтөлбөр (T12Schedule) хэсгийг нуух slug-ууд.
 const HIDE_SCHEDULE = new Set<string>([
   "adyasuren2-khulan2",
+  "ariunaa",
+]);
+
+// Зурагт хэсгийг (T12OurStory) нуух slug-ууд — зөвхөн нүүрний нэг зурагтай
+// урилга дээр цомог хоосон гарахаас сэргийлнэ.
+const HIDE_STORY = new Set<string>([
+  "ariunaa",
 ]);
 
 // Template12 нь хуримын урилга гэж бичигдсэн тул хэд хэдэн газар "хурим",
@@ -82,6 +91,17 @@ const TEXT_OVERRIDE: Record<string, Partial<T12Texts>> = {
     rsvpPlaceholder: "Эрхэм гэр бүлд...",
     footerTagline: "Special Day · Хүндэтгэлтэйгээр",
     storyWatermark: "бидний түүх",
+  },
+  // Ариунаа — хуримын биш, гэр бүлийн найр. "Хурим" гэсэн үгийг бүгдийг нь
+  // "найр"-аар сольсон бичиглэл.
+  "ariunaa": {
+    countdownEyebrow: "Найрын өдөр хүртэл",
+    scheduleEyebrow: "Өдрийн цагийн хуваарь",
+    scheduleTitle: "Найрын хөтөлбөр",
+    rsvpTitle: "Ирцээ бүртгүүлэх",
+    rsvpPlaceholder: "Ерөөлийн үг...",
+    footerTagline: "",
+    storyWatermark: "дурсамж",
   },
 };
 
@@ -1293,6 +1313,13 @@ const POEM_OVERRIDE: Record<string, string[]> = {
     "энэхүү дурсгалт өдрөө тэмдэглэн өнгөрүүлэх гэж байна.",
     "Энэхүү баяр хөөрт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.",
   ],
+  // Ариунаа — хурим биш найр тул үндсэн шүлгийн "Хуримын ариун ёслол" гэсэн
+  // мөр таарахгүй. events.poem бөглөвөл энэ дарагдана.
+  "ariunaa": [
+    "Амьдралын сайхан энэ өдөр",
+    "хайртай хүмүүсийнхээ дунд баяр ёслолоо тэмдэглэх гэж байна.",
+    "Энэхүү баяр хөөрт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.",
+  ],
 };
 
 function T12Quote({ event }: { event: EventData }) {
@@ -1451,6 +1478,7 @@ const FOOTER_PHONES: Record<string, string[]> = {
   "enkhsanaa-dolgormaa": ["88118379", "86617777", "86657777"],
   "togoo-enkhnasan": ["99351108", "94357011"],
   "chuluunburged": ["88095111", "99184783"],
+  "ariunaa": ["99046564", "99814190"],
 };
 
 // Утасны мөрийн гарчгийг солих slug-ууд. Үндсэндээ "Утас:".
@@ -1465,7 +1493,7 @@ const FOOTER_HONORED: Record<string, string> = {
 
 // Ганц хүний урилга дээр овгийн ганц үсэг доор ганцаараа гарах нь эвгүй тул
 // монограмыг энд бүртгэсэн slug дээр огт харуулахгүй.
-const HIDE_MONO = new Set<string>(["chuluunburged"]);
+const HIDE_MONO = new Set<string>(["chuluunburged", "ariunaa"]);
 
 function T12Footer({ mono, names, phones, phonesLabel, honored, tagline }: {
   mono: string; names: string; phones?: string[];
@@ -1519,9 +1547,11 @@ function T12Footer({ mono, names, phones, phonesLabel, honored, tagline }: {
           {honored}
         </div>
       )}
-      <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
-        {tagline}
-      </div>
+      {tagline && (
+        <div style={{ marginTop: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.28em", color: `color-mix(in srgb, ${INK} 35%, ${CREAM})` }}>
+          {tagline}
+        </div>
+      )}
     </footer>
   );
 }
@@ -1615,7 +1645,7 @@ export default function Template12({ event }: { event: EventData }) {
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <T12Hero names={names} date={event.date} heroImage={event.main_image} oneLine={ONE_LINE_NAMES.has(event.slug)} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
-      <T12OurStory photos={allPhotos} texts={texts} />
+      {!HIDE_STORY.has(event.slug) && <T12OurStory photos={allPhotos} texts={texts} />}
       <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} texts={texts} />
       {!HIDE_SCHEDULE.has(event.slug) && <T12Schedule event={event} texts={texts} />}
       <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
