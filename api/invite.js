@@ -243,6 +243,9 @@ export default async function handler(req, res) {
   }
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=86400");
+  // Урилгын дата (нэр, төрөл, зураг) засагдмагц preview шинэчлэгдэх ёстой.
+  // Өмнө нь stale-while-revalidate=86400 байсан тул Facebook scrape хийхэд
+  // хоног хүртэл хуучин мета өгөх магадлалтай байв.
+  res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=120");
   res.status(200).send(html);
 }
