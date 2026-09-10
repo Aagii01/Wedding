@@ -32,12 +32,14 @@ const FOOTER_NAMES_OVERRIDE: Record<string, string> = {
   "adyasuren2-khulan2": "Хишигсүрэн Адъяасүрэн\nМянган Хулан",
   // Ганц хүний урилга — нэрийн оронд бүтэн цол, овог нэрийг гаргана.
   "ariunaa": "Монгол Улсын хүний гавьяат эмч\nЖадамбаа овогтой Ариунаа",
+  "ecovilla": "Eco Villa цогцолбор хотхон",
 };
 
 // Хөтөлбөр (T12Schedule) хэсгийг нуух slug-ууд.
 const HIDE_SCHEDULE = new Set<string>([
   "adyasuren2-khulan2",
   "ariunaa",
+  "ecovilla",
 ]);
 
 // Зурагт хэсгийг (T12OurStory) нуух slug-ууд — зөвхөн нүүрний нэг зурагтай
@@ -94,6 +96,16 @@ const TEXT_OVERRIDE: Record<string, Partial<T12Texts>> = {
   },
   // Ариунаа — хуримын биш, гэр бүлийн найр. "Хурим" гэсэн үгийг бүгдийг нь
   // "найр"-аар сольсон бичиглэл.
+  // Eco Villa — цогцолбор хотхоны нээлттэй өдөрлөг (байгууллагын арга хэмжээ)
+  "ecovilla": {
+    countdownEyebrow: "Нээлттэй өдөрлөг хүртэл",
+    scheduleEyebrow: "Өдрийн цагийн хуваарь",
+    scheduleTitle: "Хөтөлбөр",
+    rsvpTitle: "Ирцээ бүртгүүлэх",
+    rsvpPlaceholder: "Хүсэлт, тэмдэглэл...",
+    footerTagline: "",
+    storyWatermark: "танилцуулга",
+  },
   "ariunaa": {
     countdownEyebrow: "Найрын өдөр хүртэл",
     scheduleEyebrow: "Өдрийн цагийн хуваарь",
@@ -374,7 +386,18 @@ const HERO_FALLBACK = "https://images.unsplash.com/photo-1519741497674-611481863
 // Нэрийг нэг мөрөнд багтаах slug-ууд — нэрийн фонт бага зэрэг жижигрэнэ.
 const ONE_LINE_NAMES = new Set<string>(["togoo-enkhnasan"]);
 
-function T12Hero({ names, date, heroImage, oneLine }: { names: string; date: string; heroImage?: string; oneLine?: boolean }) {
+// Hero-гийн зураг үндсэндээ дэлгэц дүүргэж (cover) тайрагддаг. Лого, постер
+// зэрэг бүтнээр нь харагдах ёстой зурагтай урилгыг энд бүртгэнэ — тэгвэл
+// зураг тайрагдахгүй, бүтнээрээ багтана (contain).
+const HERO_CONTAIN = new Set<string>(["ecovilla"]);
+
+// Hero дээр гарах нэр. Үндсэндээ person1_name & person2_name нийлж гарна —
+// байгууллагын урилганд хосын нэр тохирохгүй тул энд slug-аар нь солино.
+const HERO_NAMES_OVERRIDE: Record<string, string> = {
+  "ecovilla": "Eco Villa",
+};
+
+function T12Hero({ names, date, heroImage, oneLine, contain }: { names: string; date: string; heroImage?: string; oneLine?: boolean; contain?: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollY } = useScroll();
   const yBg = useTransform(scrollY, [0, 800], [0, 160]);
@@ -382,14 +405,21 @@ function T12Hero({ names, date, heroImage, oneLine }: { names: string; date: str
 
   return (
     <section ref={ref} id="top" style={{ position: "relative", height: "100svh", minHeight: 640, width: "100%", overflow: "hidden" }}>
-      <motion.div style={{ y: yBg, position: "absolute", inset: 0, top: -40, bottom: -40 }}>
+      <motion.div style={{ y: yBg, position: "absolute", inset: 0, top: -40, bottom: -40, background: contain ? CREAM : undefined }}>
         <img
           src={heroImage || HERO_FALLBACK}
           alt=""
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          style={{
+            width: "100%", height: "100%",
+            objectFit: contain ? "contain" : "cover",
+            // Доод хэсэгт огноо, нэр бичигдэх тул зургийг арай дээш байрлуулна
+            objectPosition: contain ? "center 34%" : undefined,
+          }}
         />
       </motion.div>
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.08), transparent 40%, rgba(0,0,0,0.55))" }} />
+      {!contain && (
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.08), transparent 40%, rgba(0,0,0,0.55))" }} />
+      )}
 
       <motion.div
         style={{ opacity, position: "relative", height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: "clamp(80px,10vw,112px)", paddingInline: "clamp(24px,6vw,48px)" }}
@@ -400,13 +430,13 @@ function T12Hero({ names, date, heroImage, oneLine }: { names: string; date: str
           transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
           style={{ textAlign: "center" }}
         >
-          <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "clamp(14px,3.4vw,19px)", textTransform: "uppercase", letterSpacing: "0.4em", marginBottom: 24 }}>
+          <div style={{ color: contain ? `color-mix(in srgb, ${INK} 70%, ${CREAM})` : "rgba(255,255,255,0.85)", fontSize: "clamp(14px,3.4vw,19px)", textTransform: "uppercase", letterSpacing: "0.4em", marginBottom: 24 }}>
             {formatDate(date)}
           </div>
           <h1
             style={{
               fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic",
-              color: "#fff", lineHeight: oneLine ? 1.05 : 0.9, letterSpacing: "-0.02em",
+              color: contain ? INK : "#fff", lineHeight: oneLine ? 1.05 : 0.9, letterSpacing: "-0.02em",
               fontSize: oneLine ? "clamp(2rem, 7.6vw, 6rem)" : "clamp(3.2rem, 10.5vw, 9rem)",
               whiteSpace: oneLine ? "nowrap" : undefined,
               margin: 0,
@@ -430,7 +460,8 @@ function T12Hero({ names, date, heroImage, oneLine }: { names: string; date: str
         style={{
           position: "absolute", left: 0, right: 0, bottom: 32,
           display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
-          color: "rgba(255,255,255,0.85)", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.3em",
+          color: contain ? `color-mix(in srgb, ${INK} 60%, ${CREAM})` : "rgba(255,255,255,0.85)",
+          fontSize: 10, textTransform: "uppercase", letterSpacing: "0.3em",
         }}
       >
         <span>Доош гүйлгэх</span>
@@ -631,6 +662,24 @@ const DEFAULT_CHAPTERS = [
   },
 ];
 
+// Хайрын түүхийн оронд өөр бичвэр гарах slug-ууд (байгууллага, төслийн
+// танилцуулга г.м.). Бүртгээгүй урилга дээр DEFAULT_CHAPTERS хэвээр.
+const CHAPTERS_OVERRIDE: Record<string, typeof DEFAULT_CHAPTERS> = {
+  "ecovilla": [
+    {
+      num: "нэг",
+      title: "Танилцуулга",
+      body: "Байгальтайгаа зохицсон, тав тухтай орчин — Eco Villa цогцолбор хотхон.",
+      bodies: [
+        "Ерөнхий төлөвлөлт — ногоон орчин, тохилог гудамжууд.",
+        "Байршил — Богд хан уулын энгэрт, хотоос холгүй.",
+        "Орчин — амьдрахад тав тухтай, бүрэн дэд бүтэц.",
+      ],
+      captions: ["Ерөнхий төлөвлөлт", "Байршил", "Орчин"],
+    },
+  ],
+};
+
 // Photo stagger entry ranges (0-1 of scrollYProgress)
 const ENTER_RANGES: [number, number][] = [
   [0.05, 0.30],
@@ -752,12 +801,12 @@ function StoryChapter({
 
 const PHOTOS_PER_CHAPTER = 4;
 
-function T12OurStory({ photos, texts }: { photos: string[]; texts: T12Texts }) {
+function T12OurStory({ photos, texts, slug }: { photos: string[]; texts: T12Texts; slug: string }) {
   // Оруулсан зургийг л харуулна. Огт зураг байхгүй үед л fallback ажиллана —
   // 3 зурагтай урилга дээр 4 дэх нь танихгүй хүний зураг болохоос сэргийлнэ.
   const allImgs = photos.length ? photos : STORY_FALLBACKS;
 
-  const chapters = DEFAULT_CHAPTERS.map((ch, ci) => ({
+  const chapters = (CHAPTERS_OVERRIDE[slug] ?? DEFAULT_CHAPTERS).map((ch, ci) => ({
     ...ch,
     // Бүлэг тус бүрт 4 зураг: гар утасны carousel бүгдийг нь харуулна
     // (desktop-ийн polaroid өрөлт эхний 3-ыг л байрлуулж чадна).
@@ -1241,17 +1290,24 @@ function T12Schedule({ event, texts }: { event: EventData; texts: T12Texts }) {
 }
 
 // ─── Venue ───────────────────────────────────────────────────────────────────
-function T12Venue({ name, address, mapUrl, image }: { name: string; address: string; mapUrl?: string; image?: string }) {
+// Байршлын зураг үндсэндээ 21:9 хүрээнд тайрагддаг (хуримын танхимын өргөн
+// зурагт тохирдог). Газрын зураг, схем зэрэг өндрөөрөө утга агуулсан зурагтай
+// урилгыг энд бүртгэнэ — тэгвэл зураг өөрийн харьцаагаараа бүтнээр гарна.
+const VENUE_IMAGE_FULL = new Set<string>(["ecovilla"]);
+
+function T12Venue({ name, address, mapUrl, image, fullImage }: { name: string; address: string; mapUrl?: string; image?: string; fullImage?: boolean }) {
   const VENUE_FALLBACK = "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=2000&q=80";
   return (
     <section id="venue" style={{ background: CREAM, paddingTop: 80, paddingBottom: 128, paddingInline: 24 }}>
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         <Reveal>
-          <div style={{ borderRadius: 16, overflow: "hidden", aspectRatio: "21/9", position: "relative", ...POLAROID }}>
+          <div style={{ borderRadius: 16, overflow: "hidden", position: "relative", ...(fullImage ? {} : { aspectRatio: "21/9" }), ...POLAROID }}>
             <img
               src={image || VENUE_FALLBACK}
               alt={name}
-              style={{ width: "100%", height: "100%", objectFit: "cover", filter: "saturate(0.85) contrast(0.95)" }}
+              style={fullImage
+                ? { width: "100%", height: "auto", display: "block", filter: "saturate(0.85) contrast(0.95)" }
+                : { width: "100%", height: "100%", objectFit: "cover", filter: "saturate(0.85) contrast(0.95)" }}
             />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.25))", mixBlendMode: "multiply" }} />
           </div>
@@ -1493,7 +1549,7 @@ const FOOTER_HONORED: Record<string, string> = {
 
 // Ганц хүний урилга дээр овгийн ганц үсэг доор ганцаараа гарах нь эвгүй тул
 // монограмыг энд бүртгэсэн slug дээр огт харуулахгүй.
-const HIDE_MONO = new Set<string>(["chuluunburged", "ariunaa"]);
+const HIDE_MONO = new Set<string>(["chuluunburged", "ariunaa", "ecovilla"]);
 
 function T12Footer({ mono, names, phones, phonesLabel, honored, tagline }: {
   mono: string; names: string; phones?: string[];
@@ -1643,12 +1699,12 @@ export default function Template12({ event }: { event: EventData }) {
       <T12VideoIntro audioRef={audioRef} />
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
-      <T12Hero names={names} date={event.date} heroImage={event.main_image} oneLine={ONE_LINE_NAMES.has(event.slug)} />
+      <T12Hero names={HERO_NAMES_OVERRIDE[event.slug] ?? names} date={event.date} heroImage={event.main_image} oneLine={ONE_LINE_NAMES.has(event.slug)} contain={HERO_CONTAIN.has(event.slug)} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
-      {!HIDE_STORY.has(event.slug) && <T12OurStory photos={allPhotos} texts={texts} />}
+      {!HIDE_STORY.has(event.slug) && <T12OurStory photos={allPhotos} texts={texts} slug={event.slug} />}
       <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} texts={texts} />
       {!HIDE_SCHEDULE.has(event.slug) && <T12Schedule event={event} texts={texts} />}
-      <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} />
+      <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} fullImage={VENUE_IMAGE_FULL.has(event.slug)} />
       <T12Quote event={event} />
       <T12RSVP eventId={event.id} texts={texts} />
       <T12Footer

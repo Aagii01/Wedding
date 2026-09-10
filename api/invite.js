@@ -95,6 +95,7 @@ const KIND = {
   child: "Сэвлэг үргээх ёслолын урилга",
   corporate: "Албан ёсны урилга",
   apartment: "Шинэ байрны цайллагын урилга",
+  openday: "Нээлттэй өдөрлөгийн урилга",
   nair: "Хүндэтгэлийн арга хэмжээний урилга",
   celebrate: "Хүндэтгэлийн арга хэмжээний урилга",
 };
@@ -104,6 +105,7 @@ const KIND = {
 function isNonWedding(event) {
   return isCorporate(event)
     || event.type === "apartment"
+    || event.type === "openday"
     || event.type === "nair"
     || event.type === "celebrate";
 }
@@ -148,7 +150,8 @@ function buildTags(event, url, origin) {
   // эцэг эхийн нэр, давхардсан нэр эсвэл хоосон байдаг. Ийм урилга нэг
   // хүний баяр тул хосын нэр шиг нийлүүлэхгүй — ганц нэр гаргана. Preview
   // зураг нь мөн хуримын og-default.jpg биш, хүүхдийн зураг байна.
-  const isSolo = event.type === "child" || event.type === "birthday";
+  const isSolo = event.type === "child" || event.type === "birthday"
+    || event.type === "openday";
   const corporate = isCorporate(event);
   const nonWedding = isNonWedding(event);
   const org = (event.person1_name || "").trim();

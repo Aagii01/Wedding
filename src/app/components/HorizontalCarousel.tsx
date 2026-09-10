@@ -247,9 +247,10 @@ export function HorizontalCarousel({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                // Caption нуусан тул доод зайг багасгаж зурагт өгсөн
-                paddingTop:    "clamp(48px,8vh,80px)",
-                paddingBottom: "clamp(64px,11vh,110px)",
+                // Caption нуусан тул доод зайг багасгаж зурагт өгсөн.
+                // Доод зай нь зөвхөн counter/dots мөрийг тойрох хэрэгтэй.
+                paddingTop:    "clamp(30px,5vh,60px)",
+                paddingBottom: "clamp(50px,8vh,88px)",
               }}
             >
               {/* Зургийг тайрахгүй бүтнээр нь харуулна — хэмжээг өөрөө
@@ -260,7 +261,7 @@ export function HorizontalCarousel({
                 alt={slide.title}
                 draggable={false}
                 style={{
-                  maxWidth:     "clamp(240px, 82vw, 430px)",
+                  maxWidth:     "clamp(260px, 92vw, 520px)",
                   maxHeight:    "100%",
                   width:        "auto",
                   height:       "auto",
