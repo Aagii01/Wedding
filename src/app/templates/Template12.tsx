@@ -117,6 +117,31 @@ const TEXT_OVERRIDE: Record<string, Partial<T12Texts>> = {
   },
 };
 
+// Урилгын үг, шүлгийн фонт — номын хэвшлийн зөөлөн serif.
+const CG = { fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, serif" } as const;
+// Зурган дээрхтэй ижил — налуу (italic) хэлбэр
+const CG_I = { ...CG, fontStyle: "italic" as const } as const;
+
+// Hero-гийн шууд доор гарах урилгын үг — зөвхөн бүртгэсэн slug дээр.
+// Мөр бүр тусдаа эгнээнд гарна. Бүхэлдээ том үсгээр бичсэн мөрийг
+// онцлон (тод, зайтай үсгээр) харуулна.
+const INVITE_TEXT: Record<string, string[]> = {
+  "ariunaa": [
+    "Эрхэм хүндэт танаа",
+    "Монгол Улсын хүний гавьяат эмч",
+    "Жадамбаа овогтой Ариунаагийн",
+    "ХҮНДЭТГЭЛИЙН ЦАЙЛЛАГАНД",
+    "хүрэлцэн ирэхийг урьж байна.",
+  ],
+};
+
+// Шүлгийн хэсгийг том тод бичээсийн оронд энгийн догол мөр байдлаар
+// (жижиг, энгийн жинтэй, голлуулсан) харуулах slug-ууд.
+const QUOTE_PLAIN = new Set<string>(["ariunaa"]);
+
+// "Болох газар"-ыг тоологчийн ӨМНӨ гаргах slug-ууд.
+const VENUE_FIRST = new Set<string>(["ariunaa"]);
+
 function textsFor(slug?: string): T12Texts {
   return { ...DEFAULT_TEXTS, ...((slug && TEXT_OVERRIDE[slug]) || {}) };
 }
@@ -824,6 +849,39 @@ function T12OurStory({ photos, texts, slug }: { photos: string[]; texts: T12Text
   );
 }
 
+// ─── Урилгын үг (hero-гийн доор) ─────────────────────────────────────────────
+function T12Invite({ lines }: { lines: string[] }) {
+  return (
+    <section style={{ background: CREAM, padding: "clamp(56px,10vw,96px) 24px clamp(16px,4vw,40px)" }}>
+      <Reveal>
+        <div style={{ maxWidth: 460, margin: "0 auto", textAlign: "center" }}>
+          {lines.map((line, i) => {
+            if (line === "") return <div key={i} style={{ height: 14 }} />;
+            // Бүхэлдээ том үсгээр бичсэн мөр = арга хэмжээний нэр
+            const strong = line === line.toUpperCase();
+            return (
+              <div
+                key={i}
+                style={strong ? {
+                  ...CG_I, color: INK, fontWeight: 700,
+                  fontSize: "clamp(1.15rem, 4.8vw, 1.5rem)",
+                  letterSpacing: "0.1em", lineHeight: 1.6, margin: "10px 0",
+                } : {
+                  ...CG_I, color: INK, fontWeight: 400,
+                  fontSize: "clamp(1.05rem, 4.4vw, 1.3rem)",
+                  letterSpacing: "0.02em", lineHeight: 1.85,
+                }}
+              >
+                {line}
+              </div>
+            );
+          })}
+        </div>
+      </Reveal>
+    </section>
+  );
+}
+
 // ─── Countdown ───────────────────────────────────────────────────────────────
 function useCountdown(isoDate: string) {
   const target = useMemo(() => new Date(isoDate).getTime(), [isoDate]);
@@ -1378,7 +1436,7 @@ const POEM_OVERRIDE: Record<string, string[]> = {
   ],
 };
 
-function T12Quote({ event }: { event: EventData }) {
+function T12Quote({ event, plain }: { event: EventData; plain?: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 30%"] });
 
@@ -1397,7 +1455,8 @@ function T12Quote({ event }: { event: EventData }) {
     <section ref={ref} style={{ background: CREAM, padding: "clamp(80px,12vw,192px) 24px" }}>
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         <p style={{
-          fontFamily: "'Cormorant Garamond', serif",
+          // Зөвхөн фонт нь ялгаатай — хэмжээ, өнгө, жин ижил
+          ...(plain ? CG_I : { fontFamily: "'Cormorant Garamond', serif" }),
           color: INK, lineHeight: 1.55, fontWeight: 700, letterSpacing: "-0.01em",
           fontSize: "clamp(1.6rem, 5vw, 4rem)", margin: 0,
         }}>
@@ -1701,11 +1760,18 @@ export default function Template12({ event }: { event: EventData }) {
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <T12Hero names={HERO_NAMES_OVERRIDE[event.slug] ?? names} date={event.date} heroImage={event.main_image} oneLine={ONE_LINE_NAMES.has(event.slug)} contain={HERO_CONTAIN.has(event.slug)} />
       {/* <T12PhotoCollage photos={allPhotos} /> */}
+      {INVITE_TEXT[event.slug] && <T12Invite lines={INVITE_TEXT[event.slug]} />}
       {!HIDE_STORY.has(event.slug) && <T12OurStory photos={allPhotos} texts={texts} slug={event.slug} />}
+      {/* Зарим урилга дээр "Болох газар" тоологчийн өмнө байвал тохиромжтой */}
+      {VENUE_FIRST.has(event.slug) && (
+        <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} fullImage={VENUE_IMAGE_FULL.has(event.slug)} />
+      )}
       <T12Countdown date={event.date} title={event.title} venue={event.venue_name} time={event.time} texts={texts} />
       {!HIDE_SCHEDULE.has(event.slug) && <T12Schedule event={event} texts={texts} />}
-      <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} fullImage={VENUE_IMAGE_FULL.has(event.slug)} />
-      <T12Quote event={event} />
+      {!VENUE_FIRST.has(event.slug) && (
+        <T12Venue name={event.venue_name} address={event.venue_address} mapUrl={event.venue_map_url} image={event.maps_photo} fullImage={VENUE_IMAGE_FULL.has(event.slug)} />
+      )}
+      <T12Quote event={event} plain={QUOTE_PLAIN.has(event.slug)} />
       <T12RSVP eventId={event.id} texts={texts} />
       <T12Footer
         mono={HIDE_MONO.has(event.slug) ? "" : mono}
