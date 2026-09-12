@@ -34,6 +34,12 @@ const CLOSING_LINE: Record<string, string> = {
 // Хаалтын мөрийн доор гарах холбоо барих утас — зөвхөн бүртгэсэн slug дээр.
 const CLOSING_PHONES: Record<string, string[]> = {
   "odbayr-bujinlham": ["88102682", "80102682"],
+  "sugarragchaa-dunjmaa": ["99124927", "99811535"],
+};
+
+// Утасны мөрийн гарчгийг солих slug-ууд. Үндсэндээ "Утасны дугаар:".
+const CLOSING_PHONES_LABEL: Record<string, string> = {
+  "sugarragchaa-dunjmaa": "Утас:",
 };
 
 export function RSVP({ eventId, slug }: Props) {
@@ -247,7 +253,7 @@ export function RSVP({ eventId, slug }: Props) {
           transition={{ delay: 0.2, duration: 0.8, ease: EASE }}
           className="max-w-4xl mx-auto mt-4 text-center text-base md:text-lg text-gray-600"
         >
-          Утасны дугаар:{" "}
+          {CLOSING_PHONES_LABEL[slug] ?? "Утасны дугаар:"}{" "}
           {CLOSING_PHONES[slug].map((tel, i) => (
             <span key={tel}>
               {i > 0 && ", "}
