@@ -118,6 +118,7 @@ const HIDE_SCHEDULE = new Set<string>([
   "jargasaikhan-irmuunzaya",
   "erdos-elmira",
   "tseween-narmandakh2",
+  "bayarbymba-anujin",
 ]);
 
 // Хосын танилцуулга (GroomBride) хэсгийг нуух slug-ууд.

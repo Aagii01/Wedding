@@ -37,6 +37,14 @@ const CLOSING_PHONES: Record<string, string[]> = {
   "sugarragchaa-dunjmaa": ["99124927", "99811535"],
 };
 
+// Хаалтын мөрийн доор гарах "Хүндэтгэсэн" мөрүүд — зөвхөн бүртгэсэн slug дээр.
+const CLOSING_HONORED: Record<string, string[]> = {
+  "bayarbymba-anujin": [
+    "Хүндэтгэсэн: М.Баярбямба & Ц.Анужин",
+    "Охин: Б.Анххүслэн",
+  ],
+};
+
 // Утасны мөрийн гарчгийг солих slug-ууд. Үндсэндээ "Утасны дугаар:".
 const CLOSING_PHONES_LABEL: Record<string, string> = {
   "sugarragchaa-dunjmaa": "Утас:",
@@ -244,6 +252,23 @@ export function RSVP({ eventId, slug }: Props) {
       >
         {(slug && CLOSING_LINE[slug]) || "Тантай уулзахыг тэсэн ядан хүлээж байна!"}
       </motion.p>
+
+      {slug && CLOSING_HONORED[slug] && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, margin: "-40px 0px" }}
+          transition={{ delay: 0.15, duration: 0.8, ease: EASE }}
+          className="max-w-4xl mx-auto mt-6 text-center space-y-1"
+          style={{ fontFamily: "'Cormorant Garamond', serif" }}
+        >
+          {CLOSING_HONORED[slug].map((line) => (
+            <p key={line} className="text-lg md:text-xl text-gray-700">
+              {line}
+            </p>
+          ))}
+        </motion.div>
+      )}
 
       {slug && CLOSING_PHONES[slug] && (
         <motion.p
