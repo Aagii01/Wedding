@@ -37,9 +37,14 @@ const CLOSING_PHONES: Record<string, string[]> = {
   "sugarragchaa-dunjmaa": ["99124927", "99811535"],
 };
 
-// Хаалтын мөрийн доор гарах хүсэлт (хувцаслалт г.м.) — зөвхөн бүртгэсэн slug дээр.
+// Хаалтын мөрийн доор гарах хүсэлт (хувцаслалт г.м.) — зөвхөн бүртгэсэн slug
+// дээр. "\n\n" нь хоосон мөр болно (whitespace-pre-line).
 const CLOSING_NOTE: Record<string, string> = {
-  "telmen-udwal": "Та бүхэн ирэхдээ цагаан хувцасгүй ирээрэй",
+  "telmen-udwal":
+    "🤍Эрхэм хүндэт зочид та бүхнээсээ хуримын өдөр цагаан өнгийн хувцаснаас " +
+    "татгалзаж, сүйт бүсгүйдээ цагаан өнгийг үлдээн хүрэлцэн ирэхийг хүсье. ✨" +
+    "\n\n" +
+    "Та бүхний гоё инээмсэглэл, сайхан энерги бидний баярыг улам чимэх болно. 🥂",
 };
 
 // Хаалтын мөрийн доор гарах "Хүндэтгэсэн" мөрүүд — зөвхөн бүртгэсэн slug дээр.
@@ -264,7 +269,7 @@ export function RSVP({ eventId, slug }: Props) {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: "-40px 0px" }}
           transition={{ delay: 0.15, duration: 0.8, ease: EASE }}
-          className="max-w-4xl mx-auto mt-5 text-center text-lg md:text-xl text-gray-600"
+          className="max-w-2xl mx-auto mt-5 text-center text-lg md:text-xl text-gray-600 leading-relaxed whitespace-pre-line"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
           {CLOSING_NOTE[slug]}
