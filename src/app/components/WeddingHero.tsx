@@ -15,6 +15,11 @@ const HERO_NAMES: Record<string, [string, string]> = {
 // "Бидний хайрын түүх" гарчгийн доорх "нэр ♥ нэр" мөрийг нуух slug-ууд.
 const HIDE_STORY_NAMES = new Set<string>(["ganbaatar-maralgua"]);
 
+// Тэр мөрийн нэрийг томруулах slug-ууд. Үндсэндээ text-base (16px).
+const STORY_NAMES_SIZE: Record<string, { name: string; heart: string }> = {
+  "telmen-udwal": { name: "text-2xl sm:text-3xl", heart: "w-5 h-5" },
+};
+
 // Hero картан дээрх хосын нэрийг гар бичмэл фонтоор харуулах slug-ууд.
 // ⚠ Сонгосон фонт нь монгол кирилл ө (U+04E9), ү (U+04AF)-г агуулсан байх
 // ёстой. Dancing Script, Great Vibes эдгээрийг агуулдаггүй тул тохирохгүй.
@@ -253,9 +258,13 @@ export function WeddingHero({ event }: Props) {
               transition={{ delay: 0.2, duration: 0.7, ease: EASE }}
               className="flex items-center justify-center gap-2 text-gray-600"
             >
-              <span className="text-base font-serif">{event.person1_name}</span>
-              <Heart className="w-3 h-3 fill-rose-400 text-rose-400" />
-              <span className="text-base font-serif">{event.person2_name}</span>
+              <span className={`${STORY_NAMES_SIZE[event.slug]?.name ?? "text-base"} font-serif`}>
+                {event.person1_name}
+              </span>
+              <Heart className={`${STORY_NAMES_SIZE[event.slug]?.heart ?? "w-3 h-3"} fill-rose-400 text-rose-400`} />
+              <span className={`${STORY_NAMES_SIZE[event.slug]?.name ?? "text-base"} font-serif`}>
+                {event.person2_name}
+              </span>
             </motion.div>
           )}
           {STORY_CHILDREN[event.slug] && (
