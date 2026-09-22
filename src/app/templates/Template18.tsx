@@ -1126,23 +1126,11 @@ function T18RSVP({ eventId }: { eventId: string }) {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 // "Хүндэтгэсэн" хэсэг — зөвхөн энд бүртгэсэн slug дээр харагдана.
 // Бусад урилга дээр энэ блок огт гарахгүй.
-const HONORED_BY: Record<string, { names: string[]; phones?: string[] }> = {
-  "uuganbayr-baasanbayr": {
-    names: [
-      "Нөхөр Б.Ууганбаяр",
-      "Эхнэр Ш.Баасанбаяр",
-      "Охин У.Анужин",
-      "Охин У.Анунгоо",
-    ],
-    phones: ["88118273", "80909026"],
-  },
-};
+const HONORED_BY: Record<string, { names: string[]; phones?: string[] }> = {};
 
 // Footer-ийн доод гарын үсэг — үндсэндээ "нэр1 & нэр2" нэг мөрөөр гарна.
 // Энд бүртгэсэн slug дээр оронд нь мөр тус бүрээр жагсаана.
-const SIGNATURE: Record<string, string[]> = {
-  "enkhbayr-naranchimeg": ["Л.Энхбаяр", "Г.Наранчимэг", "Э.Цэцэнбилиг", "Э.Очир"],
-};
+const SIGNATURE: Record<string, string[]> = {};
 
 // Урилга хүргэсэн гэр бүл — footer-ийн доод гарын үсэг. Өөр одонгийн найранд
 // ашиглах бол дээрх SIGNATURE map-д slug-аар нь бүртгэж дарж бичнэ.

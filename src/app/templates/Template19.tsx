@@ -28,9 +28,7 @@ const FOOTER_NAMES_OVERRIDE: Record<string, string> = {};
 
 // events хүснэгтэд утасны багана байхгүй тул холбоо барих дугаарыг slug тус
 // бүрээр энд бүртгэнэ. Footer-т нэрийн доор гарна.
-const FOOTER_PHONES: Record<string, string[]> = {
-  anar: ["99099146", "99039420"],
-};
+const FOOTER_PHONES: Record<string, string[]> = {};
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -728,12 +726,10 @@ function Fireworks({ trigger }: { trigger: number }) {
 // Огнооны доор "11 цагаас" гэж цаг харуулах slug-ууд (CountdownTimer-тэй ижил
 // хэв маяг). Hero ба countdown хоёуланд нь үйлчилнэ. Бүтэн цаг бол ":00"-г
 // хасаж "11 цагаас" гэж уншина.
-const SHOW_TIME_UNDER_DATE = new Set<string>(["anar", "tsogtslon"]);
+const SHOW_TIME_UNDER_DATE = new Set<string>([]);
 
 // Дуусах цаг бүртгэсэн slug дээр "11 цагаас 18 цаг хүртэл" гэж бүтнээр гарна.
-const TIME_END: Record<string, string> = {
-  tsogtslon: "18",
-};
+const TIME_END: Record<string, string> = {};
 
 function timeLabel(time: string) {
   return time.replace(/:00$/, "");
@@ -1256,7 +1252,7 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 
 // ─── Root ────────────────────────────────────────────────────────────────────
 // Хөтөлбөр (T19Schedule) хэсгийг нуух slug-ууд.
-const HIDE_SCHEDULE = new Set<string>(["anar", "tsogtslon"]);
+const HIDE_SCHEDULE = new Set<string>([]);
 
 export default function Template19({ event }: { event: EventData }) {
   // Төрсөн өдрийн урилга — ганц хүүхдийн нэр

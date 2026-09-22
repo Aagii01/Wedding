@@ -115,16 +115,8 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 // ─── Root ────────────────────────────────────────────────────────────────────
 // Хөтөлбөр (HealthProtocol) хэсгийг нуух slug-ууд.
 const HIDE_SCHEDULE = new Set<string>([
-  "jargasaikhan-irmuunzaya",
-  "erdos-elmira",
   "tseween-narmandakh2",
   "bayarbymba-anujin",
-]);
-
-// Хосын танилцуулга (GroomBride) хэсгийг нуух slug-ууд.
-const HIDE_GROOM_BRIDE = new Set<string>([
-  "enkhamar-lhagwazaya",
-  "enkhamar-lhagwazaya2",
 ]);
 
 type Props = { event: EventData };
@@ -157,7 +149,7 @@ export default function App({ event }: Props) {
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <FloatingPetals />
       <WeddingHero event={event} />
-      {!HIDE_GROOM_BRIDE.has(event.slug) && <GroomBride event={event} />}
+      <GroomBride event={event} />
       {/* <WeddingDetails event={event} /> */}
       <VenueSection event={event} />
       <GallerySection event={event} />

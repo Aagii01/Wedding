@@ -129,10 +129,7 @@ function isValidImageUrl(url) {
 // Preview-д тодорхой зураг гаргах урилгууд. events хүснэгтэд og_image багана
 // байхгүй тул slug-аар нь энд бичнэ (багана нэмэх нь FIELDS-ийг хөндөх тул
 // бүх урилгын preview эрсдэлд ордог — дэлгэрэнгүйг файлын толгойгоос).
-const OG_IMAGE_BY_SLUG = {
-  "togoo-enkhnasan":
-    "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/togoo/gallery5.jpg",
-};
+const OG_IMAGE_BY_SLUG = {};
 
 function ownImage(event) {
   const gallery = Array.isArray(event.gallery_photos) ? event.gallery_photos : [];

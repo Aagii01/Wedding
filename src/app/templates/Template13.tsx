@@ -234,8 +234,8 @@ function MusicPlayer({ src, audioRef }: { src?: string; audioRef: React.RefObjec
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 // Нүүр зураг дээрх цэцгийн чимэглэл / бичвэрийг нуух slug-ууд.
-const HIDE_HERO_FLOWERS = new Set<string>(["ganzorig-bulgantugs"]);
-const HIDE_HERO_TEXT    = new Set<string>(["ganzorig-bulgantugs"]);
+const HIDE_HERO_FLOWERS = new Set<string>([]);
+const HIDE_HERO_TEXT    = new Set<string>([]);
 
 function T13Hero({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";
@@ -441,24 +441,17 @@ function GalleryCard({ src, quote, size }: {
 
 // Цомгийн гарчгийг өөрчлөх slug-ууд. Бүртгээгүй урилга дээр үндсэн
 // "Бидний хайрын түүх" гарчиг хэвээрээ.
-const GALLERY_TITLE: Record<string, string> = {
-  "zadragchaa-otgonjargal": "Хайр бол хамтдаа бүтээх хамгийн сайхан аялал",
-  "ganzorig-bulgantugs": "Бидний замнал",
-};
+const GALLERY_TITLE: Record<string, string> = {};
 
 // Зурган дээрх хайрын ишлэлийг харуулахгүй slug-ууд.
-const HIDE_PHOTO_QUOTES = new Set<string>(["ganzorig-bulgantugs"]);
+const HIDE_PHOTO_QUOTES = new Set<string>([]);
 
 // Ирц бүртгэлийн (T13RSVP) хэсгийг нуух slug-ууд.
-const HIDE_RSVP = new Set<string>(["ganzorig-bulgantugs"]);
+const HIDE_RSVP = new Set<string>([]);
 
 // Хуримын урилга биш үед гарчгуудаас "хурим" гэсэн үгийг авна.
-const COUNTDOWN_TITLE: Record<string, string> = {
-  "ganzorig-bulgantugs": "Ёслол хүртэл",
-};
-const REQUEST_TITLE: Record<string, string> = {
-  "ganzorig-bulgantugs": "Хүсэлт",
-};
+const COUNTDOWN_TITLE: Record<string, string> = {};
+const REQUEST_TITLE: Record<string, string> = {};
 
 // ─── Gallery carousel ─────────────────────────────────────────────────────────
 function T13Gallery({ event }: { event: EventData }) {
@@ -686,15 +679,11 @@ function T13Countdown({ event }: { event: EventData }) {
 
 // ─── Schedule ─────────────────────────────────────────────────────────────────
 // Хөтөлбөрийн хэсгийг харуулахгүй slug-ууд.
-const HIDE_SCHEDULE = new Set<string>([
-  "oyunsukh-tuwshinjargal",
-  "ganzorig-bulgantugs",
-]);
+const HIDE_SCHEDULE = new Set<string>([]);
 
 // Хөтөлбөрийн гарчгийг солих slug-ууд (жишээ нь цол хүртсэн замнал).
 const SCHEDULE_TITLE: Record<string, string> = {
-  // Хоосон мөр = гарчиг огт гарахгүй
-  "ganzorig-bulgantugs": "",
+  // "slug": "...",  — хоосон мөр ("") бол гарчиг огт гарахгүй
 };
 
 function T13Schedule({ event }: { event: EventData }) {
@@ -835,11 +824,10 @@ function T13Location({ event }: { event: EventData }) {
 
 // ─── Dress Code ───────────────────────────────────────────────────────────────
 // "Утасгүй мөч" тэмдгийг нуух slug-ууд.
-const HIDE_NO_PHONE = new Set<string>(["batbayr-bilegsvren"]);
+const HIDE_NO_PHONE = new Set<string>([]);
 
 // "Цаг" картын төгсгөлд нэмэлт өгүүлбэр гаргах slug-ууд.
 const TIME_CARD_EXTRA: Record<string, string> = {
-  "batbayr-bilegsvren": "Хуримын урилгатай ирж зогсоолд орно уу.",
   "bilguun-uuriintsolmon":
     "Цагтаа ирэх нь — бидний баярт өгч буй хамгийн сайхан хүндэтгэл байх болно. ✨",
 };
@@ -1243,22 +1231,11 @@ const HONORED_BY: Record<string, { names: string[]; phones?: string[]; phoneLabe
     phones: ["88114721"],
     phoneLabel: "Утасны дугаар:",
   },
-  "uuganbayr-baasanbayr": {
-    names: [
-      "Нөхөр Б.Ууганбаяр",
-      "Эхнэр Ш.Баасанбаяр",
-      "Охин У.Анужин",
-      "Охин У.Анунгоо",
-    ],
-    phones: ["88118273", "80909026"],
-  },
 };
 
 // Footer-ийн доод гарын үсэг — үндсэндээ "нэр1 & нэр2" нэг мөрөөр гарна.
 // Энд бүртгэсэн slug дээр оронд нь мөр тус бүрээр жагсаана.
-const SIGNATURE: Record<string, string[]> = {
-  "enkhbayr-naranchimeg": ["Л.Энхбаяр", "Г.Наранчимэг", "Э.Цэцэнбилиг", "Э.Очир"],
-};
+const SIGNATURE: Record<string, string[]> = {};
 
 // Footer-ийн "нэр1 & нэр2" мөрийг огт харуулахгүй slug-ууд (оронд нь
 // HONORED_BY блок ганцаараа гарна).
@@ -1270,15 +1247,10 @@ const FOOTER_CHILDREN: Record<string, string[]> = {
 };
 
 // Хосын нэрийн доор гарах холбоо барих утас — зөвхөн бүртгэсэн slug дээр.
-const CONTACT_PHONE: Record<string, string> = {
-  "gan-erdene-misheel": "8908-9999",
-};
+const CONTACT_PHONE: Record<string, string> = {};
 
 // Footer-ийн зургийг slug-аар нь тогтоох.
-const FOOTER_IMAGE: Record<string, string> = {
-  "ganzorig-bulgantugs":
-    "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/ganzorig/gallery1.jpg",
-};
+const FOOTER_IMAGE: Record<string, string> = {};
 
 function T13Footer({ event }: { event: EventData }) {
   const name1 = event.person1_name || "Болд";

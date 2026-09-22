@@ -29,17 +29,13 @@ const MONO_OVERRIDE: Record<string, string> = {
 // "\n" бичвэл олон мөр болж гарна (whiteSpace: pre-line).
 const FOOTER_NAMES_OVERRIDE: Record<string, string> = {
   "abigail-williams": "Mondekhuu Turmunkh & Abigail Williams",
-  "adyasuren2-khulan2": "Хишигсүрэн Адъяасүрэн\nМянган Хулан",
   // Ганц хүний урилга — нэрийн оронд бүтэн цол, овог нэрийг гаргана.
   "ariunaa": "Монгол Улсын хүний гавьяат эмч\nЖадамбаа овогтой Ариунаа",
-  "ecovilla": "Eco Villa цогцолбор хотхон",
 };
 
 // Хөтөлбөр (T12Schedule) хэсгийг нуух slug-ууд.
 const HIDE_SCHEDULE = new Set<string>([
-  "adyasuren2-khulan2",
   "ariunaa",
-  "ecovilla",
 ]);
 
 // Зурагт хэсгийг (T12OurStory) нуух slug-ууд — зөвхөн нүүрний нэг зурагтай
@@ -73,39 +69,8 @@ const DEFAULT_TEXTS: T12Texts = {
 };
 
 const TEXT_OVERRIDE: Record<string, Partial<T12Texts>> = {
-  // Д.Чулуунбүргэд — "Үйлчилгээний гавъяат ажилтан" цол хүртсэний
-  // хүндэтгэлийн ёслол (хурим биш, ганц хүний баяр)
-  "chuluunburged": {
-    countdownEyebrow: "Ёслолын өдөр хүртэл",
-    scheduleEyebrow: "Өдрийн цагийн хуваарь",
-    scheduleTitle: "Ёслолын хөтөлбөр",
-    rsvpTitle: "Ирцээ бүртгүүлэх",
-    rsvpPlaceholder: "Хүндэтгэлийн үг...",
-    footerTagline: "Special Day · Хүндэтгэлтэйгээр",
-    storyWatermark: "дурсамж",
-  },
-  // Ө.Тогоо & Б.Энхнасан — гэр бүл болсны 36 жилийн ой, төрийн хүндэтгэлийн ёслол
-  "togoo-enkhnasan": {
-    countdownEyebrow: "Найрын өдөр хүртэл",
-    scheduleEyebrow: "Өдрийн цагийн хуваарь",
-    scheduleTitle: "Найрын хөтөлбөр",
-    rsvpTitle: "Ирцээ бүртгүүлэх",
-    rsvpPlaceholder: "Эрхэм гэр бүлд...",
-    footerTagline: "Special Day · Хүндэтгэлтэйгээр",
-    storyWatermark: "бидний түүх",
-  },
   // Ариунаа — хуримын биш, гэр бүлийн найр. "Хурим" гэсэн үгийг бүгдийг нь
   // "найр"-аар сольсон бичиглэл.
-  // Eco Villa — цогцолбор хотхоны нээлттэй өдөрлөг (байгууллагын арга хэмжээ)
-  "ecovilla": {
-    countdownEyebrow: "Нээлттэй өдөрлөг хүртэл",
-    scheduleEyebrow: "Өдрийн цагийн хуваарь",
-    scheduleTitle: "Хөтөлбөр",
-    rsvpTitle: "Ирцээ бүртгүүлэх",
-    rsvpPlaceholder: "Хүсэлт, тэмдэглэл...",
-    footerTagline: "",
-    storyWatermark: "танилцуулга",
-  },
   "ariunaa": {
     countdownEyebrow: "Найрын өдөр хүртэл",
     scheduleEyebrow: "Өдрийн цагийн хуваарь",
@@ -409,17 +374,17 @@ function T12Navbar({ mono, names }: { mono: string; names: string }) {
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1519741497674-611481863552?w=2400&q=80";
 
 // Нэрийг нэг мөрөнд багтаах slug-ууд — нэрийн фонт бага зэрэг жижигрэнэ.
-const ONE_LINE_NAMES = new Set<string>(["togoo-enkhnasan"]);
+const ONE_LINE_NAMES = new Set<string>([]);
 
 // Hero-гийн зураг үндсэндээ дэлгэц дүүргэж (cover) тайрагддаг. Лого, постер
 // зэрэг бүтнээр нь харагдах ёстой зурагтай урилгыг энд бүртгэнэ — тэгвэл
 // зураг тайрагдахгүй, бүтнээрээ багтана (contain).
-const HERO_CONTAIN = new Set<string>(["ecovilla"]);
+const HERO_CONTAIN = new Set<string>([]);
 
 // Hero дээр гарах нэр. Үндсэндээ person1_name & person2_name нийлж гарна —
 // байгууллагын урилганд хосын нэр тохирохгүй тул энд slug-аар нь солино.
 const HERO_NAMES_OVERRIDE: Record<string, string> = {
-  "ecovilla": "Eco Villa",
+  // "slug": "Нэр",
 };
 
 function T12Hero({ names, date, heroImage, oneLine, contain }: { names: string; date: string; heroImage?: string; oneLine?: boolean; contain?: boolean }) {
@@ -689,21 +654,7 @@ const DEFAULT_CHAPTERS = [
 
 // Хайрын түүхийн оронд өөр бичвэр гарах slug-ууд (байгууллага, төслийн
 // танилцуулга г.м.). Бүртгээгүй урилга дээр DEFAULT_CHAPTERS хэвээр.
-const CHAPTERS_OVERRIDE: Record<string, typeof DEFAULT_CHAPTERS> = {
-  "ecovilla": [
-    {
-      num: "нэг",
-      title: "Танилцуулга",
-      body: "Байгальтайгаа зохицсон, тав тухтай орчин — Eco Villa цогцолбор хотхон.",
-      bodies: [
-        "Ерөнхий төлөвлөлт — ногоон орчин, тохилог гудамжууд.",
-        "Байршил — Богд хан уулын энгэрт, хотоос холгүй.",
-        "Орчин — амьдрахад тав тухтай, бүрэн дэд бүтэц.",
-      ],
-      captions: ["Ерөнхий төлөвлөлт", "Байршил", "Орчин"],
-    },
-  ],
-};
+const CHAPTERS_OVERRIDE: Record<string, typeof DEFAULT_CHAPTERS> = {};
 
 // Photo stagger entry ranges (0-1 of scrollYProgress)
 const ENTER_RANGES: [number, number][] = [
@@ -1264,17 +1215,7 @@ const DEFAULT_SCHEDULE: ScheduleItem[] = [
 
 // Хуримын биш урилга дээр events.schedule хоосон бол энэ хөтөлбөр гарна
 // (slug-аар). Захиалагч өөрийн хөтөлбөрөө schedule багананд бичвэл энэ дарагдана.
-const SCHEDULE_OVERRIDE: Record<string, ScheduleItem[]> = {
-  "chuluunburged": [
-    { time: "17:00", label: "Зочид цугларах",          desc: "Урилгаар ирсэн хүндэт зочид морилно" },
-    { time: "17:30", label: "Дурсамж зураг татуулах",  desc: "Фото бүсэд зурагчидтай хамт" },
-    { time: "18:00", label: "Танхимд суудал эзлэх",    desc: "Зочид байраа эзлэн, ёслолд бэлтгэнэ" },
-    { time: "18:30", label: "Ёслолын нээлт",           desc: "Хүндэтгэлийн ёслол эхлэх" },
-    { time: "19:10", label: "Хүндэтгэлийн зоог",       desc: "Ширээний хундага өргөх, уран бүтээлчдийн тоглолт" },
-    { time: "19:50", label: "Ерөөл, бэлэг дэвшүүлэх",  desc: "Төрөл төрөгсөд, хамт олны ерөөлийн үг" },
-    { time: "21:00", label: "Чөлөөт цаг",              desc: "Хөгжимт баяр үргэлжилнэ" },
-  ],
-};
+const SCHEDULE_OVERRIDE: Record<string, ScheduleItem[]> = {};
 
 
 
@@ -1351,7 +1292,7 @@ function T12Schedule({ event, texts }: { event: EventData; texts: T12Texts }) {
 // Байршлын зураг үндсэндээ 21:9 хүрээнд тайрагддаг (хуримын танхимын өргөн
 // зурагт тохирдог). Газрын зураг, схем зэрэг өндрөөрөө утга агуулсан зурагтай
 // урилгыг энд бүртгэнэ — тэгвэл зураг өөрийн харьцаагаараа бүтнээр гарна.
-const VENUE_IMAGE_FULL = new Set<string>(["ecovilla"]);
+const VENUE_IMAGE_FULL = new Set<string>([]);
 
 function T12Venue({ name, address, mapUrl, image, fullImage }: { name: string; address: string; mapUrl?: string; image?: string; fullImage?: boolean }) {
   const VENUE_FALLBACK = "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=2000&q=80";
@@ -1421,12 +1362,6 @@ const DEFAULT_POEM = [
 
 // events.poem хоосон үед хуримын биш урилга дээр гарах өөр үг (slug-аар).
 const POEM_OVERRIDE: Record<string, string[]> = {
-  "chuluunburged": [
-    "Олон жилийн хөдөлмөр, зүтгэлийн үр шим болж",
-    "\"Үйлчилгээний гавъяат ажилтан\" цол хүртсэн",
-    "энэхүү дурсгалт өдрөө тэмдэглэн өнгөрүүлэх гэж байна.",
-    "Энэхүү баяр хөөрт мөчийг Эрхэм таньтай хамт хуваалцахыг урьж байна.",
-  ],
   // Ариунаа — хурим биш найр тул үндсэн шүлгийн "Хуримын ариун ёслол" гэсэн
   // мөр таарахгүй. events.poem бөглөвөл энэ дарагдана.
   "ariunaa": [
@@ -1590,25 +1525,22 @@ function T12RSVP({ eventId, texts }: { eventId: string; texts: T12Texts }) {
 // Footer-т хосын нэрийн доор гарах холбоо барих утас (events хүснэгтэд багана
 // байхгүй тул slug-аар нь энд бичнэ). Бүртгээгүй урилга дээр огт гарахгүй.
 const FOOTER_PHONES: Record<string, string[]> = {
-  "enkhsanaa-dolgormaa": ["88118379", "86617777", "86657777"],
-  "togoo-enkhnasan": ["99351108", "94357011"],
-  "chuluunburged": ["88095111", "99184783"],
   "ariunaa": ["99046564", "99814190"],
 };
 
 // Утасны мөрийн гарчгийг солих slug-ууд. Үндсэндээ "Утас:".
 const PHONES_LABEL: Record<string, string> = {
-  "chuluunburged": "Утасны дугаар:",
+  // "slug": "Утасны дугаар:",
 };
 
 // Утасны доор гарах "Хүндэтгэсэн:" мөр — зөвхөн бүртгэсэн slug дээр.
 const FOOTER_HONORED: Record<string, string> = {
-  "chuluunburged": "Хүндэтгэсэн: Д.Чулуунбүргэдийн гэр бүл",
+  // "slug": "Хүндэтгэсэн: ...",
 };
 
 // Ганц хүний урилга дээр овгийн ганц үсэг доор ганцаараа гарах нь эвгүй тул
 // монограмыг энд бүртгэсэн slug дээр огт харуулахгүй.
-const HIDE_MONO = new Set<string>(["chuluunburged", "ariunaa", "ecovilla"]);
+const HIDE_MONO = new Set<string>(["ariunaa"]);
 
 function T12Footer({ mono, names, phones, phonesLabel, honored, tagline }: {
   mono: string; names: string; phones?: string[];

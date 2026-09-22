@@ -9,7 +9,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 // Hero картан дээр Supabase-ийн person1_name / person2_name-ийн оронд гарах нэр.
 // Зөвхөн энд бүртгэсэн slug дээр — footer болон бусад хэсэг хэвээрээ.
 const HERO_NAMES: Record<string, [string, string]> = {
-  "batzaya-delgersaihan": ["ЗАЯА", "ДЭЭГИЙ"],
+  // "slug": ["НЭР1", "НЭР2"],
 };
 
 // "Бидний хайрын түүх" гарчгийн доорх "нэр ♥ нэр" мөрийг нуух slug-ууд.
