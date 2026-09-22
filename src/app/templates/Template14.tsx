@@ -349,9 +349,7 @@ function T14Hero({ event }: { event: EventData }) {
 // ─── Verse / Invitation text ──────────────────────────────────────────────────
 // Урилгын үг дээрх хосын нэрийг өөрөөр бичих slug-ууд (овгийг товчлолгүй
 // бүтнээр нь). Бүртгээгүй урилга дээр Supabase-ийн нэр шууд гарна.
-const VERSE_NAMES: Record<string, [string, string]> = {
-  "adyasuren-khulan": ["Хишигсүрэнгийн Адъяасүрэн", "Мянганы Хулан"],
-};
+const VERSE_NAMES: Record<string, [string, string]> = {};
 
 // Шүлгийн доорх "Хоёр зүрх нэгдэхэд..." ишлэлийг нуух slug-ууд.
 const HIDE_VERSE_QUOTE = new Set<string>(["khongorzul"]);
@@ -545,7 +543,7 @@ function T14Schedule({ event }: { event: EventData }) {
     { time: "22:00", label: "Хосын анхны бүжиг",               desc: "Хосын анхны бүжиг" },
     { time: "22:10", label: "Баярын бялуу хуваах",             desc: "Баярын бялуу хуваах ёслол" },
     { time: "22:30", label: "Бусад үйл ажиллагаа",             desc: "Урлаг уран сайхан болон бусад үйл ажиллагаа явагдана" },
-    { time: "23:45", label: "Албан ёсны арга хэмжээ өндөрлөнө", desc: "Албан ёсны арга хэмжээ дуусаж чөлөөт бүжигээр баяр үргэлжилнэ" },
+    { time: "23:45", label: "Албан ёсны арга хэмжээ өндөрлөнө", desc: "Албан ёсны арга хэмжээ дуусаж чөлөөт бүжгээр баяр үргэлжилнэ" },
   ]);
 
   return (
@@ -608,7 +606,7 @@ function T14Schedule({ event }: { event: EventData }) {
 // Template 11-ийн цомог шиг bento байрлалтай болгох slug-ууд: эхний зураг
 // мөр дүүрэн өргөн (4/3), үлдсэн нь 2 баганаар квадрат нүдэнд.
 // Бүртгээгүй урилга дээр урьдын адил бүх нүд 3/4 хэлбэртэй.
-const BENTO_GALLERY = new Set<string>(["barkhas-darisuren"]);
+const BENTO_GALLERY = new Set<string>([]);
 
 function T14Gallery({ event }: { event: EventData }) {
   // Оруулсан зургийг л харуулна. Огт байхгүй үед л fallback зургууд гарна.
@@ -1050,27 +1048,17 @@ function T14Wishes({ eventId }: { eventId: string }) {
 // events хүснэгтэд утасны багана байхгүй тул холбоо барих дугаарыг эндээс
 // slug-аар нь уншина. Бүртгээгүй урилга дээр утасны мөр огт гарахгүй.
 const CONTACT_PHONES: Record<string, string[]> = {
-  "dorjzowd-nomin": ["88777477", "86777477"],
-  "tumbayr-dulguun": ["90343333", "91492222"],
-  "itgelt-lham": ["99991218", "99974928"],
   "khongorzul": ["99239222", "88592826"],
 };
 
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
-const CHILDREN: Record<string, string[]> = {
-  "dawaa-dawaajargal": ["Хүү Д.Тэлмүүн", "Охин Д.Цэлмүүн"],
-  "batsukh-sumya": ["Охин: Б.Сийлэн"],
-  "lashidnym-togtokhsuren": ["Охин: Н.Гэгээнхүслэн", "Хүү: Н.Гэгээнжаргал"],
-  // Эцэг эх, хүүхдүүд нэг блокоор — дээр нь "Хүндэтгэсэн:" гэсэн мөр гарна.
-  "itgelt-lham": ["Нөхөр: Э.Итгэлт", "Эхнэр: С.Лхам", "Хүү: И.Ананд", "Хүү: И.Билэгт"],
-};
+const CHILDREN: Record<string, string[]> = {};
 
 // Footer-ийн нэрийн мөр. Үндсэндээ Supabase-ийн "Х.Адъяасүрэн & М.Хулан"
 // хэлбэрээр гарна. Энд бүртгэсэн slug дээр оронд нь эдгээр мөрүүд гарна
 // (овгийг товчлолгүй бүтнээр нь бичих тохиолдол).
 const FOOTER_NAMES: Record<string, string[]> = {
   // "slug": ["Хишигсүрэн Адъяасүрэн", "Мянган Хулан"],
-  "itgelt-lham": ["Хүндэтгэсэн:"],
 };
 
 // Footer-ийн утасны мөрийн яг дээр гарах "Хүндэтгэсэн:" блок — зөвхөн энд
@@ -1083,33 +1071,19 @@ const HONORED_BY: Record<string, string[]> = {
 // алгасдаг ч "Хишигсүрэн Адъяасүрэн" шиг цэггүй бүтэн нэр дээр эхний үг нь
 // овог мөн үү, өөрийн нэр мөн үү гэдгийг таамаглах найдваргүй. Тиймээс
 // FOOTER_NAMES-тэй slug дээр монограмыг энд гараар тогтооно.
-const MONO_OVERRIDE: Record<string, [string, string]> = {
-  "adyasuren-khulan": ["А", "Х"], // Адъяасүрэн & Хулан
-};
+const MONO_OVERRIDE: Record<string, [string, string]> = {};
 
 // Хөтөлбөр (T14Schedule) хэсгийг нуух slug-ууд.
 const HIDE_SCHEDULE = new Set<string>([
-  "batsukh-sumya",
-  "ariunbold-pvrewdorj",
-  "lashidnym-togtokhsuren",
-  "dulguun-daariimaa",
-  "adyasuren-khulan",
-  "tumbayr-dulguun",
-  "samdanjigmid-munkhzul",
   "khongorzul",
 ]);
 
 // Зургийн цомог (T14Gallery) хэсгийг харуулахгүй slug-ууд.
-const HIDE_GALLERY = new Set<string>([
-  "itgelt-lham",
-]);
+const HIDE_GALLERY = new Set<string>([]);
 
 // Хөтөлбөрийн оронд QR зураг харуулах slug-ууд. HIDE_SCHEDULE-д мөн нэмсэн
 // байх ёстой — тэгвэл хөтөлбөр алга болж, оронд нь энэ зураг гарна.
-const SCHEDULE_QR: Record<string, string> = {
-  "samdanjigmid-munkhzul":
-    "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/samdan/qr2.png",
-};
+const SCHEDULE_QR: Record<string, string> = {};
 
 function T14ScheduleQR({ src }: { src: string }) {
   return (
