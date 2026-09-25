@@ -111,7 +111,7 @@ function isNonWedding(event) {
 }
 
 // Байгууллагын урилга дээр хуримын нэр (One Wedding) ба хуримын preview зураг
-// гарах ёсгүй. type='corporate' эсвэл Template20 бол компанийн мэдээлэл гарна.
+// гарах ёсгүй. type='corporate' эсвэл template='20' бол компанийн мэдээлэл гарна.
 function isCorporate(event) {
   return event.type === "corporate" || String(event.template) === "20";
 }

@@ -3,30 +3,19 @@ import App from "../App";
 import Template12 from "./Template12";
 import Template13 from "./Template13";
 import Template14 from "./Template14";
-import Template15 from "./Template15";
-import Template16 from "./Template16";
-import Template17 from "./Template17";
-// Одонгийн найрын урилга — Template13-ийн хуулбар дээр суурилсан (production
-// дээрх T13-ыг хөндөхгүйгээр тусад нь хөгжүүлж байна)
-import Template18 from "./Template18";
 // Эрэгтэй хүүхдийн төрсөн өдрийн урилга — Template12-ийн бүтцэн дээр суурилсан
 import Template19 from "./Template19";
-// Байгууллагын албан ёсны арга хэмжээ (ISO гэрчилгээ гардуулах, нээлт г.м.)
-import Template20 from "./Template20";
 // Хүүхдийн төрсөн өдөр — "Гоо бүсгүй ба мангас" сэдэвтэй, Template13-ийн
 // бүтцэн дээр суурилсан тусдаа загвар
 import Template21 from "./Template21";
 
+// Жагсаалтад байхгүй template утгатай (жишээ нь өмнө устгасан 15-18, 20)
+// хуучин event-үүд EventPage дээр App (Template11) руу fallback хийнэ.
 export const templateMap: Record<string, React.ComponentType<{ event: EventData }>> = {
   "11": App,
   "12": Template12,
   "13": Template13,
   "14": Template14,
-  "15": Template15,
-  "16": Template16,
-  "17": Template17,
-  "18": Template18,
   "19": Template19,
-  "20": Template20,
   "21": Template21,
 };

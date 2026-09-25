@@ -27,7 +27,7 @@ export type EventData = {
   // Хурим бүрийн өөрийн агуулга. Хоосон бол template-ийн үндсэн текст гарна.
   poem?: string;                      // мөр бүрийг шинэ мөрөөр тусгаарлана
   schedule?: ScheduleItem[] | string; // jsonb: [{ time, label, desc? }, ...]
-  // events хүснэгтэд одоогоор багана байхгүй — нэмбэл Template16-ийн footer-т
+  // events хүснэгтэд одоогоор багана байхгүй — нэмбэл footer-т
   // tel: холбоос болж харагдана
   person1_phone?: string;
   person2_phone?: string;
