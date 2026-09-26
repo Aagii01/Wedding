@@ -59,6 +59,8 @@ gallery2_photos  text[]             ← WeddingHero carousel-д ашиглада
 template         text DEFAULT '11'  ← ямар template ашиглахыг тодорхойлно
 poem             text nullable      ← шүлэг/урилгын үг. Мөр бүрийг \n-ээр тусгаарлана
 schedule         jsonb nullable     ← [{ "time": "17:00", "label": "...", "desc": "..." }, ...]
+config           jsonb NOT NULL default '{}'  ← урилга бүрийн тохиргоо (нэр, утас, нэмэлт
+                                     бичвэр, хэсэг нуух). Дэлгэрэнгүй: docs/event-config.md
 ```
 
 **`poem` / `schedule` — хурим бүрийн өөрийн агуулга:**
@@ -243,6 +245,10 @@ Toaster (shadcn notification)
 ## Хийгдэх Ажлууд (TODO)
 
 ### Тэргүүлэх
+- [ ] **`events.config` шилжилт** — захиалагчийн тохиргоог кодоос DB рүү гаргах.
+  Helper (`src/lib/eventConfig.ts`) ба эхний 3 түлхүүр хийгдсэн; үлдсэн 20-ийн
+  жагсаалт, SQL, хэв маяг → **`docs/event-config.md`**. Зорилго: нэг захиалга =
+  нэг deploy гэдгийг зогсоох (одоо 78 урилгын 34 нь код засвар шаардсан).
 - [ ] **Зургийн upload UI** — `CreatePage`-д Supabase Storage upload нэмэх (одоо URL оруулдаг)
 - [ ] **WeddingGifts** — `bank_account`, `bank_name` column нэмж `events` table-д, component идэвхжүүлэх
 - [x] **Gallery зургууд** — `gallery_photos` (4, bento grid) + `gallery2_photos` (8, hero carousel) column нэмэгдсэн

@@ -23,6 +23,9 @@ export type EventData = {
   gallery_photos: string[];
   gallery2_photos: string[];
   template?: string;
+  // Урилга бүрийн өөрийн тохиргоо (см. src/lib/eventConfig.ts).
+  // Хоосон бол код дахь хуучин утга хэрэглэгдэнэ.
+  config?: Record<string, unknown> | string;
   music_url?: string;
   // Хурим бүрийн өөрийн агуулга. Хоосон бол template-ийн үндсэн текст гарна.
   poem?: string;                      // мөр бүрийг шинэ мөрөөр тусгаарлана

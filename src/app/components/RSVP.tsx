@@ -5,10 +5,11 @@ import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { supabase } from "../../lib/supabase";
+import { cfg } from "../../lib/eventConfig";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-type Props = { eventId: string; slug?: string };
+type Props = { eventId: string; slug?: string; config?: unknown };
 
 // "Хэдэн хүн ирэх вэ?" тоолуурыг нуух slug-ууд. Нуусан үед guests нь 1-ээр
 // хадгалагдана (ирэхгүй гэсэн бол урьдын адил 0).
@@ -38,6 +39,8 @@ const CLOSING_PHONES: Record<string, string[]> = {
 
 // Хаалтын мөрийн доор гарах хүсэлт (хувцаслалт г.м.) — зөвхөн бүртгэсэн slug
 // дээр. "\n\n" нь хоосон мөр болно (whitespace-pre-line).
+// ЗАСВАР: шинэ урилга дээр эндээс биш, events.config дээрээс бичнэ:
+//   { "rsvp": { "note": "Хувцаслалтын хүсэлт..." } }
 const CLOSING_NOTE: Record<string, string> = {
   "telmen-udwal":
     "🤍Эрхэм хүндэт зочид та бүхнээсээ хуримын өдөр цагаан өнгийн хувцаснаас " +
@@ -59,7 +62,9 @@ const CLOSING_PHONES_LABEL: Record<string, string> = {
   "sugarragchaa-dunjmaa": "Утас:",
 };
 
-export function RSVP({ eventId, slug }: Props) {
+export function RSVP({ eventId, slug, config }: Props) {
+  // config.rsvp.note → байхгүй бол код дахь CLOSING_NOTE
+  const note = cfg<string | undefined>(config, "rsvp.note", slug ? CLOSING_NOTE[slug] : undefined);
   const showGuestCount = !(slug && HIDE_GUEST_COUNT.has(slug));
   const [rsvp, setRsvp] = useState({ name: "", phone: "", attending: "yes", guests: "1" });
   const [wish, setWish] = useState({ name: "", message: "" });
@@ -262,7 +267,7 @@ export function RSVP({ eventId, slug }: Props) {
         {(slug && CLOSING_LINE[slug]) || "Тантай уулзахыг тэсэн ядан хүлээж байна!"}
       </motion.p>
 
-      {slug && CLOSING_NOTE[slug] && (
+      {note && (
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -271,7 +276,7 @@ export function RSVP({ eventId, slug }: Props) {
           className="max-w-2xl mx-auto mt-5 text-center text-lg md:text-xl text-gray-600 leading-relaxed whitespace-pre-line"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
-          {CLOSING_NOTE[slug]}
+          {note}
         </motion.p>
       )}
 

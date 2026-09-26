@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronDown } from "lucide-react";
+import { sectionOn } from "../../lib/eventConfig";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -11,11 +12,14 @@ type Props = {
   venue: string;
   venueAddress: string;
   slug?: string;
+  config?: unknown;
 };
 
 // Тоологч ("Хуримд үлдсэн хугацаа" тоонууд) болон "Эхлэх цаг" мөрийг нуух
 // slug-ууд. Гарчиг ба огноо хэвээр харагдана — зөвхөн цагтай холбоотой хэсэг
 // алга болно.
+// ЗАСВАР: шинэ урилга дээр events.config дээрээс тохируулна:
+//   { "sections": { "timer": false } }
 const HIDE_TIMER = new Set<string>(["tseween-narmandakh2"]);
 
 function getTimeLeft(target: Date) {
@@ -103,10 +107,11 @@ function addHours(date: string, time: string, hours: number) {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 }
 
-export function CountdownTimer({ date, time, title, venue, venueAddress, slug }: Props) {
+export function CountdownTimer({ date, time, title, venue, venueAddress, slug, config }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const hideTimer = !!slug && HIDE_TIMER.has(slug);
+  // config.sections.timer → байхгүй бол код дахь HIDE_TIMER
+  const hideTimer = !sectionOn(config, "timer", !(!!slug && HIDE_TIMER.has(slug)));
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { EventData } from "../types/event";
+import { sectionOn } from "../lib/eventConfig";
 import { WeddingHero } from "./components/WeddingHero";
 import { GroomBride } from "./components/GroomBride";
 import { VenueSection } from "./components/VenueSection";
@@ -114,6 +115,8 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 
 // ─── Root ────────────────────────────────────────────────────────────────────
 // Хөтөлбөр (HealthProtocol) хэсгийг нуух slug-ууд.
+// ЗАСВАР: шинэ урилга дээр эндээс биш, events.config дээрээс тохируулна:
+//   { "sections": { "schedule": false } }
 const HIDE_SCHEDULE = new Set<string>([
   "tseween-narmandakh2",
   "bayarbymba-anujin",
@@ -154,10 +157,10 @@ export default function App({ event }: Props) {
       <VenueSection event={event} />
       <GallerySection event={event} />
       <PoemSection event={event} />
-      <CountdownTimer date={event.date} time={event.time} title={event.title} venue={event.venue_name} venueAddress={event.venue_address} slug={event.slug} />
-      {/* Эдгээр slug дээр хөтөлбөрийн хэсгийг нуух */}
-      {!HIDE_SCHEDULE.has(event.slug) && <HealthProtocol event={event} />}
-      <RSVP eventId={event.id} slug={event.slug} />
+      <CountdownTimer date={event.date} time={event.time} title={event.title} venue={event.venue_name} venueAddress={event.venue_address} slug={event.slug} config={event.config} />
+      {/* Хөтөлбөр: config.sections.schedule → байхгүй бол код дахь HIDE_SCHEDULE */}
+      {sectionOn(event.config, "schedule", !HIDE_SCHEDULE.has(event.slug)) && <HealthProtocol event={event} />}
+      <RSVP eventId={event.id} slug={event.slug} config={event.config} />
       {/* <WeddingGifts /> */}
       <WeddingFooter event={event} />
       <Toaster />
