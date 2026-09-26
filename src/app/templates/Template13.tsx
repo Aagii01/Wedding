@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
+import { cfg } from "../../lib/eventConfig";
 import { getPoemLines, getSchedule } from "../../lib/eventContent";
 import { normalizeUrl } from "../../lib/url";
 
@@ -1241,12 +1242,15 @@ const SIGNATURE: Record<string, string[]> = {};
 // HONORED_BY блок ганцаараа гарна).
 const HIDE_COUPLE_NAMES = new Set<string>(["gantulga-uranbileg"]);
 
-// Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+// Хосын нэрийн доор гарах үр хүүхдийн нэр.
+// ЗАСВАР: шинэ урилга дээр эндээс биш, events.config дээрээс бичнэ:
+//   { "footer": { "children": ["Хүү: ...", "Охин: ..."] } }
 const FOOTER_CHILDREN: Record<string, string[]> = {
   "bilguun-uuriintsolmon": ["Хүү: Аригун"],
 };
 
-// Хосын нэрийн доор гарах холбоо барих утас — зөвхөн бүртгэсэн slug дээр.
+// Хосын нэрийн доор гарах холбоо барих утас.
+// ЗАСВАР: events.config → { "footer": { "phone": "99...", "phoneLabel": "Утас:" } }
 const CONTACT_PHONE: Record<string, string> = {};
 
 // Footer-ийн зургийг slug-аар нь тогтоох.
@@ -1258,6 +1262,10 @@ function T13Footer({ event }: { event: EventData }) {
   // Үндсэндээ gallery_photos-ийн эхний зураг гарна. Энд бүртгэсэн slug дээр
   // цомгийн дарааллыг хөндөлгүйгээр өөр зураг тавина.
   const footerImg = FOOTER_IMAGE[event.slug] || event.gallery_photos?.[0];
+  // config.footer.* → байхгүй бол код дахь хуучин map (fallback)
+  const children = cfg<string[] | undefined>(event.config, "footer.children", FOOTER_CHILDREN[event.slug]);
+  const phone = cfg<string | undefined>(event.config, "footer.phone", CONTACT_PHONE[event.slug]);
+  const phoneLabel = cfg<string>(event.config, "footer.phoneLabel", "Холбогдох утас:");
 
   return (
     <div style={{ background: BURGUNDY, padding: "56px 32px 80px", textAlign: "center" }}>
@@ -1294,23 +1302,23 @@ function T13Footer({ event }: { event: EventData }) {
             <span style={{ whiteSpace: "nowrap" }}>{name1}</span> <Amp /> <span style={{ whiteSpace: "nowrap" }}>{name2}</span>
           </div>
         )}
-        {FOOTER_CHILDREN[event.slug] && (
+        {children && children.length > 0 && (
           <div style={{ marginTop: 10 }}>
-            {FOOTER_CHILDREN[event.slug].map((line) => (
+            {children.map((line) => (
               <div key={line} style={{ ...playfair, fontSize: 20, color: CREAM, opacity: 0.8, lineHeight: 1.8 }}>
                 {line}
               </div>
             ))}
           </div>
         )}
-        {CONTACT_PHONE[event.slug] && (
+        {phone && (
           <div style={{ ...ovo, fontSize: 17, color: CREAM, opacity: 0.85, marginTop: 16 }}>
-            Холбогдох утас:{" "}
+            {phoneLabel}{" "}
             <a
-              href={`tel:${CONTACT_PHONE[event.slug].replace(/\D/g, "")}`}
+              href={`tel:${phone.replace(/\D/g, "")}`}
               style={{ color: CREAM, textDecoration: "none" }}
             >
-              {CONTACT_PHONE[event.slug]}
+              {phone}
             </a>
           </div>
         )}
