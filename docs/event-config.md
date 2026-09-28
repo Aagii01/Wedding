@@ -47,6 +47,8 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | | `rsvp.declineLabel` | "Ирэхгүй" сонголтын бичвэр | `DECLINE_LABEL` | RSVP.tsx |
 | | `sections.guestCount` | Зочны тоолуур нуух (`false`) | `HIDE_GUEST_COUNT` | RSVP.tsx |
 | **Footer** | `footer.children` | Хосын нэрийн доор хүүхдийн нэр | `FOOTER_CHILDREN` | WeddingFooter.tsx |
+| | `footer.phones` | Footer дэх холбоо барих утас (массив) | — | WeddingFooter.tsx |
+| | `footer.phoneLabel` | Утасны мөрийн гарчиг (анхдагч "Холбогдох утас:") | — | WeddingFooter.tsx |
 | | `footer.image` | Footer зураг (`main_image`-ийн оронд) | `FOOTER_IMAGE` | WeddingFooter.tsx |
 | | `footer.font` | Footer нэрийн фонт `{family,size}` | `FOOTER_NAME_FONT` | WeddingFooter.tsx |
 
@@ -61,6 +63,9 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `footer.children` | Хосын нэрийн доор хүүхдийн нэр | `FOOTER_CHILDREN` |
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
+
+ℹ️ T11 ба T13 хоёулаа `footer.phone` (`"99..., 88..."` мөр) ба `footer.phones`
+(массив) хоёуланг хүлээж авна — T11 дээр таслалаар салгаж, тус бүрд нь `tel:` холбоос үүсгэнэ.
 
 ---
 

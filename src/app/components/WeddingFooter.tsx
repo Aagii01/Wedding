@@ -34,6 +34,15 @@ type Props = { event: EventData };
 export function WeddingFooter({ event }: Props) {
   const imgSrc = cfg<string | undefined>(event.config, "footer.image", FOOTER_IMAGE[event.slug]) || event.main_image || FALLBACK_IMAGE;
   const footerChildren = cfg<string[] | undefined>(event.config, "footer.children", FOOTER_CHILDREN[event.slug]);
+  // config: footer.phones (массив) эсвэл footer.phone ("99..., 88..." мөр).
+  // Template13 дээр ганц мөрөөр бичдэг тул хоёуланг нь хүлээж авна.
+  const rawPhones = cfg<string[] | string | undefined>(
+    event.config, "footer.phones", cfg<string | undefined>(event.config, "footer.phone", undefined),
+  );
+  const footerPhones = (Array.isArray(rawPhones) ? rawPhones : String(rawPhones ?? "").split(","))
+    .map((t) => String(t).trim())
+    .filter(Boolean);
+  const footerPhoneLabel = cfg<string>(event.config, "footer.phoneLabel", "Холбогдох утас:");
 
   const displayTitle = event.person2_name
     ? `${event.person1_name} & ${event.person2_name}`
@@ -101,6 +110,19 @@ export function WeddingFooter({ event }: Props) {
                 </p>
               ))}
             </div>
+          )}
+          {footerPhones.length > 0 && (
+            <p className="mb-3 text-base sm:text-lg text-white/85" style={{ fontFamily: "'PT Serif', serif" }}>
+              {footerPhoneLabel}{" "}
+              {footerPhones.map((tel, i) => (
+                <span key={tel}>
+                  {i > 0 && ", "}
+                  <a href={`tel:${tel.replace(/[^0-9+]/g, "")}`} className="text-white/85 no-underline">
+                    {tel}
+                  </a>
+                </span>
+              ))}
+            </p>
           )}
           <p className="text-sm text-white/60 tracking-wide">{event.date}</p>
         </motion.div>
