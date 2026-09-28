@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { EventData } from "../../types/event";
 import { getSchedule, ScheduleItem } from "../../lib/eventContent";
+import { cfg } from "../../lib/eventConfig";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -18,13 +19,14 @@ const DEFAULT_SCHEDULE: ScheduleItem[] = [
   { time: "22:45", label: "Албан ёсны арга хэмжээ өндөрлөнө", desc: "Албан ёсны арга хэмжээ дуусаж чөлөөт бүжгээр баяр үргэлжилнэ" },
 ];
 // Гарчгийг өөрчлөх slug-ууд. Бүртгээгүй урилга дээр "Хуримын хөтөлбөр".
+// config: schedule.title
 const TITLE_OVERRIDE: Record<string, string> = {
   "ganbaatar-maralgua": "Wedding timeline",
 };
 
 export function HealthProtocol({ event }: { event?: EventData }) {
   const schedule = event ? getSchedule(event, DEFAULT_SCHEDULE) : DEFAULT_SCHEDULE;
-  const title = (event && TITLE_OVERRIDE[event.slug]) || "Хуримын хөтөлбөр";
+  const title = cfg<string>(event?.config, "schedule.title", (event && TITLE_OVERRIDE[event.slug]) || "Хуримын хөтөлбөр");
 
   return (
     <section className="py-16 px-4 bg-gray-50">

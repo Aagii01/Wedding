@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
 import { X } from "lucide-react";
 import { EventData } from "../../types/event";
+import { cfg } from "../../lib/eventConfig";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -59,12 +60,14 @@ function Tile({
 }
 
 // Цомгийн гарчгийг солих slug-ууд.
+// config: gallery.title
 const TITLE_OVERRIDE: Record<string, string> = {
   // "slug": "Photo Album",
 };
 
 export function GallerySection({ event }: Props) {
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const galleryTitle = cfg<string>(event.config, "gallery.title", TITLE_OVERRIDE[event.slug] ?? "Зургийн цомог");
 
   // Оруулсан зурагтаа тааруулна — дутууг placeholder-аар нөхөхгүй.
   // Огт зураг байхгүй үед л PLACEHOLDERS ажиллана (demo эвдрэхгүй).
@@ -85,7 +88,7 @@ export function GallerySection({ event }: Props) {
           >
       
             <h2 className="text-3xl font-serif text-gray-800">
-              {TITLE_OVERRIDE[event.slug] ?? "Зургийн цомог"}
+              {galleryTitle}
             </h2>
           </motion.div>
 

@@ -1,16 +1,19 @@
 import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { EventData } from "../../types/event";
+import { cfg } from "../../lib/eventConfig";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1519741497674-611481863552?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200";
 
 // Footer-ийн зургийг main_image-ээс өөр зургаар солих slug-ууд.
+// config: footer.image
 const FOOTER_IMAGE: Record<string, string> = {
   "baasanbat-buyn-od":
     "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanbat/tugsgul.jpg",
 };
 
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+// config: footer.children
 const FOOTER_CHILDREN: Record<string, string[]> = {
   "dawaajargal-otgondawaa": ["Хүү: Д.Саруул-Эрдэнэ"],
 };
@@ -18,6 +21,7 @@ const FOOTER_CHILDREN: Record<string, string[]> = {
 // Footer дэх хосын нэрийг гар бичмэл фонтоор харуулах slug-ууд. Hero дээрх
 // HERO_NAME_FONT-той хосолж, урилга даяар нэг фонттой байлгана.
 // ⚠ Фонт нь монгол кирилл ө (U+04E9), ү (U+04AF)-г агуулсан байх ёстой.
+// config: footer.font
 const FOOTER_NAME_FONT: Record<string, { family: string; size: string }> = {
   "odbayr-bujinlham": {
     family: "'Caveat', cursive",
@@ -28,7 +32,8 @@ const FOOTER_NAME_FONT: Record<string, { family: string; size: string }> = {
 type Props = { event: EventData };
 
 export function WeddingFooter({ event }: Props) {
-  const imgSrc = FOOTER_IMAGE[event.slug] || event.main_image || FALLBACK_IMAGE;
+  const imgSrc = cfg<string | undefined>(event.config, "footer.image", FOOTER_IMAGE[event.slug]) || event.main_image || FALLBACK_IMAGE;
+  const footerChildren = cfg<string[] | undefined>(event.config, "footer.children", FOOTER_CHILDREN[event.slug]);
 
   const displayTitle = event.person2_name
     ? `${event.person1_name} & ${event.person2_name}`
@@ -39,7 +44,7 @@ export function WeddingFooter({ event }: Props) {
     (event.person1_name || "").length,
     (event.person2_name || "").length,
   );
-  const nameFont = FOOTER_NAME_FONT[event.slug];
+  const nameFont = cfg<{ family: string; size: string } | undefined>(event.config, "footer.font", FOOTER_NAME_FONT[event.slug]);
   const nameSize = nameFont?.size ??
     (maxNameLen > 13 ? "text-2xl sm:text-3xl" :
      maxNameLen > 9  ? "text-3xl sm:text-4xl" :
@@ -88,9 +93,9 @@ export function WeddingFooter({ event }: Props) {
               <span className="whitespace-nowrap">{event.person1_name}</span>
             )}
           </h2>
-          {FOOTER_CHILDREN[event.slug] && (
+          {footerChildren && footerChildren.length > 0 && (
             <div className="mb-3 space-y-1" style={{ fontFamily: "'PT Serif', serif" }}>
-              {FOOTER_CHILDREN[event.slug].map((line) => (
+              {footerChildren.map((line) => (
                 <p key={line} className="text-base sm:text-lg text-white/85">
                   {line}
                 </p>

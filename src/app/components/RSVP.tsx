@@ -5,7 +5,7 @@ import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { supabase } from "../../lib/supabase";
-import { cfg } from "../../lib/eventConfig";
+import { cfg, sectionOn } from "../../lib/eventConfig";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -13,18 +13,21 @@ type Props = { eventId: string; slug?: string; config?: unknown };
 
 // "Хэдэн хүн ирэх вэ?" тоолуурыг нуух slug-ууд. Нуусан үед guests нь 1-ээр
 // хадгалагдана (ирэхгүй гэсэн бол урьдын адил 0).
+// config: sections.guestCount
 const HIDE_GUEST_COUNT = new Set<string>([
   "munkhjin-khishigdari",
   "odbayr-bujinlham",
 ]);
 
 // "Ирэхгүй" сонголтын бичвэрийг өөрчлөх slug-ууд.
+// config: rsvp.declineLabel
 const DECLINE_LABEL: Record<string, string> = {
   "munkhjin-khishigdari": "Очиж амжихгүй нь",
 };
 
 // Хаалтын мөрийг өөрчлөх slug-ууд. "\n" нь шинэ мөр болно
 // (хаалтын хэсэг whitespace-pre-line-тэй).
+// config: rsvp.closing
 const CLOSING_LINE: Record<string, string> = {
   "ganbaatar-maralgua": "WE CAN’T WAIT TO CELEBRATE WITH YOU!",
   "ganzul-dulguunjargal":
@@ -32,6 +35,7 @@ const CLOSING_LINE: Record<string, string> = {
 };
 
 // Хаалтын мөрийн доор гарах холбоо барих утас — зөвхөн бүртгэсэн slug дээр.
+// config: rsvp.phones
 const CLOSING_PHONES: Record<string, string[]> = {
   "odbayr-bujinlham": ["88102682", "80102682"],
   "sugarragchaa-dunjmaa": ["99124927", "99811535"],
@@ -50,6 +54,7 @@ const CLOSING_NOTE: Record<string, string> = {
 };
 
 // Хаалтын мөрийн доор гарах "Хүндэтгэсэн" мөрүүд — зөвхөн бүртгэсэн slug дээр.
+// config: rsvp.honored
 const CLOSING_HONORED: Record<string, string[]> = {
   "bayarbymba-anujin": [
     "Хүндэтгэсэн: М.Баярбямба & Ц.Анужин",
@@ -58,6 +63,7 @@ const CLOSING_HONORED: Record<string, string[]> = {
 };
 
 // Утасны мөрийн гарчгийг солих slug-ууд. Үндсэндээ "Утасны дугаар:".
+// config: rsvp.phonesLabel
 const CLOSING_PHONES_LABEL: Record<string, string> = {
   "sugarragchaa-dunjmaa": "Утас:",
 };
@@ -65,7 +71,12 @@ const CLOSING_PHONES_LABEL: Record<string, string> = {
 export function RSVP({ eventId, slug, config }: Props) {
   // config.rsvp.note → байхгүй бол код дахь CLOSING_NOTE
   const note = cfg<string | undefined>(config, "rsvp.note", slug ? CLOSING_NOTE[slug] : undefined);
-  const showGuestCount = !(slug && HIDE_GUEST_COUNT.has(slug));
+  const closingLine = cfg<string>(config, "rsvp.closing", (slug && CLOSING_LINE[slug]) || "Тантай уулзахыг тэсэн ядан хүлээж байна!");
+  const honored = cfg<string[] | undefined>(config, "rsvp.honored", slug ? CLOSING_HONORED[slug] : undefined);
+  const phones = cfg<string[] | undefined>(config, "rsvp.phones", slug ? CLOSING_PHONES[slug] : undefined);
+  const phonesLabel = cfg<string>(config, "rsvp.phonesLabel", (slug && CLOSING_PHONES_LABEL[slug]) ?? "Утасны дугаар:");
+  const declineLabel = cfg<string>(config, "rsvp.declineLabel", (slug && DECLINE_LABEL[slug]) ?? "Харамсалтай нь очиж чадахгүй");
+  const showGuestCount = sectionOn(config, "guestCount", !(slug && HIDE_GUEST_COUNT.has(slug)));
   const [rsvp, setRsvp] = useState({ name: "", phone: "", attending: "yes", guests: "1" });
   const [wish, setWish] = useState({ name: "", message: "" });
   const [rsvpLoading, setRsvpLoading] = useState(false);
@@ -158,7 +169,7 @@ export function RSVP({ eventId, slug, config }: Props) {
               <div className="space-y-2">
                 {[
                   { value: "yes", label: "Тийм, заавал ирнэ" },
-                  { value: "no",  label: (slug && DECLINE_LABEL[slug]) ?? "Харамсалтай нь очиж чадахгүй" },
+                  { value: "no",  label: declineLabel },
                 ].map(({ value, label }) => (
                   <label key={value} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
                     <input
@@ -264,7 +275,7 @@ export function RSVP({ eventId, slug, config }: Props) {
         className="max-w-4xl mx-auto mt-14 text-center text-2xl md:text-3xl text-gray-700 italic whitespace-pre-line"
         style={{ fontFamily: "'Cormorant Garamond', serif" }}
       >
-        {(slug && CLOSING_LINE[slug]) || "Тантай уулзахыг тэсэн ядан хүлээж байна!"}
+        {closingLine}
       </motion.p>
 
       {note && (
@@ -280,7 +291,7 @@ export function RSVP({ eventId, slug, config }: Props) {
         </motion.p>
       )}
 
-      {slug && CLOSING_HONORED[slug] && (
+      {honored && honored.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -289,7 +300,7 @@ export function RSVP({ eventId, slug, config }: Props) {
           className="max-w-4xl mx-auto mt-6 text-center space-y-1"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
-          {CLOSING_HONORED[slug].map((line) => (
+          {honored.map((line) => (
             <p key={line} className="text-lg md:text-xl text-gray-700">
               {line}
             </p>
@@ -297,7 +308,7 @@ export function RSVP({ eventId, slug, config }: Props) {
         </motion.div>
       )}
 
-      {slug && CLOSING_PHONES[slug] && (
+      {phones && phones.length > 0 && (
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -305,8 +316,8 @@ export function RSVP({ eventId, slug, config }: Props) {
           transition={{ delay: 0.2, duration: 0.8, ease: EASE }}
           className="max-w-4xl mx-auto mt-4 text-center text-base md:text-lg text-gray-600"
         >
-          {CLOSING_PHONES_LABEL[slug] ?? "Утасны дугаар:"}{" "}
-          {CLOSING_PHONES[slug].map((tel, i) => (
+          {phonesLabel}{" "}
+          {phones.map((tel, i) => (
             <span key={tel}>
               {i > 0 && ", "}
               <a href={`tel:${tel}`} className="hover:text-gray-900 transition-colors">

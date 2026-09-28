@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Instagram, Facebook } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { EventData } from "../../types/event";
+import { cfg } from "../../lib/eventConfig";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -36,6 +37,7 @@ function parseSocial(raw?: string | null) {
 }
 
 // Хоёр баганын доор голлон гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+// config: couple.children
 const CHILDREN: Record<string, string[]> = {
   "odbayr-bujinlham": ["Охин: О.Ундармал", "Хүү: О.Нэгүүн", "Хүү: О.Мөнхгал"],
 };
@@ -46,6 +48,7 @@ const FALLBACK_BRIDE = "https://images.unsplash.com/photo-1494790108377-be9c29b2
 type Props = { event: EventData };
 
 export function GroomBride({ event }: Props) {
+  const coupleChildren = cfg<string[] | undefined>(event.config, "couple.children", CHILDREN[event.slug]);
   const persons = [
     {
       role: event.person1_role,
@@ -106,7 +109,7 @@ export function GroomBride({ event }: Props) {
         ))}
       </div>
 
-      {CHILDREN[event.slug] && (
+      {coupleChildren && coupleChildren.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -114,7 +117,7 @@ export function GroomBride({ event }: Props) {
           transition={{ duration: 0.75, delay: 0.24, ease: EASE }}
           className="max-w-2xl mx-auto mt-12 text-center space-y-1"
         >
-          {CHILDREN[event.slug].map((line) => (
+          {coupleChildren.map((line) => (
             <p key={line} className="text-base font-serif text-gray-700">
               {line}
             </p>

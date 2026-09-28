@@ -10,13 +10,11 @@ Helper: [`src/lib/eventConfig.ts`](../src/lib/eventConfig.ts)
 тиймээс нэг ч хуучин урилга эвдрэхгүй, нэг нэгээр нь шилжүүлж болно.
 
 ```ts
-cfg(config, "rsvp.note", CLOSING_NOTE[slug])          // утга авах
+cfg(config, "rsvp.note", CLOSING_NOTE[slug])            // утга авах
 sectionOn(config, "schedule", !HIDE_SCHEDULE.has(slug)) // хэсэг харуулах эсэх
 ```
 
----
-
-## Багана нэмэх (нэг удаа — АЛЬ ХЭДИЙН ХИЙГДСЭН 2026-09-25)
+Багана нэмэх (нэг удаа — **аль хэдийн хийгдсэн** 2026-09-25):
 
 ```sql
 alter table events add column if not exists config jsonb not null default '{}'::jsonb;
@@ -24,70 +22,51 @@ alter table events add column if not exists config jsonb not null default '{}'::
 
 ---
 
-## ✅ Одоо ажиллаж байгаа (Template11)
+## ✅ Template11 — 23 түлхүүр бүрэн ажиллана
 
-| Түлхүүр | Юу хийх | Fallback (код) |
+| Хэсэг | Түлхүүр | Юу хийх | Fallback (код) | Файл |
+|---|---|---|---|---|
+| **Нүүр** | `hero.names` | Hero дээрх нэрийг солих (`["ЗАЯА","ДЭЭГИЙ"]`) | `HERO_NAMES` | WeddingHero.tsx |
+| | `hero.font` | Нэрийн фонт, хэмжээ `{family,size}` | `HERO_NAME_FONT` | WeddingHero.tsx |
+| | `hero.quotes` | `"en"` бичвэл ишлэл англиар | `ENGLISH_QUOTES` | WeddingHero.tsx |
+| | `hero.captions` | Carousel зургийн тайлбар (түлхүүр = зургийн URL) | `PHOTO_CAPTIONS` | WeddingHero.tsx |
+| **Түүх** | `story.title` | "Бидний хайрын түүх" гарчиг солих | `STORY_TITLE` | WeddingHero.tsx |
+| | `story.children` | "нэр ♥ нэр" мөрийн доор үр хүүхдийн нэр | `STORY_CHILDREN` | WeddingHero.tsx |
+| | `story.namesSize` | Тэр мөрийн хэмжээ `{name,heart}` | `STORY_NAMES_SIZE` | WeddingHero.tsx |
+| | `sections.storyNames` | "нэр ♥ нэр" мөрийг нуух (`false`) | `HIDE_STORY_NAMES` | WeddingHero.tsx |
+| **Хос** | `couple.children` | Хосын танилцуулгын доор хүүхдийн нэр | `CHILDREN` | GroomBride.tsx |
+| **Цомог** | `gallery.title` | Цомгийн гарчиг | `TITLE_OVERRIDE` | GallerySection.tsx |
+| **Хөтөлбөр** | `schedule.title` | Хөтөлбөрийн гарчиг | `TITLE_OVERRIDE` | HealthProtocol.tsx |
+| | `sections.schedule` | Хөтөлбөрийг бүхэлд нь нуух (`false`) | `HIDE_SCHEDULE` | App.tsx |
+| **Тоологч** | `sections.timer` | Тоологч ба "Эхлэх цаг" нуух (`false`) | `HIDE_TIMER` | CountdownTimer.tsx |
+| **Ирц** | `rsvp.closing` | Хаалтын мөр | `CLOSING_LINE` | RSVP.tsx |
+| | `rsvp.note` | Хаалтын доорх нэмэлт бичвэр (хувцаслалт г.м.) | `CLOSING_NOTE` | RSVP.tsx |
+| | `rsvp.honored` | "Хүндэтгэсэн:" мөрүүд | `CLOSING_HONORED` | RSVP.tsx |
+| | `rsvp.phones` | Холбоо барих утас | `CLOSING_PHONES` | RSVP.tsx |
+| | `rsvp.phonesLabel` | Утасны мөрийн гарчиг | `CLOSING_PHONES_LABEL` | RSVP.tsx |
+| | `rsvp.declineLabel` | "Ирэхгүй" сонголтын бичвэр | `DECLINE_LABEL` | RSVP.tsx |
+| | `sections.guestCount` | Зочны тоолуур нуух (`false`) | `HIDE_GUEST_COUNT` | RSVP.tsx |
+| **Footer** | `footer.children` | Хосын нэрийн доор хүүхдийн нэр | `FOOTER_CHILDREN` | WeddingFooter.tsx |
+| | `footer.image` | Footer зураг (`main_image`-ийн оронд) | `FOOTER_IMAGE` | WeddingFooter.tsx |
+| | `footer.font` | Footer нэрийн фонт `{family,size}` | `FOOTER_NAME_FONT` | WeddingFooter.tsx |
+
+⚠️ `hero.font` / `footer.font`-д зөвхөн монгол кирилл **ө (U+04E9), ү (U+04AF)**-г
+агуулсан фонт тохирно. `Caveat`, `Bad Script` дэмждэг; `Dancing Script`,
+`Great Vibes` дэмждэггүй. Фонт нь `index.html`-д ачаалагдсан байх ёстой.
+
+## ✅ Template13 — 3 түлхүүр
+
+| Түлхүүр | Юу хийх | Fallback |
 |---|---|---|
-| `sections.schedule` | Хөтөлбөр (HealthProtocol) нуух/гаргах | `HIDE_SCHEDULE` — App.tsx |
-| `sections.timer` | Тоологч ба "Эхлэх цаг" нуух/гаргах | `HIDE_TIMER` — CountdownTimer.tsx |
-| `rsvp.note` | Хаалтын доорх нэмэлт бичвэр (хувцаслалт г.м.) | `CLOSING_NOTE` — RSVP.tsx |
-
-```sql
-update events set config = '{
-  "sections": { "schedule": false, "timer": false },
-  "rsvp": { "note": "🤍 Хувцаслалтын хүсэлт..." }
-}'::jsonb
-where slug = 'SLUG-ЭНД';
-```
+| `footer.children` | Хосын нэрийн доор хүүхдийн нэр | `FOOTER_CHILDREN` |
+| `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
+| `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
 
 ---
 
-## ⬜ TODO — Template11-ийн үлдсэн 20 түлхүүр
+## Бүх түлхүүрийг агуулсан SQL (Template11)
 
-Бүгд ижил хэв маягаар холбогдоно, шинэ логик бичихгүй. Код дахь хуучин map
-байрандаа үлдэнэ (fallback) тул 32 ширхэг T11 урилгын нэг нь ч хөндөгдөхгүй.
-
-| Хэсэг | Түлхүүр | Юу хийх | Одоогийн код | Файл |
-|---|---|---|---|---|
-| **Нүүр** | `hero.names` | Нэрийг солих (`["ЗАЯА","ДЭЭГИЙ"]`) | `HERO_NAMES` | WeddingHero.tsx:11 |
-| | `hero.font` | Нэрийн фонт, хэмжээ | `HERO_NAME_FONT` | WeddingHero.tsx:28 |
-| | `hero.quotes` | Ишлэлийг англиар (`"en"`) | `ENGLISH_QUOTES` | WeddingHero.tsx:56 |
-| | `hero.captions` | Зургийн тайлбар | `PHOTO_CAPTIONS` | WeddingHero.tsx:71 |
-| **Түүх** | `story.title` | "Бидний хайрын түүх" гарчиг солих | `STORY_TITLE` | WeddingHero.tsx:59 |
-| | `story.children` | Нэрийн доор үр хүүхдийн нэр | `STORY_CHILDREN` | WeddingHero.tsx:64 |
-| | `story.namesSize` | Нэрийн хэмжээ | `STORY_NAMES_SIZE` | WeddingHero.tsx:19 |
-| | `sections.storyNames` | "нэр ♥ нэр" мөрийг нуух | `HIDE_STORY_NAMES` | WeddingHero.tsx:16 |
-| **Хос** | `couple.children` | Хосын доор хүүхдийн нэр | `CHILDREN` | GroomBride.tsx:39 |
-| **Цомог** | `gallery.title` | Цомгийн гарчиг | `TITLE_OVERRIDE` | GallerySection.tsx:62 |
-| **Хөтөлбөр** | `schedule.title` | Хөтөлбөрийн гарчиг | `TITLE_OVERRIDE` | HealthProtocol.tsx:21 |
-| **Ирц** | `rsvp.closing` | Хаалтын мөр | `CLOSING_LINE` | RSVP.tsx:28 |
-| | `rsvp.phones` | Холбоо барих утас | `CLOSING_PHONES` | RSVP.tsx:35 |
-| | `rsvp.phonesLabel` | Утасны гарчиг ("Утас:") | `CLOSING_PHONES_LABEL` | RSVP.tsx:61 |
-| | `rsvp.honored` | "Хүндэтгэсэн:" мөрүүд | `CLOSING_HONORED` | RSVP.tsx:53 |
-| | `rsvp.declineLabel` | "Ирэхгүй" сонголтын бичвэр | `DECLINE_LABEL` | RSVP.tsx:22 |
-| | `sections.guestCount` | Зочны тоолуур нуух | `HIDE_GUEST_COUNT` | RSVP.tsx:16 |
-| **Footer** | `footer.children` | Хүүхдийн нэр | `FOOTER_CHILDREN` | WeddingFooter.tsx:14 |
-| | `footer.image` | Footer зураг | `FOOTER_IMAGE` | WeddingFooter.tsx:8 |
-| | `footer.font` | Нэрийн фонт | `FOOTER_NAME_FONT` | WeddingFooter.tsx:21 |
-
-### Хэрэгжүүлэх хэв маяг
-
-```ts
-// 1. import нэмэх
-import { cfg, sectionOn } from "../../lib/eventConfig";
-
-// 2. component-д config prop дамжуулах (App.tsx-аас)
-type Props = { ...; config?: unknown };
-
-// 3. хуучин мөрийг helper-ээр ороох — map-ыг УСТГАХГҮЙ, fallback болгоно
-const title = cfg(config, "gallery.title", slug ? TITLE_OVERRIDE[slug] : undefined);
-const show  = sectionOn(config, "guestCount", !(slug && HIDE_GUEST_COUNT.has(slug)));
-```
-
-⚠️ `config` prop-ыг **destructure хийхээ мартаж болохгүй** — vite нь TypeScript
-шалгадаггүй тул build дуугарахгүй, зөвхөн browser дээр цагаан дэлгэц болж унана.
-
-### Бүх түлхүүрийг агуулсан SQL (20-ыг холбосны дараа хүчинтэй)
+Хэрэггүй мөрөө устгаад ашиглана — бичээгүй түлхүүр бүр кодын анхдагч утгаараа үлдэнэ.
 
 ```sql
 update events set config = '{
@@ -99,9 +78,9 @@ update events set config = '{
   },
   "hero": {
     "names":    ["ЗАЯА", "ДЭЭГИЙ"],
-    "font":     { "family": "Caveat, cursive", "size": "text-6xl" },
+    "font":     { "family": "Caveat, cursive", "size": "text-3xl sm:text-4xl md:text-5xl" },
     "quotes":   "en",
-    "captions": { "0": "Анхны уулзалт", "1": "Сүй тавилт" }
+    "captions": { "https://.../gallery1.jpg": "Бидний үерхсэн өдөр\n2023.10.10" }
   },
   "story": {
     "title":     "Бидний түүх",
@@ -114,7 +93,7 @@ update events set config = '{
   "rsvp": {
     "closing":      "Тантай уулзахыг тэсэн ядан хүлээж байна!",
     "note":         "🤍 Хувцаслалтын хүсэлт...",
-    "honored":      ["Хүндэтгэсэн: М.Баярбямба & Ц.Анужин"],
+    "honored":      ["Хүндэтгэсэн: М.Баярбямба & Ц.Анужин", "Охин: Б.Анххүслэн"],
     "phones":       ["99112233", "88112233"],
     "phonesLabel":  "Утас:",
     "declineLabel": "Очиж амжихгүй нь"
@@ -122,7 +101,7 @@ update events set config = '{
   "footer": {
     "children": ["Хүү: Д.Саруул-Эрдэнэ"],
     "image":    "https://.../footer.jpg",
-    "font":     { "family": "Caveat, cursive", "size": "text-5xl" }
+    "font":     { "family": "Caveat, cursive", "size": "text-4xl sm:text-5xl" }
   }
 }'::jsonb
 where slug = 'SLUG-ЭНД';
@@ -145,16 +124,42 @@ where slug = 'SLUG-ЭНД';
 
 -- нэг талбар устгах (кодын fallback руу буцаана)
 update events set config = config #- '{rsvp,note}' where slug = 'SLUG-ЭНД';
+
+-- одоогийн утгыг харах
+select slug, jsonb_pretty(config) from events where slug = 'SLUG-ЭНД';
 ```
 
 ---
 
-## ⬜ TODO — бусад загвар
+## ⬜ TODO — үлдсэн загварууд
 
-Template 12 / 13 / 14 / 19 / 21 нь өөрсдийн дотоод section-той, огт
-холбогдоогүй. Тэдэнд нийт ~67 override map үлдсэн (хамгийн ихдээ T12: 19,
-T13: 19, T14: 13). Идэвхтэй урилгын ихэнх нь T12/T14 дээр байдаг тул
-T11 дууссаны дараа T12 хийх нь зүйтэй.
+Template 12 / 14 / 19 / 21 огт холбогдоогүй (T13-ийн footer л хийгдсэн).
+Тэдэнд нийт ~60 override map үлдсэн — хамгийн ихдээ T12: 19, T13: 16, T14: 13.
+Идэвхтэй урилгын ихэнх T12/T14 дээр байдаг тул T12-оор үргэлжлүүлэх нь зүйтэй.
+
+### Хэрэгжүүлэх хэв маяг
+
+```ts
+// 1. import
+import { cfg, sectionOn } from "../../lib/eventConfig";
+
+// 2. component-д config хүрэх эсэхийг шалга.
+//    `event: EventData` авдаг бол → event.config
+//    зөвхөн slug авдаг бол → Props-д `config?: unknown` нэмж App.tsx-аас дамжуул
+
+// 3. хуучин мөрийг helper-ээр ороо — map-ыг УСТГАХГҮЙ, fallback болгоно
+const title = cfg<string>(event.config, "gallery.title", TITLE_OVERRIDE[event.slug] ?? "Зургийн цомог");
+const show  = sectionOn(event.config, "guestCount", !HIDE_GUEST_COUNT.has(event.slug));
+
+// 4. map-ын дээр тэмдэглэгээ үлдээ
+// config: gallery.title
+const TITLE_OVERRIDE: Record<string, string> = { ... };
+```
+
+⚠️ `config` prop-ыг **destructure хийхээ мартаж болохгүй** — vite нь TypeScript
+шалгадаггүй тул build дуугарахгүй, зөвхөн browser дээр цагаан дэлгэц болж унана.
+Мөн массив түлхүүрийг `{x && (` биш `{x && x.length > 0 && (` гэж шалга —
+DB-д `[]` бичихэд хоосон блок гарахгүй.
 
 ## ⬜ TODO — админ форм
 

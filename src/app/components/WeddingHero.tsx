@@ -3,19 +3,23 @@ import { Heart } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useState } from "react";
 import { EventData } from "../../types/event";
+import { cfg, sectionOn } from "../../lib/eventConfig";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 // Hero картан дээр Supabase-ийн person1_name / person2_name-ийн оронд гарах нэр.
 // Зөвхөн энд бүртгэсэн slug дээр — footer болон бусад хэсэг хэвээрээ.
+// config: hero.names
 const HERO_NAMES: Record<string, [string, string]> = {
   // "slug": ["НЭР1", "НЭР2"],
 };
 
 // "Бидний хайрын түүх" гарчгийн доорх "нэр ♥ нэр" мөрийг нуух slug-ууд.
+// config: sections.storyNames
 const HIDE_STORY_NAMES = new Set<string>(["ganbaatar-maralgua"]);
 
 // Тэр мөрийн нэрийг томруулах slug-ууд. Үндсэндээ text-base (16px).
+// config: story.namesSize
 const STORY_NAMES_SIZE: Record<string, { name: string; heart: string }> = {
   "telmen-udwal": { name: "text-2xl sm:text-3xl", heart: "w-5 h-5" },
 };
@@ -25,6 +29,7 @@ const STORY_NAMES_SIZE: Record<string, { name: string; heart: string }> = {
 // ёстой. Dancing Script, Great Vibes эдгээрийг агуулдаггүй тул тохирохгүй.
 // Caveat, Bad Script хоёр бүрэн дэмждэг (index.html-д ачаалсан).
 // `size` — гар бичмэл фонт оптикоор жижиг харагддаг тул томруулж өгнө.
+// config: hero.font
 const HERO_NAME_FONT: Record<string, { family: string; size: string }> = {
   "odbayr-bujinlham": {
     family: "'Caveat', cursive",
@@ -53,14 +58,17 @@ const QUOTES_EN = [
   '"When two hearts beat in the same rhythm, the universe finally becomes whole."',
   '"Loving you is like sunlight that warms me even from beyond the mountains — unseen, yet always present in my heart."',
 ];
+// config: hero.quotes ("en")
 const ENGLISH_QUOTES = new Set<string>(["ganbaatar-maralgua"]);
 
 // "Бидний хайрын түүх" гарчгийг солих slug-ууд.
+// config: story.title
 const STORY_TITLE: Record<string, string> = {
   // "slug": "Our love story",
 };
 
 // "нэр ♥ нэр" мөрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+// config: story.children
 const STORY_CHILDREN: Record<string, string[]> = {
   "dawaajargal-otgondawaa": ["Хүү: Д.Саруул-Эрдэнэ"],
 };
@@ -68,6 +76,7 @@ const STORY_CHILDREN: Record<string, string[]> = {
 // Carousel-ийн зураг тус бүрийн тайлбар. Түлхүүр нь зурагны бүтэн URL.
 // Бүртгээгүй зураг дээр нийтлэг QUOTES эргэлдэнэ. "\n" нь шинэ мөр.
 const BAASANBAT = "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/baasanbat";
+// config: hero.captions
 const PHOTO_CAPTIONS: Record<string, Record<string, string>> = {
   "baasanbat-buyn-od": {
     [`${BAASANBAT}/gallery1.jpg`]: "Бидний үерхсэн өдөр\n2023.10.10",
@@ -123,8 +132,8 @@ export function WeddingHero({ event }: Props) {
   const photos = (event.gallery2_photos || []).filter(Boolean);
   const sources = photos.length > 0 ? photos : FALLBACK_SRCS;
   // Зурагт тусгайлан бичсэн тайлбар байвал түүнийг, үгүй бол нийтлэг ишлэлийг
-  const captions = PHOTO_CAPTIONS[event.slug];
-  const useEnglish = ENGLISH_QUOTES.has(event.slug);
+  const captions = cfg<Record<string, string> | undefined>(event.config, "hero.captions", PHOTO_CAPTIONS[event.slug]);
+  const useEnglish = cfg<string | undefined>(event.config, "hero.quotes", ENGLISH_QUOTES.has(event.slug) ? "en" : undefined) === "en";
   const slides = sources.map((src, i) => {
     const n = i % QUOTES.length;
     return {
@@ -147,13 +156,19 @@ export function WeddingHero({ event }: Props) {
 
   // Hero дээр Supabase-ийн нэрийн оронд өөр нэр (хочит нэр гэх мэт) харуулах
   // slug-ууд. Footer болон бусад хэсэг хэвээрээ.
-  const [name1, name2] = HERO_NAMES[event.slug] ?? [event.person1_name, event.person2_name];
+  const [name1, name2] = cfg<[string, string] | undefined>(event.config, "hero.names", HERO_NAMES[event.slug]) ?? [event.person1_name, event.person2_name];
 
   const altText = name2 ? `${name1} & ${name2}` : name1;
 
   // Урт нэрэнд фонтыг жижигрүүлж багтаана — нэр бүр өөрөө задрахгүй (whitespace-nowrap).
   const maxNameLen = Math.max((name1 || "").length, (name2 || "").length);
-  const heroFont = HERO_NAME_FONT[event.slug];
+  const heroFont = cfg<{ family: string; size: string } | undefined>(event.config, "hero.font", HERO_NAME_FONT[event.slug]);
+
+  // "Бидний хайрын түүх" хэсгийн тохиргоо
+  const storyTitle = cfg<string>(event.config, "story.title", STORY_TITLE[event.slug] ?? "Бидний хайрын түүх");
+  const showStoryNames = sectionOn(event.config, "storyNames", !HIDE_STORY_NAMES.has(event.slug));
+  const storyNamesSize = cfg<{ name: string; heart: string } | undefined>(event.config, "story.namesSize", STORY_NAMES_SIZE[event.slug]);
+  const storyChildren = cfg<string[] | undefined>(event.config, "story.children", STORY_CHILDREN[event.slug]);
   const nameSize = heroFont?.size ??
     (maxNameLen > 13 ? "text-lg sm:text-2xl md:text-3xl" :
      maxNameLen > 9  ? "text-xl sm:text-2xl md:text-4xl" :
@@ -248,9 +263,9 @@ export function WeddingHero({ event }: Props) {
           className="text-center mb-14"
         >
           <h2 className="text-4xl md:text-5xl font-serif text-gray-800 mb-2">
-            {STORY_TITLE[event.slug] ?? "Бидний хайрын түүх"}
+            {storyTitle}
           </h2>
-          {event.person2_name && !HIDE_STORY_NAMES.has(event.slug) && (
+          {event.person2_name && showStoryNames && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -258,16 +273,16 @@ export function WeddingHero({ event }: Props) {
               transition={{ delay: 0.2, duration: 0.7, ease: EASE }}
               className="flex items-center justify-center gap-2 text-gray-600"
             >
-              <span className={`${STORY_NAMES_SIZE[event.slug]?.name ?? "text-base"} font-serif`}>
+              <span className={`${storyNamesSize?.name ?? "text-base"} font-serif`}>
                 {event.person1_name}
               </span>
-              <Heart className={`${STORY_NAMES_SIZE[event.slug]?.heart ?? "w-3 h-3"} fill-rose-400 text-rose-400`} />
-              <span className={`${STORY_NAMES_SIZE[event.slug]?.name ?? "text-base"} font-serif`}>
+              <Heart className={`${storyNamesSize?.heart ?? "w-3 h-3"} fill-rose-400 text-rose-400`} />
+              <span className={`${storyNamesSize?.name ?? "text-base"} font-serif`}>
                 {event.person2_name}
               </span>
             </motion.div>
           )}
-          {STORY_CHILDREN[event.slug] && (
+          {storyChildren && storyChildren.length > 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -275,7 +290,7 @@ export function WeddingHero({ event }: Props) {
               transition={{ delay: 0.35, duration: 0.7, ease: EASE }}
               className="mt-2 space-y-1 text-gray-600"
             >
-              {STORY_CHILDREN[event.slug].map((line) => (
+              {storyChildren.map((line) => (
                 <div key={line} className="text-base font-serif">
                   {line}
                 </div>
