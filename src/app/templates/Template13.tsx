@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
-import { cfg } from "../../lib/eventConfig";
+import { cfg, sectionOn } from "../../lib/eventConfig";
 import { getPoemLines, getSchedule } from "../../lib/eventContent";
 import { normalizeUrl } from "../../lib/url";
 
@@ -448,6 +448,7 @@ const GALLERY_TITLE: Record<string, string> = {};
 const HIDE_PHOTO_QUOTES = new Set<string>([]);
 
 // Ирц бүртгэлийн (T13RSVP) хэсгийг нуух slug-ууд.
+// config: sections.rsvp (false → нуугдана)
 const HIDE_RSVP = new Set<string>([]);
 
 // Хуримын урилга биш үед гарчгуудаас "хурим" гэсэн үгийг авна.
@@ -680,6 +681,7 @@ function T13Countdown({ event }: { event: EventData }) {
 
 // ─── Schedule ─────────────────────────────────────────────────────────────────
 // Хөтөлбөрийн хэсгийг харуулахгүй slug-ууд.
+// config: sections.schedule (false → нуугдана)
 const HIDE_SCHEDULE = new Set<string>([]);
 
 // Хөтөлбөрийн гарчгийг солих slug-ууд (жишээ нь цол хүртсэн замнал).
@@ -1386,11 +1388,11 @@ export default function Template13({ event }: { event: EventData }) {
       <T13Letter event={event} />
       <T13Gallery event={event} />
       <T13Countdown event={event} />
-      {!HIDE_SCHEDULE.has(event.slug) && <T13Schedule event={event} />}
+      {sectionOn(event.config, "schedule", !HIDE_SCHEDULE.has(event.slug)) && <T13Schedule event={event} />}
       <T13Location event={event} />
       <T13DressCode slug={event.slug} />
       <T13Wishes eventId={event.id} />
-      {!HIDE_RSVP.has(event.slug) && <T13RSVP eventId={event.id} slug={event.slug} />}
+      {sectionOn(event.config, "rsvp", !HIDE_RSVP.has(event.slug)) && <T13RSVP eventId={event.id} slug={event.slug} />}
       <T13Footer event={event} />
 
       {event.music_url && <MusicPlayer src={event.music_url} audioRef={audioRef} />}

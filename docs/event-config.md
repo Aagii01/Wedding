@@ -56,10 +56,12 @@ alter table events add column if not exists config jsonb not null default '{}'::
 агуулсан фонт тохирно. `Caveat`, `Bad Script` дэмждэг; `Dancing Script`,
 `Great Vibes` дэмждэггүй. Фонт нь `index.html`-д ачаалагдсан байх ёстой.
 
-## ✅ Template13 — 3 түлхүүр
+## ✅ Template13 — 5 түлхүүр
 
 | Түлхүүр | Юу хийх | Fallback |
 |---|---|---|
+| `sections.schedule` | Хөтөлбөрийг нуух (`false`) | `HIDE_SCHEDULE` |
+| `sections.rsvp` | Ирцийн бүртгэлийг нуух (`false`) | `HIDE_RSVP` |
 | `footer.children` | Хосын нэрийн доор хүүхдийн нэр | `FOOTER_CHILDREN` |
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
