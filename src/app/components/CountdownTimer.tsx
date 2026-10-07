@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronDown } from "lucide-react";
-import { sectionOn } from "../../lib/eventConfig";
+import { cfg, sectionOn } from "../../lib/eventConfig";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -112,6 +112,9 @@ export function CountdownTimer({ date, time, title, venue, venueAddress, slug, c
   const ref = useRef<HTMLDivElement>(null);
   // config.sections.timer → байхгүй бол код дахь HIDE_TIMER
   const hideTimer = !sectionOn(config, "timer", !(!!slug && HIDE_TIMER.has(slug)));
+  // config: countdown.title — хурим биш арга хэмжээнд гарчгийг солино
+  const countdownTitle = cfg<string>(config, "countdown.title", "Хуримд үлдсэн хугацаа");
+  const startLabel = cfg<string>(config, "countdown.startLabel", "Эхлэх цаг");
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -158,7 +161,7 @@ export function CountdownTimer({ date, time, title, venue, venueAddress, slug, c
           transition={{ duration: 0.8, ease: EASE }}
         >
           <p className="text-[10px] tracking-[0.3em] uppercase text-gray-400 mb-5">
-            Хуримд үлдсэн хугацаа
+            {countdownTitle}
           </p>
 
           <h2
@@ -174,7 +177,7 @@ export function CountdownTimer({ date, time, title, venue, venueAddress, slug, c
               className="text-2xl md:text-3xl text-gray-600 mb-6"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
-              Эхлэх цаг: {time}
+              {startLabel}: {time}
             </p>
           )}
 

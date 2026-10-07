@@ -152,7 +152,8 @@ export default function App({ event }: Props) {
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <FloatingPetals />
       <WeddingHero event={event} />
-      <GroomBride event={event} />
+      {/* Хосын танилцуулга: config.sections.couple (false → нуугдана) */}
+      {sectionOn(event.config, "couple", true) && <GroomBride event={event} />}
       {/* <WeddingDetails event={event} /> */}
       <VenueSection event={event} />
       <GallerySection event={event} />

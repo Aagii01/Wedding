@@ -22,7 +22,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 
 ---
 
-## ✅ Template11 — 23 түлхүүр бүрэн ажиллана
+## ✅ Template11 — 31 түлхүүр бүрэн ажиллана
 
 | Хэсэг | Түлхүүр | Юу хийх | Fallback (код) | Файл |
 |---|---|---|---|---|
@@ -30,16 +30,24 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | | `hero.font` | Нэрийн фонт, хэмжээ `{family,size}` | `HERO_NAME_FONT` | WeddingHero.tsx |
 | | `hero.quotes` | `"en"` бичвэл ишлэл англиар | `ENGLISH_QUOTES` | WeddingHero.tsx |
 | | `hero.captions` | Carousel зургийн тайлбар (түлхүүр = зургийн URL) | `PHOTO_CAPTIONS` | WeddingHero.tsx |
+| | `hero.photoFit` | `"contain"` бол carousel зураг тайрагдахгүй бүтнээр | — | WeddingHero.tsx |
+| | `sections.photoQuotes` | Зураг дээрх ишлэлийг нуух (`false`) | — | WeddingHero.tsx |
 | **Түүх** | `story.title` | "Бидний хайрын түүх" гарчиг солих | `STORY_TITLE` | WeddingHero.tsx |
 | | `story.children` | "нэр ♥ нэр" мөрийн доор үр хүүхдийн нэр | `STORY_CHILDREN` | WeddingHero.tsx |
 | | `story.namesSize` | Тэр мөрийн хэмжээ `{name,heart}` | `STORY_NAMES_SIZE` | WeddingHero.tsx |
 | | `sections.storyNames` | "нэр ♥ нэр" мөрийг нуух (`false`) | `HIDE_STORY_NAMES` | WeddingHero.tsx |
 | **Хос** | `couple.children` | Хосын танилцуулгын доор хүүхдийн нэр | `CHILDREN` | GroomBride.tsx |
+| | `sections.couple` | Хосын танилцуулгыг бүхэлд нь нуух (`false`) | — | App.tsx |
 | **Цомог** | `gallery.title` | Цомгийн гарчиг | `TITLE_OVERRIDE` | GallerySection.tsx |
 | **Хөтөлбөр** | `schedule.title` | Хөтөлбөрийн гарчиг | `TITLE_OVERRIDE` | HealthProtocol.tsx |
 | | `sections.schedule` | Хөтөлбөрийг бүхэлд нь нуух (`false`) | `HIDE_SCHEDULE` | App.tsx |
-| **Тоологч** | `sections.timer` | Тоологч ба "Эхлэх цаг" нуух (`false`) | `HIDE_TIMER` | CountdownTimer.tsx |
-| **Ирц** | `rsvp.closing` | Хаалтын мөр | `CLOSING_LINE` | RSVP.tsx |
+| **Тоологч** | `countdown.title` | "Хуримд үлдсэн хугацаа" гарчгийг солих | — | CountdownTimer.tsx |
+| | `countdown.startLabel` | "Эхлэх цаг" гэсэн бичвэрийг солих | — | CountdownTimer.tsx |
+| | `sections.timer` | Тоологч ба эхлэх цагийг нуух (`false`) | `HIDE_TIMER` | CountdownTimer.tsx |
+| **Ирц** | `rsvp.title` | "Ирцээ бүртгүүлэх" гарчиг | — | RSVP.tsx |
+| | `rsvp.subtitle` | "Хуримын өдрөөс өмнө..." мөр (`""` бол алга болно) | — | RSVP.tsx |
+| | `rsvp.guestCountLabel` | "Хэдэн хүн ирэх вэ?" бичвэр | — | RSVP.tsx |
+| | `rsvp.closing` | Хаалтын мөр | `CLOSING_LINE` | RSVP.tsx |
 | | `rsvp.note` | Хаалтын доорх нэмэлт бичвэр (хувцаслалт г.м.) | `CLOSING_NOTE` | RSVP.tsx |
 | | `rsvp.honored` | "Хүндэтгэсэн:" мөрүүд | `CLOSING_HONORED` | RSVP.tsx |
 | | `rsvp.phones` | Холбоо барих утас | `CLOSING_PHONES` | RSVP.tsx |
@@ -113,6 +121,27 @@ update events set config = '{
 }'::jsonb
 where slug = 'SLUG-ЭНД';
 ```
+
+### Хурим биш арга хэмжээ (ангийн уулзалт, ой, байгууллага)
+
+Template11-ийг хуримын биш арга хэмжээнд тохируулах бүрэн жор. `poem` ба
+`schedule` нь тусдаа багана тул тэнд өөрийн бичвэрээ оруулна.
+
+```sql
+update events set config = '{
+  "sections": { "couple": false, "guestCount": false, "photoQuotes": false },
+  "hero":      { "photoFit": "contain" },
+  "story":     { "title": "Оюутан насны нандин дурсамж" },
+  "gallery":   { "title": "Дурсамжийн цомог" },
+  "schedule":  { "title": "Уулзалтын хөтөлбөр" },
+  "countdown": { "title": "Уулзалт хүртэл" },
+  "rsvp":      { "subtitle": "", "closing": "Таньтай уулзахыг тэсэн ядан хүлээж байна!" }
+}'::jsonb
+where slug = 'SLUG-ЭНД';
+```
+
+⚠️ `title` багана (жишээ нь "... хурим") нь календарь болон Facebook preview-д
+гардаг — тэнд бас засах хэрэгтэй. `type` баганыг ч мөн адил.
 
 ### Хэсэгчлэн засах (бусад түлхүүрийг хөндөхгүй)
 

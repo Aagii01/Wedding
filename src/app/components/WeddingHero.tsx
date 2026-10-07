@@ -98,7 +98,11 @@ const FALLBACK_SRCS = [
   "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
 ];
 
-function SlideCard({ src, quote, small, tiny }: { src: string; quote: string; small?: boolean; tiny?: boolean }) {
+function SlideCard({ src, quote, small, tiny, fit = "cover", showQuote = true }: {
+  src: string; quote: string; small?: boolean; tiny?: boolean;
+  // "cover" — дэлгэц дүүргэж тайрна (анхдагч). "contain" — зураг бүтнээр багтана.
+  fit?: "cover" | "contain"; showQuote?: boolean;
+}) {
   return (
     <div
       className={`${
@@ -107,13 +111,19 @@ function SlideCard({ src, quote, small, tiny }: { src: string; quote: string; sm
                 "w-64 h-[460px] md:w-96 md:h-[560px]"
       } rounded-3xl overflow-hidden shadow-2xl relative flex-shrink-0`}
     >
-      <ImageWithFallback src={src} alt="Wedding photo" className="w-full h-full object-cover" />
-      <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
-        {/* whitespace-pre-line — тайлбар доторх шинэ мөр хадгалагдана */}
-        <p className={`text-white leading-relaxed italic whitespace-pre-line ${small ? "text-[10px]" : "text-xs"}`}>
-          {quote}
-        </p>
-      </div>
+      <ImageWithFallback
+        src={src}
+        alt="photo"
+        className={`w-full h-full ${fit === "contain" ? "object-contain bg-neutral-100" : "object-cover"}`}
+      />
+      {showQuote && quote && (
+        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
+          {/* whitespace-pre-line — тайлбар доторх шинэ мөр хадгалагдана */}
+          <p className={`text-white leading-relaxed italic whitespace-pre-line ${small ? "text-[10px]" : "text-xs"}`}>
+            {quote}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -134,6 +144,10 @@ export function WeddingHero({ event }: Props) {
   // Зурагт тусгайлан бичсэн тайлбар байвал түүнийг, үгүй бол нийтлэг ишлэлийг
   const captions = cfg<Record<string, string> | undefined>(event.config, "hero.captions", PHOTO_CAPTIONS[event.slug]);
   const useEnglish = cfg<string | undefined>(event.config, "hero.quotes", ENGLISH_QUOTES.has(event.slug) ? "en" : undefined) === "en";
+  // config: hero.photoFit — "contain" бол carousel-ийн зураг тайрагдахгүй бүтнээр
+  const photoFit = cfg<"cover" | "contain">(event.config, "hero.photoFit", "cover") === "contain" ? "contain" : "cover";
+  // config: sections.photoQuotes — false бол зураг дээрх ишлэл гарахгүй
+  const showPhotoQuotes = sectionOn(event.config, "photoQuotes", true);
   const slides = sources.map((src, i) => {
     const n = i % QUOTES.length;
     return {
@@ -320,7 +334,7 @@ export function WeddingHero({ event }: Props) {
               className="absolute pointer-events-none"
               style={{ transform: "translateX(-410px) scale(0.62)", opacity: 0.3, zIndex: 0 }}
             >
-              <SlideCard src={slides[prev2].src} quote={slides[prev2].quote} tiny />
+              <SlideCard src={slides[prev2].src} quote={slides[prev2].quote} tiny fit={photoFit} showQuote={showPhotoQuotes} />
             </div>
           )}
 
@@ -330,7 +344,7 @@ export function WeddingHero({ event }: Props) {
               className="absolute pointer-events-none"
               style={{ transform: "translateX(-230px) scale(0.8)", opacity: 0.6, zIndex: 1 }}
             >
-              <SlideCard src={slides[prev].src} quote={slides[prev].quote} small />
+              <SlideCard src={slides[prev].src} quote={slides[prev].quote} small fit={photoFit} showQuote={showPhotoQuotes} />
             </div>
           )}
 
@@ -344,7 +358,7 @@ export function WeddingHero({ event }: Props) {
                 exit={{ opacity: 0, scale: 0.94, y: -10 }}
                 transition={{ duration: 0.45, ease: EASE }}
               >
-                <SlideCard src={slides[current].src} quote={slides[current].quote} />
+                <SlideCard src={slides[current].src} quote={slides[current].quote} fit={photoFit} showQuote={showPhotoQuotes} />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -355,7 +369,7 @@ export function WeddingHero({ event }: Props) {
               className="absolute pointer-events-none"
               style={{ transform: "translateX(230px) scale(0.8)", opacity: 0.6, zIndex: 1 }}
             >
-              <SlideCard src={slides[next].src} quote={slides[next].quote} small />
+              <SlideCard src={slides[next].src} quote={slides[next].quote} small fit={photoFit} showQuote={showPhotoQuotes} />
             </div>
           )}
 
@@ -365,7 +379,7 @@ export function WeddingHero({ event }: Props) {
               className="absolute pointer-events-none"
               style={{ transform: "translateX(410px) scale(0.62)", opacity: 0.3, zIndex: 0 }}
             >
-              <SlideCard src={slides[next2].src} quote={slides[next2].quote} tiny />
+              <SlideCard src={slides[next2].src} quote={slides[next2].quote} tiny fit={photoFit} showQuote={showPhotoQuotes} />
             </div>
           )}
         </motion.div>

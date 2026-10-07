@@ -76,6 +76,10 @@ export function RSVP({ eventId, slug, config }: Props) {
   const phones = cfg<string[] | undefined>(config, "rsvp.phones", slug ? CLOSING_PHONES[slug] : undefined);
   const phonesLabel = cfg<string>(config, "rsvp.phonesLabel", (slug && CLOSING_PHONES_LABEL[slug]) ?? "Утасны дугаар:");
   const declineLabel = cfg<string>(config, "rsvp.declineLabel", (slug && DECLINE_LABEL[slug]) ?? "Харамсалтай нь очиж чадахгүй");
+  // config: rsvp.title / rsvp.subtitle — хурим биш арга хэмжээнд бичвэрийг солино
+  const rsvpTitle = cfg<string>(config, "rsvp.title", "Ирцээ бүртгүүлэх");
+  const rsvpSubtitle = cfg<string>(config, "rsvp.subtitle", "Хуримын өдрөөс өмнө бүртгэлээ хийнэ үү");
+  const guestCountLabel = cfg<string>(config, "rsvp.guestCountLabel", "Хэдэн хүн ирэх вэ?");
   const showGuestCount = sectionOn(config, "guestCount", !(slug && HIDE_GUEST_COUNT.has(slug)));
   const [rsvp, setRsvp] = useState({ name: "", phone: "", attending: "yes", guests: "1" });
   const [wish, setWish] = useState({ name: "", message: "" });
@@ -142,8 +146,8 @@ export function RSVP({ eventId, slug, config }: Props) {
           viewport={{ once: true, margin: "-40px 0px" }}
           transition={{ duration: 0.75, ease: EASE }}
         >
-          <h2 className="text-3xl font-serif text-gray-800 mb-1">Ирцээ бүртгүүлэх</h2>
-          <p className="text-sm text-gray-400 mb-1">Хуримын өдрөөс өмнө бүртгэлээ хийнэ үү</p>
+          <h2 className="text-3xl font-serif text-gray-800 mb-1">{rsvpTitle}</h2>
+          {rsvpSubtitle && <p className="text-sm text-gray-400 mb-1">{rsvpSubtitle}</p>}
           <p className="text-sm text-gray-600 mb-7">Овог нэр утасны дугаараа заавал бичээрэй</p>
           <form onSubmit={handleRsvp} className="space-y-4">
             <div>
@@ -188,7 +192,7 @@ export function RSVP({ eventId, slug, config }: Props) {
             {/* Хүний тоо — зөвхөн ирнэ гэсэн үед асууна */}
             {showGuestCount && rsvp.attending === "yes" && (
               <div>
-                <p className="text-sm text-gray-500 mb-2">Хэдэн хүн ирэх вэ?</p>
+                <p className="text-sm text-gray-500 mb-2">{guestCountLabel}</p>
                 <div className="flex items-center gap-4">
                   <button
                     type="button"
