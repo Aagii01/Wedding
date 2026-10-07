@@ -43,6 +43,8 @@ export function WeddingFooter({ event }: Props) {
     .map((t) => String(t).trim())
     .filter(Boolean);
   const footerPhoneLabel = cfg<string>(event.config, "footer.phoneLabel", "Холбогдох утас:");
+  // config: footer.eyebrow — нэрийн дээрх жижиг бичиг ("" бол алга болно)
+  const footerEyebrow = cfg<string>(event.config, "footer.eyebrow", event.type !== "wedding" ? "You're invited to" : "");
 
   const displayTitle = event.person2_name
     ? `${event.person1_name} & ${event.person2_name}`
@@ -82,9 +84,9 @@ export function WeddingFooter({ event }: Props) {
           transition={{ duration: 0.6 }}
           className="text-center text-white w-full"
         >
-          {event.type !== "wedding" && (
+          {footerEyebrow && (
             <p className="text-xs tracking-widest mb-3 text-white/60 uppercase">
-              You're invited to
+              {footerEyebrow}
             </p>
           )}
           <h2

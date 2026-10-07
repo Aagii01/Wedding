@@ -22,15 +22,19 @@ alter table events add column if not exists config jsonb not null default '{}'::
 
 ---
 
-## ✅ Template11 — 31 түлхүүр бүрэн ажиллана
+## ✅ Template11 — 36 түлхүүр бүрэн ажиллана
 
 | Хэсэг | Түлхүүр | Юу хийх | Fallback (код) | Файл |
 |---|---|---|---|---|
+| **Intro** | `intro.video` | Эхэнд гарах видеоны URL солих | — | App.tsx |
+| | `sections.intro` | Intro видеог огт гаргахгүй (`false`) | — | App.tsx |
 | **Нүүр** | `hero.names` | Hero дээрх нэрийг солих (`["ЗАЯА","ДЭЭГИЙ"]`) | `HERO_NAMES` | WeddingHero.tsx |
 | | `hero.font` | Нэрийн фонт, хэмжээ `{family,size}` | `HERO_NAME_FONT` | WeddingHero.tsx |
 | | `hero.quotes` | `"en"` бичвэл ишлэл англиар | `ENGLISH_QUOTES` | WeddingHero.tsx |
 | | `hero.captions` | Carousel зургийн тайлбар (түлхүүр = зургийн URL) | `PHOTO_CAPTIONS` | WeddingHero.tsx |
-| | `hero.photoFit` | `"contain"` бол carousel зураг тайрагдахгүй бүтнээр | — | WeddingHero.tsx |
+| | `hero.eyebrow` | Нүүр картны дээд талын жижиг бичиг (`""` → алга) | — | WeddingHero.tsx |
+| | `hero.imageFit` | `"contain"` бол НҮҮР картны зураг (`main_image`) бүтнээр | — | WeddingHero.tsx |
+| | `hero.photoFit` | `"contain"` бол CAROUSEL-ийн зургууд бүтнээр | — | WeddingHero.tsx |
 | | `sections.photoQuotes` | Зураг дээрх ишлэлийг нуух (`false`) | — | WeddingHero.tsx |
 | **Түүх** | `story.title` | "Бидний хайрын түүх" гарчиг солих | `STORY_TITLE` | WeddingHero.tsx |
 | | `story.children` | "нэр ♥ нэр" мөрийн доор үр хүүхдийн нэр | `STORY_CHILDREN` | WeddingHero.tsx |
@@ -57,8 +61,24 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | **Footer** | `footer.children` | Хосын нэрийн доор хүүхдийн нэр | `FOOTER_CHILDREN` | WeddingFooter.tsx |
 | | `footer.phones` | Footer дэх холбоо барих утас (массив) | — | WeddingFooter.tsx |
 | | `footer.phoneLabel` | Утасны мөрийн гарчиг (анхдагч "Холбогдох утас:") | — | WeddingFooter.tsx |
+| | `footer.eyebrow` | Нэрийн дээрх жижиг бичиг (`""` → алга) | — | WeddingFooter.tsx |
 | | `footer.image` | Footer зураг (`main_image`-ийн оронд) | `FOOTER_IMAGE` | WeddingFooter.tsx |
 | | `footer.font` | Footer нэрийн фонт `{family,size}` | `FOOTER_NAME_FONT` | WeddingFooter.tsx |
+
+ℹ️ **Intro видеоны URL-ууд** (`intro.video`-д шууд бичиж болно):
+- T11 (анхдагч): `https://tdy-excellence-template.thedigitalyes.com/assets/intro-video-new-CeLMqoNn.mp4`
+- T13: `https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4`
+
+ℹ️ **`hero.imageFit` ба `hero.photoFit` хоёрын зөрүү:**
+`imageFit` нь хамгийн эхний (нүүр) карт, `photoFit` нь доорх carousel.
+Нүүр карт үндсэндээ зургийн харьцааг 3/4–1/2 хооронд хүчээр барьдаг тул
+хэвтээ зураг хоёр талаасаа их тайрагддаг (жишээ: 978×720 зураг 45% тайрна).
+`"contain"` үед карт нь зургийн өөрийн харьцааг авна — тайралт ч, хоосон зай
+ч гарахгүй. Хэт өргөн/нарийн зургийг 1.5 / 0.3 харьцаан дээр тогтооно.
+
+ℹ️ **"You're invited to"** гэсэн бичиг нь `type` нь `wedding` БИШ урилгад
+нүүр картан дээр ба footer-т автоматаар гардаг. Авах бол хоёуланг нь хоосон
+болгоно: `"hero": {"eyebrow": ""}` ба `"footer": {"eyebrow": ""}`.
 
 ⚠️ `hero.font` / `footer.font`-д зөвхөн монгол кирилл **ө (U+04E9), ү (U+04AF)**-г
 агуулсан фонт тохирно. `Caveat`, `Bad Script` дэмждэг; `Dancing Script`,

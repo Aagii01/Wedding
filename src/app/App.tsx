@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { EventData } from "../types/event";
-import { sectionOn } from "../lib/eventConfig";
+import { cfg, sectionOn } from "../lib/eventConfig";
 import { WeddingHero } from "./components/WeddingHero";
 import { GroomBride } from "./components/GroomBride";
 import { VenueSection } from "./components/VenueSection";
@@ -15,11 +15,17 @@ import { WeddingFooter } from "./components/WeddingFooter";
 import { Toaster } from "./components/ui/sonner";
 
 // ─── Video intro overlay ─────────────────────────────────────────────────────
+// config: intro.video — өөр видео тавих (Template13-ийнх нь доор бичсэн).
+// config: sections.intro = false — видеог огт гаргахгүй.
 const INTRO_VIDEO_URL =
   "https://tdy-excellence-template.thedigitalyes.com/assets/intro-video-new-CeLMqoNn.mp4";
 
-function VideoIntro({ audioRef }: {
+// Бусад загварын intro видео — config.intro.video-д шууд бичиж болно:
+//   Template13: https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4
+
+function VideoIntro({ audioRef, src }: {
   audioRef: React.RefObject<HTMLAudioElement | null>;
+  src?: string;
 }) {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
@@ -54,7 +60,7 @@ function VideoIntro({ audioRef }: {
     >
       <video
         ref={videoRef}
-        src={INTRO_VIDEO_URL}
+        src={src || INTRO_VIDEO_URL}
         autoPlay
         muted
         playsInline
@@ -147,7 +153,9 @@ export default function App({ event }: Props) {
 
   return (
     <div className="min-h-screen bg-white">
-      <VideoIntro audioRef={audioRef} />
+      {sectionOn(event.config, "intro", true) && (
+        <VideoIntro audioRef={audioRef} src={cfg<string | undefined>(event.config, "intro.video", undefined)} />
+      )}
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <FloatingPetals />

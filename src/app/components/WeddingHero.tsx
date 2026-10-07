@@ -148,6 +148,14 @@ export function WeddingHero({ event }: Props) {
   const photoFit = cfg<"cover" | "contain">(event.config, "hero.photoFit", "cover") === "contain" ? "contain" : "cover";
   // config: sections.photoQuotes — false бол зураг дээрх ишлэл гарахгүй
   const showPhotoQuotes = sectionOn(event.config, "photoQuotes", true);
+  // config: hero.imageFit — "contain" бол нүүр картны зураг (main_image)
+  // тайрагдахгүй. Энэ үед картны харьцаа нь зургийн өөрийн харьцаатай болох
+  // тул хоосон зай ч гарахгүй (доорх onLoad-ийн clamp-ыг хар).
+  const heroFit = cfg<string>(event.config, "hero.imageFit", "cover") === "contain" ? "contain" : "cover";
+  // config: hero.eyebrow — нүүр картны дээд талын жижиг бичиг.
+  // Үндсэндээ хуримд хоосон, бусад төрөлд "You're invited to".
+  // "" бичвэл алга болно (мөрийн зай нь нэр, огноог доош түлхэж үлдэнэ).
+  const heroEyebrow = cfg<string>(event.config, "hero.eyebrow", event.type === "wedding" ? "" : "You're invited to");
   const slides = sources.map((src, i) => {
     const n = i % QUOTES.length;
     return {
@@ -201,10 +209,15 @@ export function WeddingHero({ event }: Props) {
           <ImageWithFallback
             src={heroSrc}
             alt={altText}
-            className="w-full h-full object-cover"
+            className={`w-full h-full ${heroFit === "contain" ? "object-contain bg-neutral-100" : "object-cover"}`}
             onLoad={(e) => {
               const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
-              if (w && h) setHeroRatio(Math.min(Math.max(w / h, 0.5), 0.75));
+              if (!w || !h) return;
+              // cover: 3/4–1/2 хооронд барьж тайрна. contain: зургийн өөрийн
+              // харьцааг (хэтэрхий нарийн/өргөнөөс нь сэргийлж) хэвээр авна.
+              setHeroRatio(heroFit === "contain"
+                ? Math.min(Math.max(w / h, 0.3), 1.5)
+                : Math.min(Math.max(w / h, 0.5), 0.75));
             }}
           />
           {/* Нэр, огноо хоёр картны ДООД хэсэгт зэрэгцэнэ. Дээд талын жижиг
@@ -216,7 +229,7 @@ export function WeddingHero({ event }: Props) {
               transition={{ delay: 0.5, duration: 0.8, ease: EASE }}
               className="text-white/80 text-xs tracking-widest italic mb-auto"
             >
-              {event.type === "wedding" ? "" : "You're invited to"}
+              {heroEyebrow}
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 16 }}
