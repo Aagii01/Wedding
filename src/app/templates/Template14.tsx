@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
 import { getPoemLines, getSchedule } from "../../lib/eventContent";
+import { cfg, sectionOn } from "../../lib/eventConfig";
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 const WAX      = "#28406B";
@@ -44,6 +45,26 @@ function initialOf(name: string) {
   if (!s) return "";
   const own = (s.split(".").pop() || s).trim();
   return (own.split(/\s+/)[0] || own).charAt(0).toUpperCase();
+}
+
+// Нэрийн блок (hero, verse). config-оос:
+//   ["Нэр1", "Нэр2"]        → хос, дунд нь "&"
+//   "Цол, овог нэр"          → ганц хүн; "\n"-ээр олон мөр болгож болно
+// config байхгүй бол Supabase-ийн нэр; person2_name хоосон бол ганц хүн.
+type NameBlock = { lines: string[]; couple: boolean };
+function nameBlock(v: unknown, p1: string, p2: string): NameBlock {
+  if (Array.isArray(v) && v.length >= 2) return { lines: [String(v[0]), String(v[1])], couple: true };
+  if (Array.isArray(v) && v.length === 1) return { lines: [String(v[0])], couple: false };
+  if (typeof v === "string" && v.trim()) {
+    return { lines: v.split("\n").map((l) => l.trim()).filter(Boolean), couple: false };
+  }
+  return p2 ? { lines: [p1, p2], couple: true } : { lines: [p1], couple: false };
+}
+
+// Утас: ["99...", "88..."] массив эсвэл "99..., 88..." мөр хоёуланг хүлээж авна
+function phoneList(v: unknown): string[] {
+  const arr = Array.isArray(v) ? v : String(v ?? "").split(",");
+  return arr.map((t) => String(t).trim()).filter(Boolean);
 }
 
 // ─── Paper SVG texture (no # chars so safe in data URI) ──────────────────────
@@ -261,14 +282,20 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 // Нүүрэн дэх "Бид гэрлэж байна" бичвэрийг нуух slug-ууд (хурим биш арга хэмжээ).
+// config: hero.tagline ("" → нуугдана)
 const HIDE_HERO_TAGLINE = new Set<string>(["khongorzul"]);
 
 function T14Hero({ event }: { event: EventData }) {
-  const name1 = event.person1_name || "Diana";
-  const name2 = event.person2_name || "Richard";
+  // config: hero.names — ["Нэр1","Нэр2"] эсвэл "Цол, нэр" (ганц хүн, "\n" олон мөр)
+  const names = nameBlock(
+    cfg<unknown>(event.config, "hero.names", undefined),
+    event.person1_name || "Diana",
+    event.person2_name || (event.person1_name ? "" : "Richard"),
+  );
+  const heroTagline = cfg<string>(event.config, "hero.tagline", HIDE_HERO_TAGLINE.has(event.slug) ? "" : "Бид гэрлэж байна");
   const heroImg = event.main_image || FALLBACK[0];
   // Нэрийн дээд хэмжээ 112 → 96: бага зэрэг жижигрүүлсэн
-  const { wrapRef, size } = useFitText(`${name1}|${name2}`, 96, 30);
+  const { wrapRef, size } = useFitText(names.lines.join("|"), 96, 30);
 
   return (
     <section style={{ position: "relative", minHeight: "100svh", background: "#1a1612", overflow: "hidden", color: "#fff" }}>
@@ -291,13 +318,13 @@ function T14Hero({ event }: { event: EventData }) {
         padding: "24px 24px 16px",
         textAlign: "center",
       }}>
-        {!HIDE_HERO_TAGLINE.has(event.slug) && (
+        {heroTagline && (
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.3 }}
             style={{ ...cg, fontWeight: 700, fontSize: 13, letterSpacing: "0.42em", textTransform: "uppercase", color: "#fff", marginBottom: 36, textShadow: "0 2px 12px rgba(0,0,0,0.75)" }}
           >
-            Бид гэрлэж байна
+            {heroTagline}
           </motion.div>
         )}
 
@@ -310,14 +337,20 @@ function T14Hero({ event }: { event: EventData }) {
           // дээд ба хамгийн доод талд байрлана.
           style={{ ...nameFont, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)", marginTop: "auto", marginBottom: 10 }}
         >
-          <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name1}</span>
-          <span style={{
-            display: "block",
-            ...amp, fontSize: Math.max(20, Math.round(size * 0.32)),
-            color: "rgba(255,255,255,0.9)", margin: "2px 0",
-            letterSpacing: "0.02em", textShadow: "0 1px 6px rgba(0,0,0,0.4)",
-          }}>&amp;</span>
-          <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name2}</span>
+          {names.lines.map((line, i) => (
+            <span key={i} style={{ display: "block" }}>
+              {i > 0 && names.couple && (
+                <span style={{
+                  display: "block",
+                  ...amp, fontSize: Math.max(20, Math.round(size * 0.32)),
+                  color: "rgba(255,255,255,0.9)", margin: "2px 0",
+                  letterSpacing: "0.02em", textShadow: "0 1px 6px rgba(0,0,0,0.4)",
+                }}>&amp;</span>
+              )}
+              {/* inline-block + nowrap — useFitText мөр бүрийн өргөнийг хэмждэг */}
+              <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{line}</span>
+            </span>
+          ))}
         </motion.div>
 
         {/* Scroll cue — бичиг нь зурагны доод ирмэгт ойрхон, доор нь доошоо сум */}
@@ -349,16 +382,21 @@ function T14Hero({ event }: { event: EventData }) {
 // ─── Verse / Invitation text ──────────────────────────────────────────────────
 // Урилгын үг дээрх хосын нэрийг өөрөөр бичих slug-ууд (овгийг товчлолгүй
 // бүтнээр нь). Бүртгээгүй урилга дээр Supabase-ийн нэр шууд гарна.
+// config: verse.names
 const VERSE_NAMES: Record<string, [string, string]> = {};
 
 // Шүлгийн доорх "Хоёр зүрх нэгдэхэд..." ишлэлийг нуух slug-ууд.
+// config: sections.verseQuote (false → нуугдана)
 const HIDE_VERSE_QUOTE = new Set<string>(["khongorzul"]);
 
 function T14Verse({ event }: { event: EventData }) {
-  const verseNames = VERSE_NAMES[event.slug];
-  const name1 = verseNames?.[0] || event.person1_name || "Diana";
-  const name2 = verseNames?.[1] || event.person2_name || "Richard";
-  const { wrapRef, size } = useFitText(`${name1}|${name2}`, 92, 26);
+  const names = nameBlock(
+    cfg<unknown>(event.config, "verse.names", VERSE_NAMES[event.slug]),
+    event.person1_name || "Diana",
+    event.person2_name || (event.person1_name ? "" : "Richard"),
+  );
+  const showVerseQuote = sectionOn(event.config, "verseQuote", !HIDE_VERSE_QUOTE.has(event.slug));
+  const { wrapRef, size } = useFitText(names.lines.join("|"), 92, 26);
 
   return (
     <Paper>
@@ -370,13 +408,18 @@ function T14Verse({ event }: { event: EventData }) {
             ...nameFont, color: WAX, width: "100%",
             lineHeight: 1.08, textAlign: "center", margin: "12px 0 20px",
           }}>
-            <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name1}</span>
-            <span style={{
-              display: "block", ...amp,
-              fontSize: Math.max(18, Math.round(size * 0.3)),
-              color: INK_MUTE, margin: "2px 0",
-            }}>&amp;</span>
-            <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{name2}</span>
+            {names.lines.map((line, i) => (
+              <span key={i} style={{ display: "block" }}>
+                {i > 0 && names.couple && (
+                  <span style={{
+                    display: "block", ...amp,
+                    fontSize: Math.max(18, Math.round(size * 0.3)),
+                    color: INK_MUTE, margin: "2px 0",
+                  }}>&amp;</span>
+                )}
+                <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{line}</span>
+              </span>
+            ))}
           </div>
         </FadeUp>
 
@@ -397,7 +440,7 @@ function T14Verse({ event }: { event: EventData }) {
           </p>
         </FadeUp>
 
-        {!HIDE_VERSE_QUOTE.has(event.slug) && (
+        {showVerseQuote && (
           <FadeUp delay={0.4}>
             <p style={{ ...cgI, fontSize: 17, color: WAX, textAlign: "center", marginTop: 24, lineHeight: 1.7 }}>
               "Хоёр зүрх нэгдэхэд дэлхий бүхэл бүтэн болно."
@@ -411,6 +454,7 @@ function T14Verse({ event }: { event: EventData }) {
 
 // ─── Date + Countdown ─────────────────────────────────────────────────────────
 // Тоологчийн гарчгийг солих slug-ууд (хурим биш арга хэмжээнүүд).
+// config: countdown.title
 const COUNTDOWN_TITLE: Record<string, string> = {
   khongorzul: "Шинэ байрны цайллага хүртэлх хугацаа",
 };
@@ -456,7 +500,7 @@ function T14DateCountdown({ event }: { event: EventData }) {
       <div style={{ padding: "72px 28px" }}>
         <FadeUp delay={0.1}>
           <div style={{ ...nameFont, color: WAX, fontSize: "clamp(28px, 7vw, 44px)", lineHeight: 1.15, textAlign: "center", marginTop: 8, marginBottom: 28 }}>
-            {COUNTDOWN_TITLE[event.slug] ?? "Хурим хүртэлх хугацаа"}
+            {cfg<string>(event.config, "countdown.title", COUNTDOWN_TITLE[event.slug] ?? "Хурим хүртэлх хугацаа")}
           </div>
         </FadeUp>
 
@@ -606,6 +650,7 @@ function T14Schedule({ event }: { event: EventData }) {
 // Template 11-ийн цомог шиг bento байрлалтай болгох slug-ууд: эхний зураг
 // мөр дүүрэн өргөн (4/3), үлдсэн нь 2 баганаар квадрат нүдэнд.
 // Бүртгээгүй урилга дээр урьдын адил бүх нүд 3/4 хэлбэртэй.
+// config: gallery.bento
 const BENTO_GALLERY = new Set<string>([]);
 
 function T14Gallery({ event }: { event: EventData }) {
@@ -613,7 +658,8 @@ function T14Gallery({ event }: { event: EventData }) {
   const provided = (event.gallery2_photos || []).filter(Boolean);
   const photos = provided.length ? provided : FALLBACK;
   const [lightbox, setLightbox] = useState<string | null>(null);
-  const bento = BENTO_GALLERY.has(event.slug) && photos.length > 1;
+  // config: gallery.bento (true → bento байрлал)
+  const bento = cfg<boolean>(event.config, "gallery.bento", BENTO_GALLERY.has(event.slug)) === true && photos.length > 1;
 
   return (
     <Paper>
@@ -741,7 +787,9 @@ function T14Venue({ event }: { event: EventData }) {
 }
 
 // ─── RSVP ─────────────────────────────────────────────────────────────────────
-function T14RSVP({ eventId }: { eventId: string }) {
+function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
+  // config: rsvp.maxGuests — "Хэдүүлээ ирэх вэ?" тоолуурын дээд хязгаар (анхдагч 20)
+  const maxGuests = Math.max(1, Number(cfg<number>(config, "rsvp.maxGuests", 20)) || 20);
   const [name, setName]             = useState("");
   const [phone, setPhone]           = useState("");
   const [attending, setAttending]   = useState<boolean | null>(null);
@@ -912,7 +960,7 @@ function T14RSVP({ eventId }: { eventId: string }) {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setGuests((g) => Math.min(20, g + 1))}
+                      onClick={() => setGuests((g) => Math.min(maxGuests, g + 1))}
                       style={counterBtn}
                       aria-label="Нэмэх"
                     >+</button>
@@ -1047,22 +1095,26 @@ function T14Wishes({ eventId }: { eventId: string }) {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 // events хүснэгтэд утасны багана байхгүй тул холбоо барих дугаарыг эндээс
 // slug-аар нь уншина. Бүртгээгүй урилга дээр утасны мөр огт гарахгүй.
+// config: footer.phones
 const CONTACT_PHONES: Record<string, string[]> = {
   "khongorzul": ["99239222", "88592826"],
 };
 
 // Хосын нэрийн доор гарах үр хүүхдийн нэр — зөвхөн бүртгэсэн slug дээр.
+// config: footer.children
 const CHILDREN: Record<string, string[]> = {};
 
 // Footer-ийн нэрийн мөр. Үндсэндээ Supabase-ийн "Х.Адъяасүрэн & М.Хулан"
 // хэлбэрээр гарна. Энд бүртгэсэн slug дээр оронд нь эдгээр мөрүүд гарна
 // (овгийг товчлолгүй бүтнээр нь бичих тохиолдол).
+// config: footer.names
 const FOOTER_NAMES: Record<string, string[]> = {
   // "slug": ["Хишигсүрэн Адъяасүрэн", "Мянган Хулан"],
 };
 
 // Footer-ийн утасны мөрийн яг дээр гарах "Хүндэтгэсэн:" блок — зөвхөн энд
 // бүртгэсэн slug дээр. Мөр тус бүр шинэ мөрөөр гарна.
+// config: footer.honored
 const HONORED_BY: Record<string, string[]> = {
   "khongorzul": ["Хүндэтгэсэн: П.Дэлгэрбаяр", "Т.Хонгорзул", "Охин Д.Гэгээн-Эгшиглэн"],
 };
@@ -1071,18 +1123,22 @@ const HONORED_BY: Record<string, string[]> = {
 // алгасдаг ч "Хишигсүрэн Адъяасүрэн" шиг цэггүй бүтэн нэр дээр эхний үг нь
 // овог мөн үү, өөрийн нэр мөн үү гэдгийг таамаглах найдваргүй. Тиймээс
 // FOOTER_NAMES-тэй slug дээр монограмыг энд гараар тогтооно.
+// config: footer.mono
 const MONO_OVERRIDE: Record<string, [string, string]> = {};
 
 // Хөтөлбөр (T14Schedule) хэсгийг нуух slug-ууд.
+// config: sections.schedule
 const HIDE_SCHEDULE = new Set<string>([
   "khongorzul",
 ]);
 
 // Зургийн цомог (T14Gallery) хэсгийг харуулахгүй slug-ууд.
+// config: sections.gallery
 const HIDE_GALLERY = new Set<string>([]);
 
 // Хөтөлбөрийн оронд QR зураг харуулах slug-ууд. HIDE_SCHEDULE-д мөн нэмсэн
 // байх ёстой — тэгвэл хөтөлбөр алга болж, оронд нь энэ зураг гарна.
+// config: schedule.qr
 const SCHEDULE_QR: Record<string, string> = {};
 
 function T14ScheduleQR({ src }: { src: string }) {
@@ -1110,15 +1166,21 @@ function T14ScheduleQR({ src }: { src: string }) {
 }
 
 function T14Footer({ event }: { event: EventData }) {
-  const phones = CONTACT_PHONES[event.slug];
-  const honored = HONORED_BY[event.slug];
-  const children = CHILDREN[event.slug];
+  const c = event.config;
+  // config: footer.phones / footer.phoneLabel / footer.honored / footer.children
+  const phones = phoneList(cfg<unknown>(c, "footer.phones", CONTACT_PHONES[event.slug]));
+  const phoneLabel = cfg<string>(c, "footer.phoneLabel", "Утас:");
+  const honored = cfg<string[] | undefined>(c, "footer.honored", HONORED_BY[event.slug]);
+  const children = cfg<string[] | undefined>(c, "footer.children", CHILDREN[event.slug]);
   const name1 = event.person1_name || "Diana";
-  const name2 = event.person2_name || "Richard";
-  const mono = MONO_OVERRIDE[event.slug];
-  const i1 = mono ? mono[0] : initialOf(name1);
-  const i2 = mono ? mono[1] : initialOf(name2);
-  const footerNames = FOOTER_NAMES[event.slug];
+  const name2 = event.person2_name || (event.person1_name ? "" : "Richard");
+  // config: footer.mono — монограмын үсэг ["Ц", "Р"]; ганц хүн бол ["Ц"]
+  const mono = cfg<string[] | undefined>(c, "footer.mono", MONO_OVERRIDE[event.slug]);
+  const i1 = mono?.[0] ?? initialOf(name1);
+  const i2 = mono ? (mono[1] ?? "") : initialOf(name2);
+  // config: footer.names — ["Мөр 1", "Мөр 2"] эсвэл "Ганц мөр"
+  const fn = cfg<unknown>(c, "footer.names", FOOTER_NAMES[event.slug]);
+  const footerNames = Array.isArray(fn) ? fn.map(String) : typeof fn === "string" && fn ? fn.split("\n") : undefined;
 
   const fmtDate = (d: string) => {
     const [y, m, day] = d.split("-");
@@ -1137,20 +1199,26 @@ function T14Footer({ event }: { event: EventData }) {
           color: GOLD_LT,
         }}>
           <span style={{ ...nameFont, fontSize: 40, lineHeight: 1 }}>{i1}</span>
-          <span style={{ ...amp, fontSize: 22, lineHeight: 1, margin: "0 6px", opacity: 0.8 }}>&amp;</span>
-          <span style={{ ...nameFont, fontSize: 40, lineHeight: 1 }}>{i2}</span>
+          {i2 && (
+            <>
+              <span style={{ ...amp, fontSize: 22, lineHeight: 1, margin: "0 6px", opacity: 0.8 }}>&amp;</span>
+              <span style={{ ...nameFont, fontSize: 40, lineHeight: 1 }}>{i2}</span>
+            </>
+          )}
         </div>
       </FadeUp>
       <FadeUp delay={0.1}>
         <div style={{ ...cg, fontSize: 17, fontWeight: 500, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(244,238,222,0.72)", lineHeight: 1.5 }}>
           {footerNames ? (
             footerNames.map((line) => <div key={line}>{line}</div>)
-          ) : (
+          ) : name2 ? (
             <>{name1} <span style={{ ...amp, opacity: 0.75 }}>&amp;</span> {name2}</>
+          ) : (
+            name1
           )}
         </div>
       </FadeUp>
-      {children && (
+      {children && children.length > 0 && (
         <FadeUp delay={0.15}>
           <div style={{ ...cg, fontSize: 18, letterSpacing: "0.06em", color: "rgba(244,238,222,0.68)", marginTop: 12, lineHeight: 1.7 }}>
             {children.map((c) => (
@@ -1164,7 +1232,7 @@ function T14Footer({ event }: { event: EventData }) {
           {fmtDate(event.date)}
         </div>
       </FadeUp>
-      {honored && (
+      {honored && honored.length > 0 && (
         <FadeUp delay={0.25}>
           <div style={{ ...cg, fontSize: 17, letterSpacing: "0.06em", color: "rgba(244,238,222,0.68)", marginTop: 22, lineHeight: 1.7 }}>
             {honored.map((line) => (
@@ -1173,10 +1241,10 @@ function T14Footer({ event }: { event: EventData }) {
           </div>
         </FadeUp>
       )}
-      {phones && (
+      {phones.length > 0 && (
         <FadeUp delay={0.3}>
           <div style={{ ...cg, fontSize: 15, letterSpacing: "0.12em", color: "rgba(244,238,222,0.6)", marginTop: 22 }}>
-            Утас:{" "}
+            {phoneLabel}{" "}
             {phones.map((tel, i) => (
               <span key={tel}>
                 {i > 0 && ", "}
@@ -1217,12 +1285,13 @@ export default function Template14({ event }: { event: EventData }) {
       <T14Hero event={event} />
       <T14Verse event={event} />
       <T14DateCountdown event={event} />
-      {!HIDE_SCHEDULE.has(event.slug) && <T14Schedule event={event} />}
-      {SCHEDULE_QR[event.slug] && <T14ScheduleQR src={SCHEDULE_QR[event.slug]} />}
-      {!HIDE_GALLERY.has(event.slug) && <T14Gallery event={event} />}
+      {/* config: sections.schedule / schedule.qr / sections.gallery / sections.rsvp / sections.wishes */}
+      {sectionOn(event.config, "schedule", !HIDE_SCHEDULE.has(event.slug)) && <T14Schedule event={event} />}
+      {(() => { const qr = cfg<string | undefined>(event.config, "schedule.qr", SCHEDULE_QR[event.slug]); return qr ? <T14ScheduleQR src={qr} /> : null; })()}
+      {sectionOn(event.config, "gallery", !HIDE_GALLERY.has(event.slug)) && <T14Gallery event={event} />}
       <T14Venue event={event} />
-      <T14RSVP eventId={event.id} />
-      <T14Wishes eventId={event.id} />
+      {sectionOn(event.config, "rsvp", true) && <T14RSVP eventId={event.id} config={event.config} />}
+      {sectionOn(event.config, "wishes", true) && <T14Wishes eventId={event.id} />}
       <T14Footer event={event} />
 
       {event.music_url && <MusicPlayer audioRef={audioRef} />}

@@ -94,6 +94,35 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
 
+## ✅ Template14 — 16 түлхүүр
+
+| Хэсэг | Түлхүүр | Юу хийх | Fallback |
+|---|---|---|---|
+| **Нүүр** | `hero.names` | `["Нэр1","Нэр2"]` → хос; `"Цол, нэр"` → ганц хүн, `\n`-ээр олон мөр | Supabase нэр |
+| | `hero.tagline` | "Бид гэрлэж байна" бичгийг солих (`""` → алга) | `HIDE_HERO_TAGLINE` |
+| **Урилгын үг** | `verse.names` | Шүлгийн дээрх нэр — `hero.names`-тэй ижил хэлбэр | `VERSE_NAMES` |
+| | `sections.verseQuote` | "Хоёр зүрх нэгдэхэд..." ишлэлийг нуух (`false`) | `HIDE_VERSE_QUOTE` |
+| **Тоологч** | `countdown.title` | "Хурим хүртэлх хугацаа" гарчгийг солих | `COUNTDOWN_TITLE` |
+| **Хөтөлбөр** | `sections.schedule` | Хөтөлбөрийг нуух (`false`) | `HIDE_SCHEDULE` |
+| | `schedule.qr` | Хөтөлбөрийн оронд QR зураг (URL) — `sections.schedule: false`-тэй хамт | `SCHEDULE_QR` |
+| **Цомог** | `sections.gallery` | Цомгийг нуух (`false`) | `HIDE_GALLERY` |
+| | `gallery.bento` | `true` → bento байрлал | `BENTO_GALLERY` |
+| **Ирц** | `sections.rsvp` | Ирцийн бүртгэлийг нуух (`false`) | — |
+| | `rsvp.maxGuests` | "Хэдүүлээ ирэх вэ?" тоолуурын дээд хязгаар (анхдагч 20) | — |
+| **Мэндчилгээ** | `sections.wishes` | Мэндчилгээний хэсгийг нуух (`false`) | — |
+| **Footer** | `footer.names` | Нэрийн мөрүүд `["...", "..."]` эсвэл ганц мөр | `FOOTER_NAMES` |
+| | `footer.mono` | Монограмын үсэг `["Ц","Р"]`; ганц хүн бол `["Ц"]` | `MONO_OVERRIDE` |
+| | `footer.children` | Хүүхдийн нэр | `CHILDREN` |
+| | `footer.honored` | "Хүндэтгэсэн:" мөрүүд | `HONORED_BY` |
+| | `footer.phones` | Утас (массив эсвэл "99..., 88...") | `CONTACT_PHONES` |
+| | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Утас:") | — |
+
+ℹ️ **Ганц хүний урилга (T14):** `person2_name` хоосон бол hero, verse, footer,
+монограм бүгд ганц нэрээр гарна — "&" ч, "Richard" fallback ч гарахгүй.
+(Өмнө нь `person2_name` хоосон үед "Richard" гарч байсан — зассан.)
+`hero.names`-д цол, овог нэрийг `\n`-ээр мөр болгон бичвэл мөр бүр өөрийн
+мөрөндөө, хамгийн урт мөрөндөө таарч фонт автоматаар жижигрэнэ (доод тал нь 30px).
+
 ℹ️ T11 ба T13 хоёулаа `footer.phone` (`"99..., 88..."` мөр) ба `footer.phones`
 (массив) хоёуланг хүлээж авна — T11 дээр таслалаар салгаж, тус бүрд нь `tel:` холбоос үүсгэнэ.
 
@@ -189,9 +218,8 @@ select slug, jsonb_pretty(config) from events where slug = 'SLUG-ЭНД';
 
 ## ⬜ TODO — үлдсэн загварууд
 
-Template 12 / 14 / 19 / 21 огт холбогдоогүй (T13-ийн footer л хийгдсэн).
-Тэдэнд нийт ~60 override map үлдсэн — хамгийн ихдээ T12: 19, T13: 16, T14: 13.
-Идэвхтэй урилгын ихэнх T12/T14 дээр байдаг тул T12-оор үргэлжлүүлэх нь зүйтэй.
+Template 12 / 19 / 21 холбогдоогүй (T13-ийн footer + section 5 түлхүүр л хийгдсэн).
+Үлдсэн override map: T12: 19, T13: ~13, T19: 5, T21: 11. T12-оор үргэлжлүүлэх нь зүйтэй.
 
 ### Хэрэгжүүлэх хэв маяг
 
