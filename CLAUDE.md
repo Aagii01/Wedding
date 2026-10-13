@@ -3,7 +3,7 @@
 ## Товч тайлбар
 Монгол хурим, баярын **урилгын вэб платформ** (SaaS бизнес).
 Захиалагч Facebook-р холбогдоно → admin `/create`-р event үүсгэнэ → `/i/slug` URL-г захиалагчид өгнө.
-Сайтын нэр: **One Wedding**. Лайв URL: `https://wedding-bay.vercel.app`
+Сайтын нэр: **One Wedding**. Лайв URL: `https://wedding-silk-nine.vercel.app` (удахгүй custom домэйн руу шилжинэ)
 
 ---
 
@@ -260,18 +260,21 @@ Toaster (shadcn notification)
 - [ ] Template 14 — Botanical, Blush, Minimal
 - [ ] LandingPage-д template preview carousel-д "available: true" болгоход ажиллах routing
 
-### Хагас хийгдсэн — идэвхжүүлэхэд бэлэн
-- [ ] **Facebook линк preview (OG meta tags)** — `api/invite.js.disabled`
-  Урилгын линкийг Messenger/Facebook-д хуваалцахад зураг + нэр + огноотой
-  preview гаргах. Код бүрэн бичигдэж, бодит датаар тестлэгдсэн (2026-07-21).
-  Одоо `.disabled` өргөтгөлтэй тул Vercel үүнийг build хийхгүй — деплойд
-  огт нөлөөлөхгүй байгаа.
-  **Идэвхжүүлэх:** файлыг `api/invite.js` болгож нэрлээд коммент хашилтыг ав +
-  `vercel.json`-д `/i/:slug` → `/api/invite?slug=:slug` rewrite нэм
-  (`/(.*)`-аас ӨМНӨ байрлуулна). Дэлгэрэнгүй заавар файлын толгойд бий.
-  **⚠️ Үлдсэн асуудал:** FB preview 1.91:1 хэвтээ харьцаагаар тайрдаг ч
-  одоогийн `main_image`-ийн ихэнх нь босоо → толгой тасарч магадгүй.
-  Шийдэл: `og_image` багана нэмж 1200×630 зураг оруулах.
+### Линк preview (OG meta tags) — хийгдсэн
+- [x] **Урилгын хуудас** `/i/:slug` — `api/invite.js` (Vercel function). `vercel.json`-д
+  `/i/:slug` → `/api/invite?slug=:slug` rewrite `/(.*)`-аас ӨМНӨ байна. Домэйнийг
+  `host` header-ээс авдаг тул домэйн солиход код хөндөхгүй. Хуримд `public/og-default.jpg`,
+  хүүхдийнхэд `og-child.png`, байгууллага/бусдад урилгын өөрийн зураг. Дэлгэрэнгүй файлын толгойд.
+- [x] **Нүүр хуудас** `/` — `index.html`-д статик OG tag, зураг `public/og-landing.jpg` (1200×630).
+  `%SITE_URL%` placeholder-ийг `vite.config.ts`-ийн `siteUrl()` plugin build үед
+  `VERCEL_PROJECT_PRODUCTION_URL`-ээр солино (custom домэйн нэмэгдвэл автоматаар тэр болно;
+  локал fallback `wedding-silk-nine.vercel.app`). `invite.js` урилгын хуудсанд эдгээр
+  нүүрийн tag-ийг устгаад өөрийнхөө tag-ийг оруулдаг — давхардвал Facebook нүүрийнхийг авна.
+- [x] **Демо урилгууд** `/i/demo-pearl|azure|ruby|diamond` — захиалагчид Messenger-ээр явуулдаг
+  загвар тус бүрийн жишээ. DB мөрийг `docs/sql/demo-events.sql`-ээр үүсгэнэ (anon түлхүүр
+  RLS-ээр хаагдсан тул SQL Editor-оос). Preview зураг `public/og-demo-*.jpg`, холболт
+  `invite.js` → `OG_IMAGE_BY_SLUG`. Дата нь `miigaa-urnaa` урилгын хуулбар, огноо 2027-08-16.
+- Шалгах: https://developers.facebook.com/tools/debug/ → "Scrape Again" (FB cache хийдэг).
 
 ### Бусад
 - [ ] Admin authentication (одоо `/create` нээлттэй)

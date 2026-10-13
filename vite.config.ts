@@ -16,9 +16,24 @@ function figmaAssetResolver() {
   }
 }
 
+// index.html доторх %SITE_URL%-ийг сайтын бүтэн хаягаар солино (OG meta tag-д
+// абсолют URL хэрэгтэй). Vercel build үед VERCEL_PROJECT_PRODUCTION_URL-ийг
+// автоматаар өгдөг: custom домэйн нэмэгдвэл тэр нь, үгүй бол *.vercel.app.
+// Тиймээс домэйн солиход код засах шаардлагагүй. Локал build-д fallback.
+function siteUrl() {
+  const host = process.env.VERCEL_PROJECT_PRODUCTION_URL || 'wedding-silk-nine.vercel.app'
+  return {
+    name: 'site-url',
+    transformIndexHtml(html: string) {
+      return html.replace(/%SITE_URL%/g, `https://${host}`)
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     figmaAssetResolver(),
+    siteUrl(),
     // The React and Tailwind plugins are both required for Make, even if
     // Tailwind is not being actively used – do not remove them
     react(),

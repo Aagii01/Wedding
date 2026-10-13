@@ -129,7 +129,17 @@ function isValidImageUrl(url) {
 // Preview-д тодорхой зураг гаргах урилгууд. events хүснэгтэд og_image багана
 // байхгүй тул slug-аар нь энд бичнэ (багана нэмэх нь FIELDS-ийг хөндөх тул
 // бүх урилгын preview эрсдэлд ордог — дэлгэрэнгүйг файлын толгойгоос).
-const OG_IMAGE_BY_SLUG = {};
+// Утга нь бүтэн URL эсвэл public/ доторх "/..." зам (origin автоматаар
+// урд нь залгагдана — домэйн солиход засах хэрэггүй).
+//
+// demo-* — захиалагчид Messenger-ээр явуулдаг загвар тус бүрийн демо урилга.
+// Зураг нь тухайн загварын өнгө, фонтоор хийгдсэн 1200×630 (public/og-demo-*.jpg).
+const OG_IMAGE_BY_SLUG = {
+  "demo-pearl": "/og-demo-pearl.jpg",
+  "demo-azure": "/og-demo-azure.jpg",
+  "demo-ruby": "/og-demo-ruby.jpg",
+  "demo-diamond": "/og-demo-diamond.jpg",
+};
 
 function ownImage(event) {
   const gallery = Array.isArray(event.gallery_photos) ? event.gallery_photos : [];
@@ -178,7 +188,10 @@ function buildTags(event, url, origin) {
   // Slug-аар тогтоосон зураг хамгийн түрүүнд. Дараа нь: хуримын биш урилга дээр
   // нийтлэг og-default.jpg (хуримын зураг) хэрэглэхгүй — event-ийн өөрийн зураг,
   // байхгүй бол зураггүй текстэн preview.
-  const pinned = OG_IMAGE_BY_SLUG[event.slug];
+  const pinnedRaw = OG_IMAGE_BY_SLUG[event.slug];
+  const pinned = typeof pinnedRaw === "string" && pinnedRaw.startsWith("/")
+    ? origin + pinnedRaw
+    : pinnedRaw;
   const image = isValidImageUrl(pinned)
     ? pinned
     : nonWedding
@@ -233,6 +246,10 @@ export default async function handler(req, res) {
       const { title, tags } = buildTags(event, `${origin}/i/${slug}`, origin);
       html = html
         .replace(/<title>.*?<\/title>/, `<title>${esc(title)}</title>`)
+        // index.html-д нүүр хуудасны (Special Day) OG tag-ууд байдаг. Давхар
+        // үлдээвэл Facebook эхний og:title-ийг авч, урилгын preview-ийн оронд
+        // нүүр хуудасных гарна — тиймээс урилгынхыг оруулахын өмнө устгана.
+        .replace(/[ \t]*<meta (?:property="og:|name="twitter:|name="description")[^>]*>\s*/g, "")
         .replace("</head>", `  ${tags}\n    </head>`);
     }
   } catch {
