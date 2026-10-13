@@ -5,6 +5,8 @@ import {
   useTransform,
   useAnimationFrame,
   useScroll,
+  useInView,
+  animate,
 } from "motion/react";
 import { Heart, X, Facebook, Instagram, Phone } from "lucide-react";
 import { useRef, useMemo, useState, useEffect } from "react";
@@ -593,6 +595,100 @@ function MarqueeStrip() {
         ))}
       </motion.div>
     </div>
+  );
+}
+
+// ─── Stats Section — "Бидний үр дүн" ─────────────────────────────────────────
+// Тоог эндээс л засна. value — тоо, suffix — тооны ард залгах ("+", " цаг").
+const STATS = [
+  { value: 100, suffix: "+", label: "Хуримын урилга" },
+  { value: 20,  suffix: "+", label: "Хүүхдийн сэвлэг үргээх урилга" },
+  { value: 15,  suffix: "+", label: "Одонгийн найрын урилга" },
+  { value: 24,  suffix: " цаг", label: "Захиалга бэлэн болох хугацаа" },
+];
+
+// Дэлгэцэнд орж ирмэгц 0-оос зорилтот тоо хүртэл тоологдоно (нэг л удаа)
+function CountUp({ to, suffix }: { to: number; suffix: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
+  const [n, setN] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    const ctrl = animate(0, to, {
+      duration: 1.8,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setN(Math.round(v)),
+    });
+    return () => ctrl.stop();
+  }, [inView, to]);
+
+  return (
+    <span ref={ref} style={{ fontVariantNumeric: "tabular-nums" }}>
+      {n}
+      <span style={{ fontSize: "0.55em", marginLeft: 2 }}>{suffix}</span>
+    </span>
+  );
+}
+
+function StatsSection() {
+  return (
+    <section
+      className="w-full px-5 md:px-10 py-16 md:py-24 relative"
+      style={{
+        background: "#0C0C0C",
+        borderTop: "1px solid rgba(215,226,234,0.07)",
+        borderBottom: "1px solid rgba(215,226,234,0.07)",
+      }}
+    >
+      <div className="max-w-6xl mx-auto">
+        <FadeIn y={30} duration={0.7} className="text-center mb-12 md:mb-16">
+          <p
+            className="text-xs tracking-[0.3em] uppercase mb-4"
+            style={{ color: "rgba(201,162,85,0.8)" }}
+          >
+            Бидний үр дүн
+          </p>
+          <h2
+            className="font-black uppercase leading-none tracking-tight"
+            style={{ ...goldGrad, fontSize: "clamp(1.9rem, 7vw, 84px)" }}
+          >
+            Тоогоор
+          </h2>
+        </FadeIn>
+
+        <div className="grid grid-cols-2 md:grid-cols-4">
+          {STATS.map((st, i) => (
+            <FadeIn
+              key={st.label}
+              delay={i * 0.1}
+              y={24}
+              duration={0.65}
+              className="flex flex-col items-center text-center px-3 py-8 md:py-6"
+              style={{
+                // Desktop: баганын хооронд босоо зураас. Mobile: 2 багана,
+                // эхний мөрийн доор хэвтээ зураас.
+                borderLeft: i > 0 ? "1px solid rgba(215,226,234,0.07)" : "none",
+                borderTop: i >= 2 ? "1px solid rgba(215,226,234,0.07)" : "none",
+              }}
+            >
+              <div
+                className="font-black leading-none"
+                style={{ ...goldGrad, fontSize: "clamp(2.6rem, 7vw, 5.2rem)" }}
+              >
+                <CountUp to={st.value} suffix={st.suffix} />
+              </div>
+              <p
+                className="mt-4 text-xs md:text-sm tracking-[0.14em] uppercase leading-relaxed"
+                style={{ color: "rgba(215,226,234,0.62)", maxWidth: 190 }}
+              >
+                {st.label}
+              </p>
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -1501,6 +1597,7 @@ export function LandingPage() {
       <HeroSection />
       <MarqueeStrip />
       <AboutSection />
+      <StatsSection />
       <TemplatesSection />
       <WhyUsSection />
       <HowItWorksSection />
