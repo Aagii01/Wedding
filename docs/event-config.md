@@ -224,6 +224,45 @@ select slug, jsonb_pretty(config) from events where slug = 'SLUG-ЭНД';
 
 ---
 
+## ✅ Template22 — "Hero" (сэвлэг үргээх, супер баатар) — бүгд config-оос
+
+T21-ийн бүтэц, гэхдээ slug map ОГТ БАЙХГҮЙ: захиалагчийн бүх тохиргоо DB-ээс.
+
+| Түлхүүр | Төрөл | Үндсэн утга | Тайлбар |
+|---|---|---|---|
+| `hero.name` | string | `person1_name` | Hero ба footer дээрх нэр |
+| `hero.age` | string/number | — | Өгвөл "N НАС" товч гарна |
+| `hero.eyebrow` | string | "Сэвлэг үргээх ёслолын урилга" | Нэрийн дээрх жижиг бичиг |
+| `hero.emblem` | string | нэрийн эхний үсэг | Бамбай дээрх үсэг ("" бол од) |
+| `intro.video` | string/false | дугтуйн видео | Өөр URL эсвэл `false` (intro-гүй) |
+| `gallery.title` | string | "Бяцхан баатрын цомог" | |
+| `gallery.quotes` | false | true | `false` бол зураг дээрх ишлэл нуугдана |
+| `sections.schedule` | false | true | Хөтөлбөр нуух |
+| `sections.request` | false | true | "Бяцхан хүсэлт" нуух |
+| `sections.wishes` | false | true | Ерөөл нуух |
+| `sections.rsvp` | false | true | Ирц нуух |
+| `request.title` | string | "Бяцхан хүсэлт" | |
+| `request.text` | string | сэвлэгийн бичвэр | |
+| `rsvp.maxGuests` | number | 20 | |
+| `rsvp.note` | string | "Баярын өдрөөс өмнө..." | |
+| `footer.title` | string | "Таньтай уулзахыг..." | |
+| `footer.note` | string | — | Хувцаслалтын хүсэлт |
+| `footer.lines` | string[] | [] | "Хүндэтгэсэн: ..." мөрүүд |
+| `footer.phones` | string[] | [] | tel: холбоос болно |
+| `footer.image` | string | `gallery_photos[0]` | Footer зураг |
+
+Шүлэг → `events.poem`, хөтөлбөр → `events.schedule` (бусад загвартай адил).
+
+```sql
+update events set template = '22', config = '{
+  "hero":   { "age": "3", "eyebrow": "Сэвлэг үргээх ёслолын урилга" },
+  "footer": { "lines": ["Хүндэтгэсэн: Эрдэнэ, Бямбаноров"], "phones": ["99001122"],
+              "note": "Хүүхэд бүр супер баатрын дүрээр ирэхийг хүсэж байна." }
+}'::jsonb where slug = 'geregezendmene';
+```
+
+---
+
 ## ⬜ TODO — үлдсэн загварууд
 
 Template 12 / 19 / 21 холбогдоогүй (T13-ийн footer + section 5 түлхүүр л хийгдсэн).

@@ -8,6 +8,9 @@ import Template19 from "./Template19";
 // Хүүхдийн төрсөн өдөр — "Гоо бүсгүй ба мангас" сэдэвтэй, Template13-ийн
 // бүтцэн дээр суурилсан тусдаа загвар
 import Template21 from "./Template21";
+// Эрэгтэй хүүхдийн сэвлэг үргээх ёслол — супер баатрын өнгө (улаан, хөх, шар),
+// Template21-ийн бүтцэн дээр суурилсан, бүх тохиргоо events.config-оос
+import Template22 from "./Template22";
 
 // Жагсаалтад байхгүй template утгатай (жишээ нь өмнө устгасан 15-18, 20)
 // хуучин event-үүд EventPage дээр App (Template11) руу fallback хийнэ.
@@ -18,4 +21,5 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "14": Template14,
   "19": Template19,
   "21": Template21,
+  "22": Template22,
 };
