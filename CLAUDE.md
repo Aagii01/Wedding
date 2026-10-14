@@ -3,7 +3,7 @@
 ## Товч тайлбар
 Монгол хурим, баярын **урилгын вэб платформ** (SaaS бизнес).
 Захиалагч Facebook-р холбогдоно → admin `/create`-р event үүсгэнэ → `/i/slug` URL-г захиалагчид өгнө.
-Сайтын нэр: **Special Day** (хурим, төрсөн өдөр, байгууллага гээд бүх төрлийн урилга тул "One Wedding" нэрийг хэрэглэхгүй). Лайв URL: `https://wedding-silk-nine.vercel.app` (удахгүй custom домэйн руу шилжинэ)
+Сайтын нэр: **Special Day** (хурим, төрсөн өдөр, байгууллага гээд бүх төрлийн урилга тул "One Wedding" нэрийг хэрэглэхгүй). Лайв URL: **`https://eurilga.com`** (Namecheap-аас авсан, Vercel `wedding` project-д Primary). Хуучин `wedding-silk-nine.vercel.app` линкүүд хэвээр ажиллана — өмнө явуулсан урилгууд эвдрэхгүй
 
 ---
 
@@ -268,7 +268,7 @@ Toaster (shadcn notification)
 - [x] **Нүүр хуудас** `/` — `index.html`-д статик OG tag, зураг `public/og-landing.jpg` (1200×630).
   `%SITE_URL%` placeholder-ийг `vite.config.ts`-ийн `siteUrl()` plugin build үед
   `VERCEL_PROJECT_PRODUCTION_URL`-ээр солино (custom домэйн нэмэгдвэл автоматаар тэр болно;
-  локал fallback `wedding-silk-nine.vercel.app`). `invite.js` урилгын хуудсанд эдгээр
+  локал fallback `eurilga.com`). `invite.js` урилгын хуудсанд эдгээр
   нүүрийн tag-ийг устгаад өөрийнхөө tag-ийг оруулдаг — давхардвал Facebook нүүрийнхийг авна.
 - [x] **Демо урилгууд** `/i/demo-pearl|azure|ruby|diamond` — захиалагчид Messenger-ээр явуулдаг
   загвар тус бүрийн жишээ. DB мөрийг `docs/sql/demo-events.sql`-ээр үүсгэнэ (anon түлхүүр

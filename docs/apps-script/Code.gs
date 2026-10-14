@@ -20,7 +20,7 @@ const SUPABASE_URL = 'https://bjixxbkzttcxgfkxcqvs.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_eXQtr2RbvXseLPLOYMqCXg_Xb8pKDoc';
 
 // Жагсаалтад урилгын линк бичихэд хэрэглэнэ. Домэйн солигдвол энд шинэчил.
-const SITE_URL = 'https://wedding-silk-nine.vercel.app';
+const SITE_URL = 'https://eurilga.com';
 
 // Шинэ файлууд үүсэх Drive фолдерын ID. Хоосон бол My Drive-ийн үндэст үүснэ.
 // Фолдерын URL-аас авна: drive.google.com/drive/folders/1AbCdEf...  ← энэ хэсэг

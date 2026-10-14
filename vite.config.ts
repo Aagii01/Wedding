@@ -20,14 +20,13 @@ function figmaAssetResolver() {
 // абсолют URL хэрэгтэй). Vercel build үед VERCEL_PROJECT_PRODUCTION_URL-ийг
 // автоматаар өгдөг: custom домэйн нэмэгдвэл тэр нь, үгүй бол *.vercel.app.
 // Тиймээс домэйн солиход код засах шаардлагагүй. Локал build-д fallback.
-// Vercel дээр SITE_URL env (жишээ нь "special-day.mn") тавьбал тэр нь түрүүлнэ —
-// project-ийн үндсэн домэйн (одоо 12v-invitation.vercel.app) тараадаг линкээс
-// зөрөх үед гараар засах боломж.
+// Vercel дээр SITE_URL env тавьбал тэр нь түрүүлнэ — project-ийн үндсэн
+// домэйн (Primary: eurilga.com) тараадаг линкээс зөрөх үед гараар засах боломж.
 function siteUrl() {
   const host =
     process.env.SITE_URL ||
     process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-    'wedding-silk-nine.vercel.app'
+    'eurilga.com'
   return {
     name: 'site-url',
     transformIndexHtml(html: string) {
