@@ -1,9 +1,9 @@
-# One Wedding — Project Context for Claude
+# Special Day — Project Context for Claude
 
 ## Товч тайлбар
 Монгол хурим, баярын **урилгын вэб платформ** (SaaS бизнес).
 Захиалагч Facebook-р холбогдоно → admin `/create`-р event үүсгэнэ → `/i/slug` URL-г захиалагчид өгнө.
-Сайтын нэр: **One Wedding**. Лайв URL: `https://wedding-silk-nine.vercel.app` (удахгүй custom домэйн руу шилжинэ)
+Сайтын нэр: **Special Day** (хурим, төрсөн өдөр, байгууллага гээд бүх төрлийн урилга тул "One Wedding" нэрийг хэрэглэхгүй). Лайв URL: `https://wedding-silk-nine.vercel.app` (удахгүй custom домэйн руу шилжинэ)
 
 ---
 

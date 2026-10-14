@@ -4,6 +4,8 @@ import { supabase } from "../../lib/supabase";
 import { EventData } from "../../types/event";
 import App from "../App";
 import { templateMap } from "../templates/templateMap";
+import { MadeWithCredit } from "../components/MadeWithCredit";
+import { sectionOn } from "../../lib/eventConfig";
 
 export function EventPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -41,5 +43,10 @@ export function EventPage() {
 
   const templateKey = event!.template ?? "11";
   const Template = templateMap[templateKey] ?? App;
-  return <Template event={event!} />;
+  return (
+    <>
+      <Template event={event!} />
+      {sectionOn(event!.config, "credit") && <MadeWithCredit />}
+    </>
+  );
 }

@@ -100,7 +100,7 @@ const KIND = {
   celebrate: "Хүндэтгэлийн арга хэмжээний урилга",
 };
 
-// Хуримын урилга биш төрлүүд — preview дээр "One Wedding" нэр ба хуримын
+// Хуримын урилга биш төрлүүд — preview дээр хуримын
 // og-default.jpg гарах ёсгүй. (Байгууллагынхыг isCorporate тусад нь мэднэ.)
 function isNonWedding(event) {
   return isCorporate(event)
@@ -110,7 +110,7 @@ function isNonWedding(event) {
     || event.type === "celebrate";
 }
 
-// Байгууллагын урилга дээр хуримын нэр (One Wedding) ба хуримын preview зураг
+// Байгууллагын урилга дээр брэндийн нэр (Special Day) ба хуримын preview зураг
 // гарах ёсгүй. type='corporate' эсвэл template='20' бол компанийн мэдээлэл гарна.
 function isCorporate(event) {
   return event.type === "corporate" || String(event.template) === "20";
@@ -200,7 +200,7 @@ function buildTags(event, url, origin) {
 
   const tags = [
     `<meta property="og:type" content="website" />`,
-    `<meta property="og:site_name" content="${esc(nonWedding ? (corporate && org ? org : "Цахим урилга") : "One Wedding")}" />`,
+    `<meta property="og:site_name" content="${esc(corporate && org ? org : "Special Day")}" />`,
     `<meta property="og:url" content="${esc(url)}" />`,
     `<meta property="og:title" content="${esc(title)}" />`,
     `<meta property="og:locale" content="mn_MN" />`,

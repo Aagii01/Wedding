@@ -64,7 +64,8 @@ const DEFAULT_TEXTS: T12Texts = {
   scheduleTitle: "Хуримын хөтөлбөр",
   rsvpTitle: "Ирц бүртгэл",
   rsvpPlaceholder: "Эрхэм хос нарт...",
-  footerTagline: "Special Day · Хайраар бүтээсэн",
+  // Брэндийн мөрийг бүх загварт EventPage-ийн MadeWithCredit гаргадаг тул давхардуулахгүй
+  footerTagline: "",
   storyWatermark: "манай түүх",
 };
 

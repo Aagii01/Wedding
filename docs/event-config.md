@@ -22,6 +22,14 @@ alter table events add column if not exists config jsonb not null default '{}'::
 
 ---
 
+## ✅ Бүх загварт нийтлэг
+
+| Түлхүүр | Юу хийх | Файл |
+|---|---|---|
+| `sections.credit` | Доод талын "Special Day" брэндийн мөрийг нуух (`false`) | MadeWithCredit.tsx (EventPage) |
+
+---
+
 ## ✅ Template11 — 36 түлхүүр бүрэн ажиллана
 
 | Хэсэг | Түлхүүр | Юу хийх | Fallback (код) | Файл |
