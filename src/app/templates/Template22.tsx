@@ -820,6 +820,8 @@ function T22Schedule({ event }: { event: EventData }) {
 
 // ─── Байршил ─────────────────────────────────────────────────────────────────
 function T22Location({ event }: { event: EventData }) {
+  // Газрын зургийн зураг + товчийг config.sections.map: true үед л харуулна (анхдагч нуух)
+  const showMap = sectionOn(event.config, "map", false);
   return (
     <div style={{ background: SKY, padding: "52px 32px", textAlign: "center" }}>
       <FadeUp>
@@ -837,7 +839,7 @@ function T22Location({ event }: { event: EventData }) {
         )}
       </FadeUp>
 
-      {event.maps_photo && (
+      {showMap && event.maps_photo && (
         <FadeUp delay={0.15}>
           <img
             src={event.maps_photo}
@@ -852,7 +854,7 @@ function T22Location({ event }: { event: EventData }) {
         </FadeUp>
       )}
 
-      {event.venue_map_url && (
+      {showMap && event.venue_map_url && (
         <FadeUp delay={0.25}>
           <a
             href={normalizeUrl(event.venue_map_url)}
@@ -897,6 +899,8 @@ function T22Request({ event }: { event: EventData }) {
           <div style={{ marginBottom: 30 }}><BoltDivider color={YELLOW} width={200} /></div>
         </FadeUp>
 
+        {/* config.sections.requestIcons: true үед л харуулна (анхдагч нуух) */}
+        {sectionOn(event.config, "requestIcons", false) && (
         <FadeUp delay={0.1}>
           {/* 4 icon нэг мөрөнд: 390px дэлгэц − 64 padding = 326 → 4×68 + 3×10 = 302 */}
           <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 30, flexWrap: "wrap", position: "relative" }}>
@@ -919,6 +923,7 @@ function T22Request({ event }: { event: EventData }) {
             ))}
           </div>
         </FadeUp>
+        )}
 
         <FadeUp delay={0.2}>
           <p style={{ ...sans, fontSize: 16, color: SKY, maxWidth: 360, margin: "0 auto", lineHeight: 1.85, position: "relative" }}>
