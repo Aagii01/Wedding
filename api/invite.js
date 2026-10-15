@@ -168,7 +168,11 @@ function buildTags(event, url, origin) {
         .map((name) => name?.trim())
         .filter(Boolean)
         .join(" & ");
-  const kind = KIND[corporate ? "corporate" : event.type] || "Урилга";
+  // Template 22 нь хүүхдийн баяр (төрсөн өдөр + сэвлэг үргээх). Төрлөөр нь
+  // "Төрсөн өдрийн урилга" гэвэл таарахгүй, урт тул таслагддаг → ерөнхий нэр.
+  const kind = String(event.template) === "22"
+    ? "Баярын урилга"
+    : KIND[corporate ? "corporate" : event.type] || "Урилга";
 
   // Шинэ байрны цайллага дээр эзэдийн нэр preview-д гарахгүй — зөвхөн төрөл.
   const hideNames = event.type === "apartment";
