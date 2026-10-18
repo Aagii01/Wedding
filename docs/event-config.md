@@ -263,6 +263,51 @@ update events set template = '22', config = '{
 
 ---
 
+## ✅ Template23 / 24 — эрэгтэй хүүхдийн төрсөн өдөр (Sonic / Spider-Man) — бүгд config-оос
+
+Нэг бүтэц (`Template23.tsx` → `HeroBirthday`), хоёр theme:
+- **23 = Sonic** — хөх дэвсгэр, алтан цагираг, улаан тоо; хурдны зураас, шатрын хээ
+- **24 = Spider-Man** — улаан #DF1F2D + хөх #2B3784, аалзны тор, дугуй торон цагираг
+
+Intro нь видео биш — цагираг дээр дарж нээнэ (дуу тэр үед эхэлнэ). Slug map ОГТ БАЙХГҮЙ.
+Доорх түлхүүрүүд хоёуланд нь ижил.
+
+| Түлхүүр | Төрөл | Үндсэн утга | Тайлбар |
+|---|---|---|---|
+| `theme` | "sonic" / "spider" | template-ээр | Theme-ийг template солихгүйгээр өөрчлөх |
+| `hero.name` | string | `person1_name` | Овгийн үсэг ("Э.") автоматаар хасагдана |
+| `hero.age` | string/number | — | Өгвөл бамбайн баруун доор цагирагтай "5 НАС" тэмдэг |
+| `hero.eyebrow` | string | "Төрсөн өдрийн урилга" | |
+| `hero.photo` | string | `person1_photo` → `main_image` | Бамбай хэлбэрт таслагдах зураг |
+| `intro.video` | string/false | — (дарж нээх intro) | URL өгвөл видео intro; `false` бол intro-гүй |
+| `gallery.title` | string | "Бяцхан баатрын цомог" | |
+| `gallery.captions` | string[]/false | ерөнхий 8 бичиг | Идэвхтэй картын доорх бичиг; `false` бол нуугдана |
+| `sections.schedule` | false | true | Хөтөлбөр нуух |
+| `sections.request` | false | true | "Бяцхан хүсэлт" нуух |
+| `sections.wishes` | false | true | Ерөөл нуух |
+| `sections.rsvp` | false | true | Ирц нуух |
+| `request.title` | string | "Бяцхан хүсэлт" | |
+| `request.text` | string | theme бүрийн бичвэр | Sonic: пүүз/цагираг; Spider: баг/нөмрөг |
+| `rsvp.maxGuests` | number | 10 | |
+| `rsvp.note` | string | "Баярын өдрөөс өмнө бүртгүүлнэ үү" | |
+| `footer.title` | string | "Таньтай уулзахыг..." | |
+| `footer.lines` | string[] | [] | "Хүндэтгэсэн: ..." мөрүүд |
+| `footer.phones` | string[] | [] | Pill товч, tel: холбоос, "9900 1122" хэлбэрээр |
+| `footer.image` | string | `gallery_photos[0]` → `main_image` | Footer зураг |
+
+Шүлэг → `events.poem`, хөтөлбөр → `events.schedule`. Ерөөл хэсэг нь `wishes` хүснэгтээс
+сүүлийн 12-ыг уншиж харуулна; ирц `rsvp`-д `name, phone, guests, message` бичнэ.
+Нэг мөрөнд багтах нэр: Oswald-аар ≤8 үсэг 76px, ≤11 үсэг 58px, ≤15 үсэг 46px.
+
+```sql
+update events set template = '23', config = '{
+  "hero":   { "age": "5" },
+  "footer": { "lines": ["Хүндэтгэсэн: Эрдэнэ, Бямбаноров"], "phones": ["99001122"] }
+}'::jsonb where slug = 'temuulen-5';
+```
+
+---
+
 ## ⬜ TODO — үлдсэн загварууд
 
 Template 12 / 19 / 21 холбогдоогүй (T13-ийн footer + section 5 түлхүүр л хийгдсэн).

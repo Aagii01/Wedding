@@ -101,7 +101,9 @@ src/app/templates/
 - `EventPage.tsx` → `event.template` field-г уншина → `templateMap`-аас тохирох component-г ачаална
 - `templateMap` дотор: `"11" → App`, `"12" → Template12`, `"13" → Template13`, `"14" → Template14`,
   `"19"` (хүүхдийн төрсөн өдөр, T12 суурь), `"21"` (Belle, T13 суурь), `"22"` (Hero — эрэгтэй хүүхдийн
-  сэвлэг үргээх, супер баатрын өнгө, T21 суурь, бүх тохиргоо `events.config`-оос)
+  сэвлэг үргээх, супер баатрын өнгө, T21 суурь, бүх тохиргоо `events.config`-оос), `"23"` (Sonic) ба
+  `"24"` (Spider-Man) — эрэгтэй хүүхдийн төрсөн өдөр, нэг бүтэц `Template23.tsx`-ийн `HeroBirthday` + theme
+  объект, дарж нээх intro, Oswald фонт, бүгд config-оос
 - Шинэ template нэмэхдээ: шинэ файл үүсгэх + `templateMap.ts`-д key нэмэх (LandingPage-ийн demo-д автоматаар орно)
 
 ### Template 11 (src/app/App.tsx) — "Classic"
