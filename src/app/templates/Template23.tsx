@@ -36,7 +36,7 @@ type Theme = {
   corner: "web" | "streaks";
   ring: "web" | "sonic";
   texture: "halftone" | "checker";
-  burst1: string; burst2: string;
+  burst2: string;                                // тоологчийн наалт
   requestText: string;
   requestIcons: { Icon: IconFn; label: string }[];
 };
@@ -102,7 +102,7 @@ const THEMES: Record<Theme["key"], Theme> = {
     heading: "#FFC700", headingShadow: "#0F3C8F",   // алтан + гүн хөх сүүдэр (дэвсгэртэй ойр → зөөлөн гүн)
     paper: "#F5F7FF", paperMuted: "#AEBBE0",
     corner: "streaks", ring: "sonic", texture: "checker",
-    burst1: "ГОУ!", burst2: "ХУРДАН!",
+    burst2: "ХУРДАН!",
     requestText: "Бяцхан баатрууд аа, хамгийн хурдан пүүзээ өмсөөд ирээрэй! Алтан цагираг цуглуулах уралдаан болно.",
     requestIcons: [
       { Icon: RingIcon,    label: "Цагираг" },
@@ -118,12 +118,13 @@ const THEMES: Record<Theme["key"], Theme> = {
     primary: "#DF1F2D", primaryDeep: "#9A1220", primaryText: "#FF5F6B",
     accent: "#6C86FF", accentLight: "#A9B8FF", accentDeep: "#2B3784", onAccent: "#0B1230", accentGlow: "rgba(108,134,255,.35)",
     hot: "#FF5F6B", hotGlow: "rgba(223,31,45,.4)",
-    // Цайвар + улаан сүүдэр (hero нэртэй адил comic lettering). accent (цэнхэр) +
-    // улаан сүүдэр бол complementary хослол → ирмэг "чичирдэг" тул хэрэглэхгүй.
-    heading: "#F5F1E8", headingShadow: "#9A1220",
+    // Цайвар + гүн хөх сүүдэр (comic 3D). Улаан сүүдэр цайвар текстийн доор
+    // "давхар улаан" мэт харагдаж байсан тул Spider-Man-ий хөхөөр сольсон;
+    // accent (цэнхэр) + улаан бол complementary → чичирдэг тул бас хэрэглэхгүй.
+    heading: "#F5F1E8", headingShadow: "#2B3784",
     paper: "#F5F1E8", paperMuted: "#B4BCCD",
     corner: "web", ring: "web", texture: "halftone",
-    burst1: "БУМ!", burst2: "ХӨӨХ!",
+    burst2: "ХӨӨХ!",
     requestText: "Бяцхан баатрууд аа, дуртай баатрынхаа хувцсыг өмсөөд ирээрэй! Баг, нөмрөг, бамбай — юу ч болно.",
     requestIcons: [
       { Icon: MaskIcon,   label: "Баг" },
@@ -224,7 +225,8 @@ function Corner({ corner = "tl", size = 150, opacity = 0.12 }: {
 }
 
 // Гол цагираг: spider → дугуй торон хүрээ, улаан цөм; sonic → алтан торус
-function Ring({ size = 200, style = {} }: { size?: number; style?: React.CSSProperties }) {
+// spin=false → хөдөлгөөнгүй (hero-гийн насны тэмдэг); intro-д эргэнэ
+function Ring({ size = 200, style = {}, spin = true }: { size?: number; style?: React.CSSProperties; spin?: boolean }) {
   const t = useT();
   const base: React.CSSProperties = { display: "block", pointerEvents: "none", overflow: "visible", ...style };
 
@@ -237,9 +239,9 @@ function Ring({ size = 200, style = {} }: { size?: number; style?: React.CSSProp
         <circle cx="100" cy="100" r="74" stroke={t.accent} strokeWidth="20" opacity="0.3" filter="url(#t23halo)" />
         <circle cx="100" cy="100" r="74" stroke={t.accentDeep} strokeWidth="18" />
         <circle cx="100" cy="100" r="74" stroke={t.accent} strokeWidth="12" />
-        <circle className="t23-ring-outer" cx="100" cy="100" r="74" stroke={t.accentLight} strokeWidth="4" strokeDasharray="70 395" strokeLinecap="round" />
+        <circle className={spin ? "t23-ring-outer" : undefined} cx="100" cy="100" r="74" stroke={t.accentLight} strokeWidth="4" strokeDasharray="70 395" strokeLinecap="round" />
         <circle cx="100" cy="100" r="58" stroke={t.paper} strokeWidth="1" opacity="0.25" />
-        <circle className="t23-ring-tick" cx="100" cy="100" r="92" stroke={t.primaryText} strokeWidth="2" strokeDasharray="4 14" opacity="0.6" />
+        <circle className={spin ? "t23-ring-tick" : undefined} cx="100" cy="100" r="92" stroke={t.primaryText} strokeWidth="2" strokeDasharray="4 14" opacity="0.6" />
       </svg>
     );
   }
@@ -257,8 +259,8 @@ function Ring({ size = 200, style = {} }: { size?: number; style?: React.CSSProp
         </filter>
       </defs>
       <circle cx="100" cy="100" r="80" stroke={t.hot} strokeWidth="18" opacity="0.3" filter="url(#t23halo)" />
-      <circle className="t23-ring-outer" cx="100" cy="100" r="88" stroke={t.hot} strokeWidth="3" strokeDasharray="22 10" />
-      <g className="t23-ring-tick" stroke={t.paper} strokeWidth="1" opacity="0.35">
+      <circle className={spin ? "t23-ring-outer" : undefined} cx="100" cy="100" r="88" stroke={t.hot} strokeWidth="3" strokeDasharray="22 10" />
+      <g className={spin ? "t23-ring-tick" : undefined} stroke={t.paper} strokeWidth="1" opacity="0.35">
         {spokes.map((d, i) => <path key={i} d={d} />)}
         <circle cx="100" cy="100" r="64" />
         <circle cx="100" cy="100" r="50" />
@@ -301,19 +303,25 @@ function SpeedLines() {
   );
 }
 
-// Section-уудын хоорондох шүдлэг зураас
-function ZigZag() {
+// Section-уудын хоорондох зааг: хоёр тийш бүдгэрэх хурдны зураасан шугам + төвд
+// theme-ийн тэмдэг (sonic → цагираг, spider → од) очир хүрээнд
+function SectionEdge() {
   const t = useT();
+  const dash = `repeating-linear-gradient(to right, ${t.accent} 0 14px, transparent 14px 22px)`;
+  const side = (dir: "left" | "right"): React.CSSProperties => ({
+    flex: 1, height: 2, backgroundImage: dash,
+    maskImage: `linear-gradient(to ${dir}, black, transparent)`,
+    WebkitMaskImage: `linear-gradient(to ${dir}, black, transparent)`,
+  });
   return (
-    <svg aria-hidden="true" width="100%" height="18" style={{ display: "block" }}>
-      <defs>
-        <pattern id="t23zig" width="24" height="18" patternUnits="userSpaceOnUse">
-          <path d="M0 18 L12 2 L24 18 Z" fill={t.primaryDeep} />
-          <path d="M0 18 L12 2 L24 18" stroke={t.accent} strokeWidth="2" fill="none" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="18" fill="url(#t23zig)" />
-    </svg>
+    <div aria-hidden="true" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: t.bg }}>
+      <div style={side("left")} />
+      <div style={{ width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", flexShrink: 0 }}>
+        <div style={{ position: "absolute", inset: 3, border: `1.5px solid ${t.accent}`, transform: "rotate(45deg)", opacity: 0.75 }} />
+        {t.ring === "sonic" ? <RingIcon size={14} color={t.accent} /> : <StarIcon size={14} color={t.accent} />}
+      </div>
+      <div style={side("right")} />
+    </div>
   );
 }
 
@@ -554,7 +562,7 @@ function Section({ children, style = {} }: { children: React.ReactNode; style?: 
   const t = useT();
   return (
     <section style={{ background: t.bg, position: "relative" }}>
-      <ZigZag />
+      <SectionEdge />
       <div style={{ padding: "48px 16px 80px", position: "relative", overflow: "hidden", ...style }}>
         {children}
       </div>
@@ -707,18 +715,16 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
         {name}
       </motion.h1>
 
-      {/* 358×400 бүтэц: цагираг → бамбай хэлбэртэй зураг → насны тэмдэг */}
+      {/* Том бамбай хэлбэртэй зураг — hero-гийн бүх өргөн (max 340, өндөр ~410);
+          эргэдэг цагираггүй, баруун доод буланд хөдөлгөөнгүй насны тэмдэг */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.85 }}
-        animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.85 }}
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.94 }}
         transition={{ duration: 1.1, delay: 0.5, ease: "easeOut" }}
-        style={{ position: "relative", width: "100%", maxWidth: 358, height: 400, zIndex: 2 }}
+        style={{ position: "relative", width: "100%", maxWidth: 340, marginTop: 18, marginBottom: 8, zIndex: 2 }}
       >
-        <Ring size={330} style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)" }} />
-
-        <svg width="220" height="264" viewBox="0 0 100 120" aria-hidden={!photo}
-          style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", overflow: "visible",
-                   filter: `drop-shadow(0 0 18px ${t.accentGlow})` }}>
+        <svg width="100%" viewBox="0 0 100 120" aria-hidden={!photo}
+          style={{ display: "block", overflow: "visible", filter: `drop-shadow(0 0 22px ${t.accentGlow})` }}>
           <defs><clipPath id="t23shield"><path d={SHIELD_PATH} /></clipPath></defs>
           <path d={SHIELD_PATH} fill={t.bg3} />
           {photo ? (
@@ -732,10 +738,10 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
 
         {age !== null && age !== "" && (
           <div style={{
-            position: "absolute", left: "50%", top: "50%", transform: "translate(52px, 72px)",
-            width: 118, height: 118, display: "flex", alignItems: "center", justifyContent: "center",
+            position: "absolute", right: -6, bottom: 0,
+            width: 110, height: 110, display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <Ring size={118} style={{ position: "absolute", inset: 0 }} />
+            <Ring size={110} spin={false} style={{ position: "absolute", inset: 0 }} />
             <div style={{ position: "relative", textAlign: "center", background: t.bg, borderRadius: "50%", width: 64, height: 64, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
               <div style={{ ...display, fontWeight: 700, fontSize: 40, lineHeight: 0.9, color: t.heading, textShadow: `0 3px 0 ${t.headingShadow}` }}>
                 {String(age)}
@@ -744,8 +750,6 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
             </div>
           </div>
         )}
-
-        <Burst text={t.burst1} variant="primary" size={84} style={{ right: -4, top: 22, transform: "rotate(10deg)" }} />
       </motion.div>
 
       <motion.div {...show(0.9)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 10, position: "relative", zIndex: 2, width: "100%", maxWidth: 358 }}>
@@ -1137,7 +1141,6 @@ function T23RSVP({ event }: { event: EventData }) {
   const [name, setName]       = useState("");
   const [phone, setPhone]     = useState("");
   const [guests, setGuests]   = useState(2);
-  const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [done, setDone]       = useState(false);
 
@@ -1146,7 +1149,7 @@ function T23RSVP({ event }: { event: EventData }) {
     setSending(true);
     if (event.id !== "demo") {
       const { error } = await supabase.from("rsvp").insert({
-        event_id: event.id, name: name.trim(), phone: phone.trim(), guests, message: message.trim(),
+        event_id: event.id, name: name.trim(), phone: phone.trim(), guests, message: "",
       });
       if (error) { setSending(false); toast.error("Алдаа гарлаа. Дахин оролдоно уу."); return; }
     }
@@ -1186,7 +1189,6 @@ function T23RSVP({ event }: { event: EventData }) {
               {stepBtn(1)}
             </div>
           </div>
-          <Field id="t23-rsvp-msg" label="Мессеж" textarea value={message} onChange={setMessage} placeholder="Нэмэлт мэдээлэл" />
           {done ? (
             <div role="status" style={{
               ...display, fontWeight: 600, fontSize: 18, color: t.accent, textAlign: "center",
@@ -1217,7 +1219,7 @@ function T23Footer({ event }: { event: EventData }) {
 
   return (
     <footer style={{ background: t.bg, position: "relative" }}>
-      <ZigZag />
+      <SectionEdge />
       <div style={{ position: "relative", height: 380 }}>
         <Photo src={img} alt="" />
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, ${t.bg}26, ${t.bg})` }} />
