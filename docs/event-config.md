@@ -279,6 +279,10 @@ Intro нь видео биш — цагираг дээр дарж нээнэ (д
 | `hero.age` | string/number | — | Өгвөл бамбайн баруун доор цагирагтай "5 НАС" тэмдэг |
 | `hero.eyebrow` | string | "Төрсөн өдрийн урилга" | |
 | `hero.photo` | string | `person1_photo` → `main_image` | Бамбай хэлбэрт таслагдах зураг |
+| `hero.mascot` | string | — | Hero доод буланд гарах баатрын чимэглэл зураг (PNG, ил тод дэвсгэртэй). Захиалагчийн өөрийн/лиценэтэй зураг |
+| `hero.mascotSide` | "left"/"right" | "left" | Mascot зургийн тал |
+| `intro.mascot` | string | — | "Дарж нээх" intro дэлгэц дээрх баатрын чимэглэл зураг |
+| `intro.mascotSide` | "left"/"right" | "left" | Intro mascot-ийн тал |
 | `intro.video` | string/false | — (дарж нээх intro) | URL өгвөл видео intro; `false` бол intro-гүй |
 | `gallery.title` | string | "Бяцхан баатрын цомог" | |
 | `gallery.captions` | string[]/false | ерөнхий 8 бичиг | Идэвхтэй картын доорх бичиг; `false` бол нуугдана |
@@ -299,6 +303,12 @@ Intro нь видео биш — цагираг дээр дарж нээнэ (д
 сүүлийн 12-ыг уншиж харуулна; ирц `rsvp`-д `name, phone, guests, message` бичнэ.
 Нэг мөрөнд багтах нэр: Oswald-аар ≤8 үсэг 76px, ≤11 үсэг 58px, ≤15 үсэг 46px.
 
+⚠️ **Mascot зураг:** `hero.mascot` / `intro.mascot`-д URL өгөөгүй бол demo дээр
+ерөнхий баатрын силуэт (placeholder) харагдана — энэ нь ямар ч тодорхой дүр биш,
+"энд баатрын зураг орно" гэдгийг үзүүлэх зорилготой. Жинхэнэ урилгад захиалагч
+өөрийн/лицензтэй зургаа (ил тод дэвсгэртэй PNG тохиромжтой) оруулна. Код нь тодорхой
+зохиогчийн эрхтэй дүрийг (Sonic, Spider-Man гэх мэт) агуулаагүй.
+
 ```sql
 update events set template = '23', config = '{
   "hero":   { "age": "5" },
@@ -307,6 +317,28 @@ update events set template = '23', config = '{
 ```
 
 ---
+
+## ✅ Template25 / 26 — эмэгтэй хүүхдийн төрсөн өдөр (Мөсөн гүнж / Нарны гүнж) — бүгд config-оос
+
+Нэг бүтэц (`Template25.tsx` → `PrincessBirthday`), хоёр theme:
+- **25 = Мөсөн гүнж (ice)** — гүн хөх шөнө, мөсөн цэнхэр #BFEAFF, мөнгө; эргэдэг цасан ширхэг тэмдэг, мөсөн талстын хээ, унах цас
+- **26 = Нарны гүнж (sun)** — ягаан-лаванда үдэш #2A1748, алтан #FFD166, ягаан товч; нарны тэмдэг, ургамал/цэцгийн хээ, дээш хөвөх алтан дэнлүү
+
+Section дараалал, config түлхүүрүүд нь **Template23/24-тэй яг ижил** (дээрх хүснэгтийг үз):
+`theme` ("ice" / "sun"), `hero.name/age/eyebrow/photo/mascot/mascotSide`, `intro.video/mascot/mascotSide`,
+`gallery.title/captions`, `sections.*`, `request.title/text`, `rsvp.*`, `footer.*`.
+Ялгаа: фонт Playfair Display italic (cyrillic-ext → ө/ү зүгээр), гарчиг зөөлөн glow (хатуу сүүдэргүй),
+үндсэн бичвэрүүд "гүнж" (`gallery.title` = "Бяцхан гүнжийн цомог", хүсэлт: ice → цэнхэр/цагаан гоёл,
+sun → гүнжийн даашинз + дэнлүү нисгэх). Demo (`/demo/25`, `/demo/26`) дээр mascot-ийн оронд ерөнхий
+гүнжийн силуэт (placeholder) гарна — ямар ч тодорхой дүр биш.
+
+```sql
+update events set template = '25', config = '{
+  "hero":   { "age": "5" },
+  "intro":  { "video": "https://.../intro_videos/elsa.mp4" },
+  "footer": { "lines": ["Хүндэтгэсэн: Эрдэнэ, Бямбаноров"], "phones": ["99001122"] }
+}'::jsonb where slug = 'namuun-5';
+```
 
 ## ⬜ TODO — үлдсэн загварууд
 

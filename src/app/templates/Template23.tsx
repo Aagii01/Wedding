@@ -31,6 +31,7 @@ type Theme = {
   primary: string; primaryDeep: string; primaryText: string;   // гол товч, шүд, оч
   accent: string; accentLight: string; accentDeep: string; onAccent: string; accentGlow: string; // гарчиг, хүрээ, 2-р товч
   hot: string; hotGlow: string;                  // тоологчийн тоо, хөгжмийн icon, цагирагны цөм
+  heading: string; headingShadow: string;        // section/footer гарчиг, насны тоо — текст + 3px хатуу сүүдэр
   paper: string; paperMuted: string;
   corner: "web" | "streaks";
   ring: "web" | "sonic";
@@ -98,6 +99,7 @@ const THEMES: Record<Theme["key"], Theme> = {
     primary: "#1E63D6", primaryDeep: "#0F3C8F", primaryText: "#6FA3FF",
     accent: "#FFC700", accentLight: "#FFE066", accentDeep: "#B88A00", onAccent: "#071A45", accentGlow: "rgba(255,199,0,.35)",
     hot: "#FF4B55", hotGlow: "rgba(255,75,85,.4)",
+    heading: "#FFC700", headingShadow: "#0F3C8F",   // алтан + гүн хөх сүүдэр (дэвсгэртэй ойр → зөөлөн гүн)
     paper: "#F5F7FF", paperMuted: "#AEBBE0",
     corner: "streaks", ring: "sonic", texture: "checker",
     burst1: "ГОУ!", burst2: "ХУРДАН!",
@@ -116,6 +118,9 @@ const THEMES: Record<Theme["key"], Theme> = {
     primary: "#DF1F2D", primaryDeep: "#9A1220", primaryText: "#FF5F6B",
     accent: "#6C86FF", accentLight: "#A9B8FF", accentDeep: "#2B3784", onAccent: "#0B1230", accentGlow: "rgba(108,134,255,.35)",
     hot: "#FF5F6B", hotGlow: "rgba(223,31,45,.4)",
+    // Цайвар + улаан сүүдэр (hero нэртэй адил comic lettering). accent (цэнхэр) +
+    // улаан сүүдэр бол complementary хослол → ирмэг "чичирдэг" тул хэрэглэхгүй.
+    heading: "#F5F1E8", headingShadow: "#9A1220",
     paper: "#F5F1E8", paperMuted: "#B4BCCD",
     corner: "web", ring: "web", texture: "halftone",
     burst1: "БУМ!", burst2: "ХӨӨХ!",
@@ -396,8 +401,8 @@ function Heading({ children }: { children: React.ReactNode }) {
   return (
     <h2 style={{
       ...display, fontWeight: 700, fontSize: 32, lineHeight: 1.1, textTransform: "uppercase",
-      letterSpacing: "0.02em", color: t.accent, textAlign: "center",
-      transform: "skewX(-6deg)", textShadow: `0 3px 0 ${t.primaryDeep}`, margin: 0,
+      letterSpacing: "0.02em", color: t.heading, textAlign: "center",
+      transform: "skewX(-6deg)", textShadow: `0 3px 0 ${t.headingShadow}`, margin: 0,
     }}>
       {children}
     </h2>
@@ -486,6 +491,64 @@ function Photo({ src, alt = "", style = {} }: { src?: string; alt?: string; styl
   );
 }
 
+// Ерөнхий баатрын силуэт — demo дээр "энд баатрын зураг орно" гэдгийг харуулах
+// PLACEHOLDER. Ямар ч тодорхой дүр (Sonic, Spider-Man гэх мэт) биш, бие даасан
+// хэлбэр. Жинхэнэ урилгад захиалагч hero.mascot / intro.mascot-д өөрийн зургаа
+// оруулна (доорх Mascot-г үз).
+function HeroSilhouette({ fill, stroke }: { fill: string; stroke: string }) {
+  return (
+    <svg width="100%" viewBox="0 0 120 185" fill="none" style={{ display: "block", overflow: "visible" }} aria-hidden="true">
+      {/* нөмрөг */}
+      <path d="M40 46 C18 78 14 132 22 174 L50 160 Q60 156 70 160 L98 174 C106 132 102 78 80 46 Z" fill={stroke} opacity="0.28" />
+      {/* хөл */}
+      <path d="M46 94 L40 174 L56 174 L60 118 L64 174 L80 174 L74 94 Z" fill={fill} />
+      {/* их бие */}
+      <path d="M44 54 C44 48 51 44 60 44 C69 44 76 48 76 54 L82 98 L38 98 Z" fill={fill} />
+      {/* бүс */}
+      <rect x="39" y="90" width="42" height="7" fill={stroke} />
+      {/* дээш өргөсөн гар + нударга */}
+      <path d="M47 58 L30 32 L23 18" stroke={fill} strokeWidth="12" strokeLinecap="round" />
+      <circle cx="21" cy="14" r="9.5" fill={fill} />
+      {/* нөгөө гар */}
+      <path d="M74 58 L88 74 L80 92" stroke={fill} strokeWidth="12" strokeLinecap="round" />
+      {/* толгой */}
+      <circle cx="60" cy="30" r="13" fill={fill} />
+      {/* баг (нүдний зурвас) */}
+      <path d="M49 28 H71" stroke={stroke} strokeWidth="4.5" strokeLinecap="round" />
+      {/* цээжин тэмдэг */}
+      <path d="M60 60 l5 8 -5 8 -5 -8 Z" fill={stroke} />
+    </svg>
+  );
+}
+
+// Hero / intro-д config-оор тавих чимэглэлийн баатрын зураг.
+//   hero.mascot / intro.mascot (зургийн URL) → захиалагчийн өгсөн зургийг харуулна.
+//   URL байхгүй бол: demo дээр original силуэт (placeholder харагдуулахын тулд),
+//   жинхэнэ event дээр юу ч үзүүлэхгүй (хуучин урилга өөрчлөгдөхгүй).
+// Тодорхой зохиогчийн эрхтэй дүрийг кодод суулгаагүй — зургийг захиалагч өөрөө оруулна.
+function Mascot({ src, demo, side = "left", width = "clamp(112px, 31vw, 156px)", bottom = 0, style = {} }: {
+  src?: string | null; demo: boolean; side?: "left" | "right";
+  width?: string; bottom?: number; style?: React.CSSProperties;
+}) {
+  const t = useT();
+  if (!src && !demo) return null;
+  const wrap: React.CSSProperties = {
+    position: "absolute", bottom, width, pointerEvents: "none", zIndex: 1,
+    ...(side === "left" ? { left: 0 } : { right: 0 }), ...style,
+  };
+  return (
+    <div aria-hidden="true" style={wrap}>
+      {src ? (
+        <img src={src} alt="" style={{ width: "100%", height: "auto", display: "block", filter: "drop-shadow(0 8px 18px rgba(0,0,0,.55))" }} />
+      ) : (
+        <div style={{ transform: side === "right" ? "scaleX(-1)" : "none", filter: "drop-shadow(0 8px 18px rgba(0,0,0,.45))" }}>
+          <HeroSilhouette fill={t.primary} stroke={t.accent} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Section-ийн ерөнхий бүрхүүл: шүдлэг зураас → 48px дээд, 80px доод зай
 function Section({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
   const t = useT();
@@ -531,7 +594,9 @@ function calendarUrl(event: EventData, title: string) {
 }
 
 // ─── Intro: дарж нээх ────────────────────────────────────────────────────────
-function TapIntro({ onOpen }: { onOpen: () => void }) {
+function TapIntro({ onOpen, mascot, mascotSide = "left", demo = false }: {
+  onOpen: () => void; mascot?: string | null; mascotSide?: "left" | "right"; demo?: boolean;
+}) {
   const t = useT();
   const [exiting, setExiting] = useState(false);
   const open = () => { if (exiting) return; setExiting(true); onOpen(); };
@@ -548,6 +613,7 @@ function TapIntro({ onOpen }: { onOpen: () => void }) {
         <SpeedLines />
         <Corner corner="tl" size={170} />
         <Corner corner="br" size={170} />
+        <Mascot src={mascot} demo={demo} side={mascotSide} />
       </div>
       <div style={{ position: "relative", width: 260, height: 260, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Ring size={260} style={{ position: "absolute", inset: 0 }} />
@@ -598,6 +664,8 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
   const age     = cfg<string | number | null>(event.config, "hero.age", null);
   const eyebrow = cfg(event.config, "hero.eyebrow", "Төрсөн өдрийн урилга");
   const photo   = cfg<string | null>(event.config, "hero.photo", null) || event.person1_photo || event.main_image;
+  const mascot     = cfg<string | null>(event.config, "hero.mascot", null);
+  const mascotSide = cfg<"left" | "right">(event.config, "hero.mascotSide", "left");
 
   const nameSize =
     name.length <= 8  ? "clamp(52px, 18.5vw, 76px)" :
@@ -669,7 +737,7 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
           }}>
             <Ring size={118} style={{ position: "absolute", inset: 0 }} />
             <div style={{ position: "relative", textAlign: "center", background: t.bg, borderRadius: "50%", width: 64, height: 64, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ ...display, fontWeight: 700, fontSize: 40, lineHeight: 0.9, color: t.accent, textShadow: `0 3px 0 ${t.primaryDeep}` }}>
+              <div style={{ ...display, fontWeight: 700, fontSize: 40, lineHeight: 0.9, color: t.heading, textShadow: `0 3px 0 ${t.headingShadow}` }}>
                 {String(age)}
               </div>
               <div style={{ ...display, fontWeight: 600, fontSize: 13, letterSpacing: "0.2em", color: t.paper, marginTop: 4, marginRight: "-0.2em" }}>НАС</div>
@@ -693,6 +761,8 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
         style={{ position: "absolute", bottom: 18, left: "50%", marginLeft: -26, width: 52, height: 52, background: "transparent", border: "none", cursor: "pointer", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="t23-bounce"><ChevronsIcon size={28} color={t.accentLight} /></div>
       </motion.button>
+
+      <Mascot src={mascot} demo={event.id === "demo"} side={mascotSide} />
     </header>
   );
 }
@@ -1154,7 +1224,7 @@ function T23Footer({ event }: { event: EventData }) {
       </div>
       <div style={{ padding: "0 16px 96px", marginTop: -70, position: "relative", textAlign: "center" }}>
         <FadeUp>
-          <div style={{ ...display, fontWeight: 700, fontSize: 30, lineHeight: 1.15, textTransform: "uppercase", color: t.accent, textShadow: `0 3px 0 ${t.primaryDeep}` }}>
+          <div style={{ ...display, fontWeight: 700, fontSize: 30, lineHeight: 1.15, textTransform: "uppercase", color: t.heading, textShadow: `0 3px 0 ${t.headingShadow}` }}>
             {title}
           </div>
           {lines.map((l) => (
@@ -1228,22 +1298,31 @@ export function HeroBirthday({ event, theme }: { event: EventData; theme: Theme[
     audioRef.current?.play().catch(() => {});
   };
 
-  // intro-гүй үед дуу хэрэглэгчийн анхны хөдөлгөөн дээр асна (autoplay хориг)
+  // Дуу: autoplay хориг тул хэрэглэгчийн анхны хөдөлгөөн дээр асна. Hero гарсан
+  // (started) бөгөөд дуу хараахан тоглоогүй бол — intro-гүй үед эхнээсээ, видео
+  // intro-д видео дууссаны дараа. Дарж нээх intro-д start() gesture дотор play
+  // хийдэг тул paused=false → энд юу ч хийхгүй; хориглогдсон бол fallback болно.
   useEffect(() => {
-    if (introVideo !== false || !event.music_url) return;
-    const startMusic = () => { audioRef.current?.play().then(cleanup).catch(() => {}); };
+    const a = audioRef.current;
+    if (!started || !event.music_url || !a || !a.paused) return;
     const evs = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
-    const cleanup = () => evs.forEach((e) => window.removeEventListener(e, startMusic));
-    startMusic();
-    evs.forEach((e) => window.addEventListener(e, startMusic, { passive: true }));
-    return cleanup;
-  }, [introVideo, event.music_url]);
+    const tryPlay = () => { a.play().then(stop).catch(() => {}); };
+    const stop = () => evs.forEach((e) => window.removeEventListener(e, tryPlay));
+    tryPlay();
+    evs.forEach((e) => window.addEventListener(e, tryPlay, { passive: true }));
+    return stop;
+  }, [started, event.music_url]);
 
   return (
     <ThemeCtx.Provider value={t}>
       <div className="t23" lang="mn" style={{ maxWidth: 523, margin: "0 auto", ...body, overflowX: "clip", background: t.bg, color: t.paper }}>
         <Styles />
-        {introVideo === undefined && !started && <TapIntro onOpen={start} />}
+        {introVideo === undefined && !started && (
+          <TapIntro onOpen={start}
+            mascot={cfg<string | null>(event.config, "intro.mascot", null)}
+            mascotSide={cfg<"left" | "right">(event.config, "intro.mascotSide", "left")}
+            demo={event.id === "demo"} />
+        )}
         {typeof introVideo === "string" && <VideoIntro src={introVideo} onDone={start} />}
         <Sparks />
 
