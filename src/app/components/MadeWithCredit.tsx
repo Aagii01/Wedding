@@ -6,11 +6,14 @@
 // Template бүр өөр өнгөтэй тул тус бүрт тааруулахын оронд бараан, саармаг
 // туузаар "footer-ийн доорх" тусдаа давхарга мэт харагдуулна.
 
-export function MadeWithCredit() {
+// bg / ink: config.style.creditBg / creditInk-ээр солигдоно (тохируулаагүй бол анхдагч).
+export function MadeWithCredit({ bg, ink }: { bg?: string; ink?: string }) {
+  const brand = ink ?? "#d4b483";
+  const sub = ink ? `color-mix(in srgb, ${ink} 75%, transparent)` : "rgba(245,240,232,0.75)";
   return (
     <div
       style={{
-        background: "#1c1917",
+        background: bg ?? "#1c1917",
         padding: "22px 16px 26px",
         textAlign: "center",
         fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -27,7 +30,7 @@ export function MadeWithCredit() {
             fontSize: 11,
             letterSpacing: "0.28em",
             textTransform: "uppercase",
-            color: "#d4b483",
+            color: brand,
             fontWeight: 600,
           }}
         >
@@ -38,7 +41,7 @@ export function MadeWithCredit() {
             marginTop: 6,
             fontSize: 15,
             fontStyle: "italic",
-            color: "rgba(245,240,232,0.75)",
+            color: sub,
           }}
         >
           Та ч гэсэн ийм урилга хийлгэх үү? →

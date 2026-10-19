@@ -786,6 +786,37 @@ function T14Venue({ event }: { event: EventData }) {
   );
 }
 
+// ─── Доод хэсгийн өнгө (RSVP · Мэндчилгээ · Footer) ──────────────────────────
+// config.style.bottomBg (дэвсгэр) ба config.style.bottomInk (текст) өгвөл доод
+// хэсгийг сольно. Тохируулаагүй бол яг одоогийн хар цэнхэр загвар хэвээр үлдэнэ.
+const RSVP_BG = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><g fill='none' stroke='rgba(244,238,222,0.04)' stroke-width='0.5'><circle cx='110' cy='110' r='60'/><circle cx='110' cy='110' r='90'/></g></svg>"), linear-gradient(180deg, ${NIGHT} 0%, #1A2A48 100%)`;
+const WISH_BG = `linear-gradient(180deg, #1A2A48 0%, ${NIGHT} 100%)`;
+
+function hexRgb(hex: string) {
+  const n = parseInt(hex.replace("#", ""), 16);
+  return `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
+}
+
+function bottomStyle(config: unknown): React.CSSProperties {
+  const bg = cfg<string | null>(config, "style.bottomBg", null);
+  const ink = cfg<string>(config, "style.bottomInk", "#0A1F4D");
+  const vars: Record<string, string> = bg
+    ? {
+        "--t14-ink": ink, "--t14-ink-rgb": hexRgb(ink),
+        "--t14-gold": ink, "--t14-gold-rgb": hexRgb(ink),
+        "--t14-field-rgb": "255,255,255", "--t14-btn-ink": bg,
+        "--t14-bg-rsvp": bg, "--t14-bg-wish": bg, "--t14-bg-foot": bg,
+      }
+    : {
+        "--t14-ink": CREAM, "--t14-ink-rgb": "244,238,222",
+        "--t14-gold": GOLD_LT, "--t14-gold-rgb": "232,217,176",
+        "--t14-field-rgb": "255,255,255", "--t14-btn-ink": NIGHT,
+        "--t14-bg-rsvp": RSVP_BG, "--t14-bg-wish": WISH_BG,
+        "--t14-bg-foot": NIGHT_LO,
+      };
+  return vars as unknown as React.CSSProperties;
+}
+
 // ─── RSVP ─────────────────────────────────────────────────────────────────────
 function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
   // config: rsvp.maxGuests — "Хэдүүлээ ирэх вэ?" тоолуурын дээд хязгаар (анхдагч 20)
@@ -819,15 +850,15 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
 
   const label: React.CSSProperties = {
     ...cg, fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase",
-    color: "rgba(244,238,222,0.55)", display: "block", marginBottom: 8,
+    color: "rgba(var(--t14-ink-rgb), 0.55)", display: "block", marginBottom: 8,
   };
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "13px 14px",
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(232,217,176,0.28)",
+    background: "rgba(var(--t14-field-rgb), 0.06)",
+    border: "1px solid rgba(var(--t14-gold-rgb), 0.28)",
     borderRadius: 4,
-    color: CREAM,
+    color: "var(--t14-ink)",
     ...cg, fontSize: 17,
     outline: "none",
     boxSizing: "border-box",
@@ -835,9 +866,9 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
 
   const counterBtn: React.CSSProperties = {
     width: 46, height: 46,
-    border: "1px solid rgba(232,217,176,0.28)",
+    border: "1px solid rgba(var(--t14-gold-rgb), 0.28)",
     background: "transparent",
-    color: GOLD_LT,
+    color: "var(--t14-gold)",
     ...cg, fontSize: 22, lineHeight: 1,
     cursor: "pointer",
   };
@@ -846,27 +877,27 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
 
   return (
     <section style={{
-      background: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'><g fill='none' stroke='rgba(244,238,222,0.04)' stroke-width='0.5'><circle cx='110' cy='110' r='60'/><circle cx='110' cy='110' r='90'/></g></svg>"), linear-gradient(180deg, ${NIGHT} 0%, #1A2A48 100%)`,
+      background: "var(--t14-bg-rsvp)",
       backgroundSize: "280px 280px, 100% 100%",
-      color: CREAM,
+      color: "var(--t14-ink)",
       overflow: "hidden",
     }}>
       <div style={{ padding: "80px 28px" }}>
         <FadeUp>
           <div style={{
             ...cg, fontWeight: 600, fontSize: 11, letterSpacing: "0.42em",
-            textTransform: "uppercase", color: GOLD, textAlign: "center", marginBottom: 4,
+            textTransform: "uppercase", color: "var(--t14-gold)", textAlign: "center", marginBottom: 4,
           }}>
             Ирцээ бүртгүүлэх
           </div>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <div style={{ ...nameFont, color: GOLD_LT, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 16px" }}>
+          <div style={{ ...nameFont, color: "var(--t14-gold)", fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 16px" }}>
             Та ирэх үү?
           </div>
         </FadeUp>
         <FadeUp delay={0.2}>
-          <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.75)", textAlign: "center", marginBottom: 40, lineHeight: 1.7 }}>
+          <p style={{ ...cg, fontSize: 17, color: "rgba(var(--t14-ink-rgb), 0.75)", textAlign: "center", marginBottom: 40, lineHeight: 1.7 }}>
             Таны суудлыг хадгалахын тулд ирцийн мэдээллээ илгээнэ үү.
           </p>
         </FadeUp>
@@ -877,8 +908,8 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
               style={{ textAlign: "center", padding: "20px 0" }}
             >
-              <div style={{ ...nameFont, color: GOLD_LT, fontSize: 38, marginBottom: 12 }}>Баярлалаа</div>
-              <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.8)", lineHeight: 1.7 }}>
+              <div style={{ ...nameFont, color: "var(--t14-gold)", fontSize: 38, marginBottom: 12 }}>Баярлалаа</div>
+              <p style={{ ...cg, fontSize: 17, color: "rgba(var(--t14-ink-rgb), 0.8)", lineHeight: 1.7 }}>
                 {attending
                   ? `${name.split(" ")[0]}, та нартай уулзахыг тэсэн ядан хүлээж байна.`
                   : `${name.split(" ")[0]}, та дутагдах болно.`}
@@ -918,9 +949,9 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
                       key={String(val)}
                       style={{
                         display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
-                        ...cg, fontSize: 17, color: CREAM,
-                        background: attending === val ? "rgba(232,217,176,0.14)" : "transparent",
-                        border: `1px solid ${attending === val ? "rgba(232,217,176,0.5)" : "rgba(232,217,176,0.24)"}`,
+                        ...cg, fontSize: 17, color: "var(--t14-ink)",
+                        background: attending === val ? "rgba(var(--t14-gold-rgb), 0.14)" : "transparent",
+                        border: `1px solid ${attending === val ? "rgba(var(--t14-gold-rgb), 0.5)" : "rgba(var(--t14-gold-rgb), 0.24)"}`,
                         borderRadius: 4, padding: "12px 14px",
                         transition: "all 0.25s",
                       }}
@@ -930,7 +961,7 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
                         name="t14-attending"
                         checked={attending === val}
                         onChange={() => setAttending(val)}
-                        style={{ accentColor: GOLD_LT, width: 16, height: 16 }}
+                        style={{ accentColor: "var(--t14-gold)", width: 16, height: 16 }}
                       />
                       {text}
                     </label>
@@ -950,11 +981,11 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
                       aria-label="Хасах"
                     >−</button>
                     <div style={{
-                      ...cg, fontSize: 19, color: CREAM,
+                      ...cg, fontSize: 19, color: "var(--t14-ink)",
                       width: 66, height: 46,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      borderTop: "1px solid rgba(232,217,176,0.28)",
-                      borderBottom: "1px solid rgba(232,217,176,0.28)",
+                      borderTop: "1px solid rgba(var(--t14-gold-rgb), 0.28)",
+                      borderBottom: "1px solid rgba(var(--t14-gold-rgb), 0.28)",
                     }}>
                       {guests}
                     </div>
@@ -974,7 +1005,7 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
                 style={{
                   width: "100%", padding: "16px",
                   ...cg, fontSize: 12, letterSpacing: "0.5em", textTransform: "uppercase",
-                  color: NIGHT, background: GOLD_LT,
+                  color: "var(--t14-btn-ink)", background: "var(--t14-gold)",
                   border: "none", borderRadius: 4,
                   cursor: submitting ? "wait" : "pointer",
                   opacity: canSubmit ? 1 : 0.5,
@@ -1016,29 +1047,29 @@ function T14Wishes({ eventId }: { eventId: string }) {
 
   const label: React.CSSProperties = {
     ...cg, fontSize: 10, letterSpacing: "0.4em", textTransform: "uppercase",
-    color: "rgba(244,238,222,0.55)", display: "block", marginBottom: 8,
+    color: "rgba(var(--t14-ink-rgb), 0.55)", display: "block", marginBottom: 8,
   };
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "13px 14px",
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(232,217,176,0.28)",
-    borderRadius: 4, color: CREAM,
+    background: "rgba(var(--t14-field-rgb), 0.06)",
+    border: "1px solid rgba(var(--t14-gold-rgb), 0.28)",
+    borderRadius: 4, color: "var(--t14-ink)",
     ...cg, fontSize: 17, outline: "none", boxSizing: "border-box",
   };
 
   return (
     <section style={{
-      background: `linear-gradient(180deg, #1A2A48 0%, ${NIGHT} 100%)`,
-      color: CREAM, overflow: "hidden",
+      background: "var(--t14-bg-wish)",
+      color: "var(--t14-ink)", overflow: "hidden",
     }}>
       <div style={{ padding: "48px 28px 88px" }}>
         <FadeUp delay={0.1}>
-          <div style={{ ...nameFont, color: GOLD_LT, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "0 0 12px" }}>
+          <div style={{ ...nameFont, color: "var(--t14-gold)", fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "0 0 12px" }}>
             Мэндчилгээ
           </div>
         </FadeUp>
         <FadeUp delay={0.2}>
-          <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.75)", textAlign: "center", marginBottom: 36, lineHeight: 1.7 }}>
+          <p style={{ ...cg, fontSize: 17, color: "rgba(var(--t14-ink-rgb), 0.75)", textAlign: "center", marginBottom: 36, lineHeight: 1.7 }}>
             Баяр хүргэх үгээ үлдээнэ үү.
           </p>
         </FadeUp>
@@ -1049,8 +1080,8 @@ function T14Wishes({ eventId }: { eventId: string }) {
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
               style={{ textAlign: "center", padding: "20px 0" }}
             >
-              <div style={{ ...nameFont, color: GOLD_LT, fontSize: 38, marginBottom: 12 }}>Баярлалаа</div>
-              <p style={{ ...cg, fontSize: 17, color: "rgba(244,238,222,0.8)", lineHeight: 1.7 }}>
+              <div style={{ ...nameFont, color: "var(--t14-gold)", fontSize: 38, marginBottom: 12 }}>Баярлалаа</div>
+              <p style={{ ...cg, fontSize: 17, color: "rgba(var(--t14-ink-rgb), 0.8)", lineHeight: 1.7 }}>
                 Таны мэндчилгээг хүлээн авлаа.
               </p>
             </motion.div>
@@ -1076,7 +1107,7 @@ function T14Wishes({ eventId }: { eventId: string }) {
                 style={{
                   width: "100%", padding: "16px",
                   ...cg, fontSize: 12, letterSpacing: "0.5em", textTransform: "uppercase",
-                  color: NIGHT, background: GOLD_LT, border: "none", borderRadius: 4,
+                  color: "var(--t14-btn-ink)", background: "var(--t14-gold)", border: "none", borderRadius: 4,
                   cursor: sending ? "wait" : "pointer",
                   opacity: (!name.trim() || !message.trim()) ? 0.5 : 1,
                   transition: "opacity 250ms",
@@ -1188,15 +1219,15 @@ function T14Footer({ event }: { event: EventData }) {
   };
 
   return (
-    <footer style={{ background: NIGHT_LO, color: "rgba(244,238,222,0.7)", textAlign: "center", padding: "80px 24px 60px" }}>
+    <footer style={{ background: "var(--t14-bg-foot)", color: "rgba(var(--t14-ink-rgb), 0.7)", textAlign: "center", padding: "80px 24px 60px" }}>
       {/* Monogram circle */}
       <FadeUp>
         <div style={{
           width: 104, height: 104, margin: "0 auto 28px",
           borderRadius: "50%",
-          border: "1px solid rgba(232,217,176,0.45)",
+          border: "1px solid rgba(var(--t14-gold-rgb), 0.45)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          color: GOLD_LT,
+          color: "var(--t14-gold)",
         }}>
           <span style={{ ...nameFont, fontSize: 40, lineHeight: 1 }}>{i1}</span>
           {i2 && (
@@ -1208,7 +1239,7 @@ function T14Footer({ event }: { event: EventData }) {
         </div>
       </FadeUp>
       <FadeUp delay={0.1}>
-        <div style={{ ...cg, fontSize: 17, fontWeight: 500, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(244,238,222,0.72)", lineHeight: 1.5 }}>
+        <div style={{ ...cg, fontSize: 17, fontWeight: 500, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(var(--t14-ink-rgb), 0.72)", lineHeight: 1.5 }}>
           {footerNames ? (
             footerNames.map((line) => <div key={line}>{line}</div>)
           ) : name2 ? (
@@ -1220,7 +1251,7 @@ function T14Footer({ event }: { event: EventData }) {
       </FadeUp>
       {children && children.length > 0 && (
         <FadeUp delay={0.15}>
-          <div style={{ ...cg, fontSize: 18, letterSpacing: "0.06em", color: "rgba(244,238,222,0.68)", marginTop: 12, lineHeight: 1.7 }}>
+          <div style={{ ...cg, fontSize: 18, letterSpacing: "0.06em", color: "rgba(var(--t14-ink-rgb), 0.68)", marginTop: 12, lineHeight: 1.7 }}>
             {children.map((c) => (
               <div key={c}>{c}</div>
             ))}
@@ -1228,13 +1259,13 @@ function T14Footer({ event }: { event: EventData }) {
         </FadeUp>
       )}
       <FadeUp delay={0.2}>
-        <div style={{ ...cg, fontSize: 17, letterSpacing: "0.36em", textTransform: "uppercase", color: "rgba(244,238,222,0.58)", marginTop: 12 }}>
+        <div style={{ ...cg, fontSize: 17, letterSpacing: "0.36em", textTransform: "uppercase", color: "rgba(var(--t14-ink-rgb), 0.58)", marginTop: 12 }}>
           {fmtDate(event.date)}
         </div>
       </FadeUp>
       {honored && honored.length > 0 && (
         <FadeUp delay={0.25}>
-          <div style={{ ...cg, fontSize: 17, letterSpacing: "0.06em", color: "rgba(244,238,222,0.68)", marginTop: 22, lineHeight: 1.7 }}>
+          <div style={{ ...cg, fontSize: 17, letterSpacing: "0.06em", color: "rgba(var(--t14-ink-rgb), 0.68)", marginTop: 22, lineHeight: 1.7 }}>
             {honored.map((line) => (
               <div key={line}>{line}</div>
             ))}
@@ -1243,12 +1274,12 @@ function T14Footer({ event }: { event: EventData }) {
       )}
       {phones.length > 0 && (
         <FadeUp delay={0.3}>
-          <div style={{ ...cg, fontSize: 15, letterSpacing: "0.12em", color: "rgba(244,238,222,0.6)", marginTop: 22 }}>
+          <div style={{ ...cg, fontSize: 15, letterSpacing: "0.12em", color: "rgba(var(--t14-ink-rgb), 0.6)", marginTop: 22 }}>
             {phoneLabel}{" "}
             {phones.map((tel, i) => (
               <span key={tel}>
                 {i > 0 && ", "}
-                <a href={`tel:${tel}`} style={{ color: GOLD_LT, textDecoration: "none" }}>{tel}</a>
+                <a href={`tel:${tel}`} style={{ color: "var(--t14-gold)", textDecoration: "none" }}>{tel}</a>
               </span>
             ))}
           </div>
@@ -1290,9 +1321,11 @@ export default function Template14({ event }: { event: EventData }) {
       {(() => { const qr = cfg<string | undefined>(event.config, "schedule.qr", SCHEDULE_QR[event.slug]); return qr ? <T14ScheduleQR src={qr} /> : null; })()}
       {sectionOn(event.config, "gallery", !HIDE_GALLERY.has(event.slug)) && <T14Gallery event={event} />}
       <T14Venue event={event} />
-      {sectionOn(event.config, "rsvp", true) && <T14RSVP eventId={event.id} config={event.config} />}
-      {sectionOn(event.config, "wishes", true) && <T14Wishes eventId={event.id} />}
-      <T14Footer event={event} />
+      <div style={bottomStyle(event.config)}>
+        {sectionOn(event.config, "rsvp", true) && <T14RSVP eventId={event.id} config={event.config} />}
+        {sectionOn(event.config, "wishes", true) && <T14Wishes eventId={event.id} />}
+        <T14Footer event={event} />
+      </div>
 
       {event.music_url && <MusicPlayer audioRef={audioRef} />}
       <Toaster />

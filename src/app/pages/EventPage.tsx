@@ -5,7 +5,7 @@ import { EventData } from "../../types/event";
 import App from "../App";
 import { templateMap } from "../templates/templateMap";
 import { MadeWithCredit } from "../components/MadeWithCredit";
-import { sectionOn } from "../../lib/eventConfig";
+import { cfg, sectionOn } from "../../lib/eventConfig";
 
 export function EventPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -46,7 +46,12 @@ export function EventPage() {
   return (
     <>
       <Template event={event!} />
-      {sectionOn(event!.config, "credit") && <MadeWithCredit />}
+      {sectionOn(event!.config, "credit") && (
+        <MadeWithCredit
+          bg={cfg<string | undefined>(event!.config, "style.creditBg", undefined)}
+          ink={cfg<string | undefined>(event!.config, "style.creditInk", undefined)}
+        />
+      )}
     </>
   );
 }
