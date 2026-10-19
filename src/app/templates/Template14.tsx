@@ -660,14 +660,22 @@ function T14Gallery({ event }: { event: EventData }) {
   const [lightbox, setLightbox] = useState<string | null>(null);
   // config: gallery.bento (true → bento байрлал)
   const bento = cfg<boolean>(event.config, "gallery.bento", BENTO_GALLERY.has(event.slug)) === true && photos.length > 1;
+  // config: gallery.title / gallery.subtitle — гарчиг ба доорх нэг мөр тайлбар
+  const title    = cfg<string>(event.config, "gallery.title", "Зургийн цомог");
+  const subtitle = cfg<string | null>(event.config, "gallery.subtitle", null);
 
   return (
     <Paper>
       <div style={{ padding: "72px 24px" }}>
         <FadeUp delay={0.1}>
-          <div style={{ ...nameFont, color: WAX, fontSize: "clamp(34px, 8.5vw, 52px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 28px" }}>
-            Зургийн цомог
+          <div style={{ ...nameFont, color: WAX, fontSize: "clamp(34px, 8.5vw, 52px)", lineHeight: 1.15, textAlign: "center", margin: subtitle ? "8px 0 12px" : "8px 0 28px" }}>
+            {title}
           </div>
+          {subtitle && (
+            <p style={{ ...cgI, fontSize: 17, color: WAX, textAlign: "center", margin: "0 auto 28px", maxWidth: 340, lineHeight: 1.7 }}>
+              {subtitle}
+            </p>
+          )}
         </FadeUp>
 
         <FadeUp delay={0.2}>

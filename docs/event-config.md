@@ -115,6 +115,8 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | | `schedule.qr` | Хөтөлбөрийн оронд QR зураг (URL) — `sections.schedule: false`-тэй хамт | `SCHEDULE_QR` |
 | **Цомог** | `sections.gallery` | Цомгийг нуух (`false`) | `HIDE_GALLERY` |
 | | `gallery.bento` | `true` → bento байрлал | `BENTO_GALLERY` |
+| | `gallery.title` | Цомгийн гарчиг (анхдагч "Зургийн цомог") | — |
+| | `gallery.subtitle` | Гарчгийн доорх нэг мөр тайлбар (өгвөл л гарна) | — |
 | **Ирц** | `sections.rsvp` | Ирцийн бүртгэлийг нуух (`false`) | — |
 | | `rsvp.maxGuests` | "Хэдүүлээ ирэх вэ?" тоолуурын дээд хязгаар (анхдагч 20) | — |
 | **Мэндчилгээ** | `sections.wishes` | Мэндчилгээний хэсгийг нуух (`false`) | — |
