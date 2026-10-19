@@ -16,6 +16,11 @@ import Template22 from "./Template22";
 // Дарж нээх intro, бүх тохиргоо events.config-оос
 import Template23 from "./Template23";
 import Template24 from "./Template24";
+// Эмэгтэй хүүхдийн төрсөн өдөр — нэг бүтэц, хоёр theme (Template25.tsx):
+// 25 = Мөсөн гүнж (мөсөн цэнхэр, цасан ширхэг), 26 = Нарны гүнж (лаванда, алтан дэнлүү).
+// Playfair Display фонт, дарж нээх intro, бүх тохиргоо events.config-оос
+import Template25 from "./Template25";
+import Template26 from "./Template26";
 
 // Жагсаалтад байхгүй template утгатай (жишээ нь өмнө устгасан 15-18, 20)
 // хуучин event-үүд EventPage дээр App (Template11) руу fallback хийнэ.
@@ -29,4 +34,6 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "22": Template22,
   "23": Template23,
   "24": Template24,
+  "25": Template25,
+  "26": Template26,
 };

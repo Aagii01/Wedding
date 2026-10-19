@@ -104,6 +104,8 @@ src/app/templates/
   сэвлэг үргээх, супер баатрын өнгө, T21 суурь, бүх тохиргоо `events.config`-оос), `"23"` (Sonic) ба
   `"24"` (Spider-Man) — эрэгтэй хүүхдийн төрсөн өдөр, нэг бүтэц `Template23.tsx`-ийн `HeroBirthday` + theme
   объект, дарж нээх intro, Oswald фонт, бүгд config-оос
+  `"25"` (Мөсөн гүнж) ба `"26"` (Нарны гүнж) — эмэгтэй хүүхдийн төрсөн өдөр, нэг бүтэц `Template25.tsx`-ийн
+  `PrincessBirthday` + theme объект, Playfair Display фонт, section/config нь T23-тай ижил
 - Шинэ template нэмэхдээ: шинэ файл үүсгэх + `templateMap.ts`-д key нэмэх (LandingPage-ийн demo-д автоматаар орно)
 
 ### Template 11 (src/app/App.tsx) — "Classic"
