@@ -37,7 +37,7 @@ type Theme = {
   particles: "snow" | "lanterns";
   corner: "frost" | "vine";
   texture: "lattice" | "rays";
-  badge1: string; badge2: string;                // наалтны бичиг
+  badge1: string;                                // наалтны бичиг (нүүрийн зураг)
   requestText: string;
   requestIcons: { Icon: IconFn; label: string }[];
   captions: string[];
@@ -81,7 +81,6 @@ const FlowerIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(siz
 const SparkleIcon: IconFn   = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2Z" />, true);
 const HeartIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.2 5.3 5.3 0 0 1 21.3 12C19 16.4 12 21 12 21Z" />, true);
 const PlayIcon: IconFn      = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M7 4 L20 12 L7 20 Z" />, true);
-const CalendarIcon: IconFn  = ({ size = 24, color = "currentColor" }) => ico(size, color, <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>);
 const PinIcon: IconFn       = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12Z" /><circle cx="12" cy="10" r="2.5" /></>);
 const SendIcon: IconFn      = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M21 3 10 14" /><path d="M21 3 14 21l-4-7-7-4Z" /></>);
 const PhoneIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />);
@@ -102,7 +101,7 @@ const THEMES: Record<Theme["key"], Theme> = {
     heading: "#EAF8FF", headingGlow: "rgba(120,200,255,.55)",
     paper: "#F2F9FF", paperMuted: "#A9C4DE",
     emblem: "snowflake", particles: "snow", corner: "frost", texture: "lattice",
-    badge1: "Гүнж", badge2: "Ид шид!",
+    badge1: "Гүнж",
     requestText: "Бяцхан гүнжүүд ээ, цэнхэр, цагаан гоёлоо өмсөөд мөсөн ордонд морилоорой! Цасан ширхэг цуглуулах ид шидийн тоглоом болно.",
     requestIcons: [
       { Icon: SnowflakeIcon, label: "Цас" },
@@ -123,7 +122,7 @@ const THEMES: Record<Theme["key"], Theme> = {
     heading: "#FFF3CC", headingGlow: "rgba(255,209,102,.55)",
     paper: "#FFF6F0", paperMuted: "#C9B8E0",
     emblem: "sun", particles: "lanterns", corner: "vine", texture: "rays",
-    badge1: "Гүнж", badge2: "Гэрэлт!",
+    badge1: "Гүнж",
     requestText: "Бяцхан гүнжүүд ээ, дуртай гүнжийнхээ даашинзыг өмсөөд ирээрэй! Оройн нарыг хүлээж дэнлүү нисгэх ёслол болно.",
     requestIcons: [
       { Icon: LanternIcon, label: "Дэнлүү" },
@@ -617,24 +616,6 @@ function fmtPhone(p: string) {
   const digits = p.replace(/\D/g, "");
   return digits.length === 8 ? digits.slice(0, 4) + " " + digits.slice(4) : p;
 }
-// Google Calendar template холбоос — баяр 3 цаг үргэлжилнэ гэж тооцно
-function calendarUrl(event: EventData, title: string) {
-  const [y, m, d] = (event.date || "").split("-").map(Number);
-  const [hh, mm] = (event.time || "15:00").split(":").map(Number);
-  if (!y || !m || !d) return "";
-  const start = new Date(y, m - 1, d, hh, mm);
-  const end   = new Date(start.getTime() + 3 * 3600000);
-  const f = (x: Date) =>
-    `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, "0")}${String(x.getDate()).padStart(2, "0")}T` +
-    `${String(x.getHours()).padStart(2, "0")}${String(x.getMinutes()).padStart(2, "0")}00`;
-  const q = new URLSearchParams({
-    action: "TEMPLATE", text: title, dates: `${f(start)}/${f(end)}`,
-    location: [event.venue_name, event.venue_address].filter(Boolean).join(", "),
-    ctz: "Asia/Ulaanbaatar",
-  });
-  return "https://calendar.google.com/calendar/render?" + q.toString();
-}
-
 // ─── Intro: дарж нээх ────────────────────────────────────────────────────────
 function TapIntro({ onOpen, mascot, mascotSide = "left", demo = false }: {
   onOpen: () => void; mascot?: string | null; mascotSide?: "left" | "right"; demo?: boolean;
@@ -677,7 +658,7 @@ function TapIntro({ onOpen, mascot, mascotSide = "left", demo = false }: {
 }
 
 // ─── Intro: видео (config.intro.video өгсөн үед) ─────────────────────────────
-function VideoIntro({ src, onDone }: { src: string; onDone: () => void }) {
+function VideoIntro({ src, onDone, onPlay }: { src: string; onDone: () => void; onPlay?: () => void }) {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -691,7 +672,7 @@ function VideoIntro({ src, onDone }: { src: string; onDone: () => void }) {
   return (
     <motion.div initial={{ opacity: 1 }} animate={{ opacity: exiting ? 0 : 1 }} transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
       style={{ position: "fixed", inset: 0, background: "#000", zIndex: 9999, overflow: "hidden", pointerEvents: exiting ? "none" : "auto" }}>
-      <video ref={videoRef} src={src} autoPlay muted playsInline preload="auto" onEnded={handleEnded} onError={handleEnded}
+      <video ref={videoRef} src={src} autoPlay muted playsInline preload="auto" onPlay={onPlay} onEnded={handleEnded} onError={handleEnded}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
     </motion.div>
   );
@@ -725,7 +706,7 @@ function T25Hero({ event, started }: { event: EventData; started: boolean }) {
     <header style={{
       minHeight: "100svh", background: `linear-gradient(180deg, ${t.bg} 0%, ${t.bg2} 100%)`, position: "relative", overflow: "hidden",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: "56px 16px 72px", boxSizing: "border-box", textAlign: "center",
+      padding: "48px 12px 72px", boxSizing: "border-box", textAlign: "center",
     }}>
       <Texture />
       <Corner corner="tr" size={160} />
@@ -748,39 +729,24 @@ function T25Hero({ event, started }: { event: EventData; started: boolean }) {
         {name}
       </motion.h1>
 
-      {/* 358×400 бүтэц: тэмдэг → титэмтэй зууван зураг → насны тэмдэг */}
+      {/* Том шулуун зураг — бусад урилгын адил, hero-гийн бүх өргөн (max 380, 4:5);
+          баруун доод буланд насны тэмдэг, баруун дээд буланд "Гүнж" наалт */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.85 }}
-        animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.85 }}
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.94 }}
         transition={{ duration: 1.1, delay: 0.5, ease: "easeOut" }}
-        style={{ position: "relative", width: "100%", maxWidth: 358, height: 400, zIndex: 2 }}
+        style={{ position: "relative", width: "100%", maxWidth: 380, marginTop: 14, marginBottom: 8, zIndex: 2 }}
       >
-        <Emblem size={330} style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)" }} />
-
-        <svg width="220" height="270" viewBox="0 0 100 123" aria-hidden={!photo}
-          style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%, -50%)", overflow: "visible",
-                   filter: `drop-shadow(0 0 18px ${t.accentGlow})` }}>
-          <defs><clipPath id="t25oval"><ellipse cx="50" cy="61.5" rx="46" ry="58" /></clipPath></defs>
-          <ellipse cx="50" cy="61.5" rx="46" ry="58" fill={t.bg3} />
-          {photo ? (
-            <image href={photo} x="0" y="0" width="100" height="123" preserveAspectRatio="xMidYMid slice" clipPath="url(#t25oval)" />
-          ) : (
-            <text x="50" y="66" textAnchor="middle" fontFamily="'PT Sans', sans-serif" fontWeight="700" fontSize="9" letterSpacing="1.5" fill={t.paperMuted}>ЗУРАГ</text>
-          )}
-          <ellipse cx="50" cy="61.5" rx="46" ry="58" fill="none" stroke={t.accent} strokeWidth="3" />
-          <ellipse cx="50" cy="61.5" rx="42" ry="54" fill="none" stroke={t.accentLight} strokeWidth="0.8" opacity="0.8" />
-          {/* титэм — хүрээний дээр */}
-          <g transform="translate(50 -1)" fill={t.accent} stroke={t.accentDeep} strokeWidth="0.6" strokeLinejoin="round">
-            <path d="M-14 6 L-10 -4 L-5 2 L0 -8 L5 2 L10 -4 L14 6 Z" />
-            <circle cx="-10" cy="-4" r="1.3" fill={t.accentLight} stroke="none" />
-            <circle cx="0" cy="-8" r="1.6" fill={t.accentLight} stroke="none" />
-            <circle cx="10" cy="-4" r="1.3" fill={t.accentLight} stroke="none" />
-          </g>
-        </svg>
+        <div style={{
+          aspectRatio: "4 / 5", borderRadius: 18, overflow: "hidden", background: t.bg3,
+          border: `3px solid ${t.accent}`, boxShadow: `0 0 0 1px ${t.accentLight}66, 0 0 26px ${t.accentGlow}, 0 16px 32px rgba(6,10,30,.5)`,
+        }}>
+          <Photo src={photo || undefined} alt={name} />
+        </div>
 
         {age !== null && age !== "" && (
           <div style={{
-            position: "absolute", left: "50%", top: "50%", transform: "translate(52px, 72px)",
+            position: "absolute", right: -8, bottom: -6,
             width: 118, height: 118, display: "flex", alignItems: "center", justifyContent: "center",
           }}>
             <Emblem size={118} style={{ position: "absolute", inset: 0 }} />
@@ -793,15 +759,7 @@ function T25Hero({ event, started }: { event: EventData; started: boolean }) {
           </div>
         )}
 
-        <Badge text={t.badge1} variant="primary" size={84} style={{ right: -4, top: 22, transform: "rotate(10deg)" }} />
-      </motion.div>
-
-      <motion.div {...show(0.9)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 10, position: "relative", zIndex: 2, width: "100%", maxWidth: 358 }}>
-        <div style={{ width: 28, height: 1, background: t.accent, flexShrink: 0 }} />
-        <div style={{ ...display, fontWeight: 600, fontSize: 20, color: t.accent, lineHeight: 1.2 }}>
-          {fmtDate(event.date)}{event.time ? ` · ${event.time}` : ""}
-        </div>
-        <div style={{ width: 28, height: 1, background: t.accent, flexShrink: 0 }} />
+        <Badge text={t.badge1} variant="primary" size={84} style={{ right: -10, top: -14, transform: "rotate(10deg)" }} />
       </motion.div>
 
       <motion.button type="button" onClick={scrollNext} aria-label="Доош гүйлгэх"
@@ -847,7 +805,7 @@ function T25Letter({ event }: { event: EventData }) {
 }
 
 // ─── Цомог ───────────────────────────────────────────────────────────────────
-const CARD_W = 210, CARD_GAP = 16;
+const CARD_W = 256, CARD_GAP = 16;
 
 function T25Gallery({ event }: { event: EventData }) {
   const t = useT();
@@ -887,7 +845,7 @@ function T25Gallery({ event }: { event: EventData }) {
               outline: isActive ? `3px solid ${t.accent}` : "none", outlineOffset: 0,
               transition: "box-shadow .3s, outline-color .3s",
             }}>
-              <div style={{ border: `3px solid ${t.accentDeep}`, borderRadius: 11, aspectRatio: "4 / 5", overflow: "hidden", background: t.bg3 }}>
+              <div style={{ border: `3px solid ${t.accentDeep}`, borderRadius: 11, aspectRatio: "3 / 4", overflow: "hidden", background: t.bg3 }}>
                 <Photo src={src} alt={`Зураг ${i + 1}`} />
               </div>
               {isActive && captions[i % captions.length] && (
@@ -933,19 +891,23 @@ function T25Countdown({ event }: { event: EventData }) {
 
   const pad = (n: number) => String(n).padStart(2, "0");
   const units = [{ v: c.d, l: "Өдөр" }, { v: c.h, l: "Цаг" }, { v: c.m, l: "Минут" }, { v: c.s, l: "Секунд" }];
-  const name   = givenName(cfg(event.config, "hero.name", event.person1_name || "Бяцхан гүнж"));
-  const calUrl = calendarUrl(event, `${name} — төрсөн өдөр`);
 
   return (
     <Section>
       <Texture />
       <FadeUp style={{ position: "relative" }}>
-        <div style={{ position: "relative" }}>
-          <Heading>Баяр эхлэхэд</Heading>
-          <Badge text={t.badge2} variant="accent" size={72} style={{ right: 0, top: -40, transform: "rotate(12deg)" }} />
+        <Heading>Баяр эхлэхэд</Heading>
+
+        {/* Огноо, цаг — зөвхөн энд (нүүр хэсэгт давтахгүй) */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 18 }}>
+          <div style={{ width: 28, height: 1, background: t.accent, flexShrink: 0 }} />
+          <div style={{ ...display, fontWeight: 600, fontSize: 20, color: t.accent, lineHeight: 1.2, textAlign: "center" }}>
+            {fmtDate(event.date)}{event.time ? ` · ${event.time}` : ""}
+          </div>
+          <div style={{ width: 28, height: 1, background: t.accent, flexShrink: 0 }} />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 36 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 24 }}>
           {units.map((u) => (
             <div key={u.l} style={{
               background: "rgba(255,255,255,.06)", border: `1.5px solid ${t.accent}`, borderRadius: 14,
@@ -953,19 +915,13 @@ function T25Countdown({ event }: { event: EventData }) {
               padding: "16px 4px 12px", textAlign: "center", position: "relative", overflow: "hidden",
             }}>
               <span aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1, background: "rgba(255,255,255,.07)" }} />
-              <div style={{ ...display, fontWeight: 600, fontSize: 38, lineHeight: 1, color: t.hot, fontVariantNumeric: "tabular-nums", textShadow: `0 0 14px ${t.hotGlow}` }}>
+              <div style={{ ...display, fontWeight: 600, fontSize: 38, lineHeight: 1, color: t.paper, fontVariantNumeric: "tabular-nums", textShadow: `0 0 14px ${t.accentGlow}` }}>
                 {pad(u.v)}
               </div>
               <div style={{ ...bodyB, fontSize: 12, textTransform: "uppercase", color: t.paperMuted, marginTop: 8, letterSpacing: "0.06em" }}>{u.l}</div>
             </div>
           ))}
         </div>
-
-        {calUrl && (
-          <div style={{ marginTop: 28, display: "flex", justifyContent: "center" }}>
-            <Btn variant="hot" href={calUrl} icon={<CalendarIcon size={20} color={t.accentLight} />}>Календарьт нэмэх</Btn>
-          </div>
-        )}
       </FadeUp>
     </Section>
   );
@@ -991,22 +947,22 @@ function T25Schedule({ event }: { event: EventData }) {
   return (
     <Section>
       <FadeUp><Heading>Хөтөлбөр</Heading></FadeUp>
-      <div ref={ref} style={{ position: "relative", marginTop: 36, paddingLeft: 56 }}>
-        <div aria-hidden="true" style={{ position: "absolute", left: 19, top: 20, bottom: 20, width: 2, backgroundImage: `repeating-linear-gradient(to bottom, ${t.line} 0 6px, transparent 6px 12px)` }} />
-        <motion.div aria-hidden="true" style={{ position: "absolute", left: 19, top: 20, width: 2, height: spine, maxHeight: "calc(100% - 40px)", backgroundImage: `repeating-linear-gradient(to bottom, ${t.accent} 0 6px, transparent 6px 12px)` }} />
+      <div ref={ref} style={{ position: "relative", marginTop: 28, paddingLeft: 52 }}>
+        <div aria-hidden="true" style={{ position: "absolute", left: 17, top: 18, bottom: 18, width: 2, backgroundImage: `repeating-linear-gradient(to bottom, ${t.line} 0 6px, transparent 6px 12px)` }} />
+        <motion.div aria-hidden="true" style={{ position: "absolute", left: 17, top: 18, width: 2, height: spine, maxHeight: "calc(100% - 36px)", backgroundImage: `repeating-linear-gradient(to bottom, ${t.accent} 0 6px, transparent 6px 12px)` }} />
         {items.map((it, i) => (
-          <FadeUp key={i} delay={i * 0.1} style={{ position: "relative", marginBottom: 16 }}>
+          <FadeUp key={i} delay={i * 0.1} style={{ position: "relative", marginBottom: 10 }}>
             <div style={{
-              position: "absolute", left: -56, top: 10, width: 40, height: 40, borderRadius: "50%",
+              position: "absolute", left: -52, top: 6, width: 36, height: 36, borderRadius: "50%",
               background: t.bg, border: `2px solid ${t.accent}`, boxShadow: `0 0 14px ${t.accentGlow}`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              {i % 2 === 0 ? <IconA size={18} color={t.accent} /> : <IconB size={18} color={t.accent} />}
+              {i % 2 === 0 ? <IconA size={16} color={t.accent} /> : <IconB size={16} color={t.accent} />}
             </div>
-            <div style={{ background: t.bg3, borderRadius: 16, padding: "14px 16px", boxShadow: SHADOW_CARD }}>
-              <div style={{ ...display, fontWeight: 600, fontSize: 22, color: t.accent, lineHeight: 1.1 }}>{it.time}</div>
-              <div style={{ ...bodyB, fontSize: 16, color: t.paper, marginTop: 4 }}>{it.label}</div>
-              {it.desc && <div style={{ ...body, fontSize: 13, color: t.paperMuted, marginTop: 4, lineHeight: 1.5 }}>{it.desc}</div>}
+            <div style={{ background: t.bg3, borderRadius: 14, padding: "9px 14px", boxShadow: SHADOW_CARD, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ ...display, fontWeight: 600, fontSize: 19, color: t.accent, lineHeight: 1.1 }}>{it.time}</div>
+              <div style={{ ...bodyB, fontSize: 15, color: t.paper }}>{it.label}</div>
+              {it.desc && <div style={{ ...body, fontSize: 13, color: t.paperMuted, lineHeight: 1.45, width: "100%" }}>{it.desc}</div>}
             </div>
           </FadeUp>
         ))}
@@ -1052,7 +1008,7 @@ function T25Location({ event }: { event: EventData }) {
         )}
         {mapHref && (
           <div style={{ marginTop: 24 }}>
-            <Btn variant="primary" href={mapHref} icon={<PinIcon size={20} color={t.paper} />} style={{ width: "100%" }}>Google Maps-р харах</Btn>
+            <Btn variant="accent" href={mapHref} icon={<PinIcon size={20} color={t.onAccent} />} style={{ width: "100%" }}>Газрын зурагт нээх</Btn>
           </div>
         )}
       </FadeUp>
@@ -1343,25 +1299,28 @@ export function PrincessBirthday({ event, theme }: { event: EventData; theme: Th
   const introVideo = cfg<string | false | undefined>(event.config, "intro.video", undefined);
   const [started, setStarted] = useState(introVideo === false);
 
+  const playMusic = () => { audioRef.current?.play().catch(() => {}); };
   const start = () => {
     setStarted(true);
-    audioRef.current?.play().catch(() => {});
+    playMusic();
   };
 
-  // Дуу: autoplay хориг тул хэрэглэгчийн анхны хөдөлгөөн дээр асна. Hero гарсан
-  // (started) бөгөөд дуу хараахан тоглоогүй бол — intro-гүй үед эхнээсээ, видео
-  // intro-д видео дууссаны дараа. Дарж нээх intro-д start() gesture дотор play
-  // хийдэг тул paused=false → энд юу ч хийхгүй; хориглогдсон бол fallback болно.
+  // Дуу: autoplay хориг тул хэрэглэгчийн анхны хөдөлгөөн дээр асна. Видео intro-д
+  // видео эхлэхтэй зэрэг (onPlay) тоглуулахыг оролдоно — iframe demo эсвэл өмнө
+  // нь хандсан домэйн дээр шууд асна, хориглогдсон бол видеоны үеэр хийсэн анхны
+  // хүрэлт дээр асна. Intro-гүй үед hero гармагц, дарж нээх intro-д start()
+  // gesture дотор play хийдэг тул paused=false → энд юу ч хийхгүй.
+  const musicWanted = started || typeof introVideo === "string";
   useEffect(() => {
     const a = audioRef.current;
-    if (!started || !event.music_url || !a || !a.paused) return;
+    if (!musicWanted || !event.music_url || !a || !a.paused) return;
     const evs = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
     const tryPlay = () => { a.play().then(stop).catch(() => {}); };
     const stop = () => evs.forEach((e) => window.removeEventListener(e, tryPlay));
     tryPlay();
     evs.forEach((e) => window.addEventListener(e, tryPlay, { passive: true }));
     return stop;
-  }, [started, event.music_url]);
+  }, [musicWanted, event.music_url]);
 
   return (
     <ThemeCtx.Provider value={t}>
@@ -1373,7 +1332,7 @@ export function PrincessBirthday({ event, theme }: { event: EventData; theme: Th
             mascotSide={cfg<"left" | "right">(event.config, "intro.mascotSide", "left")}
             demo={event.id === "demo"} />
         )}
-        {typeof introVideo === "string" && <VideoIntro src={introVideo} onDone={start} />}
+        {typeof introVideo === "string" && <VideoIntro src={introVideo} onDone={start} onPlay={playMusic} />}
         <Particles />
 
         <T25Hero event={event} started={started} />

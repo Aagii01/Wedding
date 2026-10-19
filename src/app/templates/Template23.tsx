@@ -36,7 +36,6 @@ type Theme = {
   corner: "web" | "streaks";
   ring: "web" | "sonic";
   texture: "halftone" | "checker";
-  burst2: string;                                // тоологчийн наалт
   requestText: string;
   requestIcons: { Icon: IconFn; label: string }[];
 };
@@ -81,7 +80,6 @@ const CapeIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size
 const ShieldIcon: IconFn   = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M12 2.5 20 5.5v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10v-6Z" /><path d="M12 7v10M8 12h8" /></>);
 const RingIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size, color, <><circle cx="12" cy="12" r="8" strokeWidth="3.5" /><path d="M7 8.5a6 6 0 0 1 5-2.5" strokeWidth="1.2" opacity=".7" /></>);
 const SneakerIcon: IconFn  = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M3 14v4h18v-3c0-1.5-1.5-2.5-4-3l-3.5-2.5L10 11H5.5C4 11 3 12.3 3 14Z" /><path d="M10.5 11l1 2M12.5 10l1 2M3 15.5h18" /></>);
-const CalendarIcon: IconFn = ({ size = 24, color = "currentColor" }) => ico(size, color, <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>);
 const PinIcon: IconFn      = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12Z" /><circle cx="12" cy="10" r="2.5" /></>);
 const SendIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M21 3 10 14" /><path d="M21 3 14 21l-4-7-7-4Z" /></>);
 const PhoneIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />);
@@ -102,7 +100,6 @@ const THEMES: Record<Theme["key"], Theme> = {
     heading: "#FFC700", headingShadow: "#0F3C8F",   // алтан + гүн хөх сүүдэр (дэвсгэртэй ойр → зөөлөн гүн)
     paper: "#F5F7FF", paperMuted: "#AEBBE0",
     corner: "streaks", ring: "sonic", texture: "checker",
-    burst2: "ХУРДАН!",
     requestText: "Бяцхан баатрууд аа, хамгийн хурдан пүүзээ өмсөөд ирээрэй! Алтан цагираг цуглуулах уралдаан болно.",
     requestIcons: [
       { Icon: RingIcon,    label: "Цагираг" },
@@ -124,7 +121,6 @@ const THEMES: Record<Theme["key"], Theme> = {
     heading: "#F5F1E8", headingShadow: "#2B3784",
     paper: "#F5F1E8", paperMuted: "#B4BCCD",
     corner: "web", ring: "web", texture: "halftone",
-    burst2: "ХӨӨХ!",
     requestText: "Бяцхан баатрууд аа, дуртай баатрынхаа хувцсыг өмсөөд ирээрэй! Баг, нөмрөг, бамбай — юу ч болно.",
     requestIcons: [
       { Icon: MaskIcon,   label: "Баг" },
@@ -321,35 +317,6 @@ function SectionEdge() {
         {t.ring === "sonic" ? <RingIcon size={14} color={t.accent} /> : <StarIcon size={14} color={t.accent} />}
       </div>
       <div style={side("right")} />
-    </div>
-  );
-}
-
-// 12 үзүүртэй од — стикер
-function Burst({ text, variant = "primary", size = 84, style = {} }: {
-  text: string; variant?: "primary" | "accent"; size?: number; style?: React.CSSProperties;
-}) {
-  const t = useT();
-  const pts: string[] = [];
-  for (let i = 0; i < 24; i++) {
-    const r = i % 2 === 0 ? 48 : 36;
-    const a = (i / 24) * Math.PI * 2 - Math.PI / 2;
-    pts.push(`${(50 + r * Math.cos(a)).toFixed(1)},${(50 + r * Math.sin(a)).toFixed(1)}`);
-  }
-  const fill   = variant === "primary" ? t.primary : t.accent;
-  const stroke = variant === "primary" ? t.accent : t.primaryDeep;
-  const color  = variant === "primary" ? t.paper : t.onAccent;
-  const fontSize = text.length > 4 ? 18 : 24;
-  return (
-    <div aria-hidden="true" style={{ position: "absolute", width: size, height: size, pointerEvents: "none", ...style }}>
-      <svg width={size} height={size} viewBox="0 0 100 100" style={{ display: "block" }}>
-        <polygon points={pts.join(" ")} fill={fill} stroke={stroke} strokeWidth="3" strokeLinejoin="round" />
-        <text x="50" y="50" textAnchor="middle" dominantBaseline="central"
-          fontFamily="'Oswald', 'PT Sans', sans-serif" fontWeight="700" fontSize={fontSize} fill={color}
-          transform="rotate(-8 50 50)">
-          {text}
-        </text>
-      </svg>
     </div>
   );
 }
@@ -583,24 +550,6 @@ function fmtPhone(p: string) {
   const digits = p.replace(/\D/g, "");
   return digits.length === 8 ? digits.slice(0, 4) + " " + digits.slice(4) : p;
 }
-// Google Calendar template холбоос — баяр 3 цаг үргэлжилнэ гэж тооцно
-function calendarUrl(event: EventData, title: string) {
-  const [y, m, d] = (event.date || "").split("-").map(Number);
-  const [hh, mm] = (event.time || "15:00").split(":").map(Number);
-  if (!y || !m || !d) return "";
-  const start = new Date(y, m - 1, d, hh, mm);
-  const end   = new Date(start.getTime() + 3 * 3600000);
-  const f = (x: Date) =>
-    `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, "0")}${String(x.getDate()).padStart(2, "0")}T` +
-    `${String(x.getHours()).padStart(2, "0")}${String(x.getMinutes()).padStart(2, "0")}00`;
-  const q = new URLSearchParams({
-    action: "TEMPLATE", text: title, dates: `${f(start)}/${f(end)}`,
-    location: [event.venue_name, event.venue_address].filter(Boolean).join(", "),
-    ctz: "Asia/Ulaanbaatar",
-  });
-  return "https://calendar.google.com/calendar/render?" + q.toString();
-}
-
 // ─── Intro: дарж нээх ────────────────────────────────────────────────────────
 function TapIntro({ onOpen, mascot, mascotSide = "left", demo = false }: {
   onOpen: () => void; mascot?: string | null; mascotSide?: "left" | "right"; demo?: boolean;
@@ -643,7 +592,7 @@ function TapIntro({ onOpen, mascot, mascotSide = "left", demo = false }: {
 }
 
 // ─── Intro: видео (config.intro.video өгсөн үед) ─────────────────────────────
-function VideoIntro({ src, onDone }: { src: string; onDone: () => void }) {
+function VideoIntro({ src, onDone, onPlay }: { src: string; onDone: () => void; onPlay?: () => void }) {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -657,15 +606,13 @@ function VideoIntro({ src, onDone }: { src: string; onDone: () => void }) {
   return (
     <motion.div initial={{ opacity: 1 }} animate={{ opacity: exiting ? 0 : 1 }} transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
       style={{ position: "fixed", inset: 0, background: "#000", zIndex: 9999, overflow: "hidden", pointerEvents: exiting ? "none" : "auto" }}>
-      <video ref={videoRef} src={src} autoPlay muted playsInline preload="auto" onEnded={handleEnded} onError={handleEnded}
+      <video ref={videoRef} src={src} autoPlay muted playsInline preload="auto" onPlay={onPlay} onEnded={handleEnded} onError={handleEnded}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
     </motion.div>
   );
 }
 
 // ─── Hero ────────────────────────────────────────────────────────────────────
-const SHIELD_PATH = "M50 2 L96 15 V58 C96 88 76 108 50 118 C24 108 4 88 4 58 V15 Z";
-
 function T23Hero({ event, started }: { event: EventData; started: boolean }) {
   const t = useT();
   const name    = givenName(cfg(event.config, "hero.name", event.person1_name || "Бяцхан баатар"));
@@ -692,7 +639,7 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
     <header style={{
       minHeight: "100svh", background: t.bg, position: "relative", overflow: "hidden",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: "56px 16px 72px", boxSizing: "border-box", textAlign: "center",
+      padding: "48px 12px 72px", boxSizing: "border-box", textAlign: "center",
     }}>
       <Texture />
       <SpeedLines />
@@ -715,26 +662,20 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
         {name}
       </motion.h1>
 
-      {/* Том бамбай хэлбэртэй зураг — hero-гийн бүх өргөн (max 340, өндөр ~410);
-          эргэдэг цагираггүй, баруун доод буланд хөдөлгөөнгүй насны тэмдэг */}
+      {/* Том шулуун зураг — бусад урилгын адил, hero-гийн бүх өргөн (max 380, 4:5);
+          баруун доод буланд хөдөлгөөнгүй насны тэмдэг */}
       <motion.div
         initial={{ opacity: 0, scale: 0.94 }}
         animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.94 }}
         transition={{ duration: 1.1, delay: 0.5, ease: "easeOut" }}
-        style={{ position: "relative", width: "100%", maxWidth: 340, marginTop: 18, marginBottom: 8, zIndex: 2 }}
+        style={{ position: "relative", width: "100%", maxWidth: 380, marginTop: 14, marginBottom: 8, zIndex: 2 }}
       >
-        <svg width="100%" viewBox="0 0 100 120" aria-hidden={!photo}
-          style={{ display: "block", overflow: "visible", filter: `drop-shadow(0 0 22px ${t.accentGlow})` }}>
-          <defs><clipPath id="t23shield"><path d={SHIELD_PATH} /></clipPath></defs>
-          <path d={SHIELD_PATH} fill={t.bg3} />
-          {photo ? (
-            <image href={photo} x="0" y="0" width="100" height="120" preserveAspectRatio="xMidYMid slice" clipPath="url(#t23shield)" />
-          ) : (
-            <text x="50" y="66" textAnchor="middle" fontFamily="'Oswald', sans-serif" fontWeight="600" fontSize="9" letterSpacing="1.5" fill={t.paperMuted}>ЗУРАГ</text>
-          )}
-          <path d={SHIELD_PATH} fill="none" stroke={t.accent} strokeWidth="3.2" />
-          <path d="M50 6 L92 18 V58 C92 85 74 104 50 113.5 C26 104 8 85 8 58 V18 Z" fill="none" stroke={t.accentLight} strokeWidth="0.8" opacity="0.8" />
-        </svg>
+        <div style={{
+          aspectRatio: "4 / 5", borderRadius: 16, overflow: "hidden", background: t.bg3,
+          border: `3px solid ${t.accent}`, boxShadow: `0 0 0 1px ${t.accentLight}66, 0 0 26px ${t.accentGlow}, 0 16px 32px rgba(4,7,15,.55)`,
+        }}>
+          <Photo src={photo || undefined} alt={name} />
+        </div>
 
         {age !== null && age !== "" && (
           <div style={{
@@ -750,14 +691,6 @@ function T23Hero({ event, started }: { event: EventData; started: boolean }) {
             </div>
           </div>
         )}
-      </motion.div>
-
-      <motion.div {...show(0.9)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 10, position: "relative", zIndex: 2, width: "100%", maxWidth: 358 }}>
-        <div style={{ width: 28, height: 1.5, background: t.accent, flexShrink: 0 }} />
-        <div style={{ ...display, fontWeight: 600, fontSize: 22, color: t.accent, lineHeight: 1.2 }}>
-          {fmtDate(event.date)}{event.time ? ` · ${event.time}` : ""}
-        </div>
-        <div style={{ width: 28, height: 1.5, background: t.accent, flexShrink: 0 }} />
       </motion.div>
 
       <motion.button type="button" onClick={scrollNext} aria-label="Доош гүйлгэх"
@@ -803,7 +736,7 @@ function T23Letter({ event }: { event: EventData }) {
 }
 
 // ─── Цомог ───────────────────────────────────────────────────────────────────
-const CARD_W = 210, CARD_GAP = 16;
+const CARD_W = 256, CARD_GAP = 16;
 
 function T23Gallery({ event }: { event: EventData }) {
   const t = useT();
@@ -843,7 +776,7 @@ function T23Gallery({ event }: { event: EventData }) {
               outline: isActive ? `3px solid ${t.accent}` : "none", outlineOffset: 0,
               transition: "box-shadow .3s, outline-color .3s",
             }}>
-              <div style={{ border: `3px solid ${t.bg}`, aspectRatio: "4 / 5", overflow: "hidden", background: t.bg3 }}>
+              <div style={{ border: `3px solid ${t.bg}`, aspectRatio: "3 / 4", overflow: "hidden", background: t.bg3 }}>
                 <Photo src={src} alt={`Зураг ${i + 1}`} />
               </div>
               {isActive && captions[i % captions.length] && (
@@ -889,19 +822,23 @@ function T23Countdown({ event }: { event: EventData }) {
 
   const pad = (n: number) => String(n).padStart(2, "0");
   const units = [{ v: c.d, l: "Өдөр" }, { v: c.h, l: "Цаг" }, { v: c.m, l: "Минут" }, { v: c.s, l: "Секунд" }];
-  const name   = givenName(cfg(event.config, "hero.name", event.person1_name || "Бяцхан баатар"));
-  const calUrl = calendarUrl(event, `${name} — төрсөн өдөр`);
 
   return (
     <Section>
       <SpeedLines />
       <FadeUp style={{ position: "relative" }}>
-        <div style={{ position: "relative" }}>
-          <Heading>Баяр эхлэхэд</Heading>
-          <Burst text={t.burst2} variant="accent" size={72} style={{ right: 0, top: -40, transform: "rotate(12deg)" }} />
+        <Heading>Баяр эхлэхэд</Heading>
+
+        {/* Огноо, цаг — зөвхөн энд (нүүр хэсэгт давтахгүй) */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 18 }}>
+          <div style={{ width: 28, height: 1.5, background: t.accent, flexShrink: 0 }} />
+          <div style={{ ...display, fontWeight: 600, fontSize: 22, color: t.accent, lineHeight: 1.2, textAlign: "center" }}>
+            {fmtDate(event.date)}{event.time ? ` · ${event.time}` : ""}
+          </div>
+          <div style={{ width: 28, height: 1.5, background: t.accent, flexShrink: 0 }} />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 36 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 24 }}>
           {units.map((u) => (
             <div key={u.l} style={{
               background: t.bg2, border: `1.5px solid ${t.accent}`, borderRadius: 8,
@@ -910,19 +847,13 @@ function T23Countdown({ event }: { event: EventData }) {
             }}>
               <span aria-hidden="true" style={{ position: "absolute", top: 4, left: 4, width: 12, height: 12, borderTop: `3px solid ${t.accentLight}`, borderLeft: `3px solid ${t.accentLight}` }} />
               <span aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1, background: "rgba(255,255,255,.07)" }} />
-              <div style={{ ...display, fontWeight: 600, fontSize: 40, lineHeight: 1, color: t.hot, fontVariantNumeric: "tabular-nums", textShadow: `0 0 14px ${t.hotGlow}, 0 0 4px ${t.hot}` }}>
+              <div style={{ ...display, fontWeight: 600, fontSize: 40, lineHeight: 1, color: t.paper, fontVariantNumeric: "tabular-nums", textShadow: `0 0 14px ${t.accentGlow}` }}>
                 {pad(u.v)}
               </div>
               <div style={{ ...bodyB, fontSize: 12, textTransform: "uppercase", color: t.paperMuted, marginTop: 8, letterSpacing: "0.06em" }}>{u.l}</div>
             </div>
           ))}
         </div>
-
-        {calUrl && (
-          <div style={{ marginTop: 28, display: "flex", justifyContent: "center" }}>
-            <Btn variant="hot" href={calUrl} icon={<CalendarIcon size={20} color={t.hot} />}>Календарьт нэмэх</Btn>
-          </div>
-        )}
       </FadeUp>
     </Section>
   );
@@ -947,22 +878,22 @@ function T23Schedule({ event }: { event: EventData }) {
   return (
     <Section>
       <FadeUp><Heading>Хөтөлбөр</Heading></FadeUp>
-      <div ref={ref} style={{ position: "relative", marginTop: 36, paddingLeft: 56 }}>
-        <div aria-hidden="true" style={{ position: "absolute", left: 19, top: 20, bottom: 20, width: 2, backgroundImage: `repeating-linear-gradient(to bottom, ${t.line} 0 6px, transparent 6px 12px)` }} />
-        <motion.div aria-hidden="true" style={{ position: "absolute", left: 19, top: 20, width: 2, height: spine, maxHeight: "calc(100% - 40px)", backgroundImage: `repeating-linear-gradient(to bottom, ${t.accent} 0 6px, transparent 6px 12px)` }} />
+      <div ref={ref} style={{ position: "relative", marginTop: 28, paddingLeft: 52 }}>
+        <div aria-hidden="true" style={{ position: "absolute", left: 17, top: 18, bottom: 18, width: 2, backgroundImage: `repeating-linear-gradient(to bottom, ${t.line} 0 6px, transparent 6px 12px)` }} />
+        <motion.div aria-hidden="true" style={{ position: "absolute", left: 17, top: 18, width: 2, height: spine, maxHeight: "calc(100% - 36px)", backgroundImage: `repeating-linear-gradient(to bottom, ${t.accent} 0 6px, transparent 6px 12px)` }} />
         {items.map((it, i) => (
-          <FadeUp key={i} delay={i * 0.1} style={{ position: "relative", marginBottom: 16 }}>
+          <FadeUp key={i} delay={i * 0.1} style={{ position: "relative", marginBottom: 10 }}>
             <div style={{
-              position: "absolute", left: -56, top: 10, width: 40, height: 40, borderRadius: "50%",
+              position: "absolute", left: -52, top: 6, width: 36, height: 36, borderRadius: "50%",
               background: t.bg, border: `2px solid ${t.accent}`, boxShadow: `0 0 14px ${t.accentGlow}`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              {i % 2 === 0 ? <StarIcon size={18} color={t.accent} /> : <GearIcon size={18} color={t.accent} />}
+              {i % 2 === 0 ? <StarIcon size={16} color={t.accent} /> : <GearIcon size={16} color={t.accent} />}
             </div>
-            <div style={{ background: t.bg3, borderRadius: 14, padding: "14px 16px", boxShadow: SHADOW_CARD }}>
-              <div style={{ ...display, fontWeight: 600, fontSize: 22, color: t.accent, lineHeight: 1.1 }}>{it.time}</div>
-              <div style={{ ...bodyB, fontSize: 16, color: t.paper, marginTop: 4 }}>{it.label}</div>
-              {it.desc && <div style={{ ...body, fontSize: 13, color: t.paperMuted, marginTop: 4, lineHeight: 1.5 }}>{it.desc}</div>}
+            <div style={{ background: t.bg3, borderRadius: 12, padding: "9px 14px", boxShadow: SHADOW_CARD, display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ ...display, fontWeight: 600, fontSize: 19, color: t.accent, lineHeight: 1.1 }}>{it.time}</div>
+              <div style={{ ...bodyB, fontSize: 15, color: t.paper }}>{it.label}</div>
+              {it.desc && <div style={{ ...body, fontSize: 13, color: t.paperMuted, lineHeight: 1.45, width: "100%" }}>{it.desc}</div>}
             </div>
           </FadeUp>
         ))}
@@ -1008,7 +939,7 @@ function T23Location({ event }: { event: EventData }) {
         )}
         {mapHref && (
           <div style={{ marginTop: 24 }}>
-            <Btn variant="primary" href={mapHref} icon={<PinIcon size={20} color={t.paper} />} style={{ width: "100%" }}>Google Maps-р харах</Btn>
+            <Btn variant="accent" href={mapHref} icon={<PinIcon size={20} color={t.onAccent} />} style={{ width: "100%" }}>Газрын зурагт нээх</Btn>
           </div>
         )}
       </FadeUp>
@@ -1295,25 +1226,28 @@ export function HeroBirthday({ event, theme }: { event: EventData; theme: Theme[
   const introVideo = cfg<string | false | undefined>(event.config, "intro.video", undefined);
   const [started, setStarted] = useState(introVideo === false);
 
+  const playMusic = () => { audioRef.current?.play().catch(() => {}); };
   const start = () => {
     setStarted(true);
-    audioRef.current?.play().catch(() => {});
+    playMusic();
   };
 
-  // Дуу: autoplay хориг тул хэрэглэгчийн анхны хөдөлгөөн дээр асна. Hero гарсан
-  // (started) бөгөөд дуу хараахан тоглоогүй бол — intro-гүй үед эхнээсээ, видео
-  // intro-д видео дууссаны дараа. Дарж нээх intro-д start() gesture дотор play
-  // хийдэг тул paused=false → энд юу ч хийхгүй; хориглогдсон бол fallback болно.
+  // Дуу: autoplay хориг тул хэрэглэгчийн анхны хөдөлгөөн дээр асна. Видео intro-д
+  // видео эхлэхтэй зэрэг (onPlay) тоглуулахыг оролдоно — iframe demo эсвэл өмнө
+  // нь хандсан домэйн дээр шууд асна, хориглогдсон бол видеоны үеэр хийсэн анхны
+  // хүрэлт дээр асна. Intro-гүй үед hero гармагц, дарж нээх intro-д start()
+  // gesture дотор play хийдэг тул paused=false → энд юу ч хийхгүй.
+  const musicWanted = started || typeof introVideo === "string";
   useEffect(() => {
     const a = audioRef.current;
-    if (!started || !event.music_url || !a || !a.paused) return;
+    if (!musicWanted || !event.music_url || !a || !a.paused) return;
     const evs = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
     const tryPlay = () => { a.play().then(stop).catch(() => {}); };
     const stop = () => evs.forEach((e) => window.removeEventListener(e, tryPlay));
     tryPlay();
     evs.forEach((e) => window.addEventListener(e, tryPlay, { passive: true }));
     return stop;
-  }, [started, event.music_url]);
+  }, [musicWanted, event.music_url]);
 
   return (
     <ThemeCtx.Provider value={t}>
@@ -1325,7 +1259,7 @@ export function HeroBirthday({ event, theme }: { event: EventData; theme: Theme[
             mascotSide={cfg<"left" | "right">(event.config, "intro.mascotSide", "left")}
             demo={event.id === "demo"} />
         )}
-        {typeof introVideo === "string" && <VideoIntro src={introVideo} onDone={start} />}
+        {typeof introVideo === "string" && <VideoIntro src={introVideo} onDone={start} onPlay={playMusic} />}
         <Sparks />
 
         <T23Hero event={event} started={started} />
