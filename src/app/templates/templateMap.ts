@@ -26,6 +26,11 @@ import Template26 from "./Template26";
 // дарж нээх intro байхгүй, бүх тохиргоо events.config-оос
 import Template27 from "./Template27";
 import Template28 from "./Template28";
+// Нярай хүүхдийн усны найрын урилга — нэг бүтэц, хоёр theme (Template29.tsx):
+// 29 = Хүү (тэнгэрийн цэнхэр), 30 = Охин (ягаан). Зөөлөн пастель, дүүжин тоглоом,
+// хөвөх хөөс, нэр/төрсөн огноо/жин/өндөр, бэлгийн данс (сонголтоор), бүгд config-оос
+import Template29 from "./Template29";
+import Template30 from "./Template30";
 
 // Жагсаалтад байхгүй template утгатай (жишээ нь өмнө устгасан 15-18, 20)
 // хуучин event-үүд EventPage дээр App (Template11) руу fallback хийнэ.
@@ -43,4 +48,6 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "26": Template26,
   "27": Template27,
   "28": Template28,
+  "29": Template29,
+  "30": Template30,
 };

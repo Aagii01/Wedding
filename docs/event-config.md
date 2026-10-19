@@ -394,6 +394,55 @@ update events set template = '27', config = '{
 }'::jsonb where slug = 'batbayar-medal';
 ```
 
+## ✅ Template29 / 30 — нярай хүүхдийн усны найрын урилга (Хүү / Охин) — бүгд config-оос
+
+Нэг бүтэц (`Template29.tsx` → `BabyCelebration`), хоёр theme:
+- **29 = Хүү (sky)** — тэнгэрийн цэнхэр #7FB7E6, гаа ногоон, зөөлөн шар од; наалт "Хүү!"
+- **30 = Охин (blush)** — ягаан #F3A6B8, тоор, зөөлөн алт; наалт "Охин!"
+
+Зөөлөн пастель, цайвар дэвсгэр (залуу эцэг эхээс эмээ өвөө хүртэл уншихад амар). Мотив: ор дээрх
+дүүжин тоглоом (од, үүл, сар, зүрх — найгана), дээш хөвөх хөөс, долгион хэлбэрийн хэсгийн зааг
+(хэсгүүд цайвар/зөөлөн өнгөөр ээлжилнэ), үүл хэлбэрийн хүрээтэй зураг. Фонт: Cormorant Garamond
+italic (нэр, гарчиг), Caveat гар бичмэл (тайлбар, ерөөлийн нэр), PT Sans бичвэр.
+Intro: дарж нээх (T23/25 шиг), `intro.video` → видео, `false` → intro-гүй.
+
+| Түлхүүр | Төрөл | Үндсэн утга | Тайлбар |
+|---|---|---|---|
+| `theme` | "sky" / "blush" | template-ээр | |
+| `baby.name` | string | `events.title` (demo: Тэмүүлэн / Номин) | **Хүүхдийн нэр** — title-д бичих эсвэл энд |
+| `baby.born` | "YYYY-MM-DD" | — | Төрсөн огноо chip ("2026 оны 7 сарын 12") |
+| `baby.weight` | string | — | "3.4 кг" chip |
+| `baby.height` | string | — | "52 см" chip |
+| `parents.father` / `parents.mother` | string | `person1_name` / `person2_name` | "Аав: … · Ээж: …" мөр |
+| `parents.show` | false | true | Эцэг эхийн мөр нуух |
+| `hero.eyebrow` | string | "Усны найрын урилга" | Гар бичмэл дээд мөр |
+| `hero.tagline` | string / false | "Бяцхан хүү/охин маань мэндэллээ" | Зургийн доорх гар бичмэл; `false` → алга |
+| `hero.badge` | string / false | "Хүү!" / "Охин!" | Зургийн буланд наалт; `false` → алга |
+| `hero.photo` | string | `main_image` → `person1_photo` | Үүл хэлбэрийн дугуй хүрээнд (нярайн зураг) |
+| `hero.mascot`, `hero.mascotSide`, `intro.mascot`, `intro.mascotSide` | | | T23-тай ижил; demo-д баавгайн силуэт placeholder |
+| `intro.video` | string / false | — (дарж нээх) | |
+| `gallery.title` | string | "Бяцхан үрийн цомог" | Зураг `gallery2_photos` (carousel) |
+| `gallery.captions` | string[] / false | 8 бичиг | Идэвхтэй картын доорх гар бичмэл |
+| `sections.timer/schedule/gift/wishes/rsvp` | false | true | Хэсэг нуух (`gift` нь `gift.account` байхгүй бол угаасаа нуугдана) |
+| `gift.account` | string | — | **Өгвөл "Бэлэг" хэсэг гарна** — дансны дугаар том + "Хуулах" товч (clipboard) |
+| `gift.bank` / `gift.holder` | string | — | Банкны нэр / данс эзэмшигч |
+| `gift.title` / `gift.note` | string | "Бэлэг" / "Та бүхний ерөөл бидэнд хамгийн үнэтэй бэлэг…" | |
+| `rsvp.maxGuests` / `rsvp.note` | | 10 / "Найрын өдрөөс өмнө бүртгүүлнэ үү" | |
+| `footer.title` | string | "Та бүхнийг хүлээж байна" | |
+| `footer.lines` / `footer.phones` | string[] | [] | "Аав, ээж: …" мөрүүд; pill товч |
+| `footer.image` | string | `gallery_photos[0]` | Footer-ийн дугуй зураг |
+
+Урилгын үг → `events.poem` (үндсэн: "Бяцхан үрийнхээ усны найрыг … урьж байна!"),
+хөтөлбөр → `events.schedule` (үндсэн: угтах → ерөөл, мэндчилгээ → зоог). Ерөөл `wishes`, ирц `rsvp`.
+
+```sql
+update events set template = '29', title = 'Тэмүүлэн', config = '{
+  "baby":    { "born": "2026-07-12", "weight": "3.4 кг", "height": "52 см" },
+  "gift":    { "bank": "Хаан банк", "account": "5012 3456 7890", "holder": "Б. Болд" },
+  "footer":  { "lines": ["Аав, ээж: Болд, Сарнай"], "phones": ["99001122"] }
+}'::jsonb where slug = 'temuulen-usnii-nair';
+```
+
 ## ⬜ TODO — үлдсэн загварууд
 
 Template 12 / 19 / 21 холбогдоогүй (T13-ийн footer + section 5 түлхүүр л хийгдсэн).

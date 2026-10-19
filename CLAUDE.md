@@ -108,6 +108,9 @@ src/app/templates/
   `PrincessBirthday` + theme объект, Playfair Display фонт, section/config нь T23-тай ижил
   `"27"` (Бордо-алт) ба `"28"` (Хөх-алт) — шагналын баярын урилга, 40+ үзэгч, нэг бүтэц `Template27.tsx`-ийн
   `AwardCeremony` + theme, цайвар ivory, PT Serif том бичиг, "Том үсэг" товч, intro-гүй, бүгд config-оос
+  `"29"` (Хүү) ба `"30"` (Охин) — нярай хүүхдийн усны найрын урилга, нэг бүтэц `Template29.tsx`-ийн
+  `BabyCelebration` + theme, зөөлөн пастель, дүүжин тоглоом, хөвөх хөөс, нэр/төрсөн огноо/жин/өндөр,
+  бэлгийн данс (сонголтоор), бүгд config-оос
 - Шинэ template нэмэхдээ: шинэ файл үүсгэх + `templateMap.ts`-д key нэмэх (LandingPage-ийн demo-д автоматаар орно)
 
 ### Template 11 (src/app/App.tsx) — "Classic"
