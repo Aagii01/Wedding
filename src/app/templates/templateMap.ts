@@ -21,6 +21,11 @@ import Template24 from "./Template24";
 // Playfair Display фонт, дарж нээх intro, бүх тохиргоо events.config-оос
 import Template25 from "./Template25";
 import Template26 from "./Template26";
+// Шагналын баярын (хүндэтгэлийн) урилга, 40+ үзэгч — нэг бүтэц, хоёр theme (Template27.tsx):
+// 27 = Бордо-алт, 28 = Хөх-алт. Цайвар ivory, PT Serif том бичиг, "Том үсэг" товч,
+// дарж нээх intro байхгүй, бүх тохиргоо events.config-оос
+import Template27 from "./Template27";
+import Template28 from "./Template28";
 
 // Жагсаалтад байхгүй template утгатай (жишээ нь өмнө устгасан 15-18, 20)
 // хуучин event-үүд EventPage дээр App (Template11) руу fallback хийнэ.
@@ -36,4 +41,6 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "24": Template24,
   "25": Template25,
   "26": Template26,
+  "27": Template27,
+  "28": Template28,
 };
