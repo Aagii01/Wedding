@@ -109,7 +109,7 @@ const THEMES: Record<Theme["key"], Theme> = {
       { Icon: DressIcon,     label: "Даашинз" },
       { Icon: WandIcon,      label: "Саваа" },
     ],
-    captions: ["Бяцхан гүнж", "Анхны инээмсэглэл", "Ид шидийн өдөр", "Мөсөн ордон", "Хамгийн сайхан өдөр", "Дурсамж", "Хамтдаа", "Гялалзсан мөч"],
+    captions: ["Бяцхан гүнжийн өдрүүд", "Инээмсэглэл нь гэрэл", "Ид шидээр дүүрэн ертөнц", "Мөсөн ордны гүнж", "Зөөлөн, цовоо, хөөрхөн", "Хамгийн хайртай мөч", "Өдөр бүр шинэ гайхамшиг", "Аав ээжийн бахархал"],
     scheduleIcons: [SnowflakeIcon, SparkleIcon],
   },
   sun: {
@@ -130,7 +130,7 @@ const THEMES: Record<Theme["key"], Theme> = {
       { Icon: FlowerIcon,  label: "Цэцэг" },
       { Icon: CrownIcon,   label: "Титэм" },
     ],
-    captions: ["Бяцхан гүнж", "Анхны инээмсэглэл", "Гэрэлт өдөр", "Алтан дэнлүү", "Хамгийн сайхан өдөр", "Дурсамж", "Хамтдаа", "Нарны мөч"],
+    captions: ["Бяцхан гүнжийн өдрүүд", "Инээмсэглэл нь нар", "Гэрлээр дүүрэн ертөнц", "Алтан дэнлүүний гүнж", "Зөөлөн, цовоо, хөөрхөн", "Хамгийн хайртай мөч", "Өдөр бүр шинэ гайхамшиг", "Аав ээжийн бахархал"],
     scheduleIcons: [SunIcon, LanternIcon],
   },
 };
@@ -1218,7 +1218,8 @@ function T25Footer({ event }: { event: EventData }) {
   const title  = cfg(event.config, "footer.title", "Таньтай уулзахыг тэсэн ядан хүлээж байна");
   const lines  = cfg<string[]>(event.config, "footer.lines", []);
   const phones = cfg<string[]>(event.config, "footer.phones", []);
-  const img    = cfg<string | null>(event.config, "footer.image", null) || event.gallery_photos?.[0] || event.main_image;
+  // Footer зураг: config → цомгийн (carousel) эхний зураг → gallery_photos[0] → нүүр зураг
+  const img    = cfg<string | null>(event.config, "footer.image", null) || event.gallery2_photos?.[0] || event.gallery_photos?.[0] || event.main_image;
 
   return (
     <footer style={{ background: t.bg, position: "relative" }}>

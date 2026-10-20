@@ -58,9 +58,10 @@ const FALLBACK_PHOTOS = [
   "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=800",
 ];
 
+// Цомгийн карт бүрийн доорх бичиг — утга агуулгатай, дулаан (config.gallery.captions-оор солигдоно)
 const DEFAULT_CAPTIONS = [
-  "Бяцхан баатар", "Анхны инээмсэглэл", "Адал явдал", "Хамгийн сайхан өдөр",
-  "Баатрын сорил", "Тоглоомын цаг", "Дурсамж", "Хамтдаа",
+  "Бяцхан баатрын өдрүүд", "Инээд хөөрөөр дүүрэн", "Ертөнцийг нээж буй нь", "Адал явдал хайж буй нь",
+  "Зоригтой, цовоо, хөөрхөн", "Хамгийн хайртай мөч", "Өдөр бүр шинэ сорил", "Аав ээжийн бахархал",
 ];
 
 // ─── Icons (inline SVG, 24×24, currentColor) ────────────────────────────────
@@ -1146,7 +1147,8 @@ function T23Footer({ event }: { event: EventData }) {
   const title  = cfg(event.config, "footer.title", "Таньтай уулзахыг тэсэн ядан хүлээж байна");
   const lines  = cfg<string[]>(event.config, "footer.lines", []);
   const phones = cfg<string[]>(event.config, "footer.phones", []);
-  const img    = cfg<string | null>(event.config, "footer.image", null) || event.gallery_photos?.[0] || event.main_image;
+  // Footer зураг: config → цомгийн (carousel) эхний зураг → gallery_photos[0] → нүүр зураг
+  const img    = cfg<string | null>(event.config, "footer.image", null) || event.gallery2_photos?.[0] || event.gallery_photos?.[0] || event.main_image;
 
   return (
     <footer style={{ background: t.bg, position: "relative" }}>
