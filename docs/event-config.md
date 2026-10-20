@@ -370,8 +370,8 @@ Playfair Display налуу биш гарчиг, хөдөлгөөн зөвхөн
 | `career.title` | string | "Ажлын замнал" | |
 | `career.items` | `[{year, text}]` | demo-д 4 жишээ, бусдад хоосон → хэсэг нуугдана | Он → үйл явдлын timeline |
 | `gallery.title` | string | "Дурсамжийн зургууд" | Зураг `gallery_photos` (≤6, 2 багана), хоосон бол нуугдана |
-| `sections.career/gallery/schedule/rsvp` | false | true | Хэсэг нуух |
-| `sections.wishes` | true | **false** | Мэндчилгээ хэсэг асаах (одоогоор анхдагчаар нуугдсан) |
+| `sections.career/gallery/schedule/wishes/rsvp` | false | true | Хэсэг нуух |
+| `wishes.showList` | true | **false** | Ирсэн мэндчилгээний жагсаалтыг харуулах (form үргэлж байна; жагсаалт анхдагчаар нуугдсан) |
 | `sections.timer` | false | true | "Хэзээ" хэсэг (огноо, цаг + тоологч, байршлын дээр) нуух |
 | `rsvp.maxGuests` | number | 10 | |
 | `rsvp.note` | string | "Ирцээ урьдчилан мэдэгдэнэ үү" | |

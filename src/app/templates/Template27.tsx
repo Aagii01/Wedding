@@ -740,8 +740,11 @@ function T27When({ event }: { event: EventData }) {
 }
 
 // ─── Мэндчилгээ ──────────────────────────────────────────────────────────────
-function T27Wishes({ eventId }: { eventId: string }) {
+function T27Wishes({ event }: { event: EventData }) {
   const t = useT();
+  const eventId = event.id;
+  // Ирсэн мэндчилгээний жагсаалт одоогоор нуугдсан — wishes.showList: true → гарна
+  const showList = cfg(event.config, "wishes.showList", false) === true;
   const [name, setName]       = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
@@ -781,7 +784,7 @@ function T27Wishes({ eventId }: { eventId: string }) {
           </Btn>
         </div>
       </FadeUp>
-      {wishes.length > 0 && (
+      {showList && wishes.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 32 }}>
           {wishes.map((w, i) => (
             <FadeUp key={i} delay={Math.min(i, 4) * 0.06}>
@@ -998,8 +1001,7 @@ export function AwardCeremony({ event, theme }: { event: EventData; theme: Theme
         {sectionOn(event.config, "schedule") && <T27Schedule event={event} />}
         {sectionOn(event.config, "timer") && <T27When event={event} />}
         <T27Location event={event} />
-        {/* Мэндчилгээ одоогоор анхдагчаар нуугдсан — sections.wishes: true → гарна */}
-        {sectionOn(event.config, "wishes", false) && <T27Wishes eventId={event.id} />}
+        {sectionOn(event.config, "wishes") && <T27Wishes event={event} />}
         {sectionOn(event.config, "rsvp") && <T27RSVP event={event} />}
         <T27Footer event={event} />
 
