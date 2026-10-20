@@ -373,7 +373,6 @@ Playfair Display налуу биш гарчиг, хөдөлгөөн зөвхөн
 | `sections.career/gallery/schedule/rsvp` | false | true | Хэсэг нуух |
 | `sections.wishes` | true | **false** | Мэндчилгээ хэсэг асаах (одоогоор анхдагчаар нуугдсан) |
 | `sections.timer` | false | true | "Хэзээ" хэсэг (огноо, цаг + тоологч, байршлын дээр) нуух |
-| `rsvp.phones` | string[] | `footer.phones` | Ирцийн доорх "Эсвэл утсаар мэдэгдэнэ үү" pill (hero-д товч байхгүй) |
 | `rsvp.maxGuests` | number | 10 | |
 | `rsvp.note` | string | "Ирцээ урьдчилан мэдэгдэнэ үү" | |
 | `ui.bigText` | true | false | Эхнээсээ том үсгээр нээгдэнэ |

@@ -357,10 +357,6 @@ function fmtPhone(p: string) {
   const digits = p.replace(/\D/g, "");
   return digits.length === 8 ? digits.slice(0, 4) + " " + digits.slice(4) : p;
 }
-// Утас: rsvp.phones → footer.phones (demo-д "Залгах" товчийг үзүүлэх жишээ дугаар)
-const phonesOf = (event: EventData) =>
-  cfg<string[]>(event.config, "rsvp.phones",
-    cfg<string[]>(event.config, "footer.phones", event.id === "demo" ? ["99001122"] : [])).filter(Boolean);
 
 // ─── Demo агуулга ────────────────────────────────────────────────────────────
 // Demo зураг — Supabase `medal` bucket (жинхэнэ урилгад hero.photo / person1_photo /
@@ -540,13 +536,15 @@ function T27Career({ event }: { event: EventData }) {
   );
 }
 
-// ─── Цомог — энгийн 2 баганат grid; дарахад бүтэн дэлгэцээр томорно (lightbox) ─
+// ─── Цомог — bento grid (T11 шиг): өргөн зураг бүх өргөнөөр; дарахад томорно (lightbox)
 function T27Gallery({ event }: { event: EventData }) {
   const t = useT();
   const title  = cfg(event.config, "gallery.title", "Дурсамжийн зургууд");
   const photos = (event.id === "demo" ? DEMO_PHOTOS.gallery : event.gallery_photos || []).filter(Boolean).slice(0, 6);
   const n = photos.length;
   const [open, setOpen] = useState<number | null>(null);
+  // Bento (T11 шиг): сондгой тоотой бол эхний зураг бүх өргөнөөр (16:10), бусад нь
+  // 2 баганад дөрвөлжин
   const step = (d: number) => setOpen((i) => (i === null ? null : (i + d + n) % n));
   // Гар: Esc → хаах, сум → өмнөх/дараагийн
   useEffect(() => {
@@ -577,16 +575,19 @@ function T27Gallery({ event }: { event: EventData }) {
     <Section>
       <FadeUp><Heading>{title}</Heading></FadeUp>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-        {photos.map((src, i) => (
-          <FadeUp key={i} delay={(i % 2) * 0.08}>
-            <button type="button" onClick={() => setOpen(i)} aria-label={`Зураг ${i + 1} томруулах`}
-              style={{ display: "block", width: "100%", padding: 5, border: `1px solid ${t.gold}`, background: t.ivory2, boxShadow: SHADOW_CARD, cursor: "zoom-in" }}>
-              <div style={{ aspectRatio: "4 / 5", overflow: "hidden", background: t.line }}>
-                <Photo src={src} alt={`Зураг ${i + 1}`} />
-              </div>
-            </button>
-          </FadeUp>
-        ))}
+        {photos.map((src, i) => {
+          const isWide = n % 2 === 1 && i === 0;
+          return (
+            <FadeUp key={i} delay={(i % 2) * 0.08} style={{ gridColumn: isWide ? "span 2" : "auto" }}>
+              <button type="button" onClick={() => setOpen(i)} aria-label={`Зураг ${i + 1} томруулах`}
+                style={{ display: "block", width: "100%", padding: 5, border: `1px solid ${t.gold}`, background: t.ivory2, boxShadow: SHADOW_CARD, cursor: "zoom-in" }}>
+                <div style={{ aspectRatio: isWide ? "16 / 10" : "1 / 1", overflow: "hidden", background: t.line }}>
+                  <Photo src={src} alt={`Зураг ${i + 1}`} />
+                </div>
+              </button>
+            </FadeUp>
+          );
+        })}
       </div>
 
       <AnimatePresence>
@@ -802,7 +803,6 @@ function T27RSVP({ event }: { event: EventData }) {
   const t = useT();
   const maxGuests = cfg(event.config, "rsvp.maxGuests", 10);
   const note      = cfg(event.config, "rsvp.note", "Ирцээ урьдчилан мэдэгдэнэ үү");
-  const phones    = phonesOf(event);
   const [name, setName]     = useState("");
   const [phone, setPhone]   = useState("");
   const [guests, setGuests] = useState(1);
@@ -869,14 +869,6 @@ function T27RSVP({ event }: { event: EventData }) {
           <div style={{ ...body, fontSize: fs(15), lineHeight: 1.5, color: t.inkMuted, textAlign: "center" }}>{note}</div>
         </div>
       </FadeUp>
-      {phones.length > 0 && (
-        <FadeUp delay={0.1} style={{ textAlign: "center", marginTop: 28 }}>
-          <div style={{ ...body, fontSize: fs(17), color: t.ink, marginBottom: 14 }}>Эсвэл утсаар мэдэгдэнэ үү:</div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-            {phones.map((p) => <PhonePill key={p} phone={p} />)}
-          </div>
-        </FadeUp>
-      )}
     </Section>
   );
 }

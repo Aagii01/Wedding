@@ -1225,7 +1225,8 @@ function T25Footer({ event }: { event: EventData }) {
     <footer style={{ background: t.bg, position: "relative" }}>
       <Lace />
       <div style={{ position: "relative", height: 380 }}>
-        <Photo src={img} alt="" />
+        {/* Дээд талаас тайрна — босоо зургийн нүүр тасрахгүй */}
+        <Photo src={img} alt="" style={{ objectPosition: "center top" }} />
         <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, ${t.bg}26, ${t.bg})` }} />
       </div>
       <div style={{ padding: "0 16px 96px", marginTop: -70, position: "relative", textAlign: "center" }}>
