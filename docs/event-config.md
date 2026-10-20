@@ -299,7 +299,7 @@ Intro нь видео биш — цагираг дээр дарж нээнэ (д
 | `footer.title` | string | "Таньтай уулзахыг..." | |
 | `footer.lines` | string[] | [] | "Хүндэтгэсэн: ..." мөрүүд |
 | `footer.phones` | string[] | [] | Pill товч, tel: холбоос, "9900 1122" хэлбэрээр |
-| `footer.image` | string | `gallery_photos[0]` → `main_image` | Footer зураг |
+| `footer.image` | string | `gallery2_photos[0]` → `gallery_photos[0]` → `main_image` | Footer зураг (цомгийн эхний зураг) |
 
 Шүлэг → `events.poem`, хөтөлбөр → `events.schedule`. Ерөөл хэсэг нь `wishes` хүснэгтээс
 сүүлийн 12-ыг уншиж харуулна; ирц `rsvp`-д `name, phone, guests, message` бичнэ.
@@ -349,11 +349,12 @@ update events set template = '25', config = '{
 - **28 = Хөх-алт (navy)** — гүн хөх #0F2440 + алтан; төрийн ёслолын албан өнгө
 
 40+ насанд зориулсан: цайвар ivory дэвсгэр, PT Serif 17px+ бичиг (мөр хоорондын зай 1.6),
-Playfair Display налуу биш гарчиг, хөдөлгөөн зөвхөн зөөлөн fade, **дарж нээх intro байхгүй**
-(шууд hero; `intro.video` өгвөл видео), hero-д бүх өргөнийг эзлэх том арк портрет (ирц, утас нь
+Playfair Display налуу биш гарчиг, хөдөлгөөн зөвхөн зөөлөн fade, intro нь **T13-ын дугтуй нээх
+видео** (`intro.video: false` → шууд hero), hero-д бүх өргөнийг эзлэх том арк портрет (ирц, утас нь
 доод хэсэгт), зүүн доод буланд **"Том үсэг"** (A+) товч — бүх бичвэр 15% томорно. Мотив: алтан
 нуман хүрээ, медаль-туузны тэмдэг, үүлэн хээ.
-Соёмбо, төрийн сүлд хэрэглэхгүй. Тоологч үндсэндээ **унтраалттай** (`sections.timer: true` → асна).
+Соёмбо, төрийн сүлд хэрэглэхгүй. Байршлын дээр **"Хэзээ"** хэсэг: огноо, цаг + тоологч
+(`sections.timer: false` → нуугдана). Цомгийн зураг дарахад бүтэн дэлгэцээр томорно (lightbox).
 
 | Түлхүүр | Төрөл | Үндсэн утга | Тайлбар |
 |---|---|---|---|
@@ -364,13 +365,14 @@ Playfair Display налуу биш гарчиг, хөдөлгөөн зөвхөн
 | `hero.subtitle` | string | — | Жишээ "Жаран насны ой ба шагналын баяр" |
 | `hero.eyebrow` | string | "Хүндэтгэлийн урилга" | |
 | `hero.photo` | string | `person1_photo` → `main_image` | Нуман (арк) алтан хүрээтэй **том** 4:5 портрет — босоо, нүүр дээд хэсэгт байх зураг тохиромжтой |
-| `intro.video` | string | — | Өгвөл видео intro, дуусмагц hero |
+| `intro.video` | string / false | T13-ын дугтуй нээх видео | Өөр URL, эсвэл `false` → intro-гүй, шууд hero |
 | `letter.note` | string | — | Урилгын үгийн доорх налуу мөр, жишээ "Хувцаслалт: ёслолын" |
 | `career.title` | string | "Ажлын замнал" | |
 | `career.items` | `[{year, text}]` | demo-д 4 жишээ, бусдад хоосон → хэсэг нуугдана | Он → үйл явдлын timeline |
 | `gallery.title` | string | "Дурсамжийн зургууд" | Зураг `gallery_photos` (≤6, 2 багана), хоосон бол нуугдана |
-| `sections.career/gallery/schedule/wishes/rsvp` | false | true | Хэсэг нуух |
-| `sections.timer` | true | **false** | Тоологч асаах |
+| `sections.career/gallery/schedule/rsvp` | false | true | Хэсэг нуух |
+| `sections.wishes` | true | **false** | Мэндчилгээ хэсэг асаах (одоогоор анхдагчаар нуугдсан) |
+| `sections.timer` | false | true | "Хэзээ" хэсэг (огноо, цаг + тоологч, байршлын дээр) нуух |
 | `rsvp.phones` | string[] | `footer.phones` | Ирцийн доорх "Эсвэл утсаар мэдэгдэнэ үү" pill (hero-д товч байхгүй) |
 | `rsvp.maxGuests` | number | 10 | |
 | `rsvp.note` | string | "Ирцээ урьдчилан мэдэгдэнэ үү" | |

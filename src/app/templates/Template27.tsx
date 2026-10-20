@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
 import { supabase } from "../../lib/supabase";
 import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
@@ -15,9 +15,9 @@ import { normalizeUrl } from "../../lib/url";
 //   "navy" (template 28) — гүн хөх + алтан: төрийн ёслол, албан
 // Мотив: алтан лавр, медаль-туузны хүрээ, үүлэн хээ. Соёмбо/төрийн сүлд ХЭРЭГЛЭХГҮЙ.
 //
-// Section: [видео intro] → hero → урилгын үг → ажлын замнал → цомог → хөтөлбөр
-// → байршил → [тоологч] → мэндчилгээ → ирц → footer. Дарж нээх intro байхгүй
-// (шууд hero). Түлхүүрүүд: docs/event-config.md § T27.
+// Section: видео intro (T13-ын дугтуй нээх; intro.video: false → intro-гүй) → hero
+// → урилгын үг → ажлын замнал → цомог (дарахад томорно) → хөтөлбөр → хэзээ (огноо,
+// цаг + тоологч) → байршил → мэндчилгээ → ирц → footer. Түлхүүрүүд: docs/event-config.md § T27.
 
 // ─── Theme ───────────────────────────────────────────────────────────────────
 type Theme = {
@@ -45,6 +45,9 @@ const bodyB   = { fontFamily: "'PT Serif', 'PT Sans', serif", fontWeight: 700 } 
 const fs = (n: number) => `calc(${n}px * var(--k))`;
 
 const SHADOW_CARD = "0 8px 24px rgba(40,25,10,.10)";
+
+// Анхдагч intro — Template13-ын дугтуй нээх видео (config.intro.video-оор солигдоно)
+const T27_INTRO_VIDEO = "https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4";
 
 const THEMES: Record<Theme["key"], Theme> = {
   wine: {
@@ -82,7 +85,6 @@ const ico = (size: number, color: string, children: React.ReactNode, filled = fa
 );
 const StarIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M12 2 L14.6 8.6 L21.5 9.2 L16.2 13.8 L17.9 20.6 L12 17 L6.1 20.6 L7.8 13.8 L2.5 9.2 L9.4 8.6 Z" />, true);
 const MedalIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(size, color, <><circle cx="12" cy="15" r="5.5" /><path d="M8.5 10.5 6 2h4l2 5 2-5h4l-2.5 8.5" /></>);
-const CalendarIcon: IconFn = ({ size = 24, color = "currentColor" }) => ico(size, color, <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></>);
 const PinIcon: IconFn      = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12Z" /><circle cx="12" cy="10" r="2.5" /></>);
 const SendIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M21 3 10 14" /><path d="M21 3 14 21l-4-7-7-4Z" /></>);
 const PhoneIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />);
@@ -91,6 +93,9 @@ const NoteIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size
 const NoteOffIcon: IconFn  = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M9 18V5l11-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="17" cy="16" r="3" /><path d="M3 3l18 18" /></>);
 const CheckIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M4 12.5 9.5 18 20 6.5" />);
 const ChevronsIcon: IconFn = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M6 6l6 6 6-6" /><path d="M6 12l6 6 6-6" /></>);
+const CloseIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M6 6l12 12M18 6 6 18" />);
+const ArrowLeftIcon: IconFn  = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M15 5l-7 7 7 7" />);
+const ArrowRightIcon: IconFn = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M9 5l7 7-7 7" />);
 
 // ─── global styles ───────────────────────────────────────────────────────────
 function Styles() {
@@ -254,8 +259,8 @@ type BtnProps = {
 function Btn({ variant, icon, children, onClick, href, disabled, style = {} }: BtnProps) {
   const t = useT();
   const base: React.CSSProperties = {
-    ...display, fontWeight: 600, fontSize: fs(18), letterSpacing: "0.01em",
-    minHeight: 54, borderRadius: 10, border: "none", padding: "0 24px",
+    ...display, fontWeight: 600, fontSize: fs(17), letterSpacing: "0.01em",
+    minHeight: 48, borderRadius: 10, border: "none", padding: "0 18px",
     display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
     cursor: disabled ? "not-allowed" : "pointer", textDecoration: "none",
     opacity: disabled ? 0.55 : 1, transition: "transform .08s, opacity .2s", boxSizing: "border-box",
@@ -279,7 +284,7 @@ function Field({ id, label, textarea, ...rest }: {
 }) {
   const t = useT();
   const input: React.CSSProperties = {
-    width: "100%", minHeight: 54, padding: "14px 16px", boxSizing: "border-box",
+    width: "100%", minHeight: 48, padding: "11px 14px", boxSizing: "border-box",
     background: t.ivory2, border: `1.5px solid ${t.line}`, borderRadius: 10,
     ...body, fontSize: fs(17), color: t.ink, outline: "none", transition: "border-color .2s, box-shadow .2s",
   };
@@ -331,13 +336,13 @@ function PhonePill({ phone, onDark = false }: { phone: string; onDark?: boolean 
   const t = useT();
   return (
     <a href={`tel:${phone.replace(/\D/g, "")}`} style={{
-      display: "inline-flex", alignItems: "center", gap: 12, minHeight: 54, padding: "6px 22px 6px 6px",
+      display: "inline-flex", alignItems: "center", gap: 10, minHeight: 46, padding: "4px 16px 4px 4px",
       background: onDark ? "rgba(255,255,255,.06)" : t.ivory2, border: `1.5px solid ${t.gold}`, borderRadius: 999, textDecoration: "none",
     }}>
-      <span style={{ width: 42, height: 42, borderRadius: "50%", background: `linear-gradient(135deg, ${t.goldLight}, ${t.gold} 50%, ${t.goldDeep})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <PhoneIcon size={20} color={t.dark2} />
+      <span style={{ width: 36, height: 36, borderRadius: "50%", background: `linear-gradient(135deg, ${t.goldLight}, ${t.gold} 50%, ${t.goldDeep})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <PhoneIcon size={18} color={t.dark2} />
       </span>
-      <span style={{ ...display, fontWeight: 600, fontSize: fs(20), color: onDark ? t.paper : t.ink }}>{fmtPhone(phone)}</span>
+      <span style={{ ...display, fontWeight: 600, fontSize: fs(18), color: onDark ? t.paper : t.ink }}>{fmtPhone(phone)}</span>
     </a>
   );
 }
@@ -352,28 +357,19 @@ function fmtPhone(p: string) {
   const digits = p.replace(/\D/g, "");
   return digits.length === 8 ? digits.slice(0, 4) + " " + digits.slice(4) : p;
 }
-function calendarUrl(event: EventData, title: string) {
-  const [y, m, d] = (event.date || "").split("-").map(Number);
-  const [hh, mm] = (event.time || "17:00").split(":").map(Number);
-  if (!y || !m || !d) return "";
-  const start = new Date(y, m - 1, d, hh, mm);
-  const end   = new Date(start.getTime() + 3 * 3600000);
-  const f = (x: Date) =>
-    `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, "0")}${String(x.getDate()).padStart(2, "0")}T` +
-    `${String(x.getHours()).padStart(2, "0")}${String(x.getMinutes()).padStart(2, "0")}00`;
-  const q = new URLSearchParams({
-    action: "TEMPLATE", text: title, dates: `${f(start)}/${f(end)}`,
-    location: [event.venue_name, event.venue_address].filter(Boolean).join(", "),
-    ctz: "Asia/Ulaanbaatar",
-  });
-  return "https://calendar.google.com/calendar/render?" + q.toString();
-}
 // Утас: rsvp.phones → footer.phones (demo-д "Залгах" товчийг үзүүлэх жишээ дугаар)
 const phonesOf = (event: EventData) =>
   cfg<string[]>(event.config, "rsvp.phones",
     cfg<string[]>(event.config, "footer.phones", event.id === "demo" ? ["99001122"] : [])).filter(Boolean);
 
 // ─── Demo агуулга ────────────────────────────────────────────────────────────
+// Demo зураг — Supabase `medal` bucket (жинхэнэ урилгад hero.photo / person1_photo /
+// gallery_photos-оос). /demo/27, /demo/28 дээр л хэрэглэгдэнэ.
+const MEDAL = (name: string) => `https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/medal/${name}`;
+const DEMO_PHOTOS = {
+  hero: MEDAL("main.jpg"),
+  gallery: [MEDAL("main1.jpg"), MEDAL("main2.jpeg"), MEDAL("main3.jpg"), MEDAL("main4.jpeg")],
+};
 type CareerItem = { year: string; text: string };
 const DEMO_CAREER: CareerItem[] = [
   { year: "1985", text: "Монгол Улсын Их Сургуулийг төгсөж, багшлах ажлын гараагаа эхэлсэн" },
@@ -423,7 +419,7 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
   const award    = cfg(event.config, "award.name", demo ? "Хөдөлмөрийн хүндэт медаль" : "Шагналын баяр");
   const awardBy  = cfg<string | null>(event.config, "award.by", demo ? "Монгол Улсын Ерөнхийлөгчийн зарлигаар" : null);
   const subtitle = cfg<string | null>(event.config, "hero.subtitle", demo ? "Жаран насны ой ба шагналын баяр" : null);
-  const photo    = cfg<string | null>(event.config, "hero.photo", null) || event.person1_photo || event.main_image;
+  const photo    = cfg<string | null>(event.config, "hero.photo", null) || (demo ? DEMO_PHOTOS.hero : null) || event.person1_photo || event.main_image;
 
   const show = (delay: number) => ({
     initial: { opacity: 0, y: 14 },
@@ -478,17 +474,14 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
           </motion.div>
         )}
 
-        <motion.div {...show(0.9)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 18, width: "100%", maxWidth: 358 }}>
-          <div style={{ width: 28, height: 1, background: t.gold, flexShrink: 0 }} />
-          <div style={{ ...display, fontWeight: 600, fontSize: fs(19), color: t.goldLight, lineHeight: 1.3 }}>
-            {fmtDate(event.date)}{event.time ? ` · ${event.time}` : ""}
-          </div>
-          <div style={{ width: 28, height: 1, background: t.gold, flexShrink: 0 }} />
+        {/* Огноо hero-д биш — "Хэзээ" хэсэгт (байршлын дээр) том гарна */}
+        <motion.div {...show(0.9)} style={{ ...body, fontStyle: "italic", fontSize: fs(16), color: t.paperMuted, marginTop: 22 }}>
+          Урилгыг доош гүйлгэж үзнэ үү
         </motion.div>
 
         <motion.button type="button" onClick={scrollNext} aria-label="Доош гүйлгэх"
           initial={{ opacity: 0 }} animate={started ? { opacity: 1 } : { opacity: 0 }} transition={{ duration: 1, delay: 1.3 }}
-          style={{ marginTop: 22, width: 52, height: 52, background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          style={{ marginTop: 4, width: 52, height: 52, background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div className="t27-bounce"><ChevronsIcon size={28} color={t.goldLight} /></div>
         </motion.button>
       </div>
@@ -547,26 +540,78 @@ function T27Career({ event }: { event: EventData }) {
   );
 }
 
-// ─── Цомог — энгийн 2 баганат grid (swipe шаардахгүй) ────────────────────────
+// ─── Цомог — энгийн 2 баганат grid; дарахад бүтэн дэлгэцээр томорно (lightbox) ─
 function T27Gallery({ event }: { event: EventData }) {
   const t = useT();
   const title  = cfg(event.config, "gallery.title", "Дурсамжийн зургууд");
-  const photos = (event.gallery_photos || []).filter(Boolean).slice(0, 6);
-  if (photos.length === 0) return null;
+  const photos = (event.id === "demo" ? DEMO_PHOTOS.gallery : event.gallery_photos || []).filter(Boolean).slice(0, 6);
+  const n = photos.length;
+  const [open, setOpen] = useState<number | null>(null);
+  const step = (d: number) => setOpen((i) => (i === null ? null : (i + d + n) % n));
+  // Гар: Esc → хаах, сум → өмнөх/дараагийн
+  useEffect(() => {
+    if (open === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(null);
+      else if (e.key === "ArrowLeft") step(-1);
+      else if (e.key === "ArrowRight") step(1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, n]);
+  if (n === 0) return null;
+
+  const overlayBtn: React.CSSProperties = {
+    position: "absolute", width: 44, height: 44, borderRadius: "50%", border: "none",
+    background: "rgba(255,255,255,.14)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+  };
+  const navBtn = (side: "left" | "right") => (
+    <button type="button" aria-label={side === "left" ? "Өмнөх зураг" : "Дараагийн зураг"}
+      onClick={(e) => { e.stopPropagation(); step(side === "left" ? -1 : 1); }}
+      style={{ ...overlayBtn, top: "50%", transform: "translateY(-50%)", ...(side === "left" ? { left: 8 } : { right: 8 }) }}>
+      {side === "left" ? <ArrowLeftIcon size={24} color="#fff" /> : <ArrowRightIcon size={24} color="#fff" />}
+    </button>
+  );
+
   return (
     <Section>
       <FadeUp><Heading>{title}</Heading></FadeUp>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
         {photos.map((src, i) => (
           <FadeUp key={i} delay={(i % 2) * 0.08}>
-            <div style={{ background: t.ivory2, border: `1px solid ${t.gold}`, padding: 5, boxShadow: SHADOW_CARD }}>
+            <button type="button" onClick={() => setOpen(i)} aria-label={`Зураг ${i + 1} томруулах`}
+              style={{ display: "block", width: "100%", padding: 5, border: `1px solid ${t.gold}`, background: t.ivory2, boxShadow: SHADOW_CARD, cursor: "zoom-in" }}>
               <div style={{ aspectRatio: "4 / 5", overflow: "hidden", background: t.line }}>
                 <Photo src={src} alt={`Зураг ${i + 1}`} />
               </div>
-            </div>
+            </button>
           </FadeUp>
         ))}
       </div>
+
+      <AnimatePresence>
+        {open !== null && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
+            onClick={() => setOpen(null)} role="dialog" aria-modal="true" aria-label={`Зураг ${open + 1}`}
+            style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(10,8,6,.94)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+          >
+            <motion.img key={open} src={photos[open]} alt={`Зураг ${open + 1}`}
+              initial={{ scale: 0.96, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.25 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 4, boxShadow: "0 20px 60px rgba(0,0,0,.6)" }} />
+            <button type="button" onClick={() => setOpen(null)} aria-label="Хаах"
+              style={{ ...overlayBtn, top: "calc(12px + env(safe-area-inset-top, 0px))", right: 12 }}>
+              <CloseIcon size={22} color="#fff" />
+            </button>
+            {n > 1 && navBtn("left")}
+            {n > 1 && navBtn("right")}
+            <div style={{ position: "absolute", bottom: "calc(14px + env(safe-area-inset-bottom, 0px))", left: 0, right: 0, textAlign: "center", ...body, fontSize: 14, color: "rgba(255,255,255,.7)" }}>
+              {open + 1} / {n}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Section>
   );
 }
@@ -602,11 +647,11 @@ function T27Schedule({ event }: { event: EventData }) {
             }}>
               {i % 2 === 0 ? <StarIcon size={15} color={t.gold} /> : <MedalIcon size={16} color={t.gold} />}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "76px 1fr", gap: 14, alignItems: "start", background: t.ivory2, border: `1px solid ${t.line}`, borderRadius: 6, padding: "14px 16px", boxShadow: SHADOW_CARD }}>
-              <div style={{ ...display, fontWeight: 700, fontSize: fs(19), color: t.primary, lineHeight: 1.3 }}>{it.time}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "58px 1fr", gap: 12, alignItems: "start", background: t.ivory2, border: `1px solid ${t.line}`, borderRadius: 6, padding: "12px 14px", boxShadow: SHADOW_CARD }}>
+              <div style={{ ...display, fontWeight: 600, fontSize: fs(16), color: t.primary, lineHeight: 1.5, fontVariantNumeric: "tabular-nums" }}>{it.time}</div>
               <div>
-                <div style={{ ...bodyB, fontSize: fs(17), lineHeight: 1.45, color: t.ink }}>{it.label}</div>
-                {it.desc && <div style={{ ...body, fontSize: fs(15), lineHeight: 1.5, color: t.inkMuted, marginTop: 4 }}>{it.desc}</div>}
+                <div style={{ ...body, fontSize: fs(16), lineHeight: 1.5, color: t.ink }}>{it.label}</div>
+                {it.desc && <div style={{ ...body, fontSize: fs(14), lineHeight: 1.5, color: t.inkMuted, marginTop: 3 }}>{it.desc}</div>}
               </div>
             </div>
           </FadeUp>
@@ -651,8 +696,8 @@ function T27Location({ event }: { event: EventData }) {
   );
 }
 
-// ─── Тоологч (сонголтоор: sections.timer = true) ─────────────────────────────
-function T27Countdown({ event }: { event: EventData }) {
+// ─── Хэзээ: огноо, цаг + тоологч — байршлын дээр (sections.timer: false → нуугдана)
+function T27When({ event }: { event: EventData }) {
   const t = useT();
   const [c, setC] = useState({ d: 0, h: 0, m: 0, s: 0 });
   useEffect(() => {
@@ -671,11 +716,15 @@ function T27Countdown({ event }: { event: EventData }) {
   }, [event.date, event.time]);
   const pad = (n: number) => String(n).padStart(2, "0");
   const units = [{ v: c.d, l: "Өдөр" }, { v: c.h, l: "Цаг" }, { v: c.m, l: "Минут" }, { v: c.s, l: "Секунд" }];
-  const calUrl = calendarUrl(event, cfg(event.config, "award.name", "Шагналын баяр"));
   return (
     <Section>
-      <FadeUp><Heading>Баяр эхлэхэд</Heading></FadeUp>
+      <FadeUp><Heading>Хэзээ</Heading></FadeUp>
       <FadeUp>
+        <div style={{ textAlign: "center", marginBottom: 22 }}>
+          <div style={{ ...display, fontWeight: 600, fontSize: fs(26), lineHeight: 1.25, color: t.primary }}>{fmtDate(event.date)}</div>
+          {event.time && <div style={{ ...body, fontSize: fs(18), color: t.ink, marginTop: 6 }}>{event.time} цагт</div>}
+        </div>
+        <div style={{ ...bodyB, fontSize: fs(13), color: t.inkMuted, textAlign: "center", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 10 }}>Баяр эхлэхэд</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
           {units.map((u) => (
             <div key={u.l} style={{ background: t.ivory2, border: `1px solid ${t.gold}`, borderRadius: 6, padding: "14px 4px 10px", textAlign: "center" }}>
@@ -684,11 +733,6 @@ function T27Countdown({ event }: { event: EventData }) {
             </div>
           ))}
         </div>
-        {calUrl && (
-          <div style={{ marginTop: 22, display: "flex", justifyContent: "center" }}>
-            <Btn variant="outline" href={calUrl} icon={<CalendarIcon size={20} color={t.primary} />}>Календарьт нэмэх</Btn>
-          </div>
-        )}
       </FadeUp>
     </Section>
   );
@@ -784,7 +828,7 @@ function T27RSVP({ event }: { event: EventData }) {
       <button type="button" aria-label={dir < 0 ? "Хасах" : "Нэмэх"} disabled={disabled}
         onClick={() => setGuests((g) => Math.max(1, Math.min(maxGuests, g + dir)))}
         style={{
-          width: 48, height: 48, borderRadius: "50%", border: "none", cursor: disabled ? "not-allowed" : "pointer",
+          width: 44, height: 44, borderRadius: "50%", border: "none", cursor: disabled ? "not-allowed" : "pointer",
           background: disabled ? t.line : t.primary, color: disabled ? t.inkMuted : t.paper,
           ...display, fontWeight: 600, fontSize: 26, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
         }}>
@@ -924,8 +968,9 @@ export function AwardCeremony({ event, theme }: { event: EventData; theme: Theme
   const t = THEMES[themeKey] ?? THEMES[theme];
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  // config.intro.video: видео URL → видео intro; бусад тохиолдолд шууд hero (дарж нээх intro байхгүй)
-  const introVideo = cfg<string | null>(event.config, "intro.video", null);
+  // config.intro.video: URL → тэр видео; false → intro-гүй (шууд hero); байхгүй → T13-ын дугтуй нээх видео
+  const introCfg = cfg<string | false | undefined>(event.config, "intro.video", undefined);
+  const introVideo = introCfg === undefined ? T27_INTRO_VIDEO : introCfg;
   const hasVideo = typeof introVideo === "string" && introVideo.length > 0;
   const [started, setStarted] = useState(!hasVideo);
   // config.ui.bigText: true бол эхнээсээ том үсгээр
@@ -959,9 +1004,10 @@ export function AwardCeremony({ event, theme }: { event: EventData; theme: Theme
         {sectionOn(event.config, "career") && <T27Career event={event} />}
         {sectionOn(event.config, "gallery") && <T27Gallery event={event} />}
         {sectionOn(event.config, "schedule") && <T27Schedule event={event} />}
+        {sectionOn(event.config, "timer") && <T27When event={event} />}
         <T27Location event={event} />
-        {sectionOn(event.config, "timer", false) && <T27Countdown event={event} />}
-        {sectionOn(event.config, "wishes") && <T27Wishes eventId={event.id} />}
+        {/* Мэндчилгээ одоогоор анхдагчаар нуугдсан — sections.wishes: true → гарна */}
+        {sectionOn(event.config, "wishes", false) && <T27Wishes eventId={event.id} />}
         {sectionOn(event.config, "rsvp") && <T27RSVP event={event} />}
         <T27Footer event={event} />
 
