@@ -1,3 +1,4 @@
+import { BRAND } from "../../lib/brand";
 import {
   motion,
   AnimatePresence,
@@ -12,8 +13,9 @@ import { Heart, X, Facebook, Instagram, Phone } from "lucide-react";
 import { useRef, useMemo, useState, useEffect } from "react";
 import { DEMO_EVENT } from "../demo/demoEvent";
 
-const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61582580015733";
-const INSTAGRAM_URL = "https://www.instagram.com/e_urilga.mn";
+// Холбоо барих — src/lib/brand.ts (урилгын доорх MadeWithCredit-тэй нэг эх үүсвэр)
+const FACEBOOK_URL = BRAND.facebook;
+const INSTAGRAM_URL = BRAND.instagram;
 
 const TEMPLATES = [
   {
