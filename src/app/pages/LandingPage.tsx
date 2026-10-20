@@ -17,7 +17,33 @@ import { DEMO_EVENT } from "../demo/demoEvent";
 const FACEBOOK_URL = BRAND.facebook;
 const INSTAGRAM_URL = BRAND.instagram;
 
-const TEMPLATES = [
+// Showcase-ийн загвар (хувилбар). Нэг бүтэцтэй, хоёр өнгөний хувилбартай загварууд
+// (Sonic/Spider, Мөсөн/Нарны гүнж, Бордо/Хөх-алт) CATEGORIES-д нэг карт болж, карт
+// дотроо toggle-оор солигдоно.
+type Template = {
+  id: string;            // template дугаар (templateMap түлхүүр)
+  name: string;          // карт дээрх хувилбарын нэр / fan carousel-ийн бичиг
+  tagline: string;
+  desc: string;
+  bg: string; accent: string; text: string; soft: string;
+  swatches: string[];
+  font: string;
+  cover?: string;        // fan carousel зураг
+  fan?: boolean;         // false → нүүрний fan carousel-д гарахгүй (Загварууд хэсэгт хэвээр)
+  dark?: boolean;        // карт бараан дэвсгэртэй эсэх (товчны бичгийн өнгө)
+  demo?: string;         // demo iframe URL (анхдагч /demo/:id)
+  preview?: {            // утасны thumbnail (PhoneScreenHero)
+    image: string; eyebrow: string; title: string; date: string;
+    titleStyle?: React.CSSProperties;
+  };
+};
+
+const STORAGE = "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public";
+const KID_BOY  = (n: string) => `${STORAGE}/child_boy/${n}`;
+const KID_GIRL = (n: string) => `${STORAGE}/child_girl/${n}`;
+const MEDAL    = (n: string) => `${STORAGE}/medal/${n}`;
+
+const TEMPLATES: Template[] = [
   {
     id: "11",
     name: "Pearl",
@@ -69,6 +95,91 @@ const TEMPLATES = [
     soft: "hsl(220 20% 45%)",
     swatches: ["hsl(220 30% 16%)", "hsl(218 50% 50%)", "hsl(218 42% 88%)", "hsl(220 15% 88%)"],
     font: "'Cormorant Garamond', serif",
+  },
+
+  // ── Хүүхдийн төрсөн өдөр — хүү (Template23.tsx: нэг бүтэц, 2 theme) ──
+  {
+    id: "23", name: "Sonic", tagline: "Хөх · Алтан цагираг · Хурд",
+    desc: "Comic хэв маяг: бамбай хэлбэрийн том зураг, хурдны зураас, дарж нээх intro.",
+    bg: "#071A45", accent: "#FFC700", text: "#F5F7FF", soft: "rgba(245,247,255,0.6)",
+    swatches: ["#071A45", "#1E63D6", "#FFC700", "#FF4B55"], font: "'Oswald', sans-serif",
+    cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/intro_videos/super%20sonic.jpg", dark: true, demo: "/i/demo-sonic",
+    preview: { image: KID_BOY("main.jpg"), eyebrow: "Төрсөн өдрийн урилга", title: "Тэмүүлэн", date: "5 НАС · 2027 · 08 · 16", titleStyle: { textTransform: "uppercase", fontWeight: 700 } },
+  },
+  {
+    id: "24", name: "Spider-Man", tagline: "Улаан · Хөх · Аалзны тор",
+    desc: "Comic хэв маяг: бамбай хэлбэрийн том зураг, аалзны тор, дарж нээх intro.",
+    bg: "#0B1230", accent: "#DF1F2D", text: "#F5F1E8", soft: "rgba(245,241,232,0.6)",
+    swatches: ["#0B1230", "#2B3784", "#DF1F2D", "#F5F1E8"], font: "'Oswald', sans-serif",
+        cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/intro_videos/spiderman.jpg", dark: true, demo: "/i/demo-spider",
+    preview: { image: KID_BOY("main.jpg"), eyebrow: "Төрсөн өдрийн урилга", title: "Тэмүүлэн", date: "5 НАС · 2027 · 08 · 16", titleStyle: { textTransform: "uppercase", fontWeight: 700 } },
+  },
+
+  // ── Хүүхдийн төрсөн өдөр — охин (Template25.tsx: нэг бүтэц, 2 theme) ──
+  {
+    id: "25", name: "Frozen", tagline: "Мөсөн цэнхэр · Цас · Мөнгө",
+    desc: "Титэмтэй зууван зураг, эргэдэг цасан ширхэг, унах цас, зөөлөн гэрэлтэй гарчиг.",
+    bg: "#0B2342", accent: "#BFEAFF", text: "#F2F9FF", soft: "rgba(242,249,255,0.6)",
+    swatches: ["#0B2342", "#4CC3F0", "#BFEAFF", "#F2F9FF"], font: "'Playfair Display', serif",
+        cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/intro_videos/frozen.jpg", dark: true, demo: "/i/demo-ice",
+    preview: { image: KID_GIRL("main.jpg"), eyebrow: "Төрсөн өдрийн урилга", title: "Номин", date: "5 НАС · 2027 · 08 · 16", titleStyle: { fontStyle: "italic" } },
+  },
+  {
+    id: "26", name: "Rapunzel", tagline: "Лаванда · Алтан дэнлүү · Нар",
+    desc: "Титэмтэй зууван зураг, нарны тэмдэг, дээш хөвөх алтан дэнлүү.",
+    bg: "#2A1748", accent: "#FFD166", text: "#FFF6F0", soft: "rgba(255,246,240,0.6)",
+    swatches: ["#2A1748", "#E85D9C", "#FFD166", "#FFF6F0"], font: "'Playfair Display', serif",
+        cover: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/intro_videos/rapunzel.jpg", dark: true, demo: "/i/demo-sun",
+    preview: { image: KID_GIRL("main.jpg"), eyebrow: "Төрсөн өдрийн урилга", title: "Номин", date: "5 НАС · 2027 · 08 · 16", titleStyle: { fontStyle: "italic" } },
+  },
+
+  // ── Шагнал, хүндэтгэл (Template27.tsx: нэг бүтэц, 2 theme; demo нь кодын /demo — medal зурагтай) ──
+  {
+    id: "27", name: "Бордо-алт", tagline: "Бордо · Алтан · Уламжлалт",
+    desc: "Цайвар дэвсгэр, том уншигдах бичиг, ажлын замнал, дугтуй нээх intro, «Том үсэг» товч.",
+    bg: "#F7F1E6", accent: "#7A2240", text: "#2B2118", soft: "#6E5F52",
+    swatches: ["#5C1A2E", "#C9A24A", "#F7F1E6", "#2B2118"], font: "'Playfair Display', serif",
+    cover: MEDAL("main.jpg"), fan: false, dark: false, demo: "/demo/27",
+    preview: { image: MEDAL("main.jpg"), eyebrow: "Хүндэтгэлийн урилга", title: "Хөдөлмөрийн\nхүндэт медаль", date: "2027 · 08 · 16" },
+  },
+  {
+    id: "28", name: "Хөх-алт", tagline: "Гүн хөх · Алтан · Албан",
+    desc: "Цайвар дэвсгэр, том уншигдах бичиг, ажлын замнал, дугтуй нээх intro, «Том үсэг» товч.",
+    bg: "#F5F2EA", accent: "#1E3A64", text: "#1C2333", soft: "#5B6475",
+    swatches: ["#0F2440", "#C9A24A", "#F5F2EA", "#1C2333"], font: "'Playfair Display', serif",
+    cover: MEDAL("main1.jpg"), fan: false, dark: false, demo: "/demo/28",
+    preview: { image: MEDAL("main.jpg"), eyebrow: "Хүндэтгэлийн урилга", title: "Хөдөлмөрийн\nхүндэт медаль", date: "2027 · 08 · 16" },
+  },
+];
+
+const byId    = (id: string) => TEMPLATES.find((t) => t.id === id)!;
+const isDark  = (t: Template) => t.dark ?? (t.bg === "#66021f" || t.bg === "#0f1b33");
+const demoUrl = (t: Template) => t.demo ?? `/demo/${t.id}`;
+
+// Showcase-ийн ангилал → карт (нэг карт = нэг бүтэц; ids олон бол карт дотор theme toggle)
+type TemplateGroup = { name: string; tagline: string; desc: string; ids: string[] };
+const CATEGORIES: { key: string; label: string; groups: TemplateGroup[] }[] = [
+  {
+    key: "wedding", label: "Хурим",
+    groups: ["11", "12", "13", "14"].map((id) => { const t = byId(id); return { name: t.name, tagline: t.tagline, desc: t.desc, ids: [id] }; }),
+  },
+  {
+    key: "boy", label: "Хүүгийн төрсөн өдөр",
+    groups: [
+      { name: "Супер баатар", tagline: "Хүү · Comic · Эрч хүч", desc: "Бамбай хэлбэрийн том зураг, хурдны зураас, дарж нээх intro. Хоёр өнгөний сонголттой.", ids: ["23", "24"] },
+    ],
+  },
+  {
+    key: "girl", label: "Охины төрсөн өдөр",
+    groups: [
+      { name: "Гүнж", tagline: "Охин · Ид шид · Гэрэл", desc: "Титэмтэй зууван зураг, цасан ширхэг эсвэл алтан дэнлүү, зөөлөн гэрэлтэй гарчиг.", ids: ["25", "26"] },
+    ],
+  },
+  {
+    key: "award", label: "Шагнал, хүндэтгэл",
+    groups: [
+      { name: "Хүндэтгэлийн урилга", tagline: "Одон медаль · Ой · 40+", desc: "Цайвар дэвсгэр, том уншигдах бичиг, ажлын замнал, дугтуй нээх intro, «Том үсэг» товч.", ids: ["27", "28"] },
+    ],
   },
 ];
 
@@ -218,9 +329,11 @@ function CTAButton({
 }
 
 // ─── Fan Carousel (template preview 3D) ──────────────────────────────────────
-const DOUBLED = [...TEMPLATES, ...TEMPLATES, ...TEMPLATES];
+// Fan carousel-д зөвхөн fan !== false загварууд (шагналын хүний зурагтай cover-ийг оруулахгүй)
+const FAN_TEMPLATES = TEMPLATES.filter((t) => t.fan !== false);
+const DOUBLED = [...FAN_TEMPLATES, ...FAN_TEMPLATES, ...FAN_TEMPLATES];
 const CARD_SPACING = 300;
-const TOTAL_SHIFT = CARD_SPACING * TEMPLATES.length;
+const TOTAL_SHIFT = CARD_SPACING * FAN_TEMPLATES.length;
 const CENTER_BASE = -(DOUBLED.length * CARD_SPACING) / 2 + CARD_SPACING / 2;
 
 function FanTemplateCard({ t }: { t: (typeof TEMPLATES)[0] }) {
@@ -802,13 +915,14 @@ function AboutSection() {
 }
 
 // ─── Phone mockup (preview screen + frame) ────────────────────────────────────
-type Template = (typeof TEMPLATES)[0];
 
+// Утасны thumbnail: t.preview байвал тэр (хүүхэд, шагнал), үгүй бол хуримын анхдагч
 function PhoneScreenHero({ t }: { t: Template }) {
+  const p = t.preview ?? { image: DEMO_EVENT.main_image, eyebrow: "The wedding of", title: "Болд\n& Сарнай", date: "2026 · 07 · 15" };
   return (
     <div style={{ position: "absolute", inset: 0, background: t.bg }}>
       <img
-        src={DEMO_EVENT.main_image}
+        src={p.image}
         alt=""
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
       />
@@ -856,7 +970,7 @@ function PhoneScreenHero({ t }: { t: Template }) {
             marginBottom: 10,
           }}
         >
-          The wedding of
+          {p.eyebrow}
         </p>
         <h3
           style={{
@@ -866,13 +980,15 @@ function PhoneScreenHero({ t }: { t: Template }) {
             lineHeight: 1.15,
             margin: 0,
             textShadow: "0 2px 16px rgba(0,0,0,0.55)",
+            ...p.titleStyle,
           }}
         >
-          Болд
-          <br />& Сарнай
+          {p.title.split("\n").map((line, i) => (
+            <span key={i}>{i > 0 && <br />}{line}</span>
+          ))}
         </h3>
         <p style={{ fontSize: 10, letterSpacing: "0.18em", color: "rgba(255,255,255,0.85)", marginTop: 13 }}>
-          2026 · 07 · 15
+          {p.date}
         </p>
       </div>
     </div>
@@ -937,13 +1053,13 @@ function PhoneFrame({
 
 // ─── Templates Section (sticky stacking cards) ────────────────────────────────
 function TemplateCard({
-  t,
+  group,
   index,
   total,
   scrollProgress,
   onOpen,
 }: {
-  t: Template;
+  group: TemplateGroup;
   index: number;
   total: number;
   scrollProgress: ReturnType<typeof useMotionValue<number>>;
@@ -955,8 +1071,11 @@ function TemplateCard({
     [index / total, 1] as [number, number],
     [1, targetScale]
   );
-  const dark = t.bg === "#66021f" || t.bg === "#0f1b33";
-  const numLabel = ["01", "02", "03", "04"][index];
+  // Нэг картад олон theme (ids) байвал toggle-оор сонгоно; карт тухайн theme-ийн өнгөөр
+  const [vi, setVi] = useState(0);
+  const t = byId(group.ids[Math.min(vi, group.ids.length - 1)]);
+  const dark = isDark(t);
+  const numLabel = String(index + 1).padStart(2, "0");
   const isMobile = useIsMobile();
   // Mobile дээр phone preview-г илүү том, desktop дээр хэвээр (172×318 харьцаа хадгална)
   const phoneW = isMobile ? 230 : 172;
@@ -964,16 +1083,17 @@ function TemplateCard({
 
   return (
     <div
-      className="sticky flex items-start justify-center"
-      style={{ top: `calc(5rem + ${index * 22}px)` }}
+      className={isMobile ? "flex items-start justify-center" : "sticky flex items-start justify-center"}
+      style={isMobile ? undefined : { top: `calc(5rem + ${index * 22}px)` }}
     >
-      <motion.div style={{ scale, transformOrigin: "top center" }} className="w-full">
+      <motion.div style={{ scale: isMobile ? 1 : scale, transformOrigin: "top center" }} className="w-full">
         <div
           className="w-full overflow-hidden"
           style={{
             background: t.bg,
             borderRadius: "clamp(20px, 3vw, 40px)",
             border: `1px solid ${t.accent}33`,
+            transition: "background .45s ease, border-color .45s ease",
           }}
         >
           <div className="flex flex-col md:flex-row">
@@ -993,8 +1113,33 @@ function TemplateCard({
                     fontSize: "clamp(2.2rem, 7vw, 72px)",
                   }}
                 >
-                  {t.name}
+                  {group.name}
                 </h3>
+                {group.ids.length > 1 && (
+                  <div className="flex gap-2 flex-wrap mt-5">
+                    {group.ids.map((id, i) => {
+                      const v = byId(id);
+                      const active = i === vi;
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          onClick={() => setVi(i)}
+                          aria-pressed={active}
+                          className="inline-flex items-center gap-2 rounded-full text-xs font-semibold tracking-wide px-3.5 py-2 cursor-pointer transition-colors"
+                          style={{
+                            background: active ? t.accent : "transparent",
+                            color: active ? (dark ? t.bg : "#fff") : t.text,
+                            border: `1.5px solid ${active ? t.accent : t.soft}`,
+                          }}
+                        >
+                          <span style={{ width: 10, height: 10, borderRadius: "50%", background: v.accent, border: "1px solid rgba(255,255,255,0.55)", flexShrink: 0 }} />
+                          {v.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
                 <ul className="mt-5 hidden md:grid md:grid-cols-2 gap-x-6 gap-y-2.5 max-w-md">
                   {FEATURES.map((f) => (
                     <li
@@ -1091,7 +1236,7 @@ function DemoModal({ t, onClose }: { t: Template; onClose: () => void }) {
   const [loaded, setLoaded] = useState(false);
   const [scale, setScale] = useState(1);
   const screenRef = useRef<HTMLDivElement>(null);
-  const dark = t.bg === "#66021f" || t.bg === "#0f1b33";
+  const dark = isDark(t);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -1152,7 +1297,7 @@ function DemoModal({ t, onClose }: { t: Template; onClose: () => void }) {
           <PhoneFrame screenW={screenW} screenH={screenH} notch={!loaded} screenRef={screenRef}>
             {loaded ? (
               <iframe
-                src={`/demo/${t.id}`}
+                src={demoUrl(t)}
                 title={`${t.name} demo`}
                 allow="autoplay; fullscreen"
                 style={{
@@ -1233,7 +1378,7 @@ function DemoModal({ t, onClose }: { t: Template; onClose: () => void }) {
             </a>
           </div>
           <a
-            href={`/demo/${t.id}`}
+            href={demoUrl(t)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block mt-5 text-xs tracking-wider uppercase hover:opacity-70 transition-opacity"
@@ -1250,6 +1395,9 @@ function DemoModal({ t, onClose }: { t: Template; onClose: () => void }) {
 function TemplatesSection() {
   const containerRef = useRef<HTMLElement>(null);
   const [selected, setSelected] = useState<Template | null>(null);
+  // Ангилал (chip): анхдагч "Хурим"; сонгоход тэр ангиллын картууд л гарна
+  const [cat, setCat] = useState(CATEGORIES[0].key);
+  const groups = (CATEGORIES.find((c) => c.key === cat) ?? CATEGORIES[0]).groups;
   const isMobile = useIsMobile();
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -1281,13 +1429,42 @@ function TemplatesSection() {
         </p>
       </FadeIn>
 
-      <div className="max-w-5xl mx-auto">
-        {TEMPLATES.map((t, i) => (
-          <div key={t.id} style={{ height: isMobile ? "104vh" : "78vh" }}>
+      {/* Ангиллын chip — бүгд харагдана, утсан дээр мөр бууна */}
+      <div
+        className="flex flex-wrap justify-center gap-2 mb-10 md:mb-14"
+        role="tablist"
+        aria-label="Урилгын төрөл"
+      >
+        {CATEGORIES.map((c) => {
+          const active = c.key === cat;
+          return (
+            <button
+              key={c.key}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setCat(c.key)}
+              className="shrink-0 rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors"
+              style={
+                active
+                  ? { background: "#0C0C0C", color: "#fff", border: "1.5px solid #0C0C0C" }
+                  : { background: "#fff", color: "#0C0C0C", border: "1.5px solid #e5e1da" }
+              }
+            >
+              {c.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Утсан дээр энгийн жагсаалт (давхарлахгүй), desktop дээр sticky stacking */}
+      <div className="max-w-5xl mx-auto" key={cat}>
+        {groups.map((g, i) => (
+          <div key={g.name} style={isMobile ? { marginBottom: 24 } : { height: "78vh" }}>
             <TemplateCard
-              t={t}
+              group={g}
               index={i}
-              total={TEMPLATES.length}
+              total={groups.length}
               scrollProgress={scrollYProgress as ReturnType<typeof useMotionValue<number>>}
               onOpen={setSelected}
             />
