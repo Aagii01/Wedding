@@ -31,6 +31,12 @@ import Template28 from "./Template28";
 // хөвөх хөөс, нэр/төрсөн огноо/жин/өндөр, бэлгийн данс (сонголтоор), бүгд config-оос
 import Template29 from "./Template29";
 import Template30 from "./Template30";
+// Шинэ байрны (гэр орны) найрын урилга — нэг бүтэц, хоёр theme (Template31.tsx):
+// 31 = Терракота (шавар улаан, элс, царс), 32 = Сэйж (зөөлөн ногоон, чулуу, бор).
+// Хаалга нээх intro, утаатай байшин, гал голомтын оч, "Шинэ хаяг" (орц/давхар/тоот/код),
+// бэлгийн данс (сонголтоор), бүгд config-оос
+import Template31 from "./Template31";
+import Template32 from "./Template32";
 
 // Жагсаалтад байхгүй template утгатай (жишээ нь өмнө устгасан 15-18, 20)
 // хуучин event-үүд EventPage дээр App (Template11) руу fallback хийнэ.
@@ -50,4 +56,6 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "28": Template28,
   "29": Template29,
   "30": Template30,
+  "31": Template31,
+  "32": Template32,
 };
