@@ -404,17 +404,12 @@ function T14Hero({ event }: { event: EventData }) {
 // config: verse.names
 const VERSE_NAMES: Record<string, [string, string]> = {};
 
-// Шүлгийн доорх "Хоёр зүрх нэгдэхэд..." ишлэлийг нуух slug-ууд.
-// config: sections.verseQuote (false → нуугдана)
-const HIDE_VERSE_QUOTE = new Set<string>(["khongorzul"]);
-
 function T14Verse({ event }: { event: EventData }) {
   const names = nameBlock(
     cfg<unknown>(event.config, "verse.names", VERSE_NAMES[event.slug]),
     event.person1_name || "Diana",
     event.person2_name || (event.person1_name ? "" : "Richard"),
   );
-  const showVerseQuote = sectionOn(event.config, "verseQuote", !HIDE_VERSE_QUOTE.has(event.slug));
   // config: verse.font — байхгүй бол hero.font (нэрийн фонт hero-той ижил), size нь зөвхөн verse.font-оос
   const verseFont = cfg<{ family?: string; size?: number } | undefined>(event.config, "verse.font",
     cfg<{ family?: string } | undefined>(event.config, "hero.font", HERO_NAME_FONT[event.slug]));
@@ -464,14 +459,6 @@ function T14Verse({ event }: { event: EventData }) {
             )}
           </p>
         </FadeUp>
-
-        {showVerseQuote && (
-          <FadeUp delay={0.4}>
-            <p style={{ ...cgI, fontSize: 17, color: WAX, textAlign: "center", marginTop: 24, lineHeight: 1.7 }}>
-              "Хоёр зүрх нэгдэхэд дэлхий бүхэл бүтэн болно."
-            </p>
-          </FadeUp>
-        )}
       </div>
     </Paper>
   );
@@ -525,7 +512,7 @@ function T14DateCountdown({ event }: { event: EventData }) {
       <div style={{ padding: "72px 28px" }}>
         <FadeUp delay={0.1}>
           <div style={{ ...nameFont, color: WAX, fontSize: "clamp(28px, 7vw, 44px)", lineHeight: 1.15, textAlign: "center", marginTop: 8, marginBottom: 28 }}>
-            {cfg<string>(event.config, "countdown.title", COUNTDOWN_TITLE[event.slug] ?? "Хурим хүртэлх хугацаа")}
+            {cfg<string>(event.config, "countdown.title", COUNTDOWN_TITLE[event.slug] ?? "Хуримын өдөр")}
           </div>
         </FadeUp>
 
@@ -921,18 +908,13 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
             ...cg, fontWeight: 600, fontSize: 11, letterSpacing: "0.42em",
             textTransform: "uppercase", color: "var(--t14-gold)", textAlign: "center", marginBottom: 4,
           }}>
-            Ирцээ бүртгүүлэх
+            Бидний хуриманд
           </div>
         </FadeUp>
         <FadeUp delay={0.1}>
-          <div style={{ ...nameFont, color: "var(--t14-gold)", fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 16px" }}>
-            Та ирэх үү?
+          <div style={{ ...nameFont, color: "var(--t14-gold)", fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 40px" }}>
+            Та хүрэлцэн ирэх үү?
           </div>
-        </FadeUp>
-        <FadeUp delay={0.2}>
-          <p style={{ ...cg, fontSize: 17, color: "rgba(var(--t14-ink-rgb), 0.75)", textAlign: "center", marginBottom: 40, lineHeight: 1.7 }}>
-            Таны суудлыг хадгалахын тулд ирцийн мэдээллээ илгээнэ үү.
-          </p>
         </FadeUp>
 
         <FadeUp delay={0.3}>
@@ -1103,7 +1085,7 @@ function T14Wishes({ eventId }: { eventId: string }) {
         </FadeUp>
         <FadeUp delay={0.2}>
           <p style={{ ...cg, fontSize: 17, color: "rgba(var(--t14-ink-rgb), 0.75)", textAlign: "center", marginBottom: 36, lineHeight: 1.7 }}>
-            Баяр хүргэх үгээ үлдээнэ үү.
+            Та баяр хүргэж мэндчилгээ дэвшүүлэх бол энд үлдээнэ үү.
           </p>
         </FadeUp>
 

@@ -103,7 +103,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
 
-## ✅ Template14 — 20 түлхүүр
+## ✅ Template14 — 19 түлхүүр
 
 | Хэсэг | Түлхүүр | Юу хийх | Fallback |
 |---|---|---|---|
@@ -113,8 +113,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | | `hero.tagline` | "Бид гэрлэж байна" бичгийг солих (`""` → алга) | `HIDE_HERO_TAGLINE` |
 | **Урилгын үг** | `verse.names` | Шүлгийн дээрх нэр — `hero.names`-тэй ижил хэлбэр | `VERSE_NAMES` |
 | | `verse.font` | Verse-ийн нэрийн фонтыг hero-оос тусад нь өгөх `{"family":"...","size":92}`; байхгүй бол `hero.font` | `hero.font` |
-| | `sections.verseQuote` | "Хоёр зүрх нэгдэхэд..." ишлэлийг нуух (`false`) | `HIDE_VERSE_QUOTE` |
-| **Тоологч** | `countdown.title` | "Хурим хүртэлх хугацаа" гарчгийг солих | `COUNTDOWN_TITLE` |
+| **Тоологч** | `countdown.title` | "Хуримын өдөр" гарчгийг солих | `COUNTDOWN_TITLE` |
 | **Хөтөлбөр** | `sections.schedule` | Хөтөлбөрийг нуух (`false`) | `HIDE_SCHEDULE` |
 | | `schedule.qr` | Хөтөлбөрийн оронд QR зураг (URL) — `sections.schedule: false`-тэй хамт | `SCHEDULE_QR` |
 | **Цомог** | `sections.gallery` | Цомгийг нуух (`false`) | `HIDE_GALLERY` |
