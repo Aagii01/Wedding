@@ -291,6 +291,15 @@ function MusicPlayer({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 // config: hero.tagline ("" → нуугдана)
 const HIDE_HERO_TAGLINE = new Set<string>(["khongorzul"]);
 
+// Нүүрэн дэх хосын нэрийн фонт — hero ба verse-д (footer хэвээр Cormorant). verse.font-оор verse-ийг тусад нь өгч болно.
+// config: hero.font → { "family": "'Great Vibes', cursive", "size": 96 }
+//   family: CSS font-family (index.html-д ачаалсан байх ёстой), size: нэрийн дээд хэмжээ px (анхдагч 96)
+// Great Vibes — Google Fonts дээрх Cyrillic дэмждэг цорын ганц copperplate script
+// (захиалагчийн Bickham Script Pro зурагт хамгийн ойр үнэгүй хувилбар).
+const HERO_NAME_FONT: Record<string, { family: string; size?: number }> = {
+  "khosbayar-tserenchimed": { family: "'Great Vibes', cursive" },
+};
+
 function T14Hero({ event }: { event: EventData }) {
   // config: hero.names — ["Нэр1","Нэр2"] эсвэл "Цол, нэр" (ганц хүн, "\n" олон мөр)
   const names = nameBlock(
@@ -301,7 +310,11 @@ function T14Hero({ event }: { event: EventData }) {
   const heroTagline = cfg<string>(event.config, "hero.tagline", HIDE_HERO_TAGLINE.has(event.slug) ? "" : "Бид гэрлэж байна");
   const heroImg = event.main_image || FALLBACK[0];
   // Нэрийн дээд хэмжээ 112 → 96: бага зэрэг жижигрүүлсэн
-  const { wrapRef, size } = useFitText(names.lines.join("|"), 96, 30);
+  // config: hero.font — нэрийн фонт (family) ба дээд хэмжээ (size)
+  const heroFont = cfg<{ family?: string; size?: number } | undefined>(event.config, "hero.font", HERO_NAME_FONT[event.slug]);
+  const nameStyle = heroFont?.family ? { fontFamily: heroFont.family, fontStyle: "normal" as const } : nameFont;
+  const ampStyle  = heroFont?.family ? { ...nameStyle, fontWeight: 400 } : amp;
+  const { wrapRef, size } = useFitText(names.lines.join("|") + (heroFont?.family ?? ""), heroFont?.size ?? 96, 30);
 
   return (
     <section style={{ position: "relative", minHeight: "100svh", background: "#1a1612", overflow: "hidden", color: "#fff" }}>
@@ -341,14 +354,14 @@ function T14Hero({ event }: { event: EventData }) {
           // marginTop:auto → нэрийн блок доод хэсэг рүү шахагдана (гэхдээ
           // "Доошоо гүйлгэх" мөрийн дээр). Дээд/доод текст нь зурагны хамгийн
           // дээд ба хамгийн доод талд байрлана.
-          style={{ ...nameFont, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)", marginTop: "auto", marginBottom: 10 }}
+          style={{ ...nameStyle, width: "100%", lineHeight: 1.08, textShadow: "0 2px 22px rgba(0,0,0,0.55)", marginTop: "auto", marginBottom: 10 }}
         >
           {names.lines.map((line, i) => (
             <span key={i} style={{ display: "block" }}>
               {i > 0 && names.couple && (
                 <span style={{
                   display: "block",
-                  ...amp, fontSize: Math.max(20, Math.round(size * 0.32)),
+                  ...ampStyle, fontSize: Math.max(20, Math.round(size * (heroFont?.family ? 0.5 : 0.32))),
                   color: "rgba(255,255,255,0.9)", margin: "2px 0",
                   letterSpacing: "0.02em", textShadow: "0 1px 6px rgba(0,0,0,0.4)",
                 }}>&amp;</span>
@@ -402,7 +415,13 @@ function T14Verse({ event }: { event: EventData }) {
     event.person2_name || (event.person1_name ? "" : "Richard"),
   );
   const showVerseQuote = sectionOn(event.config, "verseQuote", !HIDE_VERSE_QUOTE.has(event.slug));
-  const { wrapRef, size } = useFitText(names.lines.join("|"), 92, 26);
+  // config: verse.font — байхгүй бол hero.font (нэрийн фонт hero-той ижил), size нь зөвхөн verse.font-оос
+  const verseFont = cfg<{ family?: string; size?: number } | undefined>(event.config, "verse.font",
+    cfg<{ family?: string } | undefined>(event.config, "hero.font", HERO_NAME_FONT[event.slug]));
+  const verseMax = cfg<number | undefined>(event.config, "verse.font.size", undefined) ?? 92;
+  const vNameStyle = verseFont?.family ? { fontFamily: verseFont.family, fontStyle: "normal" as const } : nameFont;
+  const vAmpStyle  = verseFont?.family ? { ...vNameStyle, fontWeight: 400 } : amp;
+  const { wrapRef, size } = useFitText(names.lines.join("|") + (verseFont?.family ?? ""), verseMax, 26);
 
   return (
     <Paper>
@@ -411,15 +430,15 @@ function T14Verse({ event }: { event: EventData }) {
 
         <FadeUp delay={0.2}>
           <div ref={wrapRef} style={{
-            ...nameFont, color: WAX, width: "100%",
+            ...vNameStyle, color: WAX, width: "100%",
             lineHeight: 1.08, textAlign: "center", margin: "12px 0 20px",
           }}>
             {names.lines.map((line, i) => (
               <span key={i} style={{ display: "block" }}>
                 {i > 0 && names.couple && (
                   <span style={{
-                    display: "block", ...amp,
-                    fontSize: Math.max(18, Math.round(size * 0.3)),
+                    display: "block", ...vAmpStyle,
+                    fontSize: Math.max(18, Math.round(size * (verseFont?.family ? 0.5 : 0.3))),
                     color: INK_MUTE, margin: "2px 0",
                   }}>&amp;</span>
                 )}

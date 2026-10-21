@@ -37,6 +37,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | **Intro** | `intro.video` | Эхэнд гарах видеоны URL солих | — | App.tsx |
 | | `sections.intro` | Intro видеог огт гаргахгүй (`false`) | — | App.tsx |
 | **Нүүр** | `hero.names` | Hero дээрх нэрийг солих (`["ЗАЯА","ДЭЭГИЙ"]`) | `HERO_NAMES` | WeddingHero.tsx |
+| | `hero.font` | Hero дээрх нэрийн фонт `{"family":"'Great Vibes', cursive","size":96}` — family нь index.html-д ачаалсан байх; hero ба verse-ийн нэрэнд, footer хэвээр | `HERO_NAME_FONT` |
 | | `hero.font` | Нэрийн фонт, хэмжээ `{family,size}` | `HERO_NAME_FONT` | WeddingHero.tsx |
 | | `hero.quotes` | `"en"` бичвэл ишлэл англиар | `ENGLISH_QUOTES` | WeddingHero.tsx |
 | | `hero.captions` | Carousel зургийн тайлбар (түлхүүр = зургийн URL) | `PHOTO_CAPTIONS` | WeddingHero.tsx |
@@ -102,7 +103,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
 
-## ✅ Template14 — 18 түлхүүр
+## ✅ Template14 — 20 түлхүүр
 
 | Хэсэг | Түлхүүр | Юу хийх | Fallback |
 |---|---|---|---|
@@ -111,6 +112,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | **Нүүр** | `hero.names` | `["Нэр1","Нэр2"]` → хос; `"Цол, нэр"` → ганц хүн, `\n`-ээр олон мөр | Supabase нэр |
 | | `hero.tagline` | "Бид гэрлэж байна" бичгийг солих (`""` → алга) | `HIDE_HERO_TAGLINE` |
 | **Урилгын үг** | `verse.names` | Шүлгийн дээрх нэр — `hero.names`-тэй ижил хэлбэр | `VERSE_NAMES` |
+| | `verse.font` | Verse-ийн нэрийн фонтыг hero-оос тусад нь өгөх `{"family":"...","size":92}`; байхгүй бол `hero.font` | `hero.font` |
 | | `sections.verseQuote` | "Хоёр зүрх нэгдэхэд..." ишлэлийг нуух (`false`) | `HIDE_VERSE_QUOTE` |
 | **Тоологч** | `countdown.title` | "Хурим хүртэлх хугацаа" гарчгийг солих | `COUNTDOWN_TITLE` |
 | **Хөтөлбөр** | `sections.schedule` | Хөтөлбөрийг нуух (`false`) | `HIDE_SCHEDULE` |
