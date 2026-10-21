@@ -102,10 +102,12 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
 
-## ✅ Template14 — 16 түлхүүр
+## ✅ Template14 — 18 түлхүүр
 
 | Хэсэг | Түлхүүр | Юу хийх | Fallback |
 |---|---|---|---|
+| **Intro** | `intro.video` | Эхэнд гарах видеоны URL солих (T13-ынх: `https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4`) | `INTRO_VIDEO[slug]` |
+| | `sections.intro` | Intro видеог огт гаргахгүй (`false`) | — |
 | **Нүүр** | `hero.names` | `["Нэр1","Нэр2"]` → хос; `"Цол, нэр"` → ганц хүн, `\n`-ээр олон мөр | Supabase нэр |
 | | `hero.tagline` | "Бид гэрлэж байна" бичгийг солих (`""` → алга) | `HIDE_HERO_TAGLINE` |
 | **Урилгын үг** | `verse.names` | Шүлгийн дээрх нэр — `hero.names`-тэй ижил хэлбэр | `VERSE_NAMES` |

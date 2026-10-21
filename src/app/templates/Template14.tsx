@@ -183,10 +183,16 @@ function Paper({ children, style = {} }: { children: React.ReactNode; style?: Re
 
 // ─── Video intro ──────────────────────────────────────────────────────────────
 // Template11-тэй адил эхэнд тоглодог видео. Дуусахад ар талын дуу эхэлнэ.
+// config: intro.video — өөр видео тавих (Template13-ынх: https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4)
+// config: sections.intro = false — видеог огт гаргахгүй.
 const T14_INTRO_VIDEO_URL =
   "https://tdy-excellence-template.thedigitalyes.com/assets/intro-video-new-CeLMqoNn.mp4";
+// config: intro.video — slug бүрийн intro видео (config байхгүй үед fallback)
+const INTRO_VIDEO: Record<string, string> = {
+  "khosbayar-tserenchimed": "https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4", // T13-ын дугтуй
+};
 
-function T14VideoIntro({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement | null> }) {
+function T14VideoIntro({ audioRef, src }: { audioRef: React.RefObject<HTMLAudioElement | null>; src?: string }) {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -217,7 +223,7 @@ function T14VideoIntro({ audioRef }: { audioRef: React.RefObject<HTMLAudioElemen
     >
       <video
         ref={videoRef}
-        src={T14_INTRO_VIDEO_URL}
+        src={src || T14_INTRO_VIDEO_URL}
         autoPlay muted playsInline preload="auto"
         onEnded={handleEnded}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
@@ -1319,7 +1325,10 @@ export default function Template14({ event }: { event: EventData }) {
 
   return (
     <div style={{ maxWidth: 523, margin: "0 auto", overflowX: "hidden" }}>
-      <T14VideoIntro audioRef={audioRef} />
+      {/* config: sections.intro = false → intro-гүй; intro.video → өөр видео (жнь T13-ынх) */}
+      {sectionOn(event.config, "intro", true) && (
+        <T14VideoIntro audioRef={audioRef} src={cfg<string | undefined>(event.config, "intro.video", INTRO_VIDEO[event.slug])} />
+      )}
       {event.music_url && <audio ref={audioRef} src={event.music_url} loop preload="auto" />}
       <T14Hero event={event} />
       <T14Verse event={event} />
