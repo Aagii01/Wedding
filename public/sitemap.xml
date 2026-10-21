@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Нүүр хуудас + захиалагчид үзүүлдэг demo урилгууд. Хувийн урилгууд (/i/:slug) ороогүй. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://eurilga.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://eurilga.com/i/demo-pearl</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://eurilga.com/i/demo-azure</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://eurilga.com/i/demo-ruby</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://eurilga.com/i/demo-diamond</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://eurilga.com/i/demo-sonic</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://eurilga.com/i/demo-spider</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://eurilga.com/i/demo-ice</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://eurilga.com/i/demo-sun</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+</urlset>

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /create
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://eurilga.com/sitemap.xml

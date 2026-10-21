@@ -48,6 +48,7 @@ export function EventPage() {
       <Template event={event!} />
       {sectionOn(event!.config, "credit") && (
         <MadeWithCredit
+          slug={event!.slug}
           bg={cfg<string | undefined>(event!.config, "style.creditBg", undefined)}
           ink={cfg<string | undefined>(event!.config, "style.creditInk", undefined)}
         />

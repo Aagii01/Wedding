@@ -414,15 +414,24 @@ const VERSE_CHILDREN: Record<string, string | string[]> = {
   "khosbayar-tserenchimed": "Охин: Х.Сор-Үйлс",
 };
 
+// Урилгын үг дээрх нэрийн фонт — hero.font-оос ТУСАД нь. false → анхдагч Cormorant italic
+// (hero дээр script фонт боловч verse-д бусад T14 урилгын адил энгийн нэр).
+// config: verse.font → false эсвэл { "family": "...", "size": 92 }
+const VERSE_NAME_FONT: Record<string, { family: string; size?: number } | false> = {
+  "khosbayar-tserenchimed": false,
+};
+
 function T14Verse({ event }: { event: EventData }) {
   const names = nameBlock(
     cfg<unknown>(event.config, "verse.names", VERSE_NAMES[event.slug]),
     event.person1_name || "Diana",
     event.person2_name || (event.person1_name ? "" : "Richard"),
   );
-  // config: verse.font — байхгүй бол hero.font (нэрийн фонт hero-той ижил), size нь зөвхөн verse.font-оос
-  const verseFont = cfg<{ family?: string; size?: number } | undefined>(event.config, "verse.font",
-    cfg<{ family?: string } | undefined>(event.config, "hero.font", HERO_NAME_FONT[event.slug]));
+  // config: verse.font — байхгүй бол hero.font (нэрийн фонт hero-той ижил), false бол анхдагч
+  // Cormorant italic, size нь зөвхөн verse.font-оос
+  const verseFontRaw = cfg<{ family?: string; size?: number } | false | undefined>(event.config, "verse.font",
+    VERSE_NAME_FONT[event.slug] ?? cfg<{ family?: string } | undefined>(event.config, "hero.font", HERO_NAME_FONT[event.slug]));
+  const verseFont = verseFontRaw || undefined;
   const verseMax = cfg<number | undefined>(event.config, "verse.font.size", undefined) ?? 92;
   const vNameStyle = verseFont?.family ? { fontFamily: verseFont.family, fontStyle: "normal" as const } : nameFont;
   const vAmpStyle  = verseFont?.family ? { ...vNameStyle, fontWeight: 400 } : amp;

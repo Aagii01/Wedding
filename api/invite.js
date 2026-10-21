@@ -254,6 +254,8 @@ export default async function handler(req, res) {
         // үлдээвэл Facebook эхний og:title-ийг авч, урилгын preview-ийн оронд
         // нүүр хуудасных гарна — тиймээс урилгынхыг оруулахын өмнө устгана.
         .replace(/[ \t]*<meta (?:property="og:|name="twitter:|name="description")[^>]*>\s*/g, "")
+        // Нүүрийн canonical урилгын хуудсанд үлдвэл Google урилгыг нүүр гэж ойлгоно
+        .replace(/[ \t]*<link rel="canonical"[^>]*>\s*/g, "")
         .replace("</head>", `  ${tags}\n    </head>`);
     }
   } catch {

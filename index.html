@@ -1,30 +1,33 @@
 
   <!DOCTYPE html>
-  <html lang="en">
+  <html lang="mn">
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-      <title>Special Day · Урилга</title>
+      <title>Цахим урилга — хурим, төрсөн өдөр, баярын урилга онлайн | Special Day</title>
       <!-- Нүүр хуудасны (/) линк preview — Facebook, Messenger, Instagram.
            %SITE_URL% нь build үед vite.config.ts-ийн siteUrl plugin-ээр
            Vercel-ийн production домэйнээр солигдоно (домэйн солиход код
            хөндөхгүй). /i/:slug хуудсанд api/invite.js эдгээрийг устгаад
            урилгын өөрийн tag-ийг оруулдаг. -->
-      <meta name="description" content="Хурим, баярын онцгой цахим урилгыг 24 цагийн дотор бэлдэж тань руу явуулна. Хөгжим, ирц бүртгэл, мэндчилгээ, газрын зурагтай." />
+      <meta name="description" content="Хуримын урилга, төрсөн өдрийн урилга, сэвлэг үргээх, хүндэтгэлийн баярын цахим урилгыг 24 цагийн дотор бэлдэж тань руу явуулна. Хөгжим, видео intro, ирц бүртгэл, мэндчилгээ, газрын зурагтай. 15+ загвар." />
+      <meta name="keywords" content="цахим урилга, хуримын урилга, онлайн урилга, төрсөн өдрийн урилга, сэвлэг үргээх урилга, хуримын цахим урилга, урилга захиалах, Special Day, eurilga" />
+      <!-- canonical — зөвхөн нүүр хуудсанд; /i/:slug дээр api/invite.js устгана -->
+      <link rel="canonical" href="%SITE_URL%/" />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Special Day" />
       <meta property="og:locale" content="mn_MN" />
       <!-- og:url зориуд байхгүй: Vercel project-ийн үндсэн домэйн (12v-invitation)
            ба тараадаг линк (wedding-silk-nine) зөрдөг тул Facebook хуваалцсан
            линкийг өөрийг нь canonical болгож ашиглана. -->
-      <meta property="og:title" content="Special Day — Монгол цахим урилга" />
-      <meta property="og:description" content="Хурим, баярын онцгой цахим урилгыг 24 цагийн дотор бэлдэж тань руу явуулна. Хөгжим, ирц бүртгэл, мэндчилгээ, газрын зурагтай." />
+      <meta property="og:title" content="Special Day — Хурим, баярын цахим урилга" />
+      <meta property="og:description" content="Хуримын урилга, төрсөн өдрийн урилга, баярын цахим урилгыг 24 цагийн дотор бэлдэж тань руу явуулна. Хөгжим, ирц бүртгэл, мэндчилгээ, газрын зурагтай." />
       <meta property="og:image" content="%SITE_URL%/og-landing.jpg" />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="Special Day — Монгол цахим урилга" />
+      <meta name="twitter:title" content="Special Day — Хурим, баярын цахим урилга" />
       <meta name="twitter:description" content="Хурим, баярын онцгой цахим урилгыг 24 цагийн дотор бэлдэж тань руу явуулна." />
       <meta name="twitter:image" content="%SITE_URL%/og-landing.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,6 +37,24 @@
          өөр фонт мэт харагддаг байсан. -->
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Ovo&family=Pinyon+Script&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Kanit:wght@300;400;500;600;700;800;900&family=Caveat:wght@400;500;600;700&family=Bad+Script&family=Russo+One&family=Oswald:wght@500;600;700&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
       <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+      <!-- Google-д байгууллагын мэдээлэл (нэр, домэйн, утас, сошиал) -->
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Special Day",
+        "alternateName": "eurilga.com",
+        "url": "%SITE_URL%/",
+        "logo": "%SITE_URL%/og-landing.jpg",
+        "description": "Монголын хурим, төрсөн өдөр, баярын цахим урилгын платформ",
+        "telephone": "+976 88328085",
+        "areaServed": "MN",
+        "sameAs": [
+          "https://www.facebook.com/profile.php?id=61582580015733",
+          "https://www.instagram.com/e_urilga.mn"
+        ]
+      }
+      </script>
     </head>
 
     <body>

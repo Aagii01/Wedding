@@ -112,7 +112,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | **Нүүр** | `hero.names` | `["Нэр1","Нэр2"]` → хос; `"Цол, нэр"` → ганц хүн, `\n`-ээр олон мөр | Supabase нэр |
 | | `hero.tagline` | "Бид гэрлэж байна" бичгийг солих (`""` → алга) | `HIDE_HERO_TAGLINE` |
 | **Урилгын үг** | `verse.names` | Шүлгийн дээрх нэр — `hero.names`-тэй ижил хэлбэр | `VERSE_NAMES` |
-| | `verse.font` | Verse-ийн нэрийн фонтыг hero-оос тусад нь өгөх `{"family":"...","size":92}`; байхгүй бол `hero.font` | `hero.font` |
+| | `verse.font` | Verse-ийн нэрийн фонтыг hero-оос тусад нь өгөх `{"family":"...","size":92}`; байхгүй бол `hero.font`; `false` бол анхдагч Cormorant italic (hero script фонттой ч verse энгийн) | `VERSE_NAME_FONT` |
 | | `verse.children` | Нэрсийн доор "&" + хүүхдийн нэр нэрийн фонтоор, арай жижиг (`"Охин: Х.Сор-Үйлс"` эсвэл массив); өгвөл нэрсийн хоорондох "&" гарахгүй | `VERSE_CHILDREN` |
 | **Тоологч** | `countdown.title` | "Хуримын өдөр" гарчгийг солих | `COUNTDOWN_TITLE` |
 | **Хөтөлбөр** | `sections.schedule` | Хөтөлбөрийг нуух (`false`) | `HIDE_SCHEDULE` |

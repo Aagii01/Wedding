@@ -1,4 +1,4 @@
-import { BRAND } from "../../lib/brand";
+import { BRAND, messengerUrl } from "../../lib/brand";
 import {
   motion,
   AnimatePresence,
@@ -15,6 +15,8 @@ import { DEMO_EVENT } from "../demo/demoEvent";
 
 // Холбоо барих — src/lib/brand.ts (урилгын доорх MadeWithCredit-тэй нэг эх үүсвэр)
 const FACEBOOK_URL = BRAND.facebook;
+// Захиалгын бүх товч Messenger чат руу шууд (page биш) — нэг товшилтоор бичнэ
+const ORDER_URL = messengerUrl("Сайн байна уу! Цахим урилга захиалмаар байна.");
 const INSTAGRAM_URL = BRAND.instagram;
 
 // Showcase-ийн загвар (хувилбар). Нэг бүтэцтэй, хоёр өнгөний хувилбартай загварууд
@@ -616,7 +618,7 @@ function HeroSection() {
             <span className="hidden sm:inline">88328085</span>
           </a>
           <a
-            href={FACEBOOK_URL}
+            href={ORDER_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs sm:text-sm font-medium uppercase tracking-widest hover:opacity-70 transition-opacity"
@@ -655,18 +657,46 @@ function HeroSection() {
           </motion.h1>
         </div>
 
-        <motion.p
+        {/* Дэд бичвэр: (1) урилгын төрлүүд — алтан, жижиг, том үсгээр, цэгээр
+            тусгаарласан (SEO түлхүүр үгс харагдахуйц); (2) амлалт — Cormorant italic */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-6 mb-10 max-w-sm mx-auto leading-relaxed"
-          style={{
-            color: "rgba(215,226,234,0.6)",
-            fontSize: "clamp(0.85rem, 1.5vw, 1.1rem)",
-          }}
+          className="mt-7 mb-10 mx-auto"
+          style={{ maxWidth: 520 }}
         >
-          Хурим, баярын онцгой урилгыг 24 цагийн дотор бэлдэж тань руу явуулна
-        </motion.p>
+          <p
+            className="uppercase"
+            style={{
+              ...goldGrad,
+              fontSize: "clamp(0.62rem, 1.1vw, 0.78rem)",
+              letterSpacing: "0.22em",
+              lineHeight: 1.9,
+              wordSpacing: "0.1em",
+            }}
+          >
+            Хуримын урилга
+            <span aria-hidden="true" style={{ margin: "0 0.55em", opacity: 0.55 }}>·</span>
+            Төрсөн өдрийн урилга
+            <span aria-hidden="true" style={{ margin: "0 0.55em", opacity: 0.55 }}>·</span>
+            Сэвлэг үргээх
+            <span aria-hidden="true" style={{ margin: "0 0.55em", opacity: 0.55 }}>·</span>
+            Хүндэтгэлийн баяр
+          </p>
+          <p
+            className="mt-3 leading-snug"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontStyle: "italic",
+              fontWeight: 500,
+              color: "rgba(215,226,234,0.78)",
+              fontSize: "clamp(1.15rem, 2.2vw, 1.55rem)",
+            }}
+          >
+            Онцгой цахим урилгыг 24 цагийн дотор бэлдэж тань руу явуулна
+          </p>
+        </motion.div>
       </div>
 
       {/* Fan carousel */}
@@ -901,14 +931,14 @@ function AboutSection() {
         </FadeIn>
 
         <AnimatedText
-          text="Төгс сэтгэгдэл урилгаас эхэлнэ. Та зөвхөн загвараа сонгож, үлдсэнийг нь бидэнд даатгаарай. Ердөө 24 цагийн дотор бэлэн болох link болон QR код таныг хайртай хүмүүстэй тань орон зай, цаг хугацааны зааггүйгээр холбох болно."
+          text="Төгс сэтгэгдэл урилгаас эхэлнэ. Special Day бол Монголын хурим, төрсөн өдөр, баярын цахим урилгын платформ. Та зөвхөн загвараа сонгож, үлдсэнийг нь бидэнд даатгаарай. Ердөө 24 цагийн дотор бэлэн болох link болон QR код таныг хайртай хүмүүстэй тань орон зай, цаг хугацааны зааггүйгээр холбох болно."
           className="font-medium text-center leading-relaxed max-w-[560px] mx-auto"
           style={{ color: "#D7E2EA", fontSize: "clamp(1rem, 2vw, 1.35rem)" }}
         />
       </div>
 
       <div className="relative z-10 mt-16 md:mt-20">
-        <CTAButton href={FACEBOOK_URL}>Захиалга өгөх</CTAButton>
+        <CTAButton href={ORDER_URL}>Захиалга өгөх</CTAButton>
       </div>
     </section>
   );
@@ -1184,7 +1214,7 @@ function TemplateCard({
                     ▶ Demo үзэх
                   </button>
                   <a
-                    href={FACEBOOK_URL}
+                    href={ORDER_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block rounded-full font-semibold uppercase tracking-wider text-xs px-6 py-2.5 transition-opacity hover:opacity-80"
@@ -1368,7 +1398,7 @@ function DemoModal({ t, onClose }: { t: Template; onClose: () => void }) {
               </button>
             )}
             <a
-              href={FACEBOOK_URL}
+              href={ORDER_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-full font-semibold uppercase tracking-wider text-xs px-7 py-3 transition-transform hover:scale-105"
@@ -1610,7 +1640,7 @@ function WhyUsSection() {
               Таны урилга — Таны нэрийн хуудас.
             </p>
             <a
-              href={FACEBOOK_URL}
+              href={ORDER_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block mt-8 rounded-full font-semibold text-sm px-8 py-3.5 text-white transition-transform hover:scale-[1.02]"
@@ -1739,7 +1769,7 @@ function FooterSection() {
           </h2>
         </FadeIn>
         <FadeIn y={20} delay={0.15} duration={0.7}>
-          <CTAButton href={FACEBOOK_URL}>Facebook-р холбогдох →</CTAButton>
+          <CTAButton href={ORDER_URL}>Messenger-ээр захиалах →</CTAButton>
         </FadeIn>
       </div>
 
@@ -1761,7 +1791,7 @@ function FooterSection() {
             className="text-xs tracking-widest uppercase"
             style={{ color: "rgba(215,226,234,0.22)" }}
           >
-            © 2026 — Монгол хурим, баярын цахим урилга
+            © 2026 — eurilga.com · Монгол хурим, төрсөн өдөр, баярын цахим урилга
           </p>
         </div>
       </div>
