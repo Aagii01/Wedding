@@ -30,6 +30,9 @@ const cgI    = { fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, seri
 const amp    = { ...cg, fontStyle: "normal" as const, fontWeight: 400 } as const;
 // Хосын нэр ба гарчиг — Pinyon Script кирилл дэмждэггүй тул citat-ийн italic Cormorant
 const nameFont = cgI;
+// Great Vibes зэрэг script фонтод Монгол "Ү/ү" үсэг байхгүй (өөр фонтоор тасарч гардаг).
+// Хэлбэр нь латин "Y/y"-тэй яг ижил тул custom нэрийн фонт хэрэглэсэн үед сольж бичнэ.
+const mnGlyphs = (s: string) => s.replace(/Ү/g, "Y").replace(/ү/g, "y");
 
 // venue_map_url дээр http(s):// угтвар байхгүй бол браузер харьцангуй зам гэж
 // ойлгож сайтын хаяг дээр наадаг. Угтваргүй бол https:// нэмж бүтэн болгоно.
@@ -367,7 +370,7 @@ function T14Hero({ event }: { event: EventData }) {
                 }}>&amp;</span>
               )}
               {/* inline-block + nowrap — useFitText мөр бүрийн өргөнийг хэмждэг */}
-              <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{line}</span>
+              <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{heroFont?.family ? mnGlyphs(line) : line}</span>
             </span>
           ))}
         </motion.div>
@@ -404,6 +407,13 @@ function T14Hero({ event }: { event: EventData }) {
 // config: verse.names
 const VERSE_NAMES: Record<string, [string, string]> = {};
 
+// Нэрсийн ДООР "&" + хүүхдийн нэр (нэрийн фонтоор, арай жижиг). Өгвөл нэрсийн
+// хоорондох "&" гарахгүй — "&" нь хүүхдийн мөр рүү шилжинэ.
+// config: verse.children — "Охин: Х.Сор-Үйлс" эсвэл ["...", "..."]
+const VERSE_CHILDREN: Record<string, string | string[]> = {
+  "khosbayar-tserenchimed": "Охин: Х.Сор-Үйлс",
+};
+
 function T14Verse({ event }: { event: EventData }) {
   const names = nameBlock(
     cfg<unknown>(event.config, "verse.names", VERSE_NAMES[event.slug]),
@@ -417,6 +427,9 @@ function T14Verse({ event }: { event: EventData }) {
   const vNameStyle = verseFont?.family ? { fontFamily: verseFont.family, fontStyle: "normal" as const } : nameFont;
   const vAmpStyle  = verseFont?.family ? { ...vNameStyle, fontWeight: 400 } : amp;
   const { wrapRef, size } = useFitText(names.lines.join("|") + (verseFont?.family ?? ""), verseMax, 26);
+  // config: verse.children — нэрсийн доор "&" + хүүхдийн нэр
+  const childrenRaw = cfg<string | string[] | undefined>(event.config, "verse.children", VERSE_CHILDREN[event.slug]);
+  const childLines = (Array.isArray(childrenRaw) ? childrenRaw : childrenRaw ? [childrenRaw] : []).map(String).filter(Boolean);
 
   return (
     <Paper>
@@ -430,16 +443,28 @@ function T14Verse({ event }: { event: EventData }) {
           }}>
             {names.lines.map((line, i) => (
               <span key={i} style={{ display: "block" }}>
-                {i > 0 && names.couple && (
+                {i > 0 && names.couple && childLines.length === 0 && (
                   <span style={{
                     display: "block", ...vAmpStyle,
                     fontSize: Math.max(18, Math.round(size * (verseFont?.family ? 0.5 : 0.3))),
                     color: INK_MUTE, margin: "2px 0",
                   }}>&amp;</span>
                 )}
-                <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{line}</span>
+                <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{verseFont?.family ? mnGlyphs(line) : line}</span>
               </span>
             ))}
+            {childLines.length > 0 && (
+              <>
+                <span style={{
+                  display: "block", ...vAmpStyle,
+                  fontSize: Math.max(18, Math.round(size * (verseFont?.family ? 0.5 : 0.3))),
+                  color: INK_MUTE, margin: "2px 0",
+                }}>&amp;</span>
+                {childLines.map((l, i) => (
+                  <span key={`c${i}`} style={{ display: "block", fontSize: Math.round(size * 0.62), lineHeight: 1.25 }}>{verseFont?.family ? mnGlyphs(l) : l}</span>
+                ))}
+              </>
+            )}
           </div>
         </FadeUp>
 

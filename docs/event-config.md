@@ -37,7 +37,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | **Intro** | `intro.video` | Эхэнд гарах видеоны URL солих | — | App.tsx |
 | | `sections.intro` | Intro видеог огт гаргахгүй (`false`) | — | App.tsx |
 | **Нүүр** | `hero.names` | Hero дээрх нэрийг солих (`["ЗАЯА","ДЭЭГИЙ"]`) | `HERO_NAMES` | WeddingHero.tsx |
-| | `hero.font` | Hero дээрх нэрийн фонт `{"family":"'Great Vibes', cursive","size":96}` — family нь index.html-д ачаалсан байх; hero ба verse-ийн нэрэнд, footer хэвээр | `HERO_NAME_FONT` |
+| | `hero.font` | Hero дээрх нэрийн фонт `{"family":"'Great Vibes', cursive","size":96}` — family нь index.html-д ачаалсан байх; hero ба verse-ийн нэрэнд, footer хэвээр. Great Vibes-д Ү/ү байхгүй тул custom фонттой үед Ү/ү → латин Y/y (хэлбэр ижил) автоматаар солигдоно | `HERO_NAME_FONT` |
 | | `hero.font` | Нэрийн фонт, хэмжээ `{family,size}` | `HERO_NAME_FONT` | WeddingHero.tsx |
 | | `hero.quotes` | `"en"` бичвэл ишлэл англиар | `ENGLISH_QUOTES` | WeddingHero.tsx |
 | | `hero.captions` | Carousel зургийн тайлбар (түлхүүр = зургийн URL) | `PHOTO_CAPTIONS` | WeddingHero.tsx |
@@ -103,7 +103,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
 
-## ✅ Template14 — 19 түлхүүр
+## ✅ Template14 — 20 түлхүүр
 
 | Хэсэг | Түлхүүр | Юу хийх | Fallback |
 |---|---|---|---|
@@ -113,6 +113,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | | `hero.tagline` | "Бид гэрлэж байна" бичгийг солих (`""` → алга) | `HIDE_HERO_TAGLINE` |
 | **Урилгын үг** | `verse.names` | Шүлгийн дээрх нэр — `hero.names`-тэй ижил хэлбэр | `VERSE_NAMES` |
 | | `verse.font` | Verse-ийн нэрийн фонтыг hero-оос тусад нь өгөх `{"family":"...","size":92}`; байхгүй бол `hero.font` | `hero.font` |
+| | `verse.children` | Нэрсийн доор "&" + хүүхдийн нэр нэрийн фонтоор, арай жижиг (`"Охин: Х.Сор-Үйлс"` эсвэл массив); өгвөл нэрсийн хоорондох "&" гарахгүй | `VERSE_CHILDREN` |
 | **Тоологч** | `countdown.title` | "Хуримын өдөр" гарчгийг солих | `COUNTDOWN_TITLE` |
 | **Хөтөлбөр** | `sections.schedule` | Хөтөлбөрийг нуух (`false`) | `HIDE_SCHEDULE` |
 | | `schedule.qr` | Хөтөлбөрийн оронд QR зураг (URL) — `sections.schedule: false`-тэй хамт | `SCHEDULE_QR` |
