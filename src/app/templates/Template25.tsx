@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Toaster } from "../components/ui/sonner";
 import { EventData } from "../../types/event";
 import { getPoemLines, getSchedule } from "../../lib/eventContent";
-import { cfg, sectionOn } from "../../lib/eventConfig";
+import { cfg, sectionOn, isHaircut } from "../../lib/eventConfig";
 import { normalizeUrl } from "../../lib/url";
 
 // ─── Template 25 / 26 — эмэгтэй хүүхдийн төрсөн өдөр ─────────────────────────
@@ -683,7 +683,7 @@ function T25Hero({ event, started }: { event: EventData; started: boolean }) {
   const t = useT();
   const name    = givenName(cfg(event.config, "hero.name", event.person1_name || "Бяцхан гүнж"));
   const age     = cfg<string | number | null>(event.config, "hero.age", null);
-  const eyebrow = cfg(event.config, "hero.eyebrow", "Төрсөн өдрийн урилга");
+  const eyebrow = cfg(event.config, "hero.eyebrow", isHaircut(event.config) ? "Сэвлэг үргээх ёслолын урилга" : "Төрсөн өдрийн урилга");
   const photo   = cfg<string | null>(event.config, "hero.photo", null) || event.person1_photo || event.main_image;
   const mascot     = cfg<string | null>(event.config, "hero.mascot", null);
   const mascotSide = cfg<"left" | "right">(event.config, "hero.mascotSide", "left");
@@ -780,10 +780,17 @@ const T25_DEFAULT_POEM = [
   "гэрэлт баяраа хамтдаа тэмдэглэе.",
   "Та бүхнийг хүрэлцэн ирэхийг урьж байна!",
 ];
+// config.ceremony = "haircut" үеийн анхдагч урилгын үг
+const T25_HAIRCUT_POEM = [
+  "Бяцхан гүнжийн маань сэвлэгийг үргээх цаг ирлээ…",
+  "Үсийг нь хайчлан, ерөөлийн үгээ хайрлаж",
+  "энэ онцгой өдрийг хамтдаа тэмдэглэе.",
+  "Та бүхнийг хүрэлцэн ирэхийг урьж байна!",
+];
 
 function T25Letter({ event }: { event: EventData }) {
   const t = useT();
-  const lines = getPoemLines(event, T25_DEFAULT_POEM);
+  const lines = getPoemLines(event, isHaircut(event.config) ? T25_HAIRCUT_POEM : T25_DEFAULT_POEM);
   return (
     <div id="t25-letter">
       <Section>
@@ -927,16 +934,31 @@ function T25Countdown({ event }: { event: EventData }) {
   );
 }
 
+// config.ceremony = "haircut" үеийн хүсэлтийн анхдагч бичвэр (хоёр theme-д ижил)
+const HAIRCUT_REQUEST =
+  "Бяцхан гүнжийн маань сэвлэгээс нэг хэсгийг хайчилж, ерөөлийн сайхан үгээ хайрлахыг та бүхнээс хүсье. Хайч, хадаг бэлэн байна.";
+
 // ─── Хөтөлбөр ────────────────────────────────────────────────────────────────
 function T25Schedule({ event }: { event: EventData }) {
   const t = useT();
   const [hh, mm] = (event.time || "15:00").split(":").map(Number);
   const fmt = (h: number, m: number) =>
     String(Math.floor(h + m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
-  const items = getSchedule(event, [
-    { time: fmt(hh, mm),          label: "Угтах" },
+  // Анхдагч хөтөлбөр 6 алхам (30 минутын зайтай) — захиалагчийн `schedule` өгвөл тэр нь түрүүлнэ
+  const items = getSchedule(event, isHaircut(event.config) ? [
+    { time: fmt(hh, mm),          label: "Угтах, зургийн булан" },
+    { time: fmt(hh, mm + 30),     label: "Сэвлэг үргээх ёслол" },
+    { time: fmt(hh + 1, mm),      label: "Ерөөл, бэлэг гардуулах" },
+    { time: fmt(hh + 1, mm + 30), label: "Хүндэтгэлийн зоог" },
+    { time: fmt(hh + 2, mm),      label: "Бялуу зүсэх" },
+    { time: fmt(hh + 2, mm + 30), label: "Үдэх" },
+  ] : [
+    { time: fmt(hh, mm),          label: "Угтах, зургийн булан" },
     { time: fmt(hh, mm + 30),     label: t.key === "ice" ? "Тоглоом, ид шидийн сорил" : "Тоглоом, дэнлүү чимэглэх" },
+    { time: fmt(hh + 1, mm),      label: "Гүнжийн бүжиг, хөгжим" },
     { time: fmt(hh + 1, mm + 30), label: "Бялуу зүсэх" },
+    { time: fmt(hh + 2, mm),      label: "Бэлэг нээх, ерөөл" },
+    { time: fmt(hh + 2, mm + 30), label: "Үдэх" },
   ]);
   const [IconA, IconB] = t.scheduleIcons;
 
@@ -1019,8 +1041,9 @@ function T25Location({ event }: { event: EventData }) {
 // ─── Бяцхан хүсэлт ───────────────────────────────────────────────────────────
 function T25Request({ event }: { event: EventData }) {
   const t = useT();
-  const title = cfg(event.config, "request.title", "Бяцхан хүсэлт");
-  const text  = cfg(event.config, "request.text", t.requestText);
+  const haircut = isHaircut(event.config);
+  const title = cfg(event.config, "request.title", haircut ? "Ерөөлийн хүсэлт" : "Бяцхан хүсэлт");
+  const text  = cfg(event.config, "request.text", haircut ? HAIRCUT_REQUEST : t.requestText);
   return (
     <Section>
       <Texture />

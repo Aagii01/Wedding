@@ -105,12 +105,16 @@ src/app/templates/
   `"24"` (Spider-Man) — эрэгтэй хүүхдийн төрсөн өдөр, нэг бүтэц `Template23.tsx`-ийн `HeroBirthday` + theme
   объект, дарж нээх intro, Oswald фонт, бүгд config-оос
   `"25"` (Мөсөн гүнж) ба `"26"` (Нарны гүнж) — эмэгтэй хүүхдийн төрсөн өдөр, нэг бүтэц `Template25.tsx`-ийн
-  `PrincessBirthday` + theme объект, Playfair Display фонт, section/config нь T23-тай ижил
+  `PrincessBirthday` + theme объект, Playfair Display фонт, section/config нь T23-тай ижил.
+  T23–26 бүгд `config.ceremony: "haircut"` → сэвлэг үргээх ёслолын анхдагч бичвэр (шинэ загвар биш, config)
   `"27"` (Бордо-алт) ба `"28"` (Хөх-алт) — шагналын баярын урилга, 40+ үзэгч, нэг бүтэц `Template27.tsx`-ийн
   `AwardCeremony` + theme, цайвар ivory, PT Serif том бичиг, "Том үсэг" товч, T13-ын дугтуй видео intro, бүгд config-оос
   `"29"` (Хүү) ба `"30"` (Охин) — нярай хүүхдийн усны найрын урилга, нэг бүтэц `Template29.tsx`-ийн
   `BabyCelebration` + theme, зөөлөн пастель, дүүжин тоглоом, хөвөх хөөс, нэр/төрсөн огноо/жин/өндөр,
   бэлгийн данс (сонголтоор), бүгд config-оос
+  `"31"` (Терракота) ба `"32"` (Сэйж) — шинэ байрны (гэр орны) найрын урилга, нэг бүтэц `Template31.tsx`-ийн
+  `HouseWarming` + theme, хаалга нээх intro, утаатай байшин, гал голомтын оч, нуман зураг, "Шинэ хаяг"
+  (орц/давхар/тоот/код/зогсоол + хуулах), бэлгийн данс (сонголтоор), `events.type = 'apartment'`, бүгд config-оос
 - Шинэ template нэмэхдээ: шинэ файл үүсгэх + `templateMap.ts`-д key нэмэх (LandingPage-ийн demo-д автоматаар орно)
 
 ### Template 11 (src/app/App.tsx) — "Classic"

@@ -49,3 +49,13 @@ export function cfg<T>(config: unknown, path: string, fallback: T): T {
 export function sectionOn(config: unknown, name: string, fallback = true): boolean {
   return cfg<unknown>(config, `sections.${name}`, fallback) !== false;
 }
+
+/**
+ * Ёслолын төрөл: `config.ceremony`. "haircut" → сэвлэг үргээх ёслол.
+ * Хүүхдийн загварууд (T23–26) энэ үед eyebrow, урилгын үг, хөтөлбөр, хүсэлтийн
+ * АНХДАГЧ бичвэрээ төрсөн өдрийнхөөс ёслолынх болгож солино. Захиалагчийн
+ * өөрийн `poem` / `schedule` / `request.*` өгөгдсөн бол тэр нь түрүүлнэ.
+ */
+export function isHaircut(config: unknown): boolean {
+  return cfg<unknown>(config, "ceremony", "") === "haircut";
+}

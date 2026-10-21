@@ -281,6 +281,7 @@ Intro нь видео биш — цагираг дээр дарж нээнэ (д
 | Түлхүүр | Төрөл | Үндсэн утга | Тайлбар |
 |---|---|---|---|
 | `theme` | "sonic" / "spider" | template-ээр | Theme-ийг template солихгүйгээр өөрчлөх |
+| `ceremony` | "haircut" | — | **Сэвлэг үргээх ёслол.** Анхдагч бичвэрүүд ёслолынх болно: eyebrow "Сэвлэг үргээх ёслолын урилга", урилгын үг (сэвлэг, хайч, ерөөл), хөтөлбөр "Угтах → Сэвлэг үргээх ёслол → Хүндэтгэлийн зоог, бялуу", хүсэлт "Ерөөлийн хүсэлт". Өөрийн `poem`/`schedule`/`request.*` өгвөл тэр нь түрүүлнэ. T25/26-д мөн адил |
 | `hero.name` | string | `person1_name` | Овгийн үсэг ("Э.") автоматаар хасагдана |
 | `hero.age` | string/number | — | Өгвөл бамбайн баруун доор цагирагтай "5 НАС" тэмдэг |
 | `hero.eyebrow` | string | "Төрсөн өдрийн урилга" | |
@@ -331,7 +332,7 @@ update events set template = '23', config = '{
 - **26 = Нарны гүнж (sun)** — ягаан-лаванда үдэш #2A1748, алтан #FFD166, ягаан товч; нарны тэмдэг, ургамал/цэцгийн хээ, дээш хөвөх алтан дэнлүү
 
 Section дараалал, config түлхүүрүүд нь **Template23/24-тэй яг ижил** (дээрх хүснэгтийг үз):
-`theme` ("ice" / "sun"), `hero.name/age/eyebrow/photo/mascot/mascotSide`, `intro.video/mascot/mascotSide`,
+`theme` ("ice" / "sun"), `ceremony` ("haircut" → сэвлэг үргээх), `hero.name/age/eyebrow/photo/mascot/mascotSide`, `intro.video/mascot/mascotSide`,
 `gallery.title/captions`, `sections.*`, `request.title/text`, `rsvp.*`, `footer.*`.
 Ялгаа: фонт Playfair Display italic (cyrillic-ext → ө/ү зүгээр), гарчиг зөөлөн glow (хатуу сүүдэргүй),
 үндсэн бичвэрүүд "гүнж" (`gallery.title` = "Бяцхан гүнжийн цомог", хүсэлт: ice → цэнхэр/цагаан гоёл,
@@ -449,6 +450,64 @@ update events set template = '29', title = 'Тэмүүлэн', config = '{
   "footer":  { "lines": ["Аав, ээж: Болд, Сарнай"], "phones": ["99001122"] }
 }'::jsonb where slug = 'temuulen-usnii-nair';
 ```
+
+## ✅ Template31 / 32 — шинэ байрны (гэр орны) найрын урилга (Терракота / Сэйж) — бүгд config-оос
+
+Нэг бүтэц (`Template31.tsx` → `HouseWarming`), хоёр theme:
+- **31 = Терракота (terra)** — шавар улаан #D4785A, элсэн шар, царс модны хаалга, cream дэвсгэр
+- **32 = Сэйж (sage)** — зөөлөн ногоон #8FAE8B, чулуун саарал, бор модны хаалга, цагаан дэвсгэр
+
+Цайвар дэвсгэр, том уншигдах бичиг (залуу найзаас эмээ өвөө хүртэл). Мотив: **хаалга нээх intro**
+(дарахад хоёр хавтас гадагш онгойж, доторх дулаан гэрэл гарна), яндангаас утаа гарах байшин (цонх
+нь гэрэлтэй), гал голомтын оч (дээш хөвөх дулаан цэгүүд), хаалганы нум хэлбэрийн зураг + дүүжин
+"Тавтай морил" самбар, дээврийн ваар (scallop) хэлбэрийн хэсгийн зааг. Фонт: Playfair Display italic
+(нэр, гарчиг), Caveat гар бичмэл, PT Sans бичвэр. Section: intro → hero → урилгын үг → цомог →
+тоологч → хөтөлбөр → **шинэ хаяг** → [бэлэг] → ерөөл → ирц → footer.
+`events.type = 'apartment'` тавих — `api/invite.js` preview дээр эздийн нэр биш "төрөл"-ийг, зургийг
+нь урилгын өөрийн зургаас авна (хуримын og-default.jpg гарахгүй).
+
+| Түлхүүр | Төрөл | Үндсэн утга | Тайлбар |
+|---|---|---|---|
+| `theme` | "terra" / "sage" | template-ээр | |
+| `family.name` | string | `events.title` | **Гэр бүлийн нэр** — hero-ийн том гарчиг, intro-ийн хаалган дээр ("Болд, Сарнай нарын гэр бүл") |
+| `hosts.label` | string | "Гэрийн эзэд" | |
+| `hosts.names` | string[] | `[person1_name, person2_name]` | "Гэрийн эзэд: Болд · Сарнай" мөр |
+| `hosts.show` | false | true | Эздийн мөр нуух |
+| `hero.eyebrow` | string | "Шинэ гэрийн найрын урилга" | Гар бичмэл дээд мөр |
+| `hero.tagline` | string / false | "Шинэ гэртээ та бүхнийг урьж байна" | Нэрний доорх гар бичмэл |
+| `hero.badge` | string / false | "Тавтай морил" | Зургийн доод ирмэгийн дүүжин модон самбар; `false` → алга |
+| `hero.photo` | string | `main_image` → `person1_photo` | Нуман хүрээтэй зураг (гэр бүл эсвэл шинэ байр) |
+| `hero.place` | string / false | `venue_name` | Огнооны доорх байршлын chip |
+| `intro.video` | string / false | — (хаалга нээх) | Видео intro / intro-гүй |
+| `gallery.title` | string | "Шинэ гэрийн цомог" | Зураг `gallery2_photos` (carousel, нуман/дөрвөлжин цонх ээлжилнэ) |
+| `gallery.captions` | string[] / false | "Зочны өрөө", "Гал тогоо"… 8 | Идэвхтэй картын доорх гар бичмэл |
+| `timer.title` / `schedule.title` | string | "Найр эхлэхэд" / "Хөтөлбөр" | |
+| `address.title` | string | "Шинэ хаяг" | Байршлын хэсгийн гарчиг |
+| `address.entrance` / `floor` / `door` / `code` / `parking` | string | — (demo-д жишээ) | **Орц / Давхар / Тоот / Хаалганы код / Зогсоол** chip-үүд; өгсөн нь л гарна, "Хаягийг хуулах" товчинд орно |
+| `address.note` | string | — | Chip-үүдийн доорх гар бичмэл тайлбар ("Орцны хаалга 17:00-оос нээлттэй") |
+| `sections.gallery/timer/schedule/gift/wishes/rsvp` | false | true | Хэсэг нуух (`gift` нь `gift.account` байхгүй бол угаасаа нуугдана) |
+| `gift.account` | string | — | **Өгвөл "Бэлэг" хэсэг гарна** — дансны дугаар + "Хуулах" |
+| `gift.bank` / `gift.holder` / `gift.title` / `gift.note` | string | — / — / "Бэлэг" / "Та бүхний ирэлт, ерөөл бидэнд хамгийн үнэтэй бэлэг. Хүсвэл шинэ гэрийн тохижилтод:" | |
+| `wishes.title` / `wishes.subtitle` | string | "Ерөөл" / "Шинэ гэрт зориулсан ерөөлөө үлдээгээрэй" | |
+| `rsvp.title` / `rsvp.maxGuests` / `rsvp.note` | | "Ирцээ бүртгүүлэх" / 10 / "Найрын өдрөөс өмнө бүртгүүлнэ үү" | |
+| `footer.title` | string | "Та бүхнийг хүлээж байна" | |
+| `footer.lines` / `footer.phones` | string[] | [] | Мөрүүд; pill товч (дарахад залгана) |
+| `footer.image` | string | `gallery_photos[0]` | Footer-ийн нуман зураг |
+
+Урилгын үг → `events.poem` (үндсэн: "Шинэ гэрийнхээ гал голомтыг асааж, …"), хөтөлбөр →
+`events.schedule` (үндсэн: угтах → гэрийн ерөөл → зоог → хөгжим). Ерөөл `wishes`, ирц `rsvp`.
+`venue_name` = хотхон/байрны нэр, `venue_address` = дүүрэг/хороо/гудамж, `maps_photo` = газрын зураг.
+
+```sql
+update events set template = '31', type = 'apartment', title = 'Болд, Сарнай нарын гэр бүл', config = '{
+  "address": { "entrance": "3-р орц", "floor": "7 давхар", "door": "702 тоот", "code": "7021#",
+               "parking": "Байрны урд талын зогсоол" },
+  "gift":    { "bank": "Хаан банк", "account": "5012 3456 7890", "holder": "Б. Болд" },
+  "footer":  { "lines": ["Гэрийн эзэд: Болд, Сарнай"], "phones": ["99001122"] }
+}'::jsonb where slug = 'bold-sarnai-shine-ger';
+```
+
+---
 
 ## ⬜ TODO — үлдсэн загварууд
 

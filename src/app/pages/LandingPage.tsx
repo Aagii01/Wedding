@@ -166,13 +166,13 @@ const CATEGORIES: { key: string; label: string; groups: TemplateGroup[] }[] = [
     groups: ["11", "12", "13", "14"].map((id) => { const t = byId(id); return { name: t.name, tagline: t.tagline, desc: t.desc, ids: [id] }; }),
   },
   {
-    key: "boy", label: "Хүүгийн төрсөн өдөр",
+    key: "boy", label: "Төрсөн өдөр (эрэгтэй)",
     groups: [
       { name: "Супер баатар", tagline: "Хүү · Comic · Эрч хүч", desc: "Бамбай хэлбэрийн том зураг, хурдны зураас, дарж нээх intro. Хоёр өнгөний сонголттой.", ids: ["23", "24"] },
     ],
   },
   {
-    key: "girl", label: "Охины төрсөн өдөр",
+    key: "girl", label: "Төрсөн өдөр (эмэгтэй)",
     groups: [
       { name: "Гүнж", tagline: "Охин · Ид шид · Гэрэл", desc: "Титэмтэй зууван зураг, цасан ширхэг эсвэл алтан дэнлүү, зөөлөн гэрэлтэй гарчиг.", ids: ["25", "26"] },
     ],
@@ -1474,10 +1474,16 @@ function TemplatesSection() {
               role="tab"
               aria-selected={active}
               onClick={() => setCat(c.key)}
-              className="shrink-0 rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors"
+              className="shrink-0 rounded-full px-5 py-2.5 text-xs font-semibold uppercase tracking-wider cursor-pointer transition-all duration-200"
               style={
                 active
-                  ? { background: "#0C0C0C", color: "#fff", border: "1.5px solid #0C0C0C" }
+                  // Идэвхтэй: гэгээлэг алтан (хар биш), алтан хүрээ + зөөлөн гялбаа → даргдсан нь мэдэгдэнэ
+                  ? {
+                      background: "linear-gradient(180deg, #fff8e6 0%, #f3e2b6 100%)",
+                      color: "#5a4420",
+                      border: "1.5px solid #c9a255",
+                      boxShadow: "0 0 0 3px rgba(201,162,85,.22), 0 4px 14px rgba(201,162,85,.28)",
+                    }
                   : { background: "#fff", color: "#0C0C0C", border: "1.5px solid #e5e1da" }
               }
             >
