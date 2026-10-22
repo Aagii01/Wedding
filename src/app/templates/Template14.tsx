@@ -363,13 +363,14 @@ function T14Hero({ event }: { event: EventData }) {
         )}
 
         {nameImage ? (
-          // Зураг нь viewport-ийн бүтэн өргөнд (padding 24px-ийг давж) — татлага таслагдахгүй
+          // Зураг нь viewport-ийн бүтэн өргөнд (padding 24px-ийг давж) — татлага таслагдахгүй.
+          // Нүүрийг халхлахгүйн тулд дээд талд (tagline-ийн доор), marginBottom:auto → scroll cue доор үлдэнэ
           <motion.img
             src={nameImage}
             alt={names.lines.join(" & ")}
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.6, delay: 0.5 }}
-            style={{ width: "calc(100% + 48px)", maxWidth: "none", height: "auto", display: "block", margin: "auto -24px 10px" }}
+            style={{ width: "calc(100% + 48px)", maxWidth: "none", height: "auto", display: "block", margin: heroTagline ? "-20px -24px auto" : "0 -24px auto" }}
           />
         ) : (
         <motion.div
