@@ -31,8 +31,10 @@ const amp    = { ...cg, fontStyle: "normal" as const, fontWeight: 400 } as const
 // Хосын нэр ба гарчиг — Pinyon Script кирилл дэмждэггүй тул citat-ийн italic Cormorant
 const nameFont = cgI;
 // Great Vibes зэрэг script фонтод Монгол "Ү/ү" үсэг байхгүй (өөр фонтоор тасарч гардаг).
-// Хэлбэр нь латин "Y/y"-тэй яг ижил тул custom нэрийн фонт хэрэглэсэн үед сольж бичнэ.
-const mnGlyphs = (s: string) => s.replace(/Ү/g, "Y").replace(/ү/g, "y");
+// Хэлбэр нь латин "Y/y"-тэй яг ижил тул үндсэн фонт нь Great Vibes үед л сольж бичнэ
+// (Mak Champion KZ-д Ү/Ө байгаа тул хөндөхгүй).
+const mnGlyphs = (s: string, family?: string) =>
+  /great vibes/i.test((family ?? "").split(",")[0]) ? s.replace(/Ү/g, "Y").replace(/ү/g, "y") : s;
 
 // venue_map_url дээр http(s):// угтвар байхгүй бол браузер харьцангуй зам гэж
 // ойлгож сайтын хаяг дээр наадаг. Угтваргүй бол https:// нэмж бүтэн болгоно.
@@ -303,6 +305,14 @@ const HERO_NAME_FONT: Record<string, { family: string; size?: number }> = {
   "khosbayar-tserenchimed": { family: "'Great Vibes', cursive" },
 };
 
+// Нэрийг бэлэн ЗУРГААР харуулах — лицензтэй фонт (Champion Script г.м.) сайтад тавихгүйгээр
+// нэрийг тэр фонтоор PNG болгож өгнө. Ил тод дэвсгэртэй, 1170px өргөн (390 viewport × 3),
+// public/names/ дотор. Өгвөл hero-гийн нэрийн текст блок гарахгүй, зураг нь бүтэн өргөнөөр.
+// config: hero.nameImage (URL)
+const HERO_NAME_IMAGE: Record<string, string> = {
+  "khosbayar-tserenchimed": "/names/khosbayar-tserenchimed.png",
+};
+
 function T14Hero({ event }: { event: EventData }) {
   // config: hero.names — ["Нэр1","Нэр2"] эсвэл "Цол, нэр" (ганц хүн, "\n" олон мөр)
   const names = nameBlock(
@@ -318,6 +328,8 @@ function T14Hero({ event }: { event: EventData }) {
   const nameStyle = heroFont?.family ? { fontFamily: heroFont.family, fontStyle: "normal" as const } : nameFont;
   const ampStyle  = heroFont?.family ? { ...nameStyle, fontWeight: 400 } : amp;
   const { wrapRef, size } = useFitText(names.lines.join("|") + (heroFont?.family ?? ""), heroFont?.size ?? 96, 30);
+  // config: hero.nameImage — нэрийг бэлэн PNG зургаар (фонт файл шаардлагагүй)
+  const nameImage = cfg<string | undefined>(event.config, "hero.nameImage", HERO_NAME_IMAGE[event.slug]);
 
   return (
     <section style={{ position: "relative", minHeight: "100svh", background: "#1a1612", overflow: "hidden", color: "#fff" }}>
@@ -350,6 +362,16 @@ function T14Hero({ event }: { event: EventData }) {
           </motion.div>
         )}
 
+        {nameImage ? (
+          // Зураг нь viewport-ийн бүтэн өргөнд (padding 24px-ийг давж) — татлага таслагдахгүй
+          <motion.img
+            src={nameImage}
+            alt={names.lines.join(" & ")}
+            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.6, delay: 0.5 }}
+            style={{ width: "calc(100% + 48px)", maxWidth: "none", height: "auto", display: "block", margin: "auto -24px 10px" }}
+          />
+        ) : (
         <motion.div
           ref={wrapRef}
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
@@ -370,10 +392,11 @@ function T14Hero({ event }: { event: EventData }) {
                 }}>&amp;</span>
               )}
               {/* inline-block + nowrap — useFitText мөр бүрийн өргөнийг хэмждэг */}
-              <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{heroFont?.family ? mnGlyphs(line) : line}</span>
+              <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{mnGlyphs(line, heroFont?.family)}</span>
             </span>
           ))}
         </motion.div>
+        )}
 
         {/* Scroll cue — бичиг нь зурагны доод ирмэгт ойрхон, доор нь доошоо сум */}
         <motion.div
@@ -459,7 +482,7 @@ function T14Verse({ event }: { event: EventData }) {
                     color: INK_MUTE, margin: "2px 0",
                   }}>&amp;</span>
                 )}
-                <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{verseFont?.family ? mnGlyphs(line) : line}</span>
+                <span data-fit style={{ display: "inline-block", whiteSpace: "nowrap", fontSize: size }}>{mnGlyphs(line, verseFont?.family)}</span>
               </span>
             ))}
             {childLines.length > 0 && (
@@ -470,7 +493,7 @@ function T14Verse({ event }: { event: EventData }) {
                   color: INK_MUTE, margin: "2px 0",
                 }}>&amp;</span>
                 {childLines.map((l, i) => (
-                  <span key={`c${i}`} style={{ display: "block", fontSize: Math.round(size * 0.62), lineHeight: 1.25 }}>{verseFont?.family ? mnGlyphs(l) : l}</span>
+                  <span key={`c${i}`} style={{ display: "block", fontSize: Math.round(size * 0.62), lineHeight: 1.25 }}>{mnGlyphs(l, verseFont?.family)}</span>
                 ))}
               </>
             )}

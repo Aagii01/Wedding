@@ -1,0 +1,14 @@
+/* Локал фонтууд — файлууд public/fonts/ дотор (/fonts/... хаягаар үйлчилнэ).
+   Google Fonts-ийн холбоос index.html-д байна. */
+
+/* "Mak Champion KZ" — PF Champion Script Pro-ийн кирилл (казах) өргөтгөсөн хувилбар,
+   Монгол Ү/ү, Ө/ө бүгд бий. Хэрэглээ: Template14 HERO_NAME_FONT эсвэл config
+   hero.font → "'Mak Champion KZ', 'Great Vibes', cursive".
+   Файл байхгүй бол браузер дараагийн фонт (Great Vibes) руу унана — урилга эвдрэхгүй. */
+@font-face {
+  font-family: 'Mak Champion KZ';
+  src: url('/fonts/MakChampionKZ.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
