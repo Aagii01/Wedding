@@ -896,9 +896,12 @@ function bottomStyle(config: unknown): React.CSSProperties {
 }
 
 // ─── RSVP ─────────────────────────────────────────────────────────────────────
-function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
+function T14RSVP({ eventId, eventType, config }: { eventId: string; eventType?: string; config?: unknown }) {
   // config: rsvp.maxGuests — "Хэдүүлээ ирэх вэ?" тоолуурын дээд хязгаар (анхдагч 20)
   const maxGuests = Math.max(1, Number(cfg<number>(config, "rsvp.maxGuests", 20)) || 20);
+  // config: rsvp.eyebrow — гарчгийн дээрх жижиг мөр ("" → нуугдана). Хурим биш төрөлтэй
+  // (nair, celebrate, ...) урилгад "Бидний хуриманд" анхдагчаар гарахгүй.
+  const eyebrow = cfg<string>(config, "rsvp.eyebrow", eventType && eventType !== "wedding" ? "" : "Бидний хуриманд");
   const [name, setName]             = useState("");
   const [phone, setPhone]           = useState("");
   const [attending, setAttending]   = useState<boolean | null>(null);
@@ -961,14 +964,16 @@ function T14RSVP({ eventId, config }: { eventId: string; config?: unknown }) {
       overflow: "hidden",
     }}>
       <div style={{ padding: "80px 28px" }}>
-        <FadeUp>
-          <div style={{
-            ...cg, fontWeight: 600, fontSize: 11, letterSpacing: "0.42em",
-            textTransform: "uppercase", color: "var(--t14-gold)", textAlign: "center", marginBottom: 4,
-          }}>
-            Бидний хуриманд
-          </div>
-        </FadeUp>
+        {eyebrow && (
+          <FadeUp>
+            <div style={{
+              ...cg, fontWeight: 600, fontSize: 11, letterSpacing: "0.42em",
+              textTransform: "uppercase", color: "var(--t14-gold)", textAlign: "center", marginBottom: 4,
+            }}>
+              {eyebrow}
+            </div>
+          </FadeUp>
+        )}
         <FadeUp delay={0.1}>
           <div style={{ ...nameFont, color: "var(--t14-gold)", fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 40px" }}>
             Та хүрэлцэн ирэх үү?
@@ -1398,7 +1403,7 @@ export default function Template14({ event }: { event: EventData }) {
       {sectionOn(event.config, "gallery", !HIDE_GALLERY.has(event.slug)) && <T14Gallery event={event} />}
       <T14Venue event={event} />
       <div style={bottomStyle(event.config)}>
-        {sectionOn(event.config, "rsvp", true) && <T14RSVP eventId={event.id} config={event.config} />}
+        {sectionOn(event.config, "rsvp", true) && <T14RSVP eventId={event.id} eventType={event.type} config={event.config} />}
         {sectionOn(event.config, "wishes", true) && <T14Wishes eventId={event.id} />}
         <T14Footer event={event} />
       </div>

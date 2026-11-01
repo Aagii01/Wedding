@@ -124,6 +124,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | | `gallery.subtitle` | Гарчгийн доорх нэг мөр тайлбар (өгвөл л гарна) | — |
 | **Ирц** | `sections.rsvp` | Ирцийн бүртгэлийг нуух (`false`) | — |
 | | `rsvp.maxGuests` | "Хэдүүлээ ирэх вэ?" тоолуурын дээд хязгаар (анхдагч 20) | — |
+| | `rsvp.eyebrow` | "Та хүрэлцэн ирэх үү?" гарчгийн дээрх жижиг мөр; `""` → нуугдана. Анхдагч: `type = wedding` (эсвэл хоосон) бол "Бидний хуриманд", бусад төрөлд (nair, celebrate…) автоматаар нуугдана | — |
 | **Мэндчилгээ** | `sections.wishes` | Мэндчилгээний хэсгийг нуух (`false`) | — |
 | **Footer** | `footer.names` | Нэрийн мөрүүд `["...", "..."]` эсвэл ганц мөр | `FOOTER_NAMES` |
 | | `footer.mono` | Монограмын үсэг `["Ц","Р"]`; ганц хүн бол `["Ц"]` | `MONO_OVERRIDE` |
