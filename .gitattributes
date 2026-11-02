@@ -1,0 +1,2 @@
+# Shell скриптүүд Windows дээр ч LF хэвээр (CRLF бол bash ажиллахгүй)
+*.sh text eol=lf
