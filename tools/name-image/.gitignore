@@ -1,0 +1,7 @@
+# Лицензтэй фонт файлууд repo-д орохгүй (docs/name-image-font.md үз)
+*.woff2
+*.woff
+*.ttf
+*.otf
+raw.png
+.chrome-profile/

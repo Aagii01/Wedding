@@ -445,6 +445,14 @@ const VERSE_NAME_FONT: Record<string, { family: string; size?: number } | false>
   "khosbayar-tserenchimed": false,
 };
 
+// Урилгын үг дээрх нэрсийг бэлэн ЗУРГААР (hero.nameImage-тэй ижил арга) — лицензтэй фонтоор
+// бичсэн ил тод PNG, 1170px өргөн (390 × 3), хөх (WAX) өнгөөр, public/names/ дотор.
+// Өгвөл нэр, "&", хүүхдийн мөр бүгд зургаар — текст блок гарахгүй.
+// config: verse.nameImage (URL)
+const VERSE_NAME_IMAGE: Record<string, string> = {
+  "khosbayar-tserenchimed": "/names/khosbayar-tserenchimed-verse.png",
+};
+
 function T14Verse({ event }: { event: EventData }) {
   const names = nameBlock(
     cfg<unknown>(event.config, "verse.names", VERSE_NAMES[event.slug]),
@@ -463,6 +471,8 @@ function T14Verse({ event }: { event: EventData }) {
   // config: verse.children — нэрсийн доор "&" + хүүхдийн нэр
   const childrenRaw = cfg<string | string[] | undefined>(event.config, "verse.children", VERSE_CHILDREN[event.slug]);
   const childLines = (Array.isArray(childrenRaw) ? childrenRaw : childrenRaw ? [childrenRaw] : []).map(String).filter(Boolean);
+  // config: verse.nameImage — нэрсийг бэлэн PNG зургаар (фонт файл шаардлагагүй)
+  const verseImage = cfg<string | undefined>(event.config, "verse.nameImage", VERSE_NAME_IMAGE[event.slug]);
 
   return (
     <Paper>
@@ -470,6 +480,14 @@ function T14Verse({ event }: { event: EventData }) {
         <FadeUp delay={0.1}><Flourish /></FadeUp>
 
         <FadeUp delay={0.2}>
+          {verseImage ? (
+          // Зураг нь viewport-ийн бүтэн өргөнд (padding 32px-ийг давж) — татлага таслагдахгүй
+          <img
+            src={verseImage}
+            alt={[...names.lines, ...childLines].join(" ")}
+            style={{ width: "calc(100% + 64px)", maxWidth: "none", height: "auto", display: "block", margin: "12px -32px 20px" }}
+          />
+          ) : (
           <div ref={wrapRef} style={{
             ...vNameStyle, color: WAX, width: "100%",
             lineHeight: 1.08, textAlign: "center", margin: "12px 0 20px",
@@ -499,6 +517,7 @@ function T14Verse({ event }: { event: EventData }) {
               </>
             )}
           </div>
+          )}
         </FadeUp>
 
         <FadeUp delay={0.3}>
@@ -806,16 +825,32 @@ function T14Gallery({ event }: { event: EventData }) {
 }
 
 // ─── Venue ────────────────────────────────────────────────────────────────────
+// Газрын нэрийн ДООРХ нэмэлт мөр — жнь гадаад нэрийн монгол орчуулга. Текст эсвэл мөрүүдийн массив.
+// config: venue.subtitle
+const VENUE_SUBTITLE: Record<string, string | string[]> = {
+  "khosbayar-tserenchimed": "Натранг Марриотт Резорт, Хон Трэ арал, Вьетнам",
+};
+
 function T14Venue({ event }: { event: EventData }) {
+  const subRaw = cfg<string | string[] | undefined>(event.config, "venue.subtitle", VENUE_SUBTITLE[event.slug]);
+  const subLines = (Array.isArray(subRaw) ? subRaw : subRaw ? [subRaw] : []).map(String).filter(Boolean);
   return (
     <Paper>
       <div style={{ padding: "72px 28px" }}>
         <FadeUp><Eyebrow>Байршил</Eyebrow></FadeUp>
         <FadeUp delay={0.1}>
-          <div style={{ ...nameFont, color: WAX, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: "8px 0 24px" }}>
+          <div style={{ ...nameFont, color: WAX, fontSize: "clamp(34px, 9vw, 56px)", lineHeight: 1.15, textAlign: "center", margin: subLines.length ? "8px 0 10px" : "8px 0 24px" }}>
             {event.venue_name || "Хуримын ордон"}
           </div>
         </FadeUp>
+
+        {subLines.length > 0 && (
+          <FadeUp delay={0.15}>
+            <p style={{ ...cgI, fontSize: 19, lineHeight: 1.5, color: WAX, opacity: 0.85, textAlign: "center", margin: "0 0 24px" }}>
+              {subLines.map((l, i) => <span key={i} style={{ display: "block" }}>{l}</span>)}
+            </p>
+          </FadeUp>
+        )}
 
         {event.venue_address && (
           <FadeUp delay={0.2}>

@@ -251,6 +251,12 @@ Toaster (shadcn notification)
 - `TimerNumbers` тусдаа component: `setInterval` state зөвхөн тэнд → parent re-render байхгүй
 - Mongolian labels: Өдөр / Цаг / Минут / Секунд
 
+### Нэрийг тусгай фонтоор — PNG зургийн арга
+Лицензтэй фонтыг (PF Champion Script Pro / "Mak Champion KZ") сайтад тавихгүйгээр нэрийг тэр фонтоор
+харуулах: нэрийг ил тод PNG (1170px = 390×3) болгож `hero.nameImage` / `verse.nameImage` config-оор
+(T14: `HERO_NAME_IMAGE`, `VERSE_NAME_IMAGE` map) зургаар гаргана. Анх `khosbayar-tserenchimed`-д хийсэн.
+Дахин үүсгэх хэрэгсэл `tools/name-image/` (`make.sh`), бүрэн тайлбар → **`docs/name-image-font.md`**.
+
 ### PoemSection
 - Cormorant Garamond фонт (`1.55rem`, `#3a2e28` дулаан хүрэн)
 - Мөр бүрт шууд `initial/whileInView/transition` props + manual `delay = lineIndex * 0.15`
@@ -261,7 +267,7 @@ Toaster (shadcn notification)
 
 ### Тэргүүлэх
 - [ ] **`events.config` шилжилт** — захиалагчийн тохиргоог кодоос DB рүү гаргах.
-  **Template11 (36 түлхүүр) ба Template14 (21) бүрэн хийгдсэн**, T13-ийн 5 түлхүүр.
+  **Template11 (36 түлхүүр) ба Template14 (23) бүрэн хийгдсэн**, T13-ийн 5 түлхүүр.
   Үлдсэн: T12 / T19 / T21. Түлхүүрийн жагсаалт, SQL, хэв маяг →
   **`docs/event-config.md`**. Зорилго: нэг захиалга = нэг deploy гэдгийг зогсоох
   (шилжилтийн өмнө 78 урилгын 34 нь код засвар шаардсан).

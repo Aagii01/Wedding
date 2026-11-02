@@ -1,0 +1,24 @@
+<!doctype html>
+<!-- VERSE (урилгын үг) хэсгийн нэрийн PNG загвар. Өөрчлөх зүйл: нэрс, "&", хүүхдийн мөр (.ch).
+     Canvas 1170px; дотоод хайрцаг 978px = (390 − 32×2) × 3. max 276px = verse-ийн 92px × 3.
+     Өнгө: нэр WAX #28406B, "&" INK_MUTE #6A573B (0.5), хүүхдийн мөр 0.62, сүүдэргүй (цайвар дэвсгэр). -->
+<html><head><meta charset="utf-8"><style>
+@font-face{font-family:'NameFont';src:url('champion.woff2') format('woff2')}
+html,body{margin:0;background:transparent}
+.vp{width:1170px;padding:60px 96px;box-sizing:border-box;text-align:center}
+.names{font-family:'NameFont',cursive;color:#28406B;width:100%;line-height:1.08}
+.names span.l{display:block}.names .amp{display:block;color:#6A573B;margin:6px 0}
+.names [data-fit]{display:inline-block;white-space:nowrap}
+.names .ch{display:block;line-height:1.25}
+</style></head><body><div class="vp"><div class="names" id="w">
+<span class="l"><span data-fit>Б.Хосбаяр</span></span>
+<span class="l"><span data-fit>Ч.Цэрэнчимэд</span></span>
+<span class="amp" id="amp">&amp;</span>
+<span class="ch" id="ch">Охин: Х.Сор-Үйлс</span>
+</div></div><script>
+function fit(){const w=document.getElementById('w');const avail=w.clientWidth*0.90;const max=276,min=78;
+const sp=[...w.querySelectorAll('[data-fit]')];sp.forEach(s=>s.style.fontSize=max+'px');
+const widest=Math.max(...sp.map(s=>s.scrollWidth));const next=widest>avail?Math.max(min,Math.floor(max*avail/widest)):max;
+sp.forEach(s=>s.style.fontSize=next+'px');document.getElementById('amp').style.fontSize=Math.max(54,Math.round(next*0.5))+'px';document.getElementById('ch').style.fontSize=Math.round(next*0.62)+'px';}
+fit();document.fonts.ready.then(fit);
+</script></body></html>

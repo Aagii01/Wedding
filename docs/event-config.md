@@ -37,8 +37,6 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | **Intro** | `intro.video` | Эхэнд гарах видеоны URL солих | — | App.tsx |
 | | `sections.intro` | Intro видеог огт гаргахгүй (`false`) | — | App.tsx |
 | **Нүүр** | `hero.names` | Hero дээрх нэрийг солих (`["ЗАЯА","ДЭЭГИЙ"]`) | `HERO_NAMES` | WeddingHero.tsx |
-| | `hero.font` | Hero дээрх нэрийн фонт `{"family":"'Great Vibes', cursive","size":96}` — family нь index.html-д ачаалсан байх; hero ба verse-ийн нэрэнд, footer хэвээр. Great Vibes-д Ү/ү байхгүй тул үндсэн фонт Great Vibes үед Ү/ү → латин Y/y (хэлбэр ижил) автоматаар солигдоно. Локал фонт (жнь `Mak Champion KZ`): `src/styles/fonts.css`-д `@font-face`, файл `public/fonts/`, stack-д Great Vibes-ийг fallback болгож үлдээнэ | `HERO_NAME_FONT` |
-| | `hero.nameImage` | Нэрийг бэлэн PNG зургаар (ил тод дэвсгэр, 1170px өргөн = 390×3, `public/names/` эсвэл URL) — лицензтэй фонтыг сайтад тавихгүйгээр тэр фонтоор харуулна; өгвөл нэрийн текст блок гарахгүй | `HERO_NAME_IMAGE` |
 | | `hero.font` | Нэрийн фонт, хэмжээ `{family,size}` | `HERO_NAME_FONT` | WeddingHero.tsx |
 | | `hero.quotes` | `"en"` бичвэл ишлэл англиар | `ENGLISH_QUOTES` | WeddingHero.tsx |
 | | `hero.captions` | Carousel зургийн тайлбар (түлхүүр = зургийн URL) | `PHOTO_CAPTIONS` | WeddingHero.tsx |
@@ -104,20 +102,24 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
 
-## ✅ Template14 — 21 түлхүүр
+## ✅ Template14 — 23 түлхүүр
 
 | Хэсэг | Түлхүүр | Юу хийх | Fallback |
 |---|---|---|---|
 | **Intro** | `intro.video` | Эхэнд гарах видеоны URL солих (T13-ынх: `https://premiumelegante.thedigitalyes.com/assets/intro-video-new-XmwQeafK.mp4`) | `INTRO_VIDEO[slug]` |
 | | `sections.intro` | Intro видеог огт гаргахгүй (`false`) | — |
 | **Нүүр** | `hero.names` | `["Нэр1","Нэр2"]` → хос; `"Цол, нэр"` → ганц хүн, `\n`-ээр олон мөр | Supabase нэр |
+| | `hero.font` | Hero дээрх нэрийн фонт `{"family":"'Great Vibes', cursive","size":96}` — family нь index.html-д ачаалсан байх; hero ба verse-ийн нэрэнд, footer хэвээр. Great Vibes-д Ү/ү байхгүй тул үндсэн фонт Great Vibes үед Ү/ү → латин Y/y (хэлбэр ижил) автоматаар солигдоно. Локал фонт (жнь `Mak Champion KZ`): `src/styles/fonts.css`-д `@font-face`, файл `public/fonts/`, stack-д Great Vibes-ийг fallback болгож үлдээнэ | `HERO_NAME_FONT` |
+| | `hero.nameImage` | Нэрийг бэлэн PNG зургаар (ил тод дэвсгэр, 1170px өргөн = 390×3, `public/names/` эсвэл URL) — лицензтэй фонтыг сайтад тавихгүйгээр тэр фонтоор харуулна; өгвөл нэрийн текст блок гарахгүй → `docs/name-image-font.md` | `HERO_NAME_IMAGE` |
 | | `hero.tagline` | "Бид гэрлэж байна" бичгийг солих (`""` → алга) | `HIDE_HERO_TAGLINE` |
 | **Урилгын үг** | `verse.names` | Шүлгийн дээрх нэр — `hero.names`-тэй ижил хэлбэр | `VERSE_NAMES` |
 | | `verse.font` | Verse-ийн нэрийн фонтыг hero-оос тусад нь өгөх `{"family":"...","size":92}`; байхгүй бол `hero.font`; `false` бол анхдагч Cormorant italic (hero script фонттой ч verse энгийн) | `VERSE_NAME_FONT` |
 | | `verse.children` | Нэрсийн доор "&" + хүүхдийн нэр нэрийн фонтоор, арай жижиг (`"Охин: Х.Сор-Үйлс"` эсвэл массив); өгвөл нэрсийн хоорондох "&" гарахгүй | `VERSE_CHILDREN` |
+| | `verse.nameImage` | Урилгын үг дээрх нэр, "&", хүүхдийн мөрийг бэлэн PNG зургаар (`hero.nameImage`-тэй ижил: ил тод, 1170px өргөн, хөх өнгөөр, `public/names/`); өгвөл текст блок гарахгүй → `docs/name-image-font.md` | `VERSE_NAME_IMAGE` |
 | **Тоологч** | `countdown.title` | "Хуримын өдөр" гарчгийг солих | `COUNTDOWN_TITLE` |
 | **Хөтөлбөр** | `sections.schedule` | Хөтөлбөрийг нуух (`false`) | `HIDE_SCHEDULE` |
 | | `schedule.qr` | Хөтөлбөрийн оронд QR зураг (URL) — `sections.schedule: false`-тэй хамт | `SCHEDULE_QR` |
+| **Байршил** | `venue.subtitle` | Газрын нэрийн доорх нэмэлт мөр (жнь гадаад нэрийн монгол орчуулга); текст эсвэл мөрүүдийн массив | `VENUE_SUBTITLE` |
 | **Цомог** | `sections.gallery` | Цомгийг нуух (`false`) | `HIDE_GALLERY` |
 | | `gallery.bento` | `true` → bento байрлал | `BENTO_GALLERY` |
 | | `gallery.title` | Цомгийн гарчиг (анхдагч "Зургийн цомог") | — |
