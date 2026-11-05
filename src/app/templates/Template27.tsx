@@ -462,6 +462,8 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
   const photo    = cfg<string | null>(event.config, "hero.photo", null) || (demo ? DEMO_PHOTOS.hero : null) || event.person1_photo || event.main_image;
   const photoFit   = cfg<"cover" | "contain">(event.config, "hero.photoFit", "cover");
   const photoFrame = cfg<"arch" | "rect">(event.config, "hero.photoFrame", "arch");
+  // hero.photo2: эхний зургийн доор ижил хүрээ, хэмжээтэй 2 дахь зураг (байгууллагын лого гэх мэт)
+  const photo2     = cfg<string | null>(event.config, "hero.photo2", null);
   // hero.medal: false → зургийн доод ирмэгийн медаль тэмдэг гарахгүй
   const showMedal  = cfg(event.config, "hero.medal", true) !== false;
   const nameGold   = cfg(event.config, "hero.nameGold", false) === true;
@@ -508,6 +510,16 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
           <ArchPortrait photo={photo} fit={photoFit} frame={photoFrame} />
           {showMedal && <MedalBadge style={{ position: "absolute", left: "50%", bottom: -44, transform: "translateX(-50%)" }} />}
         </motion.div>
+        {photo2 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }}
+            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+            style={{ marginTop: -4, marginBottom: 22, width: "100%", maxWidth: 360 }}
+          >
+            <ArchPortrait photo={photo2} fit={photoFit} frame={photoFrame} />
+          </motion.div>
+        )}
 
         <motion.h1 {...show(0.7)} className={nameGold ? "t27-shimmer" : undefined} style={{
           ...display, fontWeight: 600, fontSize: name.length > 18 ? fs(28) : fs(38), lineHeight: 1.15,
