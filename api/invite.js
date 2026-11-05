@@ -93,8 +93,11 @@ const KIND = {
   birthday: "Төрсөн өдрийн урилга",
   reunion: "Уулзалтын урилга",
   child: "Сэвлэг үргээх ёслолын урилга",
+  haircut: "Сэвлэг үргээх ёслолын урилга",
+  award: "Хүндэтгэлийн урилга",
   corporate: "Албан ёсны урилга",
   apartment: "Шинэ байрны цайллагын урилга",
+  anniversary: "Ойн баярын урилга",
   openday: "Нээлттэй өдөрлөгийн урилга",
   nair: "Хүндэтгэлийн арга хэмжээний урилга",
   celebrate: "Хүндэтгэлийн арга хэмжээний урилга",
@@ -105,6 +108,8 @@ const KIND = {
 function isNonWedding(event) {
   return isCorporate(event)
     || event.type === "apartment"
+    || event.type === "anniversary"
+    || event.type === "award"
     || event.type === "openday"
     || event.type === "nair"
     || event.type === "celebrate";
@@ -157,7 +162,9 @@ function buildTags(event, url, origin) {
   // эцэг эхийн нэр, давхардсан нэр эсвэл хоосон байдаг. Ийм урилга нэг
   // хүний баяр тул хосын нэр шиг нийлүүлэхгүй — ганц нэр гаргана. Preview
   // зураг нь мөн хуримын og-default.jpg биш, хүүхдийн зураг байна.
+  // Шагналын баяр (T27/28, type='award') мөн нэг хүний баяр — зураг нь өөрийнх (isNonWedding).
   const isSolo = event.type === "child" || event.type === "birthday"
+    || event.type === "haircut" || event.type === "award"
     || event.type === "openday";
   const corporate = isCorporate(event);
   const nonWedding = isNonWedding(event);
@@ -176,10 +183,13 @@ function buildTags(event, url, origin) {
 
   // Шинэ байрны цайллага дээр эзэдийн нэр preview-д гарахгүй — зөвхөн төрөл.
   const hideNames = event.type === "apartment";
+  // Клубын ойн баяр (Template33): title = клубын нэр → "Алтан Гадас клуб — Ойн баярын урилга"
+  const byTitle = event.type === "anniversary";
 
   const title = corporate
     ? (org ? `${org} — ${kind}` : event.title || kind)
     : hideNames ? kind
+    : byTitle ? (event.title ? `${event.title} — ${kind}` : kind)
     : names ? `${names} — ${kind}` : event.title || kind;
 
   // Байгууллагын урилга дээр арга хэмжээний нэр нь гол мэдээлэл тул

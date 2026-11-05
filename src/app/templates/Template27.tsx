@@ -96,6 +96,7 @@ const ChevronsIcon: IconFn = ({ size = 24, color = "currentColor" }) => ico(size
 const CloseIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M6 6l12 12M18 6 6 18" />);
 const ArrowLeftIcon: IconFn  = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M15 5l-7 7 7 7" />);
 const ArrowRightIcon: IconFn = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M9 5l7 7-7 7" />);
+const CopyIcon: IconFn     = ({ size = 24, color = "currentColor" }) => ico(size, color, <><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h10" /></>);
 
 // ─── global styles ───────────────────────────────────────────────────────────
 function Styles() {
@@ -171,18 +172,27 @@ function Corners() {
 // Том портрет: нуман (арк) дээд ирмэгтэй, алтан давхар хүрээтэй 4:5 зураг.
 // Хүндэтгэлийн урилгад өөрийн зураг том харагдах нь гол тул hero-гийн бүх өргөнийг эзэлнэ.
 const ARCH = "50% 50% 12px 12px / 28% 28% 12px 12px";
-function ArchPortrait({ photo }: { photo?: string | null }) {
+// config: hero.photoFit — "cover" (4:5 хүрээг дүүргэж тайрна) / "contain" (зургийг бүтнээр нь, өөрийнх нь
+// харьцаагаар — лого, постер маягийн зурагт); hero.photoFrame — "arch" (нуман) / "rect" (дөрвөлжин:
+// булан тайрахгүй тул contain-тэй хослуулахад тохиромжтой)
+function ArchPortrait({ photo, fit = "cover", frame = "arch" }: {
+  photo?: string | null; fit?: "cover" | "contain"; frame?: "arch" | "rect";
+}) {
   const t = useT();
+  const radius = frame === "rect" ? "16px" : ARCH;
+  const natural = !!photo && fit === "contain";
   return (
     <div style={{
-      padding: 6, borderRadius: ARCH,
+      padding: 6, borderRadius: radius,
       background: `linear-gradient(160deg, ${t.goldLight}, ${t.gold} 45%, ${t.goldDeep})`,
       boxShadow: `0 18px 44px rgba(0,0,0,.45), 0 0 0 1px ${t.goldDeep}`,
     }}>
-      <div style={{ padding: 4, borderRadius: ARCH, background: t.dark2 }}>
-        <div style={{ aspectRatio: "4 / 5", overflow: "hidden", borderRadius: ARCH, background: t.dark2, position: "relative" }}>
+      <div style={{ padding: 4, borderRadius: radius, background: t.dark2 }}>
+        <div style={{ aspectRatio: natural ? undefined : "4 / 5", overflow: "hidden", borderRadius: radius, background: t.dark2, position: "relative" }}>
           {photo ? (
-            <img src={photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <img src={photo} alt="" style={natural
+              ? { width: "100%", height: "auto", display: "block" }
+              : { width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           ) : (
             <div aria-label="Зураг" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
               <CameraIcon size={32} color={t.paperMuted} />
@@ -386,22 +396,55 @@ const T27_DEFAULT_POEM = [
 ];
 
 // ─── Intro: видео (config.intro.video өгсөн үед л) ───────────────────────────
-function VideoIntro({ src, onDone }: { src: string; onDone: () => void }) {
+// tap = true (анхдагч): видео дээр "Дарж нээх" заавар гарч, хэрэглэгч дармагц onTap → дуу эхэлнэ
+// (click = user activation дотор play() хийдэг). Browser хэрэглэгчийн хүрэлтгүйгээр дуу асаахыг
+// хориглодог тул дууг урилга нээгдэхтэй ЗЭРЭГ эхлүүлэх цорын ганц найдвартай арга. Видео дарахаас
+// өмнө дуусвал сүүлийн хүрээ дээр зогсоод дарахыг хүлээнэ. config.intro.tap: false → заавар байхгүй,
+// видео дуусмагц хаагдана, дуу нь анхны хүрэлт дээр (доорх useEffect) асна.
+function VideoIntro({ src, tap, onTap, onDone }: { src: string; tap: boolean; onTap: () => void; onDone: () => void }) {
+  const t = useT();
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
+  const [tapped, setTapped] = useState(false);
+  const endedRef = useRef(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   useEffect(() => { videoRef.current?.play().catch(() => {}); }, []);
-  const handleEnded = () => {
+  const finish = () => {
     if (exiting) return;
     onDone(); setExiting(true);
     setTimeout(() => setVisible(false), 1600);
   };
+  const handleEnded = () => {
+    endedRef.current = true;
+    if (tap && !tapped) return; // дарахыг хүлээнэ — сүүлийн хүрээ дээр зогсоно
+    finish();
+  };
+  const handleTap = () => {
+    if (!tap || tapped) return;
+    setTapped(true);
+    onTap();
+    if (endedRef.current) finish();
+  };
+  const waiting = tap && !tapped;
   if (!visible) return null;
   return (
     <motion.div initial={{ opacity: 1 }} animate={{ opacity: exiting ? 0 : 1 }} transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
-      style={{ position: "fixed", inset: 0, background: "#000", zIndex: 9999, overflow: "hidden", pointerEvents: exiting ? "none" : "auto" }}>
+      onClick={waiting ? handleTap : undefined} role={waiting ? "button" : undefined} aria-label={waiting ? "Урилгыг нээх" : undefined}
+      style={{ position: "fixed", inset: 0, background: "#000", zIndex: 9999, overflow: "hidden",
+        cursor: waiting ? "pointer" : "default", pointerEvents: exiting ? "none" : "auto" }}>
       <video ref={videoRef} src={src} autoPlay muted playsInline preload="auto" onEnded={handleEnded} onError={handleEnded}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      {waiting && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, y: [0, -6, 0] }}
+          transition={{ opacity: { duration: 0.9, delay: 0.6 }, y: { repeat: Infinity, duration: 1.9, ease: "easeInOut", delay: 0.6 } }}
+          style={{ position: "absolute", bottom: "9%", left: 0, right: 0, display: "flex", justifyContent: "center", pointerEvents: "none" }}>
+          <div style={{ ...bodyB, fontSize: 18, letterSpacing: "0.06em", color: "#F7F1E6", background: "rgba(0,0,0,.42)",
+            border: `1px solid ${t.goldLight}`, borderRadius: 999, padding: "12px 26px", display: "flex", alignItems: "center", gap: 10,
+            textShadow: "0 1px 8px rgba(0,0,0,.6)", boxShadow: `0 0 0 4px ${t.goldGlow}` }}>
+            <NoteIcon size={20} color={t.goldLight} /> Дарж нээх
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
@@ -412,10 +455,15 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
   const demo     = event.id === "demo";
   const name     = cfg(event.config, "hero.name", event.person1_name || "");
   const eyebrow  = cfg(event.config, "hero.eyebrow", "Хүндэтгэлийн урилга");
-  const award    = cfg(event.config, "award.name", demo ? "Хөдөлмөрийн хүндэт медаль" : "Шагналын баяр");
+  // award.name: false / "" → алтан гарчиг огт гарахгүй (жишээ нь зураг дээр нь бичигдсэн үед)
+  const award    = cfg<string | false>(event.config, "award.name", demo ? "Хөдөлмөрийн хүндэт медаль" : "Шагналын баяр");
   const awardBy  = cfg<string | null>(event.config, "award.by", demo ? "Монгол Улсын Ерөнхийлөгчийн зарлигаар" : null);
   const subtitle = cfg<string | null>(event.config, "hero.subtitle", demo ? "Жаран насны ой ба шагналын баяр" : null);
   const photo    = cfg<string | null>(event.config, "hero.photo", null) || (demo ? DEMO_PHOTOS.hero : null) || event.person1_photo || event.main_image;
+  const photoFit   = cfg<"cover" | "contain">(event.config, "hero.photoFit", "cover");
+  const photoFrame = cfg<"arch" | "rect">(event.config, "hero.photoFrame", "arch");
+  // hero.medal: false → зургийн доод ирмэгийн медаль тэмдэг гарахгүй
+  const showMedal  = cfg(event.config, "hero.medal", true) !== false;
 
   const show = (delay: number) => ({
     initial: { opacity: 0, y: 14 },
@@ -434,13 +482,15 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
       <div style={{ padding: "26px 16px 36px", position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
         <motion.div {...show(0.1)}><Eyebrow onDark>{eyebrow}</Eyebrow></motion.div>
 
-        <motion.div {...show(0.25)} className="t27-shimmer" style={{
-          ...display, fontWeight: 600, fontSize: fs(30), lineHeight: 1.2, margin: "14px 0 6px", maxWidth: 380,
-          backgroundImage: `linear-gradient(90deg, ${t.goldDeep}, ${t.goldLight} 35%, ${t.gold} 50%, ${t.goldLight} 65%, ${t.goldDeep})`,
-          backgroundSize: "200% 100%", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent",
-        }}>
-          {award}
-        </motion.div>
+        {award && (
+          <motion.div {...show(0.25)} className="t27-shimmer" style={{
+            ...display, fontWeight: 600, fontSize: fs(30), lineHeight: 1.2, margin: "14px 0 6px", maxWidth: 380,
+            backgroundImage: `linear-gradient(90deg, ${t.goldDeep}, ${t.goldLight} 35%, ${t.gold} 50%, ${t.goldLight} 65%, ${t.goldDeep})`,
+            backgroundSize: "200% 100%", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent",
+          }}>
+            {award}
+          </motion.div>
+        )}
         {awardBy && (
           <motion.div {...show(0.35)} style={{ ...body, fontStyle: "italic", fontSize: fs(16), lineHeight: 1.5, color: t.goldLight, opacity: 0.9, maxWidth: 340 }}>
             {awardBy}
@@ -452,10 +502,10 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.96 }}
           transition={{ duration: 1, delay: 0.45, ease: "easeOut" }}
-          style={{ marginTop: 24, marginBottom: 48, width: "100%", maxWidth: 360, position: "relative" }}
+          style={{ marginTop: 24, marginBottom: showMedal ? 48 : 22, width: "100%", maxWidth: 360, position: "relative" }}
         >
-          <ArchPortrait photo={photo} />
-          <MedalBadge style={{ position: "absolute", left: "50%", bottom: -44, transform: "translateX(-50%)" }} />
+          <ArchPortrait photo={photo} fit={photoFit} frame={photoFrame} />
+          {showMedal && <MedalBadge style={{ position: "absolute", left: "50%", bottom: -44, transform: "translateX(-50%)" }} />}
         </motion.div>
 
         <motion.h1 {...show(0.7)} style={{
@@ -658,6 +708,50 @@ function T27Schedule({ event }: { event: EventData }) {
           </FadeUp>
         ))}
       </div>
+    </Section>
+  );
+}
+
+// ─── Төлбөр (config.payment.account өгсөн үед л) ──────────────────────────────
+// Такс/оролцооны төлбөртэй арга хэмжээ: үнийн дүн, банк, данс (4-өөр бүлэглэнэ), эзэмшигч,
+// "Дансны дугаар хуулах" товч. Хөтөлбөрийн дараа гарна.
+const fmtAccount = (a: string) => a.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim();
+function T27Payment({ event }: { event: EventData }) {
+  const t = useT();
+  const title   = cfg(event.config, "payment.title", "Төлбөр");
+  const note    = cfg<string | null>(event.config, "payment.note", null);
+  const account = cfg<string | null>(event.config, "payment.account", null);
+  const bank    = cfg<string | null>(event.config, "payment.bank", null);
+  const holder  = cfg<string | null>(event.config, "payment.holder", null);
+  const amount  = cfg<string | null>(event.config, "payment.amount", null);
+  const amountLabel = cfg(event.config, "payment.amountLabel", "Такс үнэ");
+  if (!account) return null;
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(account.replace(/\s/g, "")); toast.success("Дансны дугаар хуулагдлаа"); }
+    catch { toast.error("Хуулж чадсангүй — дугаарыг гараар бичнэ үү"); }
+  };
+  return (
+    <Section>
+      <FadeUp><Heading>{title}</Heading></FadeUp>
+      <FadeUp>
+        {note && <p style={{ ...body, fontSize: fs(17), lineHeight: 1.6, color: t.ink, textAlign: "center", margin: "0 auto 18px", maxWidth: 360 }}>{note}</p>}
+        <div style={{ background: t.ivory2, border: `1px solid ${t.gold}`, borderRadius: 8, padding: "20px 16px", textAlign: "center" }}>
+          {amount && (
+            <div style={{ marginBottom: 16, paddingBottom: 16, borderBottom: `1px solid ${t.line}` }}>
+              <div style={{ ...bodyB, fontSize: fs(13), letterSpacing: "0.1em", textTransform: "uppercase", color: t.inkMuted }}>{amountLabel}</div>
+              <div style={{ ...display, fontWeight: 700, fontSize: fs(32), lineHeight: 1.1, color: t.primary, marginTop: 4, fontVariantNumeric: "tabular-nums" }}>{amount}</div>
+            </div>
+          )}
+          {bank && <div style={{ ...bodyB, fontSize: fs(15), color: t.ink }}>{bank}</div>}
+          <div style={{ ...display, fontWeight: 700, fontSize: account.replace(/\s/g, "").length > 16 ? fs(21) : fs(26), letterSpacing: "0.04em", color: t.primary, marginTop: 6, overflowWrap: "anywhere", fontVariantNumeric: "tabular-nums" }}>
+            {fmtAccount(account)}
+          </div>
+          {holder && <div style={{ ...body, fontSize: fs(16), color: t.inkMuted, marginTop: 4 }}>{holder}</div>}
+          <div style={{ marginTop: 16 }}>
+            <Btn variant="outline" onClick={copy} icon={<CopyIcon size={20} color={t.primary} />}>Дансны дугаар хуулах</Btn>
+          </div>
+        </div>
+      </FadeUp>
     </Section>
   );
 }
@@ -968,22 +1062,29 @@ export function AwardCeremony({ event, theme }: { event: EventData; theme: Theme
   const introVideo = introCfg === undefined ? T27_INTRO_VIDEO : introCfg;
   const hasVideo = typeof introVideo === "string" && introVideo.length > 0;
   const [started, setStarted] = useState(!hasVideo);
-  // config.ui.bigText: true бол эхнээсээ том үсгээр
+  // config.intro.tap: false → видео дээрх "Дарж нээх" зааврыг хасна (дуу нь анхны хүрэлт дээр л эхлэх болно)
+  const introTap = cfg(event.config, "intro.tap", true) !== false;
+  // config.ui.bigText: true бол эхнээсээ том үсгээр; ui.bigTextButton: false → "Том үсэг" (A+) товч нуух
   const [big, setBig] = useState<boolean>(cfg(event.config, "ui.bigText", false) === true);
+  const showBigBtn = cfg(event.config, "ui.bigTextButton", true) !== false;
 
-  const start = () => { setStarted(true); audioRef.current?.play().catch(() => {}); };
+  const playMusic = () => { audioRef.current?.play().catch(() => {}); };
+  const start = () => { setStarted(true); playMusic(); };
 
-  // Дуу: autoplay хориг тул hero гармагц хэрэглэгчийн анхны хөдөлгөөн дээр асна
+  // Дуу: ачаалмагц шууд эхлүүлэхийг оролдоно (desktop-д заримдаа зөвшөөрдөг). Утсан дээр browser
+  // хэрэглэгчийн хүрэлтгүйгээр дуу асаахгүй → үндсэн арга нь intro-ийн "Дарж нээх" (intro.tap); энэ
+  // нь intro.tap: false / intro-гүй үеийн нөөц. touchstart / pointerdown нь "user activation"
+  // тооцогдохгүй (HTML spec) тул touchend / pointerup / click / keydown-г сонсоно — өмнө зөвхөн
+  // эхнийх нь байсан тул дуу эхний хүрэлтээр биш, 2 дахь хүрэлт/scroll дээр л эхэлж байв.
   useEffect(() => {
-    const a = audioRef.current;
-    if (!started || !event.music_url || !a || !a.paused) return;
-    const evs = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
-    const tryPlay = () => { a.play().then(stop).catch(() => {}); };
+    if (!event.music_url) return;
+    const evs = ["pointerdown", "pointerup", "touchend", "click", "keydown", "scroll"] as const;
+    const tryPlay = () => { audioRef.current?.play().then(stop).catch(() => {}); };
     const stop = () => evs.forEach((e) => window.removeEventListener(e, tryPlay));
     tryPlay();
     evs.forEach((e) => window.addEventListener(e, tryPlay, { passive: true }));
     return stop;
-  }, [started, event.music_url]);
+  }, [event.music_url]);
 
   return (
     <ThemeCtx.Provider value={t}>
@@ -992,20 +1093,21 @@ export function AwardCeremony({ event, theme }: { event: EventData; theme: Theme
         maxWidth: 523, margin: "0 auto", ...body, overflowX: "clip", background: t.ivory, color: t.ink,
       }}>
         <Styles />
-        {hasVideo && <VideoIntro src={introVideo as string} onDone={start} />}
+        {hasVideo && <VideoIntro src={introVideo as string} tap={introTap} onTap={playMusic} onDone={start} />}
 
         <T27Hero event={event} started={started} />
         <T27Letter event={event} />
         {sectionOn(event.config, "career") && <T27Career event={event} />}
         {sectionOn(event.config, "gallery") && <T27Gallery event={event} />}
         {sectionOn(event.config, "schedule") && <T27Schedule event={event} />}
+        {sectionOn(event.config, "payment") && <T27Payment event={event} />}
         {sectionOn(event.config, "timer") && <T27When event={event} />}
         <T27Location event={event} />
         {sectionOn(event.config, "wishes") && <T27Wishes event={event} />}
         {sectionOn(event.config, "rsvp") && <T27RSVP event={event} />}
         <T27Footer event={event} />
 
-        <TextSizeToggle big={big} onToggle={() => setBig((b) => !b)} />
+        {showBigBtn && <TextSizeToggle big={big} onToggle={() => setBig((b) => !b)} />}
         <audio ref={audioRef} loop src={event.music_url ?? ""} preload="auto" />
         {event.music_url && <MusicToggle audioRef={audioRef} />}
         <Toaster />

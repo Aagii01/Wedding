@@ -92,7 +92,7 @@ alter table events add column if not exists config jsonb not null default '{}'::
 агуулсан фонт тохирно. `Caveat`, `Bad Script` дэмждэг; `Dancing Script`,
 `Great Vibes` дэмждэггүй. Фонт нь `index.html`-д ачаалагдсан байх ёстой.
 
-## ✅ Template13 — 5 түлхүүр
+## ✅ Template13 — 9 түлхүүр
 
 | Түлхүүр | Юу хийх | Fallback |
 |---|---|---|
@@ -101,6 +101,10 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `footer.children` | Хосын нэрийн доор хүүхдийн нэр | `FOOTER_CHILDREN` |
 | `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
+| `request.reception` | "Хуримын хүсэлт" дэх "Хүлээн авалт" картын бичвэрийг БҮХЭЛД нь солих (гарчиггүй, зөвхөн өгсөн текст) | `RECEPTION_CARD_TEXT` |
+| `request.time` | "Цаг" картын бичвэрийг бүхэлд нь солих | `TIME_CARD_TEXT` |
+| `request.receptionExtra` | "Хүлээн авалт" картын төгсгөлд нэмэлт өгүүлбэр | `RECEPTION_CARD_EXTRA` |
+| `request.timeExtra` | "Цаг" картын төгсгөлд нэмэлт өгүүлбэр | `TIME_CARD_EXTRA` |
 
 ## ✅ Template14 — 23 түлхүүр
 
@@ -359,7 +363,8 @@ update events set template = '25', config = '{
 
 40+ насанд зориулсан: цайвар ivory дэвсгэр, PT Serif 17px+ бичиг (мөр хоорондын зай 1.6),
 Playfair Display налуу биш гарчиг, хөдөлгөөн зөвхөн зөөлөн fade, intro нь **T13-ын дугтуй нээх
-видео** (`intro.video: false` → шууд hero), hero-д бүх өргөнийг эзлэх том арк портрет (ирц, утас нь
+видео** дээр **"Дарж нээх"** заавар — дармагц дуу эхэлнэ (browser хүрэлтгүйгээр дуу асаахыг
+хориглодог тул энэ л найдвартай арга; `intro.tap: false` → заавар байхгүй, `intro.video: false` → шууд hero), hero-д бүх өргөнийг эзлэх том арк портрет (ирц, утас нь
 доод хэсэгт), зүүн доод буланд **"Том үсэг"** (A+) товч — бүх бичвэр 15% томорно. Мотив: алтан
 нуман хүрээ, медаль-туузны тэмдэг, үүлэн хээ.
 Соёмбо, төрийн сүлд хэрэглэхгүй. Байршлын дээр **"Хэзээ"** хэсэг: огноо, цаг + тоологч
@@ -368,13 +373,23 @@ Playfair Display налуу биш гарчиг, хөдөлгөөн зөвхөн
 | Түлхүүр | Төрөл | Үндсэн утга | Тайлбар |
 |---|---|---|---|
 | `theme` | "wine" / "navy" | template-ээр | Theme-ийг template солихгүйгээр өөрчлөх |
-| `award.name` | string | "Шагналын баяр" (demo: "Хөдөлмөрийн хүндэт медаль") | Hero-гийн алтан гарчиг — шагнал/цолын нэр |
+| `award.name` | string / false | "Шагналын баяр" (demo: "Хөдөлмөрийн хүндэт медаль") | Hero-гийн алтан гарчиг — шагнал/цолын нэр; `false` → огт гарахгүй (нэр нь зураг дээрээ бичигдсэн үед) |
+| `hero.photoFit` | "cover" / "contain" | "cover" | `contain` → зургийг тайрахгүй, өөрийнх нь харьцаагаар бүтнээр (лого, постер маягийн зурагт) |
+| `hero.photoFrame` | "arch" / "rect" | "arch" | `rect` → дөрвөлжин (16px) хүрээ — нуман хүрээ зургийн дээд буланг тайрдаг тул `contain`-тэй хослуулна |
+| `ui.bigTextButton` | false | true | Зүүн доод "Том үсэг" (A+) товчийг нуух |
+| `hero.medal` | false | true | Зургийн доод ирмэгийн медаль тэмдгийг нуух |
+| `payment.account` | string | — | **Өгвөл хөтөлбөрийн дараа "Төлбөр" хэсэг гарна** — IBAN/данс 4-өөр бүлэглэж харуулна, "Дансны дугаар хуулах" товч (зайгүй хуулна) |
+| `payment.bank` / `payment.holder` | string | — | Банк / эзэмшигчийн нэр |
+| `payment.amount` / `payment.amountLabel` | string | — / "Такс үнэ" | Үнийн дүн ("250,000₮") том бичгээр, дээр нь шошго |
+| `payment.title` / `payment.note` | string | "Төлбөр" / — | Гарчиг; дансны дээрх тайлбар мөр |
+| `sections.payment` | false | true | Хэсэг нуух (`payment.account` байхгүй бол угаасаа нуугдана) |
 | `award.by` | string | — | Жишээ "Монгол Улсын Ерөнхийлөгчийн зарлигаар" (налуу, жижиг) |
 | `hero.name` | string | `person1_name` | Нэр (овгийн үсэг хасагдахгүй — "Д. Батбаяр" хэвээр) |
 | `hero.subtitle` | string | — | Жишээ "Жаран насны ой ба шагналын баяр" |
 | `hero.eyebrow` | string | "Хүндэтгэлийн урилга" | |
 | `hero.photo` | string | `person1_photo` → `main_image` | Нуман (арк) алтан хүрээтэй **том** 4:5 портрет — босоо, нүүр дээд хэсэгт байх зураг тохиромжтой |
 | `intro.video` | string / false | T13-ын дугтуй нээх видео | Өөр URL, эсвэл `false` → intro-гүй, шууд hero |
+| `intro.tap` | false | **true** | Видео дээрх "Дарж нээх" заавар (дармагц дуу эхэлнэ; видео дарахаас өмнө дуусвал сүүлийн хүрээ дээр хүлээнэ). `false` → заавар байхгүй, дуу зөвхөн хэрэглэгчийн анхны хүрэлт дээр |
 | `letter.note` | string | — | Урилгын үгийн доорх налуу мөр, жишээ "Хувцаслалт: ёслолын" |
 | `career.title` | string | "Ажлын замнал" | |
 | `career.items` | `[{year, text}]` | demo-д 4 жишээ, бусдад хоосон → хэсэг нуугдана | Он → үйл явдлын timeline |
@@ -509,6 +524,78 @@ update events set template = '31', type = 'apartment', title = 'Болд, Сар
   "gift":    { "bank": "Хаан банк", "account": "5012 3456 7890", "holder": "Б. Болд" },
   "footer":  { "lines": ["Гэрийн эзэд: Болд, Сарнай"], "phones": ["99001122"] }
 }'::jsonb where slug = 'bold-sarnai-shine-ger';
+```
+
+---
+
+## ✅ Template33 — клубын ойн баярын (гала) урилга (Оникс) — бүгд config-оос
+
+Нэг бүтэц (`Template33.tsx` → `ClubAnniversary`), theme **onyx**: хар-оникс #0B0C12 дэвсгэр, шампань
+алт #D4AF6A, Cormorant Garamond гарчиг, PT Sans бичвэр ба том үсгийн шошго (ө/ү цэвэр — Playfair/Oswald-ын
+ө/ү сонин харагдсан тул хэрэглэхгүй). Зорилтот үзэгч — клубын гишүүд, түншүүд (25–55). Мотив: **алтан
+цагирагтай клубын лого** (эргэн тойронд эргэдэг тойрог бичиг "КЛУБ · 2016 — 2026"), **ойн тоо 0 → N дээш
+тоологдож** алтан гялбаатай гарна, унах алтан оч, алтан шугам + од зааг. Intro: **T13-ын дугтуй нээх видео**
+(анхдагч; `intro.video` URL / `false`); `intro.logo: true` → оронд нь лого дарахад алтан цагираг тэлж, оч
+цацарна. Тоологч, байршилд нэмэлт товч байхгүй (зөвхөн "Google Maps-р харах").
+Section: intro → hero (лого, ойн тоо, клубын нэр, огноо, байршил chip) → урилгын үг → **замнал**
+(тоо баримт count-up + он цагийн хэлхээ) → цомог (lightbox) → хөтөлбөр → **хувцаслалт** → тоологч →
+байршил → мэндчилгээ → ирц → footer.
+
+**Дата:** `events.title` = клубын нэр, `main_image` = нүүрний (cover) зураг — бараан градиент доороос
+харагдана, `gallery_photos` = цомог (≤6, эхнийх нь 16:9 том), `venue_*` / `maps_photo` байршил.
+`person1_*` ашиглагдахгүй. **`events.type = 'anniversary'`** — OG preview "{клуб} — Ойн баярын урилга",
+зураг нь `main_image`.
+**Гишүүн бүрт нэртэй урилга:** `/i/slug?to=Б.%20Батбаяр` → урилгын үгийн дээр "Эрхэм хүндэт Б. Батбаяр"
+(DB мөр нэг, линк олон — нэрийг URL-д л солино).
+
+| Түлхүүр | Төрөл | Үндсэн утга | Тайлбар |
+|---|---|---|---|
+| `club.name` | string | `events.title` | Клубын нэр — hero, intro, footer, тойрог бичиг |
+| `club.logo` | string | — | Лого URL (ил тод PNG тохиромжтой; алтан цагираг дотор `contain`). Байхгүй бол од + нэрийн эхний үсгүүд |
+| `club.founded` | string | — | Үүсгэн байгуулагдсан он, жишээ "2016" → ойн тоо = баярын он − энэ; `anniversary.range` = "2016 — 2026" |
+| `anniversary.years` | number | `founded`-оос тооцоолно | Ойн тоог шууд өгөх (founded-гүй үед) |
+| `anniversary.label` | string | "жилийн ой" | Тооны доорх шошго |
+| `anniversary.range` | string / false | "2016 — 2026" | Он хоорондын мөр; `false` → алга |
+| `hero.eyebrow` | string | "Ойн баярын урилга" | |
+| `hero.tagline` | string / false | "Хамтдаа бүтээсэн он жилүүд" | Клубын нэрний доорх налуу мөр |
+| `hero.photo` | string | `main_image` | Нүүрний cover зураг (бараан давхаргатай) |
+| `hero.place` | string / false | `venue_name` | Байршлын chip |
+| `hero.orbit` | string / false | "{клуб} · {range}" | Логоны эргэн тойрны эргэдэг бичиг; `false` → алга |
+| `intro.video` | string / false | T13-ын дугтуй нээх видео | Өөр видео URL / `false` → intro-гүй, шууд hero |
+| `intro.logo` | true | false | Видеоны оронд лого дарж нээх intro (алтан цагираг тэлж, оч цацарна) |
+| `letter.greeting` | string / false | "Эрхэм хүндэт та бүхэнд" | Урилгын үгийн дээрх хандалт (`?to=` байвал нэрээр солигдоно) |
+| `letter.signature` | string / false | "Хүндэтгэсэн: {клуб}" | Доорх гарын үсэг мөр |
+| `letter.note` | string | — | Урилгын үгийн доорх жижиг тайлбар |
+| `history.title` | string | "Бидний замнал" | |
+| `stats.items` | `[{value, suffix?, label}]` | demo-д 3 жишээ, бусдад [] | Тоо баримт: `{"value":120,"suffix":"+","label":"Гишүүн"}` — харагдахад 0-оос тоологдоно |
+| `history.items` | `[{year, text}]` | demo-д 4 жишээ, бусдад [] | Он цагийн хэлхээ. stats, history хоёулаа хоосон → хэсэг нуугдана |
+| `gallery.title` | string | "Дурсамжийн мөчүүд" | `gallery_photos` хоосон бол нуугдана |
+| `schedule.title` | string | "Хөтөлбөр" | Үндсэн: хүлээн авалт → нээлт → хүндэтгэл → гала зоог → хөгжим |
+| `dress.code` | string | — (demo: "Black Tie") | **Өгвөл "Хувцаслалт" хэсэг гарна** |
+| `dress.note` / `dress.colors` / `dress.title` | string / string[] / string | — / [] / "Хувцаслалт" | Тайлбар; өнгөний дугуй swatch (hex) |
+| `timer.title` | string | "Баяр эхлэхэд" | |
+| `venue.title` / `venue.note` | string | "Байршил" / — | Тайлбар, жишээ "Зогсоол: доод давхар" |
+| `wishes.title` / `wishes.subtitle` | string | "Мэндчилгээ" / "Клубт зориулсан ойн мэндчилгээ…" | |
+| `wishes.showList` | false | true | Ирсэн мэндчилгээний жагсаалт нуух |
+| `rsvp.title` / `rsvp.maxGuests` / `rsvp.note` | | "Ирцээ бүртгүүлэх" / 5 / "Суудлын зохион байгуулалтын үүднээс…" | |
+| `sections.history/gallery/schedule/dress/timer/wishes/rsvp` | false | true | Хэсэг нуух |
+| `footer.title` | string | "Та бүхнийг хүлээн авахдаа таатай байх болно" | |
+| `footer.lines` / `footer.phones` | string[] | [] | Мөрүүд; pill товч (дарахад залгана) |
+| `theme` | "onyx" | template-ээр | Одоогоор нэг theme |
+
+Урилгын үг → `events.poem` (үндсэн: "Нэг зорилго, нэг итгэлээр нэгдэн, …"), хөтөлбөр → `events.schedule`.
+Мэндчилгээ `wishes`, ирц `rsvp` хүснэгтэд.
+
+```sql
+update events set template = '33', type = 'anniversary', title = 'Алтан Гадас клуб', config = '{
+  "club":    { "logo": "https://.../logo.png", "founded": "2016" },
+  "stats":   { "items": [ { "value": 10, "label": "Жил" }, { "value": 120, "suffix": "+", "label": "Гишүүн" }, { "value": 48, "label": "Төсөл" } ] },
+  "history": { "items": [
+    { "year": "2016", "text": "12 гишүүнтэй үүсгэн байгуулагдав" },
+    { "year": "2026", "text": "Арван жилийн ой" } ] },
+  "dress":   { "code": "Black Tie", "note": "Эрэгтэй: хар костюм · Эмэгтэй: урт даашинз", "colors": ["#0B0C12", "#D4AF6A"] },
+  "footer":  { "lines": ["Зохион байгуулагч: Удирдах зөвлөл"], "phones": ["99001122"] }
+}'::jsonb where slug = 'altan-gadas-10';
 ```
 
 ---

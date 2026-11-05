@@ -44,6 +44,8 @@ const STORAGE = "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/publ
 const KID_BOY  = (n: string) => `${STORAGE}/child_boy/${n}`;
 const KID_GIRL = (n: string) => `${STORAGE}/child_girl/${n}`;
 const MEDAL    = (n: string) => `${STORAGE}/medal/${n}`;
+// Клубын ойн баярын demo — гала танхим (Template33-ийн demo cover-той ижил)
+const GALA     = "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1000&q=80";
 
 const TEMPLATES: Template[] = [
   {
@@ -152,6 +154,16 @@ const TEMPLATES: Template[] = [
     cover: MEDAL("main1.jpg"), fan: false, dark: false, demo: "/demo/28",
     preview: { image: MEDAL("main.jpg"), eyebrow: "Хүндэтгэлийн урилга", title: "Хөдөлмөрийн\nхүндэт медаль", date: "2027 · 08 · 16" },
   },
+
+  // ── Клубын ойн баяр (Template33.tsx: хар-оникс + шампань алт, гала) ──
+  {
+    id: "33", name: "Оникс", tagline: "Хар · Шампань алт · Гала",
+    desc: "Бараан тансаг дэвсгэр, алтан цагирагтай лого, ойн тоо дээш тоологдож гарна, замнал, хувцаслалт, лого дарж нээх intro.",
+    bg: "#0B0C12", accent: "#D4AF6A", text: "#F5EFE2", soft: "rgba(245,239,226,0.6)",
+    swatches: ["#0B0C12", "#D4AF6A", "#F1DEAE", "#F5EFE2"], font: "'Playfair Display', serif",
+    cover: GALA, fan: false, dark: true, demo: "/demo/33",
+    preview: { image: GALA, eyebrow: "Ойн баярын урилга", title: "10 жил", date: "Алтан Гадас клуб · 2027", titleStyle: { fontWeight: 600 } },
+  },
 ];
 
 const byId    = (id: string) => TEMPLATES.find((t) => t.id === id)!;
@@ -181,6 +193,12 @@ const CATEGORIES: { key: string; label: string; groups: TemplateGroup[] }[] = [
     key: "award", label: "Шагнал, хүндэтгэл",
     groups: [
       { name: "Хүндэтгэлийн урилга", tagline: "Одон медаль · Ой · 40+", desc: "Цайвар дэвсгэр, том уншигдах бичиг, ажлын замнал, дугтуй нээх intro, «Том үсэг» товч.", ids: ["27", "28"] },
+    ],
+  },
+  {
+    key: "club", label: "Клуб, байгууллага",
+    groups: [
+      { name: "Ойн баяр", tagline: "Клуб · Гала · Ой", desc: "Хар-алтан тансаг дэвсгэр, клубын лого, ойн тоо дээш тоологдож гарна, замнал, хувцаслалт, гишүүн бүрт нэртэй урилга.", ids: ["33"] },
     ],
   },
 ];

@@ -37,6 +37,10 @@ import Template30 from "./Template30";
 // бэлгийн данс (сонголтоор), бүгд config-оос
 import Template31 from "./Template31";
 import Template32 from "./Template32";
+// Клубын ойн баярын (гала) урилга — Template33.tsx, theme "onyx": хар-оникс + шампань алт.
+// Лого дарж нээх intro, ойн тоо дээш тоологдож гарна, эргэдэг тойрог бичигтэй лого,
+// замнал (тоо баримт + он цагийн хэлхээ), хувцаслалт, ?to= нэртэй урилга, бүгд config-оос
+import Template33 from "./Template33";
 
 // Жагсаалтад байхгүй template утгатай (жишээ нь өмнө устгасан 15-18, 20)
 // хуучин event-үүд EventPage дээр App (Template11) руу fallback хийнэ.
@@ -58,4 +62,5 @@ export const templateMap: Record<string, React.ComponentType<{ event: EventData 
   "30": Template30,
   "31": Template31,
   "32": Template32,
+  "33": Template33,
 };
