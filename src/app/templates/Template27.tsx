@@ -464,6 +464,7 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
   const photoFrame = cfg<"arch" | "rect">(event.config, "hero.photoFrame", "arch");
   // hero.medal: false → зургийн доод ирмэгийн медаль тэмдэг гарахгүй
   const showMedal  = cfg(event.config, "hero.medal", true) !== false;
+  const nameGold   = cfg(event.config, "hero.nameGold", false) === true;
 
   const show = (delay: number) => ({
     initial: { opacity: 0, y: 14 },
@@ -508,9 +509,14 @@ function T27Hero({ event, started }: { event: EventData; started: boolean }) {
           {showMedal && <MedalBadge style={{ position: "absolute", left: "50%", bottom: -44, transform: "translateX(-50%)" }} />}
         </motion.div>
 
-        <motion.h1 {...show(0.7)} style={{
+        <motion.h1 {...show(0.7)} className={nameGold ? "t27-shimmer" : undefined} style={{
           ...display, fontWeight: 600, fontSize: name.length > 18 ? fs(28) : fs(38), lineHeight: 1.15,
           color: t.paper, margin: "6px 0 6px", maxWidth: "100%", overflowWrap: "anywhere",
+          // hero.nameGold: true → нэр award гарчигтай ижил алтан гялбаатай
+          ...(nameGold ? {
+            backgroundImage: `linear-gradient(90deg, ${t.goldDeep}, ${t.goldLight} 35%, ${t.gold} 50%, ${t.goldLight} 65%, ${t.goldDeep})`,
+            backgroundSize: "200% 100%", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", WebkitTextFillColor: "transparent",
+          } : {}),
         }}>
           {name}
         </motion.h1>
@@ -762,14 +768,19 @@ function T27Location({ event }: { event: EventData }) {
   const mapHref = event.venue_map_url
     ? normalizeUrl(event.venue_map_url)
     : event.venue_name ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(event.venue_name) : "";
+  // venue.photoFit: "contain" → maps_photo-г тайрахгүй, өөрийнх нь харьцаагаар, hero-гийн зурагтай ижил
+  // өргөнд (max 360, төвд) — газрын зураг/постер маягийн зурагт. Анхдагч "cover" — 16:10 тайрна.
+  const natural = !!event.maps_photo && cfg<"cover" | "contain">(event.config, "venue.photoFit", "cover") === "contain";
   return (
     <Section>
       <FadeUp><Heading>Хаана болох вэ</Heading></FadeUp>
       <FadeUp delay={0.08}>
-        <div style={{ background: t.ivory2, border: `1px solid ${t.gold}`, padding: 6, boxShadow: SHADOW_CARD }}>
-          <div style={{ aspectRatio: "16 / 10", overflow: "hidden", background: t.line, position: "relative" }}>
+        <div style={{ background: t.ivory2, border: `1px solid ${t.gold}`, padding: 6, boxShadow: SHADOW_CARD, ...(natural ? { maxWidth: 360, margin: "0 auto" } : {}) }}>
+          <div style={{ aspectRatio: natural ? undefined : "16 / 10", overflow: "hidden", background: t.line, position: "relative" }}>
             {event.maps_photo ? (
-              <Photo src={event.maps_photo} alt={event.venue_name} />
+              natural
+                ? <img src={event.maps_photo} alt={event.venue_name} style={{ width: "100%", height: "auto", display: "block" }} />
+                : <Photo src={event.maps_photo} alt={event.venue_name} />
             ) : (
               <div aria-hidden="true" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <PinIcon size={44} color={t.primary} />

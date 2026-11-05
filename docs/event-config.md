@@ -378,6 +378,8 @@ Playfair Display налуу биш гарчиг, хөдөлгөөн зөвхөн
 | `hero.photoFrame` | "arch" / "rect" | "arch" | `rect` → дөрвөлжин (16px) хүрээ — нуман хүрээ зургийн дээд буланг тайрдаг тул `contain`-тэй хослуулна |
 | `ui.bigTextButton` | false | true | Зүүн доод "Том үсэг" (A+) товчийг нуух |
 | `hero.medal` | false | true | Зургийн доод ирмэгийн медаль тэмдгийг нуух |
+| `hero.nameGold` | true | false | Нэрийг (h1) award гарчигтай ижил алтан гялбаатай болгох (байгууллагын нэр гэх мэт) |
+| `venue.photoFit` | "cover" / "contain" | "cover" | `contain` → `maps_photo`-г тайрахгүй, өөрийнх нь харьцаагаар, hero зурагтай ижил өргөнд (max 360) |
 | `payment.account` | string | — | **Өгвөл хөтөлбөрийн дараа "Төлбөр" хэсэг гарна** — IBAN/данс 4-өөр бүлэглэж харуулна, "Дансны дугаар хуулах" товч (зайгүй хуулна) |
 | `payment.bank` / `payment.holder` | string | — | Банк / эзэмшигчийн нэр |
 | `payment.amount` / `payment.amountLabel` | string | — / "Такс үнэ" | Үнийн дүн ("250,000₮") том бичгээр, дээр нь шошго |
