@@ -830,18 +830,27 @@ function T13Location({ event }: { event: EventData }) {
 const HIDE_NO_PHONE = new Set<string>([]);
 
 // "Цаг" картын төгсгөлд нэмэлт өгүүлбэр гаргах slug-ууд.
+// config: request.timeExtra
 const TIME_CARD_EXTRA: Record<string, string> = {
   "bilguun-uuriintsolmon":
     "Цагтаа ирэх нь — бидний баярт өгч буй хамгийн сайхан хүндэтгэл байх болно. ✨",
 };
 
 // "Хүлээн авалт" картын төгсгөлд нэмэлт өгүүлбэр гаргах slug-ууд.
+// config: request.receptionExtra
 const RECEPTION_CARD_EXTRA: Record<string, string> = {
   "bilguun-uuriintsolmon":
     "Манай хуримын ёслол дуу чимээ ихтэй орчинд зохион байгуулагдах тул та бүхнийг бяцхан үрсээ гэрт нь үлдээн, нэгэн үдшийг бидэнтэй хамт тухлан өнгөрүүлнэ үү хэмээн хүсэж байна.",
 };
 
-function T13DressCode({ slug }: { slug?: string }) {
+// Картын бичвэрийг БҮХЭЛД нь солих slug-ууд ("Хүлээн авалт:" гарчиг ч гарахгүй, зөвхөн өгсөн текст).
+// config: request.reception / request.time
+const RECEPTION_CARD_TEXT: Record<string, string> = {
+  "baatarkhuu-sergelen": "Одонтой ээж та одонгоо зүүгээд ирээрэй",
+};
+const TIME_CARD_TEXT: Record<string, string> = {};
+
+function T13DressCode({ slug, config }: { slug?: string; config?: unknown }) {
   const icons = [
     { emoji: "🌸", label: "Хүлээн авалт" },
     { emoji: "📵", label: "Утасгүй мөч" },
@@ -849,8 +858,10 @@ function T13DressCode({ slug }: { slug?: string }) {
     { emoji: "🥂", label: "Хамтдаа баярлах +18" },
   ].filter(({ label }) => !(label === "Утасгүй мөч" && slug && HIDE_NO_PHONE.has(slug)));
 
-  const timeExtra = slug ? TIME_CARD_EXTRA[slug] : undefined;
-  const receptionExtra = slug ? RECEPTION_CARD_EXTRA[slug] : undefined;
+  const timeExtra      = cfg<string | undefined>(config, "request.timeExtra",      slug ? TIME_CARD_EXTRA[slug] : undefined);
+  const receptionExtra = cfg<string | undefined>(config, "request.receptionExtra", slug ? RECEPTION_CARD_EXTRA[slug] : undefined);
+  const receptionText  = cfg<string | undefined>(config, "request.reception",      slug ? RECEPTION_CARD_TEXT[slug] : undefined);
+  const timeText       = cfg<string | undefined>(config, "request.time",           slug ? TIME_CARD_TEXT[slug] : undefined);
 
   return (
     <div style={{ background: BURGUNDY }}>
@@ -904,8 +915,10 @@ function T13DressCode({ slug }: { slug?: string }) {
               <PeonySVG size={56} color="#D4B0A0" />
             </div>
             <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
-              <strong>Хүлээн авалт:</strong> Нээлтийн үйл ажиллагаа эхэлтэл хүлээлгийн зоог барьж, дурсамж зургаа авахуулна уу.
-              {receptionExtra ? ` ${receptionExtra}` : ""}
+              {receptionText ?? (<>
+                <strong>Хүлээн авалт:</strong> Нээлтийн үйл ажиллагаа эхэлтэл хүлээлгийн зоог барьж, дурсамж зургаа авахуулна уу.
+                {receptionExtra ? ` ${receptionExtra}` : ""}
+              </>)}
             </p>
           </motion.div>
 
@@ -925,8 +938,10 @@ function T13DressCode({ slug }: { slug?: string }) {
               <PeonySVG size={56} color="#E8A0BF" />
             </div>
             <p style={{ ...ovo, fontSize: 13, color: CREAM, lineHeight: 1.65 }}>
-              <strong>Цаг:</strong> Ёслол эхлэхээс 30 минутын өмнө суудалдаа заларна уу.
-              {timeExtra ? ` ${timeExtra}` : ""}
+              {timeText ?? (<>
+                <strong>Цаг:</strong> Ёслол эхлэхээс 30 минутын өмнө суудалдаа заларна уу.
+                {timeExtra ? ` ${timeExtra}` : ""}
+              </>)}
             </p>
           </motion.div>
         </div>
@@ -1390,7 +1405,7 @@ export default function Template13({ event }: { event: EventData }) {
       <T13Countdown event={event} />
       {sectionOn(event.config, "schedule", !HIDE_SCHEDULE.has(event.slug)) && <T13Schedule event={event} />}
       <T13Location event={event} />
-      <T13DressCode slug={event.slug} />
+      <T13DressCode slug={event.slug} config={event.config} />
       <T13Wishes eventId={event.id} />
       {sectionOn(event.config, "rsvp", !HIDE_RSVP.has(event.slug)) && <T13RSVP eventId={event.id} slug={event.slug} />}
       <T13Footer event={event} />
