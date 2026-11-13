@@ -262,6 +262,13 @@ Toaster (shadcn notification)
 (T14: `HERO_NAME_IMAGE`, `VERSE_NAME_IMAGE` map) зургаар гаргана. Анх `khosbayar-tserenchimed`-д хийсэн.
 Дахин үүсгэх хэрэгсэл `tools/name-image/` (`make.sh`), бүрэн тайлбар → **`docs/name-image-font.md`**.
 
+### "Цаас урах" intro — нэг видео, олон нэр
+Бээлийтэй гар цаас урж, дотроос нь карт гарах видео intro. Видео нь нэргүй хоосон карттай ганц файл
+(`public/intro/tear-green.mp4`); `?to=Нэр` болон урилгын бичвэрийг HTML-ээр картын дээр тавьж, картыг
+кадр бүрт дагуулдаг → нэр бүрт видео үүсгэхгүй. Туршилтаар T33-д (`TearIntro`, `intro.tear: true` эсвэл
+`?intro=tear`). Видео үүсгэх prompt, шинэ видео хэмжих хэрэгсэл (`tools/tear-intro/`), өөр загварт
+шилжүүлэх заавар → **`docs/tear-intro.md`**.
+
 ### PoemSection
 - Cormorant Garamond фонт (`1.55rem`, `#3a2e28` дулаан хүрэн)
 - Мөр бүрт шууд `initial/whileInView/transition` props + manual `delay = lineIndex * 0.15`

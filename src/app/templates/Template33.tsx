@@ -410,6 +410,12 @@ function useCountUp(target: number, go: boolean, duration = 1.8) {
   return n;
 }
 
+// /demo/33?intro=tear → intro-г config-гүйгээр туршиж үзэх
+function introParam(): string | null {
+  try { return new URLSearchParams(window.location.search).get("intro"); }
+  catch { return null; }
+}
+
 // ─── Intro: лого дарахад алтан цагираг тэлж, оч цацарна ──────────────────────
 const BURST = Array.from({ length: 14 }, (_, i) => {
   const a = (i / 14) * Math.PI * 2;
@@ -495,6 +501,160 @@ function VideoIntro({ src, onDone }: { src: string; onDone: () => void }) {
       style={{ position: "fixed", inset: 0, background: "#000", zIndex: 9999, overflow: "hidden", pointerEvents: exiting ? "none" : "auto" }}>
       <video ref={videoRef} src={src} autoPlay muted playsInline preload="auto" onEnded={handleEnded} onError={handleEnded}
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+    </motion.div>
+  );
+}
+
+// ─── Intro: цаас урах видео — дотроос нь нэртэй карт гарна ────────────────────
+// Видео нь НЭРГҮЙ хоосон карттай (нэг л файл). Нэр, клуб, ойг HTML-ээр картын дээр тавьдаг тул
+// ?to=Нэр бүрт видео дахин үүсгэхгүй. Бичвэр mix-blend multiply → цаасны ширхэг нэвт харагдана.
+// Картын байрлал видеоны төгсгөлд бага зэрэг шилждэг (AI видео) тул кадр бүрт дагуулна.
+const TEAR_VIDEO  = "/intro/tear-green.mp4";
+const TEAR_POSTER = "/intro/tear-green.jpg";
+const TEAR_BG     = "#11261D";
+const TEAR_VW = 1080, TEAR_VH = 1920;            // хэмжилт хийсэн видеоны нэгж
+const TEAR_CARD_W = 555, TEAR_CARD_H = 904;      // бичвэрийн "зураг төслийн" хэмжээ (сүүлийн кадрын карт)
+// [секунд, картын дээд ирмэг, доод ирмэг] — 2.mp4-өөс хэмжсэн
+const TEAR_TRACK: [number, number, number][] = [[4.6, 556, 1441], [4.8, 558, 1449], [5.0, 564, 1463], [5.13, 570, 1474]];
+const TEAR_TEXT_AT = 3.35;                        // энэ секундэд карт бүрэн ил гарна
+const TEAR_HOLD_MS = 2600;                        // видео дууссаны дараа уншуулах хугацаа
+const TEAR_INK = "#1F3529", TEAR_GOLD = "#8A6626";
+
+function tearCardAt(sec: number) {
+  const tr = TEAR_TRACK;
+  let top = tr[0][1], bottom = tr[0][2];
+  if (sec >= tr[tr.length - 1][0]) { top = tr[tr.length - 1][1]; bottom = tr[tr.length - 1][2]; }
+  else for (let i = 1; i < tr.length; i++) {
+    if (sec <= tr[i][0]) {
+      const k = Math.max(0, (sec - tr[i - 1][0]) / (tr[i][0] - tr[i - 1][0]));
+      top = tr[i - 1][1] + (tr[i][1] - tr[i - 1][1]) * k;
+      bottom = tr[i - 1][2] + (tr[i][2] - tr[i - 1][2]) * k;
+      break;
+    }
+  }
+  const h = bottom - top, w = h * (TEAR_CARD_W / TEAR_CARD_H);
+  const cx = 543.5 + 4 * Math.min(1, Math.max(0, (h - 885) / 19));
+  return { x: cx - w / 2, y: top, scale: h / TEAR_CARD_H };
+}
+
+function TearIntro({ event, to, onDone }: { event: EventData; to: string | null; onDone: () => void }) {
+  const [visible, setVisible] = useState(true);
+  const [exiting, setExiting] = useState(false);
+  const [shown, setShown] = useState(false);
+  const [box, setBox] = useState<{ w: number; h: number } | null>(null);
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const cardRef  = useRef<HTMLDivElement | null>(null);
+  const doneRef  = useRef(false);
+
+  const name = clubName(event);
+  const { years, label } = anniversary(event);
+  const eyebrow = cfg(event.config, "hero.eyebrow", "Ойн баярын урилга");
+  const big = to || name;
+  const bigSize = big.length <= 9 ? 86 : big.length <= 14 ? 68 : big.length <= 20 ? 56 : 46;
+
+  // Видеоны (cover) бодит хэмжээ: frame-ийг бүрхтэл томруулна
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const measure = () => setBox({ w: el.clientWidth, h: el.clientHeight });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const vw = box ? Math.max(box.w, box.h * (TEAR_VW / TEAR_VH)) : 0;
+  const u = vw / TEAR_VW;
+
+  // Картыг кадр бүрт дагуулах + бичвэр гарах мөч
+  useEffect(() => {
+    if (!u) return;
+    let raf = 0;
+    const tick = () => {
+      const v = videoRef.current, c = cardRef.current;
+      if (v && c) {
+        const sec = v.ended ? 99 : v.currentTime;
+        const r = tearCardAt(sec);
+        c.style.transform = `translate(${r.x * u}px, ${r.y * u}px) scale(${r.scale * u})`;
+        if (sec >= TEAR_TEXT_AT) setShown(true);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [u]);
+
+  useEffect(() => { videoRef.current?.play().catch(() => {}); }, []);
+
+  const finish = () => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    onDone(); setExiting(true);
+    setTimeout(() => setVisible(false), 1600);
+  };
+  const handleEnded = () => { setShown(true); setTimeout(finish, TEAR_HOLD_MS); };
+  // Дарахад: видео зогссон бол (autoplay хориглогдсон) эхлүүлнэ; бичвэр гарсан бол шууд урилга руу
+  const handleTap = () => {
+    const v = videoRef.current;
+    if (shown) finish();
+    else if (v && v.paused && !v.ended) v.play().catch(() => {});
+  };
+
+  if (!visible) return null;
+  const line = (i: number) => ({
+    initial: { opacity: 0, y: 14, filter: "blur(6px)" },
+    animate: shown ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 14, filter: "blur(6px)" },
+    transition: { duration: 0.9, delay: i * 0.22, ease: [0.2, 0.8, 0.2, 1] as const },
+  });
+  const rule = <div style={{ width: 96, height: 2, background: `linear-gradient(to right, transparent, ${TEAR_GOLD}, transparent)` }} />;
+
+  return (
+    <motion.div initial={{ opacity: 1 }} animate={{ opacity: exiting ? 0 : 1 }} transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+      onClick={handleTap}
+      style={{ position: "fixed", inset: 0, background: TEAR_BG, zIndex: 9999, overflow: "hidden", pointerEvents: exiting ? "none" : "auto", display: "flex", justifyContent: "center" }}>
+      <div ref={frameRef} style={{ position: "relative", width: "100%", maxWidth: 523, height: "100%", overflow: "hidden" }}>
+        {box && (
+          <div style={{ position: "absolute", left: (box.w - vw) / 2, top: (box.h - vw * (TEAR_VH / TEAR_VW)) / 2, width: vw, height: vw * (TEAR_VH / TEAR_VW) }}>
+            <video ref={videoRef} src={TEAR_VIDEO} poster={TEAR_POSTER} autoPlay muted playsInline preload="auto"
+              onEnded={handleEnded} onError={finish}
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            <div ref={cardRef} style={{
+              position: "absolute", left: 0, top: 0, width: TEAR_CARD_W, height: TEAR_CARD_H, transformOrigin: "0 0",
+              mixBlendMode: "multiply", boxSizing: "border-box", padding: "70px 56px",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 26, textAlign: "center",
+            }}>
+              <motion.div {...line(0)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 18 }}>
+                <SparkIcon size={30} color={TEAR_GOLD} />
+                <div style={{ ...caps, fontSize: 20, letterSpacing: "0.26em", color: TEAR_GOLD }}>{eyebrow}</div>
+              </motion.div>
+              <motion.div {...line(1)}>{rule}</motion.div>
+              {to && (
+                <motion.div {...line(2)} style={{ ...display, fontStyle: "italic", fontWeight: 500, fontSize: 40, color: TEAR_INK, lineHeight: 1 }}>
+                  Эрхэм хүндэт
+                </motion.div>
+              )}
+              <motion.div {...line(3)} style={{ ...display, fontWeight: 600, fontSize: bigSize, lineHeight: 1.08, color: TEAR_INK, overflowWrap: "anywhere" }}>
+                {big}
+              </motion.div>
+              <motion.div {...line(4)}>{rule}</motion.div>
+              {years && (
+                <motion.div {...line(5)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                  <div style={{ ...display, fontWeight: 600, fontSize: 124, lineHeight: 0.9, color: TEAR_GOLD }}>{years}</div>
+                  <div style={{ ...caps, fontSize: 20, letterSpacing: "0.26em", color: TEAR_GOLD }}>{label}</div>
+                </motion.div>
+              )}
+              {to && (
+                <motion.div {...line(6)} style={{ ...display, fontWeight: 600, fontSize: 36, lineHeight: 1.15, color: TEAR_INK }}>{name}</motion.div>
+              )}
+              {event.date && (
+                <motion.div {...line(7)} style={{ ...caps, fontSize: 18, letterSpacing: "0.18em", color: TEAR_INK, opacity: 0.8 }}>
+                  {fmtDate(event.date)}
+                </motion.div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
@@ -1158,11 +1318,13 @@ export function ClubAnniversary({ event: raw, theme }: { event: EventData; theme
   const audioRef = useRef<HTMLAudioElement | null>(null);
   // config.intro.logo: true → лого дарж нээх intro (видеогүй).
   // config.intro.video: URL → тэр видео; false → intro-гүй (шууд hero); байхгүй → T13-ын дугтуй нээх видео
-  const introLogo = cfg(event.config, "intro.logo", false) === true;
+  // config.intro.tear: true (эсвэл URL-д ?intro=tear) → цаас урах видео, дотроос нь ?to= нэртэй карт гарна.
+  const [introTear] = useState(() => cfg(event.config, "intro.tear", false) === true || introParam() === "tear");
+  const introLogo = !introTear && cfg(event.config, "intro.logo", false) === true;
   const introCfg  = cfg<string | false | undefined>(event.config, "intro.video", undefined);
-  const introVideo = introLogo ? false : introCfg === undefined ? T33_INTRO_VIDEO : introCfg;
+  const introVideo = introLogo || introTear ? false : introCfg === undefined ? T33_INTRO_VIDEO : introCfg;
   const hasVideo = typeof introVideo === "string" && introVideo.length > 0;
-  const [started, setStarted] = useState(!introLogo && !hasVideo);
+  const [started, setStarted] = useState(!introLogo && !hasVideo && !introTear);
   const start = () => { setStarted(true); audioRef.current?.play().catch(() => {}); };
   const [to] = useState(addressee);
 
@@ -1206,6 +1368,7 @@ export function ClubAnniversary({ event: raw, theme }: { event: EventData; theme
         <Styles />
         {introLogo && !started && <SealIntro event={event} onOpen={start} />}
         {hasVideo && <VideoIntro src={introVideo as string} onDone={start} />}
+        {introTear && <TearIntro event={event} to={to} onDone={start} />}
         <Sparks />
 
         <T33Hero event={event} started={started} />
