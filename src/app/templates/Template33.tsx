@@ -16,9 +16,9 @@ import { normalizeUrl } from "../../lib/url";
 // Intro: T13-ын дугтуй нээх видео (анхдагч; intro.video: URL / false). intro.logo: true →
 // оронд нь лого дарахад алтан цагираг тэлж, оч цацарна → hero.
 //
-// Section: intro → hero (лого, ойн тоо, клубын нэр, огноо) → урилгын үг (?to= нэр)
+// Section: intro → hero (лого, ойн тоо, клубын нэр) → урилгын үг (?to= нэр)
 // → замнал (тоо баримт + он цагийн хэлхээ) → цомог (lightbox) → хөтөлбөр → хувцаслалт
-// → тоологч → байршил → мэндчилгээ → ирц → footer. Түлхүүрүүд: docs/event-config.md § T33.
+// → тоологч (огноо · цаг) → байршил → мэндчилгээ → ирц → footer. Түлхүүрүүд: docs/event-config.md § T33.
 // Дата: events.title = клубын нэр, main_image = нүүрний (cover) зураг, gallery_photos = цомог.
 // OG preview: events.type = 'anniversary' (api/invite.js — "{клуб} — Ойн баярын урилга").
 // Хувь хүнд нэртэй урилга: /i/slug?to=Б.%20Батбаяр → урилгын үгийн дээр "Эрхэм хүндэт Б. Батбаяр".
@@ -123,7 +123,6 @@ const MicIcon: IconFn      = ({ size = 24, color = "currentColor" }) => ico(size
 const TrophyIcon: IconFn   = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M7 4h10v5a5 5 0 0 1-10 0Z" /><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8M9 18h6" /></>);
 const DinnerIcon: IconFn   = ({ size = 24, color = "currentColor" }) => ico(size, color, <><path d="M3 15h18" /><path d="M5 15a7 7 0 0 1 14 0" /><path d="M12 6V8M3 19h18" /></>);
 const ShirtIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(size, color, <path d="M8 3 4 6l2 4 2-1v12h8V9l2 1 2-4-4-3a4 4 0 0 1-8 0Z" />);
-const ClockIcon: IconFn    = ({ size = 24, color = "currentColor" }) => ico(size, color, <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>);
 
 // ─── global styles ───────────────────────────────────────────────────────────
 function Styles() {
@@ -507,7 +506,6 @@ function T33Hero({ event, started }: { event: EventData; started: boolean }) {
   const eyebrow = cfg(event.config, "hero.eyebrow", "Ойн баярын урилга");
   const tagline = cfg<string | false>(event.config, "hero.tagline", t.tagline);
   const cover   = cfg<string | null>(event.config, "hero.photo", null) || (isDemo(event) ? DEMO.cover : event.main_image) || null;
-  const place   = cfg<string | false>(event.config, "hero.place", event.venue_name || false);
   const orbit   = cfg<string | false>(event.config, "hero.orbit", range ? `${name} · ${range}` : name);
   const n = useCountUp(years ?? 0, started);
 
@@ -570,23 +568,6 @@ function T33Hero({ event, started }: { event: EventData; started: boolean }) {
         {tagline && (
           <motion.div {...show(0.7)} style={{ ...display, fontStyle: "italic", fontSize: 21, color: t.paperMuted, marginTop: 10 }}>
             {tagline}
-          </motion.div>
-        )}
-
-        <motion.div {...show(0.85)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginTop: 26, width: "100%", maxWidth: 358 }}>
-          <div style={{ width: 34, height: 1, background: `linear-gradient(to right, transparent, ${t.gold})`, flexShrink: 0 }} />
-          <div style={{ ...display, fontWeight: 600, fontSize: 23, color: t.goldLight, lineHeight: 1.2, fontVariantNumeric: "lining-nums" }}>
-            {fmtDate(event.date)}{event.time ? ` · ${event.time}` : ""}
-          </div>
-          <div style={{ width: 34, height: 1, background: `linear-gradient(to left, transparent, ${t.gold})`, flexShrink: 0 }} />
-        </motion.div>
-
-        {place && (
-          <motion.div {...show(0.95)} style={{ marginTop: 16 }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(24,25,38,.72)", backdropFilter: "blur(8px)", border: `1px solid ${t.cardLine}`, borderRadius: 999, padding: "9px 16px", maxWidth: 340 }}>
-              <PinIcon size={17} color={t.gold} />
-              <span style={{ ...bodyB, fontSize: 15, color: t.paper, textAlign: "left" }}>{place}</span>
-            </div>
           </motion.div>
         )}
       </div>
@@ -874,6 +855,14 @@ function T33Countdown({ event, tone }: SecProps) {
     <Section tone={tone}>
       <FadeUp><Heading>{title}</Heading></FadeUp>
       <FadeUp>
+        {/* огноо · цаг — hero дээр биш, зөвхөн энд (T27/T29-ийн адил) */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 22 }}>
+          <div style={{ width: 34, height: 1, background: `linear-gradient(to right, transparent, ${t.gold})`, flexShrink: 0 }} />
+          <div style={{ ...display, fontWeight: 600, fontSize: 23, color: t.goldLight, lineHeight: 1.2, textAlign: "center", fontVariantNumeric: "lining-nums" }}>
+            {fmtDate(event.date)}{event.time ? ` · ${event.time}` : ""}
+          </div>
+          <div style={{ width: 34, height: 1, background: `linear-gradient(to left, transparent, ${t.gold})`, flexShrink: 0 }} />
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
           {units.map((u) => (
             <div key={u.l} style={{ background: t.card, border: `1px solid ${t.cardLine}`, borderRadius: 16, padding: "18px 4px 12px", textAlign: "center" }}>
@@ -916,11 +905,6 @@ function T33Venue({ event, tone }: SecProps) {
       <FadeUp delay={0.12} style={{ textAlign: "center", marginTop: 22 }}>
         {name && <div style={{ ...display, fontWeight: 600, fontSize: 28, color: t.paper, lineHeight: 1.2 }}>{name}</div>}
         {addr && <div style={{ ...body, fontSize: 16, lineHeight: "24px", color: t.paperMuted, marginTop: 8 }}>{addr}</div>}
-        {event.time && (
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 14, ...caps, fontSize: 12, color: t.gold }}>
-            <ClockIcon size={16} color={t.gold} /> {fmtDate(event.date)} · {event.time}
-          </div>
-        )}
         {note && <div style={{ ...body, fontSize: 14, color: t.paperMuted, marginTop: 12, lineHeight: 1.5 }}>{note}</div>}
       </FadeUp>
       {mapHref && (
@@ -937,7 +921,6 @@ function T33Wishes({ event, tone }: SecProps) {
   const t = useT();
   const eventId  = event.id;
   const title    = cfg(event.config, "wishes.title", "Мэндчилгээ");
-  const subtitle = cfg(event.config, "wishes.subtitle", "Клубт зориулсан ойн мэндчилгээ, ерөөлөө үлдээгээрэй");
   const showList = cfg(event.config, "wishes.showList", true) !== false;
   const [name, setName]       = useState("");
   const [message, setMessage] = useState("");
@@ -969,7 +952,6 @@ function T33Wishes({ event, tone }: SecProps) {
     <Section tone={tone}>
       <FadeUp><Heading kicker="Ерөөл">{title}</Heading></FadeUp>
       <FadeUp>
-        <div style={{ ...display, fontStyle: "italic", fontWeight: 500, fontSize: 21, color: t.paperMuted, textAlign: "center", marginBottom: 18 }}>{subtitle}</div>
         <div style={{ background: t.card, border: `1px solid ${t.cardLine}`, borderRadius: 24, padding: 22, boxShadow: SHADOW_CARD, display: "flex", flexDirection: "column", gap: 16 }}>
           <Field id="t33-wish-name" label="Нэр" value={name} onChange={setName} placeholder="Таны нэр / байгууллага" />
           <Field id="t33-wish-msg" label="Мэндчилгээ" textarea value={message} onChange={setMessage} placeholder="Ойн баярын мэнд хүргэе…" />
