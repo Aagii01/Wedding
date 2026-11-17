@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<title>Special Day promo stage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Cormorant+Garamond:ital,wght@1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #17161a; --muted: #7a7580; --accent: #c2695e; --accent2: #7f9a7a; --gold: #c9a24e;
+    --bg: #f4f1ee;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+  body { font-family: 'Manrope', 'Segoe UI', sans-serif; color: var(--ink); position: relative; }
+
+  /* ── дэвсгэр: зөөлөн бүдэг өнгөт толбо ── */
+  .bg { position: absolute; inset: 0; overflow: hidden; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .55; }
+  .b1 { width: 760px; height: 760px; left: -220px; top: -160px; background: #f3d3cc; animation: drift 14s ease-in-out infinite alternate; }
+  .b2 { width: 620px; height: 620px; right: -200px; top: 520px; background: #d8e3d2; animation: drift 17s ease-in-out infinite alternate-reverse; }
+  .b3 { width: 700px; height: 700px; left: 120px; bottom: -260px; background: #f0e3c4; animation: drift 19s ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: translate(0,0) } to { transform: translate(70px, 50px) } }
+  .grain { position: absolute; inset: 0; opacity: .5;
+    background: radial-gradient(circle at 50% 30%, rgba(255,255,255,.7), transparent 60%); }
+
+  /* ── гарчиг ── */
+  .headline { position: absolute; left: 0; right: 0; top: 150px; text-align: center; padding: 0 70px;
+    font-weight: 800; font-size: 92px; line-height: 1.06; letter-spacing: -0.02em; pointer-events: none; }
+  .headline em { font-style: normal; color: var(--accent); }
+  .headline .w { display: inline-block; opacity: 0; transform: translateY(40px); filter: blur(10px); }
+  .headline.in .w { animation: wIn .7s cubic-bezier(.2,.8,.2,1) forwards; }
+  .headline.out .w { animation: wOut .45s cubic-bezier(.4,0,.8,.4) forwards; }
+  @keyframes wIn  { to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+  @keyframes wOut { from { opacity: 1; transform: translateY(0); filter: blur(0); } to { opacity: 0; transform: translateY(-30px); filter: blur(8px); } }
+  .sub { position: absolute; left: 0; right: 0; top: 372px; text-align: center; font-weight: 500; font-size: 36px; color: var(--muted);
+    opacity: 0; transition: opacity .5s; }
+  .sub.show { opacity: 1; }
+
+  /* ── утас ── */
+  .stage { position: absolute; inset: 0; perspective: 2600px; }
+  .phone { position: absolute; left: 50%; top: 50%; width: 576px; height: 1228px; margin: -614px 0 0 -288px;
+    transform-style: preserve-3d; transition: transform 1s cubic-bezier(.3,.7,.2,1);
+    will-change: transform; }
+  .frame { position: absolute; inset: 0; border-radius: 86px; background: #0d0d10;
+    box-shadow: 0 60px 120px rgba(40,25,20,.35), 0 20px 40px rgba(0,0,0,.18), inset 0 0 0 3px #2a2a2f; }
+  .frame::after { content: ""; position: absolute; inset: 6px; border-radius: 80px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.08); pointer-events: none; }
+  .screen { position: absolute; left: 15px; top: 15px; right: 15px; bottom: 15px; border-radius: 72px; overflow: hidden; background: #fff; }
+  .screen video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .island { position: absolute; left: 50%; top: 34px; width: 150px; height: 42px; margin-left: -75px; border-radius: 30px; background: #0d0d10; z-index: 3; }
+  .btn { position: absolute; background: #1c1c21; border-radius: 3px; }
+  .btn.r { right: -5px; top: 300px; width: 6px; height: 120px; }
+  .btn.l1 { left: -5px; top: 230px; width: 6px; height: 50px; }
+  .btn.l2 { left: -5px; top: 310px; width: 6px; height: 90px; }
+  .btn.l3 { left: -5px; top: 420px; width: 6px; height: 90px; }
+  .refl { position: absolute; inset: 0; border-radius: 86px; pointer-events: none; z-index: 4;
+    background: linear-gradient(115deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0) 70%, rgba(255,255,255,.08) 100%); }
+
+  /* ── дарах (tap) цагираг ── */
+  .tap { position: absolute; width: 90px; height: 90px; border-radius: 50%; border: 5px solid var(--accent); opacity: 0; pointer-events: none; z-index: 20;
+    transform: translate(-50%,-50%) scale(.3); }
+  .tap.go { animation: tap .9s ease-out forwards; }
+  @keyframes tap { 0% { opacity: .9; transform: translate(-50%,-50%) scale(.3); } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.6); } }
+
+  /* ── бүтэн дэлгэцийн статистик карт ── */
+  .card { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    opacity: 0; transform: scale(1.04); transition: opacity .35s, transform .35s; z-index: 30; }
+  .card.show { opacity: 1; transform: scale(1); }
+  .card .big { font-weight: 800; font-size: 220px; line-height: 1; letter-spacing: -0.04em; }
+  .card .lbl { font-weight: 700; font-size: 64px; margin-top: 18px; opacity: .9; }
+  .card .cap { font-weight: 500; font-size: 36px; margin-top: 26px; opacity: .75; }
+  .card.c1 { background: var(--accent); color: #fff; }
+  .card.c2 { background: #fbf8f4; color: var(--ink); }
+  .card.c2 .lbl { color: var(--accent); }
+  .card.c3 { background: var(--accent2); color: #fff; }
+
+  /* ── төгсгөл ── */
+  .end { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    opacity: 0; transition: opacity .6s; z-index: 40; background: var(--bg); }
+  .end.show { opacity: 1; }
+  .logo { width: 220px; height: 220px; border-radius: 56px; background: linear-gradient(145deg, #d98777, #b9594d);
+    box-shadow: 0 30px 60px rgba(185,89,77,.35); display: flex; align-items: center; justify-content: center;
+    transform: scale(.6); opacity: 0; transition: transform .8s cubic-bezier(.2,.9,.2,1.2), opacity .5s; }
+  .end.show .logo { transform: scale(1); opacity: 1; }
+  .logo svg { width: 120px; height: 120px; }
+  .brand { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 600; font-size: 118px; margin-top: 44px; letter-spacing: -0.01em;
+    opacity: 0; transform: translateY(20px); transition: all .7s .25s; }
+  .end.show .brand { opacity: 1; transform: none; }
+  .tag { font-weight: 500; font-size: 40px; color: var(--muted); margin-top: 6px; opacity: 0; transition: opacity .6s .5s; }
+  .end.show .tag { opacity: 1; }
+  .cta { margin-top: 70px; background: var(--ink); color: #fff; font-weight: 700; font-size: 40px; padding: 30px 66px; border-radius: 999px;
+    opacity: 0; transform: translateY(16px); transition: all .6s .85s; display: flex; align-items: center; gap: 18px; }
+  .end.show .cta { opacity: 1; transform: none; }
+  .url { margin-top: 30px; font-weight: 700; font-size: 44px; color: var(--accent); opacity: 0; transition: opacity .6s 1.1s; }
+  .end.show .url { opacity: 1; }
+</style>
+</head>
+<body>
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="grain"></div></div>
+
+  <div class="headline" id="headline"></div>
+  <div class="sub" id="sub"></div>
+
+  <div class="stage">
+    <div class="phone" id="phone">
+      <div class="frame"></div>
+      <div class="btn l1"></div><div class="btn l2"></div><div class="btn l3"></div><div class="btn r"></div>
+      <div class="screen"><video id="vid" src="./out/app-trim.webm" muted playsinline preload="auto"></video></div>
+      <div class="island"></div>
+      <div class="refl"></div>
+    </div>
+  </div>
+  <div class="tap" id="tap"></div>
+
+  <div class="card c1" id="card1"><div class="big">33</div><div class="lbl">загвар</div><div class="cap">хурим · төрсөн өдөр · усны найр · шинэ байр</div></div>
+  <div class="card c2" id="card2"><div class="big">1</div><div class="lbl">линк</div><div class="cap">хэвлэх, тараах шаардлагагүй</div></div>
+  <div class="card c3" id="card3"><div class="big">24ц</div><div class="lbl">дотор бэлэн</div><div class="cap">Messenger-ээр захиалаад л болно</div></div>
+
+  <div class="end" id="end">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.2 5.3 5.3 0 0 1 21.3 12C19 16.4 12 21 12 21Z"/></svg></div>
+    <div class="brand">Special Day</div>
+    <div class="tag">Цахим урилгын платформ</div>
+    <div class="cta"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10 14"/><path d="M21 3 14 21l-4-7-7-4Z"/></svg>Messenger-ээр захиалах</div>
+    <div class="url">eurilga.com</div>
+  </div>
+
+<script>
+  // Бичлэгийн алхмуудын цаг (record-app.mjs → marks.json) window.MARKS-аар ирнэ
+  const MARKS = Object.fromEntries(((window.MARKS && window.MARKS.marks) || window.MARKS || []).map((m) => [m.label, m.t]));
+  const M = (label, fallback) => (MARKS[label] ?? fallback);
+
+  // Утасны байрлал: tilt (налуу), closeup (zoom)
+  const POSE = {
+    hero:    { rx: 8,  ry: -16, rz: -2, s: .86, x: 0,   y: 150 },
+    tilt2:   { rx: 6,  ry: 14,  rz: 2,  s: .86, x: 0,   y: 150 },
+    flat:    { rx: 0,  ry: 0,   rz: 0,  s: .9,  x: 0,   y: 120 },
+    // Zoom: утасны дээд ирмэг гарчгийн доор (~y 460) байхаар translate — гарчгийг дарахгүй
+    zoomTop: { rx: 0,  ry: 0,   rz: 0,  s: 1.42, x: 0,   y: 380 },   // дэлгэцийн дээд ~70%
+    zoomMid: { rx: 0,  ry: 0,   rz: 0,  s: 1.42, x: 0,   y: 380 },
+    zoomBot: { rx: 0,  ry: 0,   rz: 0,  s: 1.42, x: 0,   y: -60 },   // доод хэсэг (гарчиггүй үед)
+    zoomCountdown: { rx: 0, ry: 0, rz: 0, s: 1.42, x: 0, y: 380 },
+  };
+  function pose(p) {
+    const q = POSE[p];
+    document.getElementById("phone").style.transform =
+      `translate(${q.x}px, ${q.y}px) scale(${q.s}) rotateX(${q.rx}deg) rotateY(${q.ry}deg) rotateZ(${q.rz}deg)`;
+  }
+
+  // Гарчгийг үг үгээр гаргана
+  const hl = document.getElementById("headline"), sub = document.getElementById("sub");
+  let hlTimer = null;
+  function headline(html, subText) {
+    hl.classList.remove("in"); hl.classList.remove("out");
+    // <em>…</em>-ийг хадгалж үгүүдийг span-д хийнэ
+    const tmp = document.createElement("div"); tmp.innerHTML = html;
+    const out = [];
+    tmp.childNodes.forEach((n) => {
+      const em = n.nodeName === "EM";
+      const words = (n.textContent || "").split(/(\s+|\n)/);
+      words.forEach((w) => {
+        if (w === "\n") { out.push("<br>"); return; }
+        if (!w.trim()) { out.push(" "); return; }
+        out.push(em ? `<em><span class="w">${w}</span></em>` : `<span class="w">${w}</span>`);
+      });
+    });
+    hl.innerHTML = out.join("");
+    hl.querySelectorAll(".w").forEach((el, i) => { el.style.animationDelay = (i * 0.09) + "s"; });
+    void hl.offsetWidth; hl.classList.add("in");
+    if (subText) { sub.textContent = subText; sub.classList.add("show"); } else sub.classList.remove("show");
+  }
+  function headlineOut() { hl.classList.remove("in"); hl.querySelectorAll(".w").forEach((el, i) => { el.style.animationDelay = (i * 0.03) + "s"; }); hl.classList.add("out"); sub.classList.remove("show"); }
+
+  // Дарах цагираг: утасны дэлгэц дээрх (0..1, 0..1) координатаар
+  function tapAt(fx, fy) {
+    const r = document.querySelector(".screen").getBoundingClientRect();
+    const el = document.getElementById("tap");
+    el.style.left = (r.left + r.width * fx) + "px"; el.style.top = (r.top + r.height * fy) + "px";
+    el.classList.remove("go"); void el.offsetWidth; el.classList.add("go");
+  }
+  function card(id, on) { ["card1","card2","card3"].forEach((c) => document.getElementById(c).classList.toggle("show", on && c === id)); }
+
+  // ── Timeline: [цаг (сек), үйлдэл] — цаг нь app.webm-ийн цагтай тэнцүү ──
+  const T = [
+    [0.0,  () => { pose("hero"); headline("Урилга.\n<em>Нэг линкээр.</em>", "Хэвлэх, тараах шаардлагагүй"); }],
+    [M("slide", 2.5) - 0.2, () => { headlineOut(); }],
+    [M("slide", 2.5) + 0.2, () => { pose("tilt2"); headline("Зургаа <em>гүйлгээд</em>\nүзнэ."); }],
+    [M("slide", 2.5) + 1.2, () => tapAt(.78, .62)],
+    [M("slide", 2.5) + 2.5, () => tapAt(.78, .62)],
+    [M("couple", 7.5) - 0.3, () => headlineOut()],
+    [M("couple", 7.5) + 0.2, () => { pose("flat"); headline("Хос, <em>газар,</em>\nцаг — бүгд нэг дор."); }],
+    [M("venue", 10.5) + 0.3, () => { pose("zoomMid"); }],
+    [M("map-click", 12.7) - 0.9, () => { headlineOut(); }],
+    [M("map-click", 12.7) - 0.4, () => { headline("Газрын зураг —\n<em>нэг дарахад.</em>"); }],
+    [M("map-click", 12.7), () => tapAt(.78, .5)],
+    [M("gallery", 15) - 0.3, () => headlineOut()],
+    [M("gallery", 15) + 0.2, () => { pose("tilt2"); headline("Цомог.\n<em>Томруулж</em> үзнэ."); }],
+    [M("lightbox", 16) , () => tapAt(.4, .45)],
+    [M("lightbox", 16) + 0.5, () => pose("flat")],
+    [M("poem", 20) - 0.3, () => headlineOut()],
+    [M("poem", 20) + 0.2, () => { pose("hero"); headline("Урилгын үг —\n<em>та өөрөө бичнэ.</em>"); }],
+    [M("countdown", 23) - 0.3, () => headlineOut()],
+    [M("countdown", 23) + 0.4, () => { pose("zoomCountdown"); headline("Баяр хүртэл\n<em>хэд хоног?</em>", "Тоологч секунд тутам шинэчлэгдэнэ"); }],
+    [M("schedule", 28) - 0.3, () => headlineOut()],
+    [M("schedule", 28) + 0.2, () => { pose("tilt2"); headline("Хөтөлбөр.\n<em>Цагийн хуваарь.</em>"); }],
+    [M("rsvp", 31) - 0.3, () => headlineOut()],
+    [M("rsvp", 31) + 0.3, () => { pose("zoomTop"); headline("Ирцээ\n<em>секундэд</em> бүртгүүлнэ."); }],
+    [M("rsvp-send", 37) - 1.6, () => { headlineOut(); }],
+    [M("rsvp-send", 37) - 1.2, () => pose("zoomBot")],
+    [M("rsvp-send", 37), () => tapAt(.5, .78)],
+    [M("rsvp-send", 37) + 0.6, () => { pose("zoomTop"); }],
+    [M("rsvp-send", 37) + 1.2, () => { headline("<em>Илгээлээ.</em>", "Зочны мэдээлэл шууд танд ирнэ"); }],
+    [M("footer", 40) + 0.2, () => { headlineOut(); pose("hero"); }],
+    [M("footer", 40) + 0.8, () => { headline("Бүгд <em>нэг хуудсанд.</em>"); }],
+    // ── статистик картууд (видеоны дараа) ──
+    [M("end", 42) + 0.3, () => { headlineOut(); card("card1", true); }],
+    [M("end", 42) + 1.7, () => card("card2", true)],
+    [M("end", 42) + 3.1, () => card("card3", true)],
+    [M("end", 42) + 4.5, () => { card(null, false); document.getElementById("end").classList.add("show"); }],
+  ];
+  window.TOTAL = M("end", 42) + 4.5 + 4.2;
+
+  const vid = document.getElementById("vid");
+  let started = false, start0 = 0, idx = 0;
+  function tick() {
+    const t = (performance.now() - start0) / 1000;
+    while (idx < T.length && t >= T[idx][0]) { try { T[idx][1](); } catch (e) { console.error(e); } idx++; }
+    if (t < window.TOTAL + 1) requestAnimationFrame(tick);
+  }
+  window.start = async () => {
+    if (started) return; started = true;
+    T.sort((a, b) => a[0] - b[0]);
+    pose("hero");
+    try { await vid.play(); } catch (e) { console.error("video play failed", e); }
+    start0 = performance.now();
+    requestAnimationFrame(tick);
+  };
+  window.ready = new Promise((res) => {
+    if (vid.readyState >= 3) res(); else { vid.addEventListener("canplaythrough", () => res(), { once: true }); setTimeout(res, 8000); }
+  }).then(() => document.fonts.ready);
+</script>
+</body>
+</html>

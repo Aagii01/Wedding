@@ -99,12 +99,16 @@ alter table events add column if not exists config jsonb not null default '{}'::
 | `sections.schedule` | Хөтөлбөрийг нуух (`false`) | `HIDE_SCHEDULE` |
 | `sections.rsvp` | Ирцийн бүртгэлийг нуух (`false`) | `HIDE_RSVP` |
 | `footer.children` | Хосын нэрийн доор хүүхдийн нэр | `FOOTER_CHILDREN` |
-| `footer.phone` | Холбоо барих утас | `CONTACT_PHONE` |
+| `footer.phone` | Холбоо барих утас (ганц) | `CONTACT_PHONE` |
+| `footer.phones` | Олон утас `["99...", "88..."]` — " · "-ээр тусгаарлагдан гарна; өгвөл `footer.phone`-ыг орлоно | — |
 | `footer.phoneLabel` | Утасны гарчиг (анхдагч "Холбогдох утас:") | — |
 | `request.reception` | "Хуримын хүсэлт" дэх "Хүлээн авалт" картын бичвэрийг БҮХЭЛД нь солих (гарчиггүй, зөвхөн өгсөн текст) | `RECEPTION_CARD_TEXT` |
 | `request.time` | "Цаг" картын бичвэрийг бүхэлд нь солих | `TIME_CARD_TEXT` |
 | `request.receptionExtra` | "Хүлээн авалт" картын төгсгөлд нэмэлт өгүүлбэр | `RECEPTION_CARD_EXTRA` |
 | `request.timeExtra` | "Цаг" картын төгсгөлд нэмэлт өгүүлбэр | `TIME_CARD_EXTRA` |
+
+⚠️ T13 нь `verse.children`, `hero.*`, `verse.*` зэрэг **T14-ийн түлхүүрийг уншдаггүй**. Хүүхдийн нэр
+T13-д footer-т (хосын нэрийн доор) `footer.children` массиваар л гарна.
 
 ## ✅ Template14 — 23 түлхүүр
 
@@ -562,7 +566,6 @@ Section: intro → hero (лого, ойн тоо, клубын нэр, огно�
 | `hero.eyebrow` | string | "Ойн баярын урилга" | |
 | `hero.tagline` | string / false | "Хамтдаа бүтээсэн он жилүүд" | Клубын нэрний доорх налуу мөр |
 | `hero.photo` | string | `main_image` | Нүүрний cover зураг (бараан давхаргатай) |
-| `hero.place` | string / false | `venue_name` | Байршлын chip |
 | `hero.orbit` | string / false | "{клуб} · {range}" | Логоны эргэн тойрны эргэдэг бичиг; `false` → алга |
 | `intro.video` | string / false | T13-ын дугтуй нээх видео | Өөр видео URL / `false` → intro-гүй, шууд hero |
 | `intro.logo` | true | false | Видеоны оронд лого дарж нээх intro (алтан цагираг тэлж, оч цацарна) |
@@ -579,7 +582,7 @@ Section: intro → hero (лого, ойн тоо, клубын нэр, огно�
 | `dress.note` / `dress.colors` / `dress.title` | string / string[] / string | — / [] / "Хувцаслалт" | Тайлбар; өнгөний дугуй swatch (hex) |
 | `timer.title` | string | "Баяр эхлэхэд" | |
 | `venue.title` / `venue.note` | string | "Байршил" / — | Тайлбар, жишээ "Зогсоол: доод давхар" |
-| `wishes.title` / `wishes.subtitle` | string | "Мэндчилгээ" / "Клубт зориулсан ойн мэндчилгээ…" | |
+| `wishes.title` | string | "Мэндчилгээ" | |
 | `wishes.showList` | false | true | Ирсэн мэндчилгээний жагсаалт нуух |
 | `rsvp.title` / `rsvp.maxGuests` / `rsvp.note` | | "Ирцээ бүртгүүлэх" / 5 / "Суудлын зохион байгуулалтын үүднээс…" | |
 | `sections.history/gallery/schedule/dress/timer/wishes/rsvp` | false | true | Хэсэг нуух |

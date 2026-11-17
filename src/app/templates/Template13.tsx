@@ -1282,6 +1282,10 @@ function T13Footer({ event }: { event: EventData }) {
   // config.footer.* → байхгүй бол код дахь хуучин map (fallback)
   const children = cfg<string[] | undefined>(event.config, "footer.children", FOOTER_CHILDREN[event.slug]);
   const phone = cfg<string | undefined>(event.config, "footer.phone", CONTACT_PHONE[event.slug]);
+  // config: footer.phones — олон утас ["99...", "88..."] (T14-тэй ижил нэр); байхгүй бол footer.phone
+  const phonesRaw = cfg<string[] | string | undefined>(event.config, "footer.phones", undefined);
+  const phones = (Array.isArray(phonesRaw) ? phonesRaw : phonesRaw ? [phonesRaw] : phone ? [phone] : [])
+    .map((p) => String(p).trim()).filter(Boolean);
   const phoneLabel = cfg<string>(event.config, "footer.phoneLabel", "Холбогдох утас:");
 
   return (
@@ -1328,15 +1332,15 @@ function T13Footer({ event }: { event: EventData }) {
             ))}
           </div>
         )}
-        {phone && (
-          <div style={{ ...ovo, fontSize: 17, color: CREAM, opacity: 0.85, marginTop: 16 }}>
+        {phones.length > 0 && (
+          <div style={{ ...ovo, fontSize: 17, color: CREAM, opacity: 0.85, marginTop: 16, lineHeight: 1.9 }}>
             {phoneLabel}{" "}
-            <a
-              href={`tel:${phone.replace(/\D/g, "")}`}
-              style={{ color: CREAM, textDecoration: "none" }}
-            >
-              {phone}
-            </a>
+            {phones.map((p, i) => (
+              <span key={p} style={{ whiteSpace: "nowrap" }}>
+                {i > 0 && <span style={{ opacity: 0.6 }}> · </span>}
+                <a href={`tel:${p.replace(/\D/g, "")}`} style={{ color: CREAM, textDecoration: "none" }}>{p}</a>
+              </span>
+            ))}
           </div>
         )}
       </FadeUp>
