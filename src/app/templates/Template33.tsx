@@ -386,11 +386,13 @@ const SLUG_CONFIG: Record<string, Record<string, unknown>> = {
   Kindergarten129: {
     club:   { initials: "129" },
     hero:   { eyebrow: false, photo: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/129/main1.jpg" },
-    dress:  { code: "Хар цагаан", colors: ["#0B0C12", "#FFFFFF"] },
+    dress:  { code: "Хар цагаан", colors: ["#0B0C12", "#FFFFFF"],
+              note: "Эрэгтэй: хар костюм, эрвээхэй зангиа · Эмэгтэй: урт үдшийн даашинз" },
+    letter: { signature: "Хүндэтгэсэн: 1-р баг" },
     footer: {
       logo: false,
       images: [7, 8, 9, 10, 11, 12, 13, 5].map((n) => `https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/129/main${n}.jpg`),
-      imageText: "Зохион байгуулсан 1-р баг",
+      imageText: "Зохион байгуулагч 1-р баг",
     },
   },
 };

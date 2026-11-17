@@ -146,6 +146,7 @@ const OG_IMAGE_BY_SLUG = {
   "demo-azure": "/og-demo-azure.jpg",
   "demo-ruby": "/og-demo-ruby.jpg",
   "demo-diamond": "/og-demo-diamond.jpg",
+  Kindergarten129: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/129/main1.jpg",
 };
 
 function ownImage(event) {
