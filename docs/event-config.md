@@ -563,7 +563,6 @@ Section: intro → hero (лого, ойн тоо, клубын нэр, огно�
 | `anniversary.years` | number | `founded`-оос тооцоолно | Ойн тоог шууд өгөх (founded-гүй үед) |
 | `anniversary.label` | string | "жилийн ой" | Тооны доорх шошго |
 | `anniversary.range` | string / false | "2016 — 2026" | Он хоорондын мөр; `false` → алга |
-| `hero.eyebrow` | string | "Ойн баярын урилга" | |
 | `hero.tagline` | string / false | "Хамтдаа бүтээсэн он жилүүд" | Клубын нэрний доорх налуу мөр |
 | `hero.photo` | string | `main_image` | Нүүрний cover зураг (бараан давхаргатай) |
 | `hero.orbit` | string / false | "{клуб} · {range}" | Логоны эргэн тойрны эргэдэг бичиг; `false` → алга |
@@ -586,9 +585,18 @@ Section: intro → hero (лого, ойн тоо, клубын нэр, огно�
 | `wishes.showList` | false | true | Ирсэн мэндчилгээний жагсаалт нуух |
 | `rsvp.title` / `rsvp.maxGuests` / `rsvp.note` | | "Ирцээ бүртгүүлэх" / 5 / "Суудлын зохион байгуулалтын үүднээс…" | |
 | `sections.history/gallery/schedule/dress/timer/wishes/rsvp` | false | true | Хэсэг нуух |
-| `footer.title` | string | "Та бүхнийг хүлээн авахдаа таатай байх болно" | |
+| `footer.title` | string / false | "Та бүхнийг хүлээн авахдаа таатай байх болно" | `false` → гарчиг нуух |
 | `footer.lines` / `footer.phones` | string[] | [] | Мөрүүд; pill товч (дарахад залгана) |
+| `footer.image` | string | — | Footer-ийн дээд талд том зураг (T13 шиг) |
+| `footer.imageText` | string | — | Зурган дээрх алтан бичвэр, жишээ "Зохион байгуулан 1-р баг" |
+| `footer.logo` | false | true | Footer-ийн лого, нэр, оныг нуух |
+| `hero.logo` | false | true | Hero-ийн лого + эргэдэг бичгийг нуух |
+| `hero.eyebrow` | string / false | "Ойн баярын урилга" | `false` → нуух |
+| `hero.photoStyle` | "plain" | "fade" | `plain` → нүүрний зургийг бүтнээр, бүдгэрүүлэлтгүй жирийн блокоор, нэр нь доор нь |
+| `club.initials` | string | нэрийн эхний 2 үсэг | Лого байхгүй үед цагираг доторх бичвэр, жишээ "129" (intro, hero, footer) |
 | `theme` | "onyx" | template-ээр | Одоогоор нэг theme |
+
+Slug-ийн анхдагч config нь `Template33.tsx` → `SLUG_CONFIG`-д байж болно (DB-ийн `events.config` түүнийг давна).
 
 Урилгын үг → `events.poem` (үндсэн: "Нэг зорилго, нэг итгэлээр нэгдэн, …"), хөтөлбөр → `events.schedule`.
 Мэндчилгээ `wishes`, ирц `rsvp` хүснэгтэд.

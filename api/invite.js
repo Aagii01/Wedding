@@ -98,6 +98,7 @@ const KIND = {
   corporate: "Албан ёсны урилга",
   apartment: "Шинэ байрны цайллагын урилга",
   anniversary: "Ойн баярын урилга",
+  newyear: "Шинэ жилийн баярын урилга",
   openday: "Нээлттэй өдөрлөгийн урилга",
   nair: "Хүндэтгэлийн арга хэмжээний урилга",
   celebrate: "Хүндэтгэлийн арга хэмжээний урилга",
@@ -109,6 +110,7 @@ function isNonWedding(event) {
   return isCorporate(event)
     || event.type === "apartment"
     || event.type === "anniversary"
+    || event.type === "newyear"
     || event.type === "award"
     || event.type === "openday"
     || event.type === "nair"
@@ -157,7 +159,14 @@ function ownImage(event) {
   return order.find(isValidImageUrl) || null;
 }
 
-function buildTags(event, url, origin) {
+// DB-ийн type буруу (жнь T33 загварыг "wedding" type-тай үүсгэсэн) үед preview-ийн төрлийг
+// slug-аар засна. DB-д type-ийг зассан бол эндээс устгаж болно.
+const TYPE_BY_SLUG = {
+  Kindergarten129: "newyear",
+};
+
+function buildTags(rawEvent, url, origin) {
+  const event = TYPE_BY_SLUG[rawEvent.slug] ? { ...rawEvent, type: TYPE_BY_SLUG[rawEvent.slug] } : rawEvent;
   // Хүүхдийн (сэвлэг үргээх) ба төрсөн өдрийн урилга дээр person2_name нь
   // эцэг эхийн нэр, давхардсан нэр эсвэл хоосон байдаг. Ийм урилга нэг
   // хүний баяр тул хосын нэр шиг нийлүүлэхгүй — ганц нэр гаргана. Preview
@@ -184,7 +193,8 @@ function buildTags(event, url, origin) {
   // Шинэ байрны цайллага дээр эзэдийн нэр preview-д гарахгүй — зөвхөн төрөл.
   const hideNames = event.type === "apartment";
   // Клубын ойн баяр (Template33): title = клубын нэр → "Алтан Гадас клуб — Ойн баярын урилга"
-  const byTitle = event.type === "anniversary";
+  // Шинэ жилийн баяр (type='newyear', T33): мөн title = байгууллагын нэр.
+  const byTitle = event.type === "anniversary" || event.type === "newyear";
 
   const title = corporate
     ? (org ? `${org} — ${kind}` : event.title || kind)

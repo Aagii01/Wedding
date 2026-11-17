@@ -222,9 +222,9 @@ function LogoMark({ initials, size }: { initials: string; size: number }) {
 }
 
 // Алтан цагирагтай клубын лого; orbit өгвөл эргэн тойронд эргэдэг бичиг
-function LogoRing({ src, name, size = 112, orbit }: { src?: string | null; name: string; size?: number; orbit?: string }) {
+function LogoRing({ src, name, size = 112, orbit, initials: forced }: { src?: string | null; name: string; size?: number; orbit?: string; initials?: string | null }) {
   const t = useT();
-  const initials = name.split(/\s+/).filter((w) => /\p{L}/u.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
+  const initials = forced || name.split(/\s+/).filter((w) => /\p{L}/u.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
   const box = orbit ? size + 60 : size;
   return (
     <div style={{ position: "relative", width: box, height: box, display: "grid", placeItems: "center", flexShrink: 0 }}>
@@ -377,6 +377,31 @@ const isDemo = (event: EventData) => event.id === "demo";
 const clubName = (event: EventData) =>
   cfg(event.config, "club.name", isDemo(event) ? DEMO.club : (event.title || "Клуб"));
 const clubLogo = (event: EventData) => cfg<string | null>(event.config, "club.logo", null);
+// Лого байхгүй үед цагираг доторх бичвэр: config.club.initials ("129") → нэрийн эхний 2 үсэг
+const clubInitials = (event: EventData) => cfg<string | null>(event.config, "club.initials", null);
+
+// Slug-ийн анхдагч config — DB-ийн events.config үүнийг давна (anon түлхүүрээр DB-д бичих боломжгүй
+// үед захиалагчийн тохиргоог энд түр тавина; дараа нь SQL-ээр config руу шилжүүлж болно).
+const SLUG_CONFIG: Record<string, Record<string, unknown>> = {
+  Kindergarten129: {
+    club:   { initials: "129" },
+    hero:   { logo: false, eyebrow: false, photoStyle: "plain" },
+    dress:  { code: "Хар цагаан" },
+    footer: {
+      logo: false, title: false,
+      image: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/129/main7.jpg",
+      imageText: "Зохион байгуулсан 1-р баг",
+    },
+  },
+};
+const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+function mergeConfig(base: unknown, over: unknown): unknown {
+  if (!isObj(base)) return over ?? base;
+  if (!isObj(over)) return base;
+  const out: Record<string, unknown> = { ...base };
+  for (const k of Object.keys(over)) out[k] = mergeConfig(base[k], over[k]);
+  return out;
+}
 
 const eventYearOf = (event: EventData) => Number((event.date || "").slice(0, 4)) || null;
 
@@ -466,7 +491,7 @@ function SealIntro({ event, onOpen }: { event: EventData; onOpen: () => void }) 
             style={{ position: "absolute", width: b.size, height: b.size, borderRadius: "50%", background: t.goldLight, boxShadow: `0 0 ${b.size * 2}px ${t.gold}` }} />
         ))}
         <motion.div animate={opening ? { scale: 1.08 } : { scale: 1 }} transition={{ duration: 0.5 }}>
-          <LogoRing src={clubLogo(event)} name={name} size={150} />
+          <LogoRing src={clubLogo(event)} name={name} size={150} initials={clubInitials(event)} />
         </motion.div>
       </button>
 
@@ -663,7 +688,11 @@ function T33Hero({ event, started }: { event: EventData; started: boolean }) {
   const t = useT();
   const name    = clubName(event);
   const { years, range, label } = anniversary(event);
-  const eyebrow = cfg(event.config, "hero.eyebrow", "Ойн баярын урилга");
+  const eyebrow = cfg<string | false>(event.config, "hero.eyebrow", "Ойн баярын урилга");
+  // config: hero.logo: false → лого + эргэдэг бичиг нуух; hero.photoStyle: "plain" → зургийг бүтнээр,
+  // бүдгэрүүлэлт/уусалтгүй жирийн блокоор (дэлгэц бүрхэхгүй), нэр нь доор нь
+  const showLogo = cfg(event.config, "hero.logo", true) !== false;
+  const plain    = cfg(event.config, "hero.photoStyle", "fade") === "plain";
   const tagline = cfg<string | false>(event.config, "hero.tagline", t.tagline);
   const cover   = cfg<string | null>(event.config, "hero.photo", null) || (isDemo(event) ? DEMO.cover : event.main_image) || null;
   const orbit   = cfg<string | false>(event.config, "hero.orbit", range ? `${name} · ${range}` : name);
@@ -680,6 +709,42 @@ function T33Hero({ event, started }: { event: EventData; started: boolean }) {
     transition: { duration: 0.9, delay, ease: "easeOut" as const },
   });
   const scrollNext = () => document.getElementById("t33-letter")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  if (plain) {
+    return (
+      <header style={{ background: t.bg, textAlign: "center", paddingBottom: 44 }}>
+        {cover && (
+          <motion.img src={cover} alt={name}
+            initial={{ opacity: 0 }} animate={started ? { opacity: 1 } : { opacity: 0 }} transition={{ duration: 1.4, ease: "easeOut" }}
+            style={{ width: "100%", height: "auto", display: "block" }} />
+        )}
+        <div style={{ padding: "0 18px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {showLogo && (
+            <motion.div {...show(0.2)} style={{ marginTop: 28 }}>
+              <LogoRing src={clubLogo(event)} name={name} size={104} orbit={orbit || undefined} initials={clubInitials(event)} />
+            </motion.div>
+          )}
+          {eyebrow && <motion.div {...show(0.3)} style={{ ...caps, fontSize: 12, color: t.gold, marginTop: 18 }}>{eyebrow}</motion.div>}
+          <motion.h1 {...show(0.5)} style={{
+            ...display, fontWeight: 600, fontSize: nameSize, lineHeight: 1.15, color: t.paper,
+            margin: "26px 0 0", maxWidth: 340, overflowWrap: "anywhere",
+          }}>
+            {name}
+          </motion.h1>
+          {tagline && (
+            <motion.div {...show(0.65)} style={{ ...display, fontStyle: "italic", fontSize: 21, color: t.paperMuted, marginTop: 10 }}>
+              {tagline}
+            </motion.div>
+          )}
+          <motion.button type="button" onClick={scrollNext} aria-label="Доош гүйлгэх"
+            initial={{ opacity: 0 }} animate={started ? { opacity: 1 } : { opacity: 0 }} transition={{ duration: 1, delay: 1.2 }}
+            style={{ marginTop: 18, width: 52, height: 52, background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div className="t33-bounce"><ChevronsIcon size={28} color={t.gold} /></div>
+          </motion.button>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header style={{
@@ -700,12 +765,14 @@ function T33Hero({ event, started }: { event: EventData; started: boolean }) {
       }} />
 
       <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
-          transition={{ duration: 1, ease: "easeOut" }}>
-          <LogoRing src={clubLogo(event)} name={name} size={104} orbit={orbit || undefined} />
-        </motion.div>
+        {showLogo && (
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={started ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+            transition={{ duration: 1, ease: "easeOut" }}>
+            <LogoRing src={clubLogo(event)} name={name} size={104} orbit={orbit || undefined} initials={clubInitials(event)} />
+          </motion.div>
+        )}
 
-        <motion.div {...show(0.3)} style={{ ...caps, fontSize: 12, color: t.gold, marginTop: 18 }}>{eyebrow}</motion.div>
+        {eyebrow && <motion.div {...show(0.3)} style={{ ...caps, fontSize: 12, color: t.gold, marginTop: 18 }}>{eyebrow}</motion.div>}
 
         {years ? (
           <motion.div {...show(0.45)} style={{ marginTop: 4 }}>
@@ -1220,21 +1287,47 @@ function T33Footer({ event }: { event: EventData }) {
   const t = useT();
   const name   = clubName(event);
   const { range } = anniversary(event);
-  const title  = cfg(event.config, "footer.title", "Та бүхнийг хүлээн авахдаа таатай байх болно");
+  const title  = cfg<string | false>(event.config, "footer.title", "Та бүхнийг хүлээн авахдаа таатай байх болно");
   const lines  = cfg<string[]>(event.config, "footer.lines", []);
   const phones = cfg<string[]>(event.config, "footer.phones", []).filter(Boolean);
+  // config: footer.logo: false → лого, нэр, он хасна; footer.image → зураг (T13 шиг), footer.imageText → зурган дээрх бичвэр
+  const showLogo  = cfg(event.config, "footer.logo", true) !== false;
+  const image     = cfg<string | null>(event.config, "footer.image", null);
+  const imageText = cfg<string | null>(event.config, "footer.imageText", null);
   return (
     <footer style={{
       background: `radial-gradient(ellipse 80% 50% at 50% 100%, rgba(212,175,106,.16), transparent 70%), ${t.bg}`,
       borderTop: `1px solid ${t.cardLine}`, padding: "48px 18px 96px", textAlign: "center", position: "relative",
     }}>
       <FadeUp>
-        <div style={{ display: "flex", justifyContent: "center" }}><LogoRing src={clubLogo(event)} name={name} size={76} /></div>
-        <div style={{ ...caps, fontSize: 13, color: t.gold, marginTop: 18 }}>{name}</div>
-        {range && <div style={{ ...caps, fontSize: 11, color: t.paperDim, marginTop: 6 }}>{range}</div>}
-        <div style={{ ...display, fontStyle: "italic", fontWeight: 600, fontSize: 30, lineHeight: 1.2, color: t.paper, marginTop: 20, maxWidth: 340, marginInline: "auto" }}>
-          {title}
-        </div>
+        {image && (
+          <div style={{
+            position: "relative", width: "92%", maxWidth: 400, margin: "0 auto", borderRadius: 16, overflow: "hidden",
+            border: `1px solid ${t.cardLine}`, boxShadow: `0 16px 44px rgba(0,0,0,.5), 0 0 0 4px rgba(212,175,106,.10)`,
+          }}>
+            <img src={image} alt={imageText || name} style={{ width: "100%", height: "auto", display: "block" }} />
+            {imageText && (
+              <div style={{
+                position: "absolute", left: 0, right: 0, bottom: 0, padding: "56px 16px 18px",
+                background: "linear-gradient(to top, rgba(11,12,18,.88), rgba(11,12,18,.55) 55%, transparent)",
+              }}>
+                <div className="t33-gold" style={{ ...display, fontStyle: "italic", fontWeight: 600, fontSize: 28, lineHeight: 1.2 }}>{imageText}</div>
+              </div>
+            )}
+          </div>
+        )}
+        {showLogo && (
+          <>
+            <div style={{ display: "flex", justifyContent: "center", marginTop: image ? 30 : 0 }}><LogoRing src={clubLogo(event)} name={name} size={76} initials={clubInitials(event)} /></div>
+            <div style={{ ...caps, fontSize: 13, color: t.gold, marginTop: 18 }}>{name}</div>
+            {range && <div style={{ ...caps, fontSize: 11, color: t.paperDim, marginTop: 6 }}>{range}</div>}
+          </>
+        )}
+        {title && (
+          <div style={{ ...display, fontStyle: "italic", fontWeight: 600, fontSize: 30, lineHeight: 1.2, color: t.paper, marginTop: 20, maxWidth: 340, marginInline: "auto" }}>
+            {title}
+          </div>
+        )}
         {lines.map((l) => (
           <div key={l} style={{ ...body, fontSize: 16, lineHeight: "24px", color: t.paperMuted, marginTop: 14 }}>{l}</div>
         ))}
@@ -1293,7 +1386,9 @@ function MusicToggle({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
 // ─── Root ────────────────────────────────────────────────────────────────────
 export function ClubAnniversary({ event: raw, theme }: { event: EventData; theme: Theme["key"] }) {
   // Demo-д DEMO_EVENT-ийн (хуримын) огноо өнгөрсөн байж болох тул ирэх жилийн 08-16 — тоологч ажиллана
-  const event: EventData = isDemo(raw) ? { ...raw, date: `${new Date().getFullYear() + 1}-08-16` } : raw;
+  const dated: EventData = isDemo(raw) ? { ...raw, date: `${new Date().getFullYear() + 1}-08-16` } : raw;
+  const slugCfg = SLUG_CONFIG[dated.slug];
+  const event: EventData = slugCfg ? { ...dated, config: mergeConfig(slugCfg, dated.config ?? {}) as EventData["config"] } : dated;
   const themeKey = cfg<Theme["key"]>(event.config, "theme", theme);
   const t = THEMES[themeKey] ?? THEMES[theme];
 
