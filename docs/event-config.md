@@ -588,6 +588,7 @@ Section: intro → hero (лого, ойн тоо, клубын нэр, огно�
 | `footer.title` | string / false | "Та бүхнийг хүлээн авахдаа таатай байх болно" | `false` → гарчиг нуух |
 | `footer.lines` / `footer.phones` | string[] | [] | Мөрүүд; pill товч (дарахад залгана) |
 | `footer.image` | string | — | Footer-ийн дээд талд том зураг (T13 шиг) |
+| `footer.images` | string[] | — | Олон зураг → 4:3 slide (4 сек тутам, шударч солино, цэгүүд); `footer.image`-ийг давна |
 | `footer.imageText` | string | — | Зурган дээрх алтан бичвэр, жишээ "Зохион байгуулан 1-р баг" |
 | `footer.logo` | false | true | Footer-ийн лого, нэр, оныг нуух |
 | `hero.logo` | false | true | Hero-ийн лого + эргэдэг бичгийг нуух |

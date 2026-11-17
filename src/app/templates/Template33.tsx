@@ -385,11 +385,11 @@ const clubInitials = (event: EventData) => cfg<string | null>(event.config, "clu
 const SLUG_CONFIG: Record<string, Record<string, unknown>> = {
   Kindergarten129: {
     club:   { initials: "129" },
-    hero:   { logo: false, eyebrow: false, photoStyle: "plain" },
-    dress:  { code: "Хар цагаан" },
+    hero:   { eyebrow: false, photo: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/129/main1.jpg" },
+    dress:  { code: "Хар цагаан", colors: ["#0B0C12", "#FFFFFF"] },
     footer: {
-      logo: false, title: false,
-      image: "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/129/main7.jpg",
+      logo: false,
+      images: [7, 8, 9, 10, 11, 12, 13, 5].map((n) => `https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/129/main${n}.jpg`),
       imageText: "Зохион байгуулсан 1-р баг",
     },
   },
@@ -1282,6 +1282,43 @@ function T33RSVP({ event, tone }: SecProps) {
   );
 }
 
+// ─── Footer-ийн зургийн slide (4:3, 4 сек тутам автоматаар, шударч солино, цэгүүд) ──
+function FooterSlider({ images, alt }: { images: string[]; alt: string }) {
+  const t = useT();
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const n = images.length;
+  const go = (d: number) => setI((v) => (v + d + n) % n);
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setI((v) => (v + 1) % n), 4000);
+    return () => clearInterval(id);
+  }, [paused, n, i]);
+  // дараагийн зургийг урьдчилан ачаална
+  useEffect(() => { const img = new Image(); img.src = images[(i + 1) % n]; }, [i, n, images]);
+  return (
+    <div style={{ position: "relative", width: "100%", aspectRatio: "4 / 3", background: "#000", overflow: "hidden", touchAction: "pan-y" }}
+      onPointerEnter={() => setPaused(true)} onPointerLeave={() => setPaused(false)}>
+      <AnimatePresence initial={false}>
+        <motion.img key={i} src={images[i]} alt={`${alt} ${i + 1}`} draggable={false}
+          initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.25}
+          onDragEnd={(_, info) => { if (info.offset.x < -40 || info.velocity.x < -300) go(1); else if (info.offset.x > 40 || info.velocity.x > 300) go(-1); }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", cursor: "grab" }} />
+      </AnimatePresence>
+      <div style={{ position: "absolute", top: 12, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 6, zIndex: 2 }}>
+        {images.map((_, k) => (
+          <button key={k} type="button" aria-label={`Зураг ${k + 1}`} onClick={() => setI(k)} style={{
+            width: k === i ? 18 : 7, height: 7, borderRadius: 4, border: "none", padding: 0, cursor: "pointer",
+            background: k === i ? t.goldLight : "rgba(245,239,226,.55)", transition: "width .3s, background .3s",
+          }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Footer ──────────────────────────────────────────────────────────────────
 function T33Footer({ event }: { event: EventData }) {
   const t = useT();
@@ -1292,7 +1329,11 @@ function T33Footer({ event }: { event: EventData }) {
   const phones = cfg<string[]>(event.config, "footer.phones", []).filter(Boolean);
   // config: footer.logo: false → лого, нэр, он хасна; footer.image → зураг (T13 шиг), footer.imageText → зурган дээрх бичвэр
   const showLogo  = cfg(event.config, "footer.logo", true) !== false;
-  const image     = cfg<string | null>(event.config, "footer.image", null);
+  // footer.images (массив) → slide; footer.image (ганц) → энгийн зураг
+  const images    = cfg<string[]>(event.config, "footer.images", []).filter(Boolean);
+  const single    = cfg<string | null>(event.config, "footer.image", null);
+  const slides    = images.length ? images : single ? [single] : [];
+  const image     = slides.length > 0;
   const imageText = cfg<string | null>(event.config, "footer.imageText", null);
   return (
     <footer style={{
@@ -1305,7 +1346,9 @@ function T33Footer({ event }: { event: EventData }) {
             position: "relative", width: "92%", maxWidth: 400, margin: "0 auto", borderRadius: 16, overflow: "hidden",
             border: `1px solid ${t.cardLine}`, boxShadow: `0 16px 44px rgba(0,0,0,.5), 0 0 0 4px rgba(212,175,106,.10)`,
           }}>
-            <img src={image} alt={imageText || name} style={{ width: "100%", height: "auto", display: "block" }} />
+            {slides.length > 1
+              ? <FooterSlider images={slides} alt={imageText || name} />
+              : <img src={slides[0]} alt={imageText || name} style={{ width: "100%", height: "auto", display: "block" }} />}
             {imageText && (
               <div style={{
                 position: "absolute", left: 0, right: 0, bottom: 0, padding: "56px 16px 18px",
