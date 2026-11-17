@@ -269,6 +269,13 @@ Toaster (shadcn notification)
 `?intro=tear`). Видео үүсгэх prompt, шинэ видео хэмжих хэрэгсэл (`tools/tear-intro/`), өөр загварт
 шилжүүлэх заавар → **`docs/tear-intro.md`**.
 
+### Сурталчилгааны reel — гацалтгүй (кадр-кадраар) бичлэг
+Загварын 9:16 reel (1080×1920): 3D утасны mockup дотор жинхэнэ урилга + гарчиг + zoom + CTA.
+`tools/promo-video/det.mjs` хуудасны цагийг (timer, rAF, CSS animation, `<video>`) өөрөө удирдаж кадр бүрийг
+тус тусад нь зурдаг тул scroll/slide гацахгүй. Анх T33-д хийсэн (`record-app-33.mjs`, `stage-33.html`,
+`record-stage-det.mjs`, `maps-shot.mjs`). Шинэ reel хийх дараалал, гол шийдлүүд →
+**`tools/promo-video/README.md`**.
+
 ### PoemSection
 - Cormorant Garamond фонт (`1.55rem`, `#3a2e28` дулаан хүрэн)
 - Мөр бүрт шууд `initial/whileInView/transition` props + manual `delay = lineIndex * 0.15`
