@@ -9,12 +9,13 @@ import { cfg, sectionOn } from "../../lib/eventConfig";
 import { normalizeUrl } from "../../lib/url";
 
 // ─── Template 31 / 32 — шинэ байрны (гэр орны) найрын урилга ─────────────────
-// Нэг бүтэц, хоёр theme (цайвар дэвсгэр, залуу найзаас эмээ өвөө хүртэл уншихад амар):
-//   "terra" (template 31) — терракота: шавар улаан, элсэн шар, царс модны хаалга
-//   "sage"  (template 32) — сэйж: зөөлөн ногоон, чулуун саарал, бор модны хаалга
-// Мотив: онгойх хаалга (intro — дарахад хоёр хавтас нээгдэж гэрэл асна), яндангаас
-// гарах утаатай байшин, гал голомтын оч (дээш хөвөх дулаан цэгүүд), хаалганы нум
-// хэлбэрийн зураг, дээврийн ваар хэлбэрийн хэсгийн зааг.
+// Нэг бүтэц, хоёр theme. Тансаг, гэгээлэг: ivory-цагаан дэвсгэр, шампань алтан нарийн
+// шугам/хүрээ/очир чимэглэл, налуу serif (гар бичмэлгүй), том уншигдах бичиг:
+//   "terra" (template 31) — терракота: зөөлөн шавар улаан + алт, царс модны хаалга
+//   "sage"  (template 32) — сэйж: зөөлөн ногоон + алт, бор модны хаалга
+// Мотив: онгойх хаалга (intro — хүрэл бариултай царс хаалга, дарахад хоёр хавтас нээгдэж
+// гэрэл асна), шугаман зурагт байшин (яндангийн утаа, гэрэлтэй цонх), алтан оч (дээш
+// хөвөх толбууд), давхар алтан хүрээтэй нуман зураг, хэсгийн зааг — нарийн алтан шугам + очир.
 // Шинэ байрны найрт л байдаг: "Шинэ хаяг" хэсэг — орц, давхар, тоот, хаалганы код,
 // зогсоол + "Хаягийг хуулах" товч; сонголтоор бэлгийн данс.
 //
@@ -31,6 +32,8 @@ type Theme = {
   second: string; secondDeep: string;            // 2-р өнгө (элс / чулуу)
   wood: string; woodDeep: string;                // хаалга, модон эдлэл
   ember: string;                                 // гал голомтын оч, цонхны гэрэл
+  gold: string; goldDeep: string; goldSoft: string; goldLine: string; // шампань алт — нарийн шугам, чимэглэл, толбо
+  glow: string;                                  // hero / intro-ийн гэгээлэг туяа
   badge: string; tagline: string;
   captions: string[];
 };
@@ -39,14 +42,16 @@ type Tone = "bg" | "soft";
 const ThemeCtx = createContext<Theme | null>(null);
 const useT = () => useContext(ThemeCtx)!;
 
-// Playfair Display italic — нэр, гарчиг; Caveat — гар бичмэл тайлбар; PT Sans — бичвэр.
+// Playfair Display italic — нэр, гарчиг; Cormorant Garamond налуу — тайлбар, нэрийн доорх мөр
+// (гар бичмэлийн оронд — тансаг, гэгээлэг); PT Sans — бичвэр, жижиг том үсэг (caps).
 // Бүгд cyrillic-ext (ө/ү), index.html-д ачаалагдсан.
 const display = { fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" } as const;
-const hand    = { fontFamily: "'Caveat', 'PT Sans', cursive" } as const;
+const hand    = { fontFamily: "'Cormorant Garamond', 'Playfair Display', serif", fontStyle: "italic" } as const;
 const body    = { fontFamily: "'PT Sans', 'Segoe UI', sans-serif" } as const;
 const bodyB   = { fontFamily: "'PT Sans', 'Segoe UI', sans-serif", fontWeight: 700 } as const;
+const caps    = { ...bodyB, textTransform: "uppercase", letterSpacing: "0.24em" } as const;
 
-const SHADOW_CARD = "0 10px 28px rgba(80,60,40,.10)";
+const SHADOW_CARD = "0 14px 40px rgba(70,50,30,.08)";
 
 const FALLBACK_PHOTOS = [
   "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800",
@@ -58,23 +63,27 @@ const FALLBACK_PHOTOS = [
 const THEMES: Record<Theme["key"], Theme> = {
   terra: {
     key: "terra",
-    bg: "#FBF6F0", soft: "#F4E9DE", card: "#FFFFFF",
-    ink: "#3B2A20", inkMuted: "#8A7363", line: "#E8D9CA",
-    accent: "#D4785A", accentLight: "#F3D5C5", accentDeep: "#B5553A", onAccent: "#FFFFFF", accentGlow: "rgba(212,120,90,.32)",
-    second: "#E9C98A", secondDeep: "#C9A24E",
-    wood: "#9A6542", woodDeep: "#6F452B",
-    ember: "#F2A65A",
+    bg: "#FDFAF6", soft: "#F8F1EA", card: "#FFFFFF",
+    ink: "#2E241E", inkMuted: "#86736A", line: "#EDE3D8",
+    accent: "#CF8B70", accentLight: "#F6E2D7", accentDeep: "#A95F48", onAccent: "#FFFFFF", accentGlow: "rgba(169,95,72,.22)",
+    second: "#E8D3A9", secondDeep: "#C4A165",
+    wood: "#7A4E33", woodDeep: "#4A2C1B",
+    ember: "#F1C27B",
+    gold: "#C9A961", goldDeep: "#A8893F", goldSoft: "#F7EFDD", goldLine: "rgba(201,169,97,.55)",
+    glow: "rgba(255,248,236,.95)",
     badge: "Тавтай морил", tagline: "Шинэ гэртээ та бүхнийг урьж байна",
     captions: ["Зочны өрөө", "Гал тогоо", "Цонхны гэрэл", "Шинэ хаалга", "Унтлагын өрөө", "Тагт", "Хамтдаа", "Шинэ эхлэл"],
   },
   sage: {
     key: "sage",
-    bg: "#F6F8F4", soft: "#E9EFE4", card: "#FFFFFF",
-    ink: "#28352C", inkMuted: "#6E7F70", line: "#D6E0D2",
-    accent: "#8FAE8B", accentLight: "#D4E3CF", accentDeep: "#5C8257", onAccent: "#FFFFFF", accentGlow: "rgba(143,174,139,.32)",
-    second: "#D9C9A8", secondDeep: "#A9926A",
-    wood: "#7A6652", woodDeep: "#54453A",
-    ember: "#E0B86A",
+    bg: "#FAFBF8", soft: "#F1F5EE", card: "#FFFFFF",
+    ink: "#25302A", inkMuted: "#6F7D73", line: "#E0E8DC",
+    accent: "#9DB69A", accentLight: "#E0EBDC", accentDeep: "#5F8360", onAccent: "#FFFFFF", accentGlow: "rgba(95,131,96,.22)",
+    second: "#DDD1B4", secondDeep: "#AE9A72",
+    wood: "#6B5847", woodDeep: "#3F332A",
+    ember: "#EBCB86",
+    gold: "#C9A961", goldDeep: "#A8893F", goldSoft: "#F5F1E4", goldLine: "rgba(201,169,97,.5)",
+    glow: "rgba(255,255,250,.95)",
     badge: "Тавтай морил", tagline: "Шинэ гэртээ та бүхнийг урьж байна",
     captions: ["Зочны өрөө", "Гал тогоо", "Цонхны гэрэл", "Шинэ хаалга", "Унтлагын өрөө", "Тагт", "Хамтдаа", "Шинэ эхлэл"],
   },
@@ -121,9 +130,9 @@ function Styles() {
       }
       @keyframes t31Ember {
         0%   { opacity: 0; transform: translate(0, 104vh) scale(.8); }
-        12%  { opacity: .9; }
+        12%  { opacity: .7; }
         50%  { transform: translate(14px, 50vh) scale(1); }
-        88%  { opacity: .5; }
+        88%  { opacity: .35; }
         100% { opacity: 0; transform: translate(-6px, -6vh) scale(.6); }
       }
       @keyframes t31Flicker { 0%,100% { opacity: 1; } 50% { opacity: .65; } }
@@ -156,38 +165,40 @@ function HouseMark({ width = 110 }: { width?: number }) {
   const t = useT();
   return (
     <svg aria-hidden="true" width={width} height={width * 0.85} viewBox="0 0 120 102" style={{ display: "block", overflow: "visible" }}>
-      {/* утаа */}
+      {/* утаа — алтан зөөлөн дугуйнууд */}
       {[0, 1, 2].map((i) => (
-        <circle key={i} className="t31-smoke" cx={86 + i * 2} cy={18 - i * 6} r={4 + i} fill={t.inkMuted}
+        <circle key={i} className="t31-smoke" cx={86 + i * 2} cy={18 - i * 6} r={3 + i} fill={t.gold} opacity={0.55}
           style={{ ["--delay" as string]: `${i * 1.05}s` }} />
       ))}
       {/* яндан */}
-      <rect x="80" y="24" width="11" height="20" rx="1.5" fill={t.accentDeep} />
+      <rect x="80.5" y="27" width="10" height="18" rx="1" fill={t.card} stroke={t.accentDeep} strokeWidth="1.6" />
       {/* бие */}
-      <rect x="24" y="52" width="72" height="42" rx="3" fill={t.card} stroke={t.accentDeep} strokeWidth="3" />
-      {/* дээвэр */}
-      <path d="M12 56 L60 16 L108 56" fill="none" stroke={t.accentDeep} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="25" y="52" width="70" height="42" rx="2" fill={t.card} stroke={t.accentDeep} strokeWidth="1.6" />
+      {/* дээвэр — алтан шугам, доор нь нарийн давхар шугам */}
+      <path d="M13 56 L60 17 L107 56" fill="none" stroke={t.gold} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M21 56 L60 24 L99 56" fill="none" stroke={t.accentDeep} strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" opacity=".6" />
       {/* цонх (гэрэлтэй) */}
-      <rect className="t31-flicker" x="33" y="62" width="14" height="14" rx="2" fill={t.ember} />
-      <rect className="t31-flicker" x="73" y="62" width="14" height="14" rx="2" fill={t.ember} style={{ animationDelay: "1.3s" }} />
-      <path d="M40 62v14M33 69h14M80 62v14M73 69h14" stroke={t.card} strokeWidth="1.5" />
-      {/* хаалга (нуман) */}
-      <path d="M52 94 V72 a8 8 0 0 1 16 0 V94 Z" fill={t.accent} />
-      <circle cx="64" cy="84" r="1.4" fill={t.card} />
+      <rect className="t31-flicker" x="34" y="62" width="13" height="13" rx="1" fill={t.ember} opacity=".8" />
+      <rect className="t31-flicker" x="73" y="62" width="13" height="13" rx="1" fill={t.ember} opacity=".8" style={{ animationDelay: "1.3s" }} />
+      <path d="M34 62h13v13H34zM40.5 62v13M34 68.5h13M73 62h13v13H73zM79.5 62v13M73 68.5h13" fill="none" stroke={t.accentDeep} strokeWidth="1" />
+      {/* хаалга (нуман) — алтан хүрээтэй */}
+      <path d="M52 94 V74 a8 8 0 0 1 16 0 V94" fill={t.goldSoft} stroke={t.gold} strokeWidth="1.6" />
+      <circle cx="64" cy="85" r="1.3" fill={t.goldDeep} />
     </svg>
   );
 }
 
-// Хаалганы нум хэлбэрийн зураг — гадуур тасархай нуман хүрээтэй
+// Хаалганы нум хэлбэрийн зураг — гадуур давхар нарийн алтан нуман хүрээтэй
 function ArchPhoto({ photo, width = 250 }: { photo?: string | null; width?: number }) {
   const t = useT();
   const h = Math.round(width * 1.24);
   const r = width / 2;
   return (
-    <div style={{ padding: 9, border: `1.5px dashed ${t.accent}`, borderRadius: `${r + 9}px ${r + 9}px 30px 30px`, display: "inline-block" }}>
+    <div style={{ padding: 10, border: `1px solid ${t.goldLine}`, borderRadius: `${r + 10}px ${r + 10}px 28px 28px`, display: "inline-block", position: "relative" }}>
+      <div aria-hidden="true" style={{ position: "absolute", inset: 4, border: `1px solid ${t.goldLine}`, borderRadius: `${r + 6}px ${r + 6}px 24px 24px`, opacity: 0.6, pointerEvents: "none" }} />
       <div style={{
-        width, height: h, borderRadius: `${r}px ${r}px 20px 20px`, overflow: "hidden", background: t.soft,
-        border: `6px solid ${t.card}`, boxSizing: "border-box", boxShadow: `0 16px 36px ${t.accentGlow}`,
+        width, height: h, borderRadius: `${r}px ${r}px 18px 18px`, overflow: "hidden", background: t.soft,
+        border: `4px solid ${t.card}`, boxSizing: "border-box", boxShadow: `0 0 0 1px ${t.goldLine}, 0 24px 54px rgba(70,50,30,.16)`,
       }}>
         <Photo src={photo || undefined} alt="" />
       </div>
@@ -195,36 +206,39 @@ function ArchPhoto({ photo, width = 250 }: { photo?: string | null; width?: numb
   );
 }
 
-// Дүүжин модон самбар ("Тавтай морил") — зургийн доод ирмэгт
+// Зургийн доод ирмэгийн алтан хүрээт жижиг шошго ("Тавтай морил")
 function Plaque({ text, style = {} }: { text: string; style?: React.CSSProperties }) {
   const t = useT();
   return (
     <div aria-hidden="true" style={{
-      position: "absolute", left: "50%", transform: "translateX(-50%) rotate(-3deg)",
-      background: t.woodDeep, color: "#FFF3E4", ...hand, fontWeight: 700, fontSize: 24, lineHeight: 1,
-      padding: "9px 20px 11px", borderRadius: 10, boxShadow: "0 8px 18px rgba(60,40,20,.28)", whiteSpace: "nowrap",
+      position: "absolute", left: "50%", transform: "translateX(-50%)",
+      background: t.card, color: t.goldDeep, ...caps, fontSize: 12, lineHeight: 1,
+      padding: "11px 18px", borderRadius: 999, border: `1px solid ${t.goldLine}`,
+      boxShadow: "0 10px 24px rgba(70,50,30,.12)", whiteSpace: "nowrap",
       pointerEvents: "none", ...style,
     }}>
-      <span style={{ position: "absolute", left: 7, top: 7, width: 5, height: 5, borderRadius: "50%", background: t.second }} />
-      <span style={{ position: "absolute", right: 7, top: 7, width: 5, height: 5, borderRadius: "50%", background: t.second }} />
       {text}
     </div>
   );
 }
 
-// Хэсгүүдийн зааг — дээврийн ваар (scallop): дараагийн хэсгийн өнгө өмнөх рүү нуман хэлбэрээр
+// Хэсгүүдийн зааг — нарийн алтан шугам, голдоо жижиг очир (нэр нь хуучнаараа Scallop)
 function Scallop({ prev, next }: { prev: string; next: string }) {
+  const t = useT();
   return (
-    <div aria-hidden="true" style={{
-      height: 14,
-      background: `radial-gradient(circle at 50% 100%, ${next} 0 12.5px, transparent 13.5px) 0 0 / 26px 14px repeat-x, ${prev}`,
-    }} />
+    <div aria-hidden="true" style={{ height: 1, background: prev, position: "relative", zIndex: 1 }}>
+      <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, transparent 6%, ${t.goldLine} 28%, ${t.goldLine} 72%, transparent 94%)` }} />
+      <span style={{
+        position: "absolute", left: "50%", top: -4, width: 9, height: 9, transform: "translateX(-50%) rotate(45deg)",
+        background: next, border: `1px solid ${t.gold}`, boxSizing: "border-box",
+      }} />
+    </div>
   );
 }
 
-// Гал голомтын оч — дээш хөвөх дулаан цэгүүд, fixed overlay
+// Гал голомтын оч — дээш хөвөх алтан толбууд, fixed overlay
 const EMBERS = Array.from({ length: 12 }, (_, i) => ({
-  id: i, left: (i * 47 + 11) % 100, size: 4 + (i % 4) * 1.5, dur: 18 + (i % 5) * 3, delay: -((i * 3.1) % 21),
+  id: i, left: (i * 47 + 11) % 100, size: 3 + (i % 3), dur: 18 + (i % 5) * 3, delay: -((i * 3.1) % 21),
 }));
 function Embers() {
   const t = useT();
@@ -236,7 +250,7 @@ function Embers() {
       {EMBERS.map((e) => (
         <div key={e.id} className="t31-ember" style={{
           position: "absolute", left: e.left + "%", top: 0, width: e.size, height: e.size, borderRadius: "50%",
-          background: t.ember, boxShadow: `0 0 ${e.size * 2}px ${t.ember}`, opacity: 0,
+          background: t.gold, boxShadow: `0 0 ${e.size * 2.5}px ${t.gold}`, opacity: 0,
           ["--dur" as string]: e.dur + "s", ["--delay" as string]: e.delay + "s",
         }} />
       ))}
@@ -247,10 +261,10 @@ function Embers() {
 function Divider() {
   const t = useT();
   return (
-    <div aria-hidden="true" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, margin: "0 auto", maxWidth: 240 }}>
-      <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${t.accent})` }} />
-      <KeyIcon size={16} color={t.accentDeep} />
-      <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${t.accent})` }} />
+    <div aria-hidden="true" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, margin: "0 auto", maxWidth: 220 }}>
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(to right, transparent, ${t.gold})` }} />
+      <span style={{ display: "block", width: 7, height: 7, transform: "rotate(45deg)", border: `1px solid ${t.gold}`, boxSizing: "border-box" }} />
+      <div style={{ flex: 1, height: 1, background: `linear-gradient(to left, transparent, ${t.gold})` }} />
     </div>
   );
 }
@@ -260,7 +274,7 @@ function Heading({ children }: { children: React.ReactNode }) {
   const t = useT();
   return (
     <div style={{ textAlign: "center", marginBottom: 26 }}>
-      <h2 style={{ ...display, fontWeight: 600, fontStyle: "italic", fontSize: 34, lineHeight: 1.15, color: t.accentDeep, margin: 0 }}>
+      <h2 style={{ ...display, fontWeight: 600, fontStyle: "italic", fontSize: 34, lineHeight: 1.15, color: t.ink, margin: 0 }}>
         {children}
       </h2>
       <div style={{ marginTop: 10 }}><Divider /></div>
@@ -292,14 +306,14 @@ type BtnProps = {
 function Btn({ variant, icon, children, onClick, href, disabled, style = {} }: BtnProps) {
   const t = useT();
   const base: React.CSSProperties = {
-    ...bodyB, fontSize: 17,
+    ...bodyB, fontSize: 16, letterSpacing: "0.01em",
     minHeight: 52, borderRadius: 999, border: "none", padding: "0 24px",
     display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10,
     cursor: disabled ? "not-allowed" : "pointer", textDecoration: "none",
     opacity: disabled ? 0.55 : 1, transition: "transform .08s, opacity .2s", boxSizing: "border-box",
-    ...(variant === "primary" ? { background: t.accentDeep, color: t.onAccent, boxShadow: `0 8px 20px ${t.accentGlow}` } :
-        variant === "soft"    ? { background: t.accentLight, color: t.accentDeep } :
-                                { background: "transparent", color: t.accentDeep, boxShadow: `inset 0 0 0 1.5px ${t.accentDeep}` }),
+    ...(variant === "primary" ? { background: t.accentDeep, color: t.onAccent, boxShadow: `inset 0 0 0 1px rgba(255,255,255,.22), 0 10px 24px ${t.accentGlow}` } :
+        variant === "soft"    ? { background: t.goldSoft, color: t.ink, boxShadow: `inset 0 0 0 1px ${t.goldLine}` } :
+                                { background: "transparent", color: t.ink, boxShadow: `inset 0 0 0 1px ${t.gold}` }),
     ...style,
   };
   const cls = `t31-btn t31-btn-${variant}`;
@@ -314,7 +328,7 @@ function Field({ id, label, textarea, ...rest }: {
   const t = useT();
   const input: React.CSSProperties = {
     width: "100%", minHeight: 52, padding: "14px 16px", boxSizing: "border-box",
-    background: t.card, border: `1.5px solid ${t.line}`, borderRadius: 14,
+    background: t.card, border: `1px solid ${t.line}`, borderRadius: 12,
     ...body, fontSize: 16, color: t.ink, outline: "none", transition: "border-color .2s, box-shadow .2s",
   };
   return (
@@ -441,66 +455,82 @@ function DoorIntro({ onOpen, family }: { onOpen: () => void; family: string }) {
     setOpening(true); onOpen();
     setTimeout(() => setExiting(true), 750);
   };
-  const W = 176, H = 262, R = W / 2;
+  const W = 180, H = 272, R = W / 2;
+  const goldHair = "1px solid rgba(222,194,128,.5)";
   const panel = (side: "left" | "right"): React.CSSProperties => ({
     position: "absolute", top: 0, bottom: 0, width: "50%", [side]: 0,
-    background: `linear-gradient(${side === "left" ? "90deg" : "270deg"}, ${t.woodDeep}, ${t.wood})`,
-    borderRadius: side === "left" ? `${R}px 0 0 10px` : `0 ${R}px 10px 0`,
+    background: `linear-gradient(${side === "left" ? "90deg" : "270deg"}, ${t.woodDeep} 0%, ${t.wood} 55%, ${t.woodDeep} 100%)`,
+    borderRadius: side === "left" ? `${R}px 0 0 8px` : `0 ${R}px 8px 0`,
     transformOrigin: side === "left" ? "left center" : "right center",
     backfaceVisibility: "hidden", boxSizing: "border-box",
-    boxShadow: side === "left" ? "inset -1px 0 0 rgba(0,0,0,.25)" : "inset 1px 0 0 rgba(0,0,0,.25)",
+    boxShadow: side === "left" ? "inset -1px 0 0 rgba(0,0,0,.35)" : "inset 1px 0 0 rgba(0,0,0,.35)",
   });
+  // хавтасны давхар хээ — нарийн алтан шугамтай
   const inset = (top: number, height: number): React.CSSProperties => ({
-    position: "absolute", left: 14, right: 14, top, height, borderRadius: 6,
-    border: "2px solid rgba(0,0,0,.18)", boxShadow: "inset 0 0 0 2px rgba(255,255,255,.07)",
+    position: "absolute", left: 13, right: 13, top, height, borderRadius: 4,
+    border: goldHair, boxShadow: "inset 0 0 0 3px rgba(0,0,0,.14), inset 0 0 0 4px rgba(255,255,255,.05)",
+  });
+  // хүрэл бариул
+  const knob = (side: "left" | "right"): React.CSSProperties => ({
+    position: "absolute", [side]: 9, top: "53%", width: 11, height: 11, borderRadius: "50%",
+    background: `radial-gradient(circle at 35% 35%, #F7E8BF, ${t.gold} 55%, ${t.goldDeep} 100%)`,
+    boxShadow: "0 1px 3px rgba(0,0,0,.45)",
   });
   return (
     <motion.div
       initial={{ opacity: 1 }} animate={{ opacity: exiting ? 0 : 1 }} transition={{ duration: 0.9, ease: "easeOut" }}
       style={{
-        position: "fixed", inset: 0, zIndex: 9999, background: `linear-gradient(180deg, ${t.soft}, ${t.bg})`,
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: `radial-gradient(ellipse 120% 60% at 50% 28%, ${t.glow} 0%, ${t.bg} 55%, ${t.soft} 100%)`,
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
         pointerEvents: exiting ? "none" : "auto", overflow: "hidden", padding: 16, boxSizing: "border-box",
       }}
     >
-      <HouseMark width={96} />
-      <div style={{ ...hand, fontWeight: 600, fontSize: 24, color: t.accentDeep, marginTop: 6 }}>Шинэ гэрийн найр</div>
-      <div style={{ ...display, fontStyle: "italic", fontWeight: 600, fontSize: 28, color: t.ink, marginTop: 2, textAlign: "center", lineHeight: 1.15 }}>{family}</div>
+      {/* урилгын картын нарийн алтан дотоод хүрээ (давхар) */}
+      <div aria-hidden="true" style={{ position: "absolute", inset: 12, border: `1px solid ${t.goldLine}`, borderRadius: 28, pointerEvents: "none" }} />
+      <div aria-hidden="true" style={{ position: "absolute", inset: 17, border: `1px solid ${t.goldLine}`, borderRadius: 24, opacity: 0.45, pointerEvents: "none" }} />
+      <HouseMark width={76} />
+      <div style={{ ...caps, fontSize: 12, letterSpacing: "0.32em", color: t.goldDeep, marginTop: 14 }}>Шинэ гэрийн найр</div>
+      <div style={{ ...display, fontStyle: "italic", fontWeight: 600, fontSize: 30, color: t.ink, marginTop: 8, textAlign: "center", lineHeight: 1.15 }}>{family}</div>
 
       <button type="button" onClick={open} aria-label="Урилгыг нээх" className={opening ? undefined : "t31-knock"}
-        style={{ background: "transparent", border: "none", padding: 0, marginTop: 26, cursor: "pointer", display: "block" }}>
-        {/* хаалганы хүрээ */}
+        style={{ background: "transparent", border: "none", padding: 0, marginTop: 28, cursor: "pointer", display: "block", position: "relative" }}>
+        {/* ар талын зөөлөн туяа */}
+        <div aria-hidden="true" style={{ position: "absolute", left: "50%", top: "50%", width: 340, height: 340, transform: "translate(-50%, -50%)", borderRadius: "50%", background: `radial-gradient(circle, ${t.glow} 0%, transparent 65%)`, pointerEvents: "none" }} />
+        {/* чулуун хүрээ — давхар нарийн алтан нуман шугамтай */}
         <div style={{
-          width: W + 16, height: H + 8, padding: "8px 8px 0", boxSizing: "border-box",
-          background: t.accentLight, borderRadius: `${R + 8}px ${R + 8}px 14px 14px`,
-          boxShadow: `0 20px 44px ${t.accentGlow}`,
+          position: "relative", width: W + 24, height: H + 12, padding: "12px 12px 0", boxSizing: "border-box",
+          background: `linear-gradient(180deg, #FFFFFF, ${t.soft})`, borderRadius: `${R + 12}px ${R + 12}px 10px 10px`,
+          border: `1px solid ${t.goldLine}`, boxShadow: "0 30px 70px rgba(70,50,30,.18)",
         }}>
-          <div style={{ position: "relative", width: W, height: H, borderRadius: `${R}px ${R}px 10px 10px`, perspective: 900 }}>
+          <div aria-hidden="true" style={{ position: "absolute", left: 5, right: 5, top: 5, bottom: 0, border: `1px solid ${t.goldLine}`, borderBottom: "none", borderRadius: `${R + 7}px ${R + 7}px 0 0`, opacity: 0.7, pointerEvents: "none" }} />
+          <div style={{ position: "relative", width: W, height: H, borderRadius: `${R}px ${R}px 8px 8px`, perspective: 900 }}>
             {/* доторх гэрэл */}
             <motion.div aria-hidden="true"
-              initial={{ opacity: 0.35 }} animate={{ opacity: opening ? 1 : 0.35 }} transition={{ duration: 0.8 }}
+              initial={{ opacity: 0.4 }} animate={{ opacity: opening ? 1 : 0.4 }} transition={{ duration: 0.8 }}
               style={{
                 position: "absolute", inset: 0, borderRadius: "inherit",
-                background: `radial-gradient(ellipse at 50% 70%, #FFF6DF 0%, ${t.ember} 55%, ${t.accentDeep} 100%)`,
+                background: `radial-gradient(ellipse at 50% 72%, #FFFCF1 0%, ${t.ember} 48%, ${t.goldDeep} 100%)`,
               }} />
             {/* хавтаснууд */}
             <motion.div aria-hidden="true" style={panel("left")}
               animate={{ rotateY: opening ? -108 : 0 }} transition={{ duration: 1.1, ease: [0.5, 0, 0.2, 1] }}>
-              <div style={inset(38, 86)} /><div style={inset(140, 100)} />
-              <div style={{ position: "absolute", right: 10, top: "52%", width: 10, height: 10, borderRadius: "50%", background: t.second, boxShadow: "0 1px 3px rgba(0,0,0,.4)" }} />
+              <div style={inset(40, 88)} /><div style={inset(146, 102)} />
+              <div style={knob("right")} />
             </motion.div>
             <motion.div aria-hidden="true" style={panel("right")}
               animate={{ rotateY: opening ? 108 : 0 }} transition={{ duration: 1.1, ease: [0.5, 0, 0.2, 1] }}>
-              <div style={inset(38, 86)} /><div style={inset(140, 100)} />
-              <div style={{ position: "absolute", left: 10, top: "52%", width: 10, height: 10, borderRadius: "50%", background: t.second, boxShadow: "0 1px 3px rgba(0,0,0,.4)" }} />
+              <div style={inset(40, 88)} /><div style={inset(146, 102)} />
+              <div style={knob("left")} />
             </motion.div>
           </div>
         </div>
-        {/* босго */}
-        <div aria-hidden="true" style={{ width: W + 40, height: 10, margin: "0 auto", background: t.woodDeep, borderRadius: "0 0 6px 6px", opacity: 0.9 }} />
+        {/* босго — хүрэл шугам + чулуун гишгүүр */}
+        <div aria-hidden="true" style={{ width: W + 56, height: 2, margin: "0 auto", background: `linear-gradient(90deg, transparent, ${t.gold}, transparent)` }} />
+        <div aria-hidden="true" style={{ width: W + 40, height: 8, margin: "0 auto", background: `linear-gradient(180deg, ${t.soft}, ${t.line})`, borderRadius: "0 0 6px 6px" }} />
       </button>
 
-      <div style={{ ...hand, fontWeight: 600, fontSize: 26, color: t.inkMuted, marginTop: 26, textAlign: "center" }}>
+      <div style={{ ...caps, fontSize: 11.5, letterSpacing: "0.26em", color: t.inkMuted, marginTop: 30, textAlign: "center", lineHeight: 1.7 }}>
         Хаалгыг нээхийн тулд дарна уу
       </div>
     </motion.div>
@@ -554,13 +584,16 @@ function T31Hero({ event, started }: { event: EventData; started: boolean }) {
 
   return (
     <header style={{
-      minHeight: "100svh", background: `linear-gradient(180deg, ${t.soft} 0%, ${t.bg} 100%)`, position: "relative", overflow: "hidden",
+      minHeight: "100svh", background: `radial-gradient(ellipse 120% 70% at 50% 16%, ${t.glow} 0%, transparent 60%), linear-gradient(180deg, ${t.soft} 0%, ${t.bg} 100%)`, position: "relative", overflow: "hidden",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: "28px 16px 76px", boxSizing: "border-box", textAlign: "center",
     }}>
-      <motion.div {...show(0)}><HouseMark width={104} /></motion.div>
+      {/* урилгын картын нарийн алтан дотоод хүрээ (давхар) */}
+      <div aria-hidden="true" style={{ position: "absolute", inset: 12, border: `1px solid ${t.goldLine}`, borderRadius: 28, pointerEvents: "none" }} />
+      <div aria-hidden="true" style={{ position: "absolute", inset: 17, border: `1px solid ${t.goldLine}`, borderRadius: 24, opacity: 0.45, pointerEvents: "none" }} />
+      <motion.div {...show(0)}><HouseMark width={84} /></motion.div>
 
-      <motion.div {...show(0.15)} style={{ ...hand, fontWeight: 600, fontSize: 25, color: t.accentDeep, marginTop: 4 }}>
+      <motion.div {...show(0.15)} style={{ ...caps, fontSize: 12, letterSpacing: "0.3em", color: t.goldDeep, marginTop: 12 }}>
         {eyebrow}
       </motion.div>
 
@@ -576,13 +609,13 @@ function T31Hero({ event, started }: { event: EventData; started: boolean }) {
 
       <motion.h1 {...show(0.55)} style={{
         ...display, fontWeight: 600, fontStyle: "italic", fontSize: nameSize, lineHeight: 1.05,
-        color: t.accentDeep, margin: "22px 0 0", maxWidth: "100%", overflowWrap: "anywhere",
+        color: t.ink, margin: "24px 0 0", maxWidth: "100%", overflowWrap: "anywhere",
       }}>
         {family}
       </motion.h1>
 
       {tagline && (
-        <motion.div {...show(0.65)} style={{ ...hand, fontWeight: 500, fontSize: 26, color: t.inkMuted, marginTop: 8 }}>
+        <motion.div {...show(0.65)} style={{ ...hand, fontWeight: 500, fontSize: 25, color: t.inkMuted, marginTop: 10 }}>
           {tagline}
         </motion.div>
       )}
@@ -593,24 +626,24 @@ function T31Hero({ event, started }: { event: EventData; started: boolean }) {
           {hosts.map((h, i) => (
             <span key={i}>
               <b style={{ fontWeight: 700 }}>{h}</b>
-              {i < hosts.length - 1 && <span style={{ color: t.accent, margin: "0 8px" }}>·</span>}
+              {i < hosts.length - 1 && <span style={{ color: t.gold, margin: "0 8px" }}>·</span>}
             </span>
           ))}
         </motion.div>
       )}
 
       <motion.div {...show(0.9)} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 20, width: "100%", maxWidth: 358 }}>
-        <div style={{ width: 28, height: 1, background: t.accent, flexShrink: 0 }} />
+        <div style={{ width: 34, height: 1, background: t.gold, flexShrink: 0 }} />
         <div style={{ ...display, fontWeight: 600, fontSize: 22, color: t.ink, lineHeight: 1.2 }}>
           {fmtDate(event.date)}{event.time ? ` · ${event.time}` : ""}
         </div>
-        <div style={{ width: 28, height: 1, background: t.accent, flexShrink: 0 }} />
+        <div style={{ width: 34, height: 1, background: t.gold, flexShrink: 0 }} />
       </motion.div>
 
       {place && (
         <motion.div {...show(1)} style={{ marginTop: 16 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: t.card, border: `1px solid ${t.line}`, borderRadius: 999, padding: "9px 16px", boxShadow: SHADOW_CARD, maxWidth: 340 }}>
-            <PinIcon size={18} color={t.accentDeep} />
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: t.card, border: `1px solid ${t.goldLine}`, borderRadius: 999, padding: "9px 16px", boxShadow: SHADOW_CARD, maxWidth: 340 }}>
+            <PinIcon size={18} color={t.goldDeep} />
             <span style={{ ...bodyB, fontSize: 15, color: t.ink, textAlign: "left" }}>{place}</span>
           </div>
         </motion.div>
@@ -619,7 +652,7 @@ function T31Hero({ event, started }: { event: EventData; started: boolean }) {
       <motion.button type="button" onClick={scrollNext} aria-label="Доош гүйлгэх"
         initial={{ opacity: 0 }} animate={started ? { opacity: 1 } : { opacity: 0 }} transition={{ duration: 1, delay: 1.4 }}
         style={{ position: "absolute", bottom: 16, left: "50%", marginLeft: -26, width: 52, height: 52, background: "transparent", border: "none", cursor: "pointer", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div className="t31-bounce"><ChevronsIcon size={28} color={t.accentDeep} /></div>
+        <div className="t31-bounce"><ChevronsIcon size={28} color={t.goldDeep} /></div>
       </motion.button>
     </header>
   );
@@ -632,14 +665,16 @@ function T31Letter({ event, tone, prev }: SecProps) {
   return (
     <Section id="t31-letter" tone={tone} prev={prev}>
       <FadeUp>
-        <div style={{ background: t.card, borderRadius: 24, boxShadow: SHADOW_CARD, padding: "34px 24px 26px", position: "relative", overflow: "hidden" }}>
-          {/* булангийн хээ — нуман хаалганы ирмэг */}
-          <div aria-hidden="true" style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", border: `14px solid ${t.accentLight}`, opacity: 0.7 }} />
-          <div aria-hidden="true" style={{ position: "absolute", bottom: -46, left: -46, width: 120, height: 120, borderRadius: "50%", border: `14px solid ${t.second}`, opacity: 0.45 }} />
+        <div style={{ background: t.card, borderRadius: 22, boxShadow: SHADOW_CARD, border: `1px solid ${t.goldLine}`, padding: "36px 26px 28px", position: "relative", overflow: "hidden" }}>
+          {/* булангийн нарийн алтан хаалтууд */}
+          <span aria-hidden="true" style={{ position: "absolute", top: 10, left: 10, width: 20, height: 20, borderTop: `1px solid ${t.gold}`, borderLeft: `1px solid ${t.gold}`, opacity: 0.85 }} />
+          <span aria-hidden="true" style={{ position: "absolute", top: 10, right: 10, width: 20, height: 20, borderTop: `1px solid ${t.gold}`, borderRight: `1px solid ${t.gold}`, opacity: 0.85 }} />
+          <span aria-hidden="true" style={{ position: "absolute", bottom: 10, left: 10, width: 20, height: 20, borderBottom: `1px solid ${t.gold}`, borderLeft: `1px solid ${t.gold}`, opacity: 0.85 }} />
+          <span aria-hidden="true" style={{ position: "absolute", bottom: 10, right: 10, width: 20, height: 20, borderBottom: `1px solid ${t.gold}`, borderRight: `1px solid ${t.gold}`, opacity: 0.85 }} />
           <div aria-hidden="true" style={{ display: "flex", justifyContent: "center", marginBottom: 14, position: "relative" }}>
-            <FlameIcon size={28} color={t.accent} />
+            <FlameIcon size={26} color={t.gold} />
           </div>
-          <div style={{ ...display, fontStyle: "italic", fontSize: 22, lineHeight: 1.5, color: t.ink, textAlign: "center", position: "relative" }}>
+          <div style={{ ...display, fontStyle: "italic", fontSize: 21, lineHeight: 1.55, color: t.ink, textAlign: "center", position: "relative" }}>
             {lines.map((l, i) => l === "" ? <div key={i} style={{ height: 14 }} /> : <div key={i}>{l}</div>)}
           </div>
           <div style={{ marginTop: 22, position: "relative" }}><Divider /></div>
@@ -681,15 +716,15 @@ function T31Gallery({ event, tone, prev }: SecProps) {
           return (
             <figure key={i} style={{
               flex: `0 0 ${CARD_W}px`, width: CARD_W, margin: 0, scrollSnapAlign: "center",
-              background: t.card, padding: 8, borderRadius: arch ? "105px 105px 18px 18px" : 18,
-              boxShadow: isActive ? `0 14px 30px ${t.accentGlow}` : SHADOW_CARD,
-              outline: isActive ? `3px solid ${t.accent}` : "none", transition: "box-shadow .3s, outline-color .3s",
+              background: t.card, padding: 7, borderRadius: arch ? "105px 105px 16px 16px" : 16,
+              boxShadow: isActive ? `0 0 0 1px ${t.gold}, 0 18px 40px rgba(70,50,30,.16)` : `0 0 0 1px ${t.goldLine}, ${SHADOW_CARD}`,
+              transition: "box-shadow .3s",
             }}>
               <div style={{ aspectRatio: "4 / 5", overflow: "hidden", borderRadius: arch ? "97px 97px 12px 12px" : 12, background: t.soft }}>
                 <Photo src={src} alt={`Зураг ${i + 1}`} />
               </div>
               {isActive && captions[i % captions.length] && (
-                <figcaption style={{ ...hand, fontWeight: 600, fontSize: 22, color: t.accentDeep, textAlign: "center", padding: "8px 4px 0" }}>
+                <figcaption style={{ ...hand, fontWeight: 600, fontSize: 22, color: t.ink, textAlign: "center", padding: "9px 4px 1px" }}>
                   {captions[i % captions.length]}
                 </figcaption>
               )}
@@ -701,7 +736,7 @@ function T31Gallery({ event, tone, prev }: SecProps) {
         {sources.map((_, i) => (
           <button key={i} type="button" onClick={() => goTo(i)} aria-label={`Зураг ${i + 1}`} aria-current={i === active}
             style={{ width: i === active ? 38 : 24, height: 24, background: "transparent", border: "none", padding: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ display: "block", width: i === active ? 22 : 8, height: 8, borderRadius: 999, background: i === active ? t.accentDeep : t.line, transition: "width .3s, background .3s" }} />
+            <span style={{ display: "block", width: i === active ? 22 : 8, height: 8, borderRadius: 999, background: i === active ? t.goldDeep : t.line, transition: "width .3s, background .3s" }} />
           </button>
         ))}
       </div>
@@ -737,15 +772,15 @@ function T31Countdown({ event, tone, prev }: SecProps) {
       <FadeUp>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
           {units.map((u) => (
-            <div key={u.l} style={{ background: t.card, borderRadius: "22px 22px 14px 14px", boxShadow: SHADOW_CARD, padding: "18px 4px 12px", textAlign: "center", border: `1px solid ${t.line}` }}>
-              <div style={{ ...display, fontWeight: 600, fontSize: 38, lineHeight: 1, color: t.accentDeep, fontVariantNumeric: "tabular-nums" }}>{pad(u.v)}</div>
-              <div style={{ ...bodyB, fontSize: 12, textTransform: "uppercase", color: t.inkMuted, marginTop: 8, letterSpacing: "0.06em" }}>{u.l}</div>
+            <div key={u.l} style={{ background: t.card, borderRadius: "22px 22px 12px 12px", boxShadow: SHADOW_CARD, padding: "18px 4px 12px", textAlign: "center", border: `1px solid ${t.goldLine}` }}>
+              <div style={{ ...display, fontWeight: 600, fontSize: 36, lineHeight: 1, color: t.ink, fontVariantNumeric: "tabular-nums" }}>{pad(u.v)}</div>
+              <div style={{ ...caps, fontSize: 10, letterSpacing: "0.16em", color: t.goldDeep, marginTop: 9 }}>{u.l}</div>
             </div>
           ))}
         </div>
         {calUrl && (
           <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
-            <Btn variant="soft" href={calUrl} icon={<CalendarIcon size={20} color={t.accentDeep} />}>Календарьт нэмэх</Btn>
+            <Btn variant="soft" href={calUrl} icon={<CalendarIcon size={20} color={t.goldDeep} />}>Календарьт нэмэх</Btn>
           </div>
         )}
       </FadeUp>
@@ -774,20 +809,20 @@ function T31Schedule({ event, tone, prev }: SecProps) {
     <Section tone={tone} prev={prev}>
       <FadeUp><Heading>{title}</Heading></FadeUp>
       <div ref={ref} style={{ position: "relative", paddingLeft: 54 }}>
-        <div aria-hidden="true" style={{ position: "absolute", left: 18, top: 20, bottom: 20, width: 2, backgroundImage: `repeating-linear-gradient(to bottom, ${t.line} 0 6px, transparent 6px 12px)` }} />
-        <motion.div aria-hidden="true" style={{ position: "absolute", left: 18, top: 20, width: 2, height: spine, maxHeight: "calc(100% - 40px)", backgroundImage: `repeating-linear-gradient(to bottom, ${t.accentDeep} 0 6px, transparent 6px 12px)` }} />
+        <div aria-hidden="true" style={{ position: "absolute", left: 18.5, top: 20, bottom: 20, width: 1, background: t.goldLine }} />
+        <motion.div aria-hidden="true" style={{ position: "absolute", left: 18.5, top: 20, width: 1, height: spine, maxHeight: "calc(100% - 40px)", background: t.goldDeep }} />
         {items.map((it, i) => {
           const Icon = SCHEDULE_ICONS[i % SCHEDULE_ICONS.length];
           return (
             <FadeUp key={i} delay={Math.min(i, 5) * 0.12} style={{ position: "relative", marginBottom: 14 }}>
               <div aria-hidden="true" style={{
                 position: "absolute", left: -54, top: 8, width: 38, height: 38, borderRadius: "50%",
-                background: t.card, border: `2px solid ${t.accent}`, boxShadow: `0 0 0 4px ${tone === "soft" ? t.soft : t.bg}`,
+                background: t.card, border: `1px solid ${t.gold}`, boxShadow: `0 0 0 4px ${tone === "soft" ? t.soft : t.bg}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                <Icon size={18} color={t.accentDeep} />
+                <Icon size={18} color={t.goldDeep} />
               </div>
-              <div style={{ background: t.card, borderRadius: 18, padding: "14px 16px", boxShadow: SHADOW_CARD }}>
+              <div style={{ background: t.card, borderRadius: 16, padding: "14px 16px", boxShadow: SHADOW_CARD, border: `1px solid ${t.line}` }}>
                 <div style={{ ...display, fontWeight: 700, fontSize: 24, color: t.accentDeep, lineHeight: 1.1 }}>{it.time}</div>
                 <div style={{ ...bodyB, fontSize: 16, color: t.ink, marginTop: 4 }}>{it.label}</div>
                 {it.desc && <div style={{ ...body, fontSize: 14, color: t.inkMuted, marginTop: 4, lineHeight: 1.5 }}>{it.desc}</div>}
@@ -822,7 +857,7 @@ function T31Address({ event, tone, prev }: SecProps) {
     <Section tone={tone} prev={prev}>
       <FadeUp><Heading>{title}</Heading></FadeUp>
       <FadeUp delay={0.08}>
-        <div style={{ background: t.card, padding: 8, borderRadius: 24, boxShadow: SHADOW_CARD }}>
+        <div style={{ background: t.card, padding: 7, borderRadius: 22, boxShadow: SHADOW_CARD, border: `1px solid ${t.goldLine}` }}>
           <div style={{ aspectRatio: "16 / 10", borderRadius: 18, overflow: "hidden", background: t.soft, position: "relative" }}>
             {event.maps_photo ? (
               <Photo src={event.maps_photo} alt={name} />
@@ -841,17 +876,17 @@ function T31Address({ event, tone, prev }: SecProps) {
 
       {items.length > 0 && (
         <FadeUp delay={0.16} style={{ marginTop: 20 }}>
-          <div style={{ background: t.card, borderRadius: 22, boxShadow: SHADOW_CARD, padding: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          <div style={{ background: t.card, borderRadius: 22, boxShadow: SHADOW_CARD, border: `1px solid ${t.goldLine}`, padding: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {items.map(({ key, label, Icon, value }) => (
               <div key={key} style={{
                 gridColumn: value.length > 16 ? "1 / -1" : "auto",
                 display: "flex", alignItems: "center", gap: 10, background: t.soft, borderRadius: 14, padding: "10px 12px", minHeight: 56, boxSizing: "border-box",
               }}>
-                <span style={{ width: 34, height: 34, borderRadius: "50%", background: t.card, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Icon size={18} color={t.accentDeep} />
+                <span style={{ width: 34, height: 34, borderRadius: "50%", background: t.card, border: `1px solid ${t.goldLine}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Icon size={18} color={t.goldDeep} />
                 </span>
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ ...bodyB, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: t.inkMuted, display: "block" }}>{label}</span>
+                  <span style={{ ...caps, fontSize: 10, letterSpacing: "0.14em", color: t.goldDeep, display: "block" }}>{label}</span>
                   <span style={{ ...bodyB, fontSize: 16, color: t.ink, display: "block", lineHeight: 1.25, overflowWrap: "anywhere" }}>{value}</span>
                 </span>
               </div>
@@ -863,7 +898,7 @@ function T31Address({ event, tone, prev }: SecProps) {
 
       <FadeUp delay={0.2} style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 22 }}>
         {mapHref && <Btn variant="primary" href={mapHref} icon={<PinIcon size={20} color={t.onAccent} />} style={{ width: "100%" }}>Google Maps-р харах</Btn>}
-        {(name || addr) && <Btn variant="soft" onClick={copy} icon={<CopyIcon size={20} color={t.accentDeep} />} style={{ width: "100%" }}>Хаягийг хуулах</Btn>}
+        {(name || addr) && <Btn variant="soft" onClick={copy} icon={<CopyIcon size={20} color={t.goldDeep} />} style={{ width: "100%" }}>Хаягийг хуулах</Btn>}
       </FadeUp>
     </Section>
   );
@@ -887,16 +922,16 @@ function T31Gift({ event, tone, prev }: SecProps) {
     <Section tone={tone} prev={prev}>
       <FadeUp><Heading>{title}</Heading></FadeUp>
       <FadeUp>
-        <div style={{ background: t.card, borderRadius: 24, boxShadow: SHADOW_CARD, padding: "26px 22px", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><GiftIcon size={32} color={t.accentDeep} /></div>
+        <div style={{ background: t.card, borderRadius: 22, boxShadow: SHADOW_CARD, border: `1px solid ${t.goldLine}`, padding: "26px 22px", textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><GiftIcon size={30} color={t.goldDeep} /></div>
           <p style={{ ...body, fontSize: 16, lineHeight: "24px", color: t.ink, margin: "0 auto", maxWidth: 320 }}>{note}</p>
-          <div style={{ marginTop: 20, background: t.soft, borderRadius: 16, padding: "16px 14px" }}>
-            {bank && <div style={{ ...bodyB, fontSize: 14, letterSpacing: "0.1em", textTransform: "uppercase", color: t.inkMuted }}>{bank}</div>}
+          <div style={{ marginTop: 20, background: t.goldSoft, border: `1px solid ${t.goldLine}`, borderRadius: 16, padding: "16px 14px" }}>
+            {bank && <div style={{ ...caps, fontSize: 11, letterSpacing: "0.2em", color: t.goldDeep }}>{bank}</div>}
             <div style={{ ...display, fontWeight: 700, fontSize: 28, letterSpacing: "0.06em", color: t.ink, marginTop: 6, fontVariantNumeric: "tabular-nums" }}>{account}</div>
             {holder && <div style={{ ...body, fontSize: 15, color: t.inkMuted, marginTop: 4 }}>{holder}</div>}
           </div>
           <div style={{ marginTop: 16 }}>
-            <Btn variant="soft" onClick={copy} icon={<CopyIcon size={20} color={t.accentDeep} />}>Дансны дугаар хуулах</Btn>
+            <Btn variant="soft" onClick={copy} icon={<CopyIcon size={20} color={t.goldDeep} />}>Дансны дугаар хуулах</Btn>
           </div>
         </div>
       </FadeUp>
@@ -940,7 +975,7 @@ function T31Wishes({ event, tone, prev }: SecProps) {
     <Section tone={tone} prev={prev}>
       <FadeUp><Heading>{title}</Heading></FadeUp>
       <FadeUp>
-        <div style={{ ...hand, fontWeight: 500, fontSize: 22, color: t.inkMuted, textAlign: "center", marginBottom: 18 }}>
+        <div style={{ ...hand, fontWeight: 500, fontSize: 23, color: t.inkMuted, textAlign: "center", marginBottom: 18 }}>
           {subtitle}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -956,10 +991,10 @@ function T31Wishes({ event, tone, prev }: SecProps) {
         <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 32 }}>
           {wishes.map((w, i) => (
             <FadeUp key={i} delay={Math.min(i, 4) * 0.06}>
-              <div style={{ background: t.card, borderRadius: 20, padding: "16px 18px", boxShadow: SHADOW_CARD, position: "relative", overflow: "hidden", borderLeft: `4px solid ${i % 2 ? t.second : t.accentLight}` }}>
-                <div aria-hidden="true" style={{ position: "absolute", right: 14, top: 12, opacity: 0.9 }}><FlameIcon size={16} color={i % 2 ? t.secondDeep : t.accent} /></div>
+              <div style={{ background: t.card, borderRadius: 18, padding: "16px 18px", boxShadow: SHADOW_CARD, position: "relative", overflow: "hidden", border: `1px solid ${t.line}`, borderLeft: `3px solid ${i % 2 ? t.gold : t.accent}` }}>
+                <div aria-hidden="true" style={{ position: "absolute", right: 14, top: 12, opacity: 0.9 }}><FlameIcon size={16} color={i % 2 ? t.goldDeep : t.accent} /></div>
                 <p style={{ ...body, fontSize: 16, lineHeight: "24px", color: t.ink, margin: 0, paddingRight: 20 }}>{w.message}</p>
-                <div style={{ ...hand, fontWeight: 600, fontSize: 21, color: t.accentDeep, marginTop: 8 }}>— {w.name}</div>
+                <div style={{ ...hand, fontWeight: 600, fontSize: 22, color: t.accentDeep, marginTop: 8 }}>— {w.name}</div>
               </div>
             </FadeUp>
           ))}
@@ -1015,7 +1050,7 @@ function T31RSVP({ event, tone, prev }: SecProps) {
     <Section tone={tone} prev={prev}>
       <FadeUp><Heading>{title}</Heading></FadeUp>
       <FadeUp>
-        <div style={{ background: t.card, borderRadius: 24, padding: 22, boxShadow: SHADOW_CARD, display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ background: t.card, borderRadius: 22, padding: 22, boxShadow: SHADOW_CARD, border: `1px solid ${t.goldLine}`, display: "flex", flexDirection: "column", gap: 16 }}>
           <Field id="t31-rsvp-name" label="Нэр" value={name} onChange={setName} placeholder="Таны нэр" />
           <Field id="t31-rsvp-phone" label="Утас" type="tel" inputMode="numeric" value={phone} onChange={setPhone} placeholder="9900 1122" />
           <div>
@@ -1031,7 +1066,7 @@ function T31RSVP({ event, tone, prev }: SecProps) {
             <div role="status" style={{
               ...display, fontStyle: "italic", fontWeight: 600, fontSize: 20, color: t.accentDeep, textAlign: "center",
               minHeight: 52, display: "flex", alignItems: "center", justifyContent: "center",
-              border: `1.5px solid ${t.accent}`, borderRadius: 999,
+              border: `1px solid ${t.gold}`, borderRadius: 999,
             }}>
               Баярлалаа! Бүртгэгдлээ.
             </div>
@@ -1057,20 +1092,20 @@ function T31Footer({ event, prev }: { event: EventData; prev: Tone }) {
   const prevC  = prev === "soft" ? t.soft : t.bg;
   return (
     <footer style={{ background: prevC, position: "relative" }}>
-      <Scallop prev={prevC} next={t.accentLight} />
-      <div style={{ background: t.accentLight, padding: "8px 16px 96px", position: "relative", textAlign: "center" }}>
+      <Scallop prev={prevC} next={t.goldSoft} />
+      <div style={{ background: `linear-gradient(180deg, ${t.goldSoft} 0%, ${t.soft} 100%)`, padding: "8px 16px 96px", position: "relative", textAlign: "center" }}>
         {img && (
           <FadeUp>
-            <div style={{ width: 150, height: 176, borderRadius: "75px 75px 16px 16px", overflow: "hidden", margin: "16px auto 0", border: `5px solid ${t.card}`, boxShadow: SHADOW_CARD }}>
+            <div style={{ width: 150, height: 176, borderRadius: "75px 75px 16px 16px", overflow: "hidden", margin: "20px auto 0", border: `4px solid ${t.card}`, boxShadow: `0 0 0 1px ${t.goldLine}, ${SHADOW_CARD}` }}>
               <Photo src={img} alt="" />
             </div>
           </FadeUp>
         )}
         <FadeUp delay={0.05}>
           <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
-            <HomeIcon size={22} color={t.accentDeep} />
+            <HomeIcon size={22} color={t.goldDeep} />
           </div>
-          <div style={{ ...display, fontStyle: "italic", fontWeight: 600, fontSize: 32, lineHeight: 1.15, color: t.accentDeep, marginTop: 10 }}>
+          <div style={{ ...display, fontStyle: "italic", fontWeight: 600, fontSize: 32, lineHeight: 1.15, color: t.ink, marginTop: 10 }}>
             {title}
           </div>
           {lines.map((l) => (
@@ -1081,7 +1116,7 @@ function T31Footer({ event, prev }: { event: EventData; prev: Tone }) {
               {phones.map((p) => (
                 <a key={p} href={`tel:${p.replace(/\D/g, "")}`} style={{
                   display: "inline-flex", alignItems: "center", gap: 12, minHeight: 52, padding: "6px 20px 6px 6px",
-                  background: t.card, borderRadius: 999, textDecoration: "none", boxShadow: SHADOW_CARD,
+                  background: t.card, borderRadius: 999, textDecoration: "none", boxShadow: SHADOW_CARD, border: `1px solid ${t.goldLine}`,
                 }}>
                   <span style={{ width: 40, height: 40, borderRadius: "50%", background: t.accentDeep, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <PhoneIcon size={20} color={t.onAccent} />
@@ -1118,11 +1153,11 @@ function MusicToggle({ audioRef }: { audioRef: React.RefObject<HTMLAudioElement 
       style={{
         position: "fixed", right: 16, bottom: "calc(16px + env(safe-area-inset-bottom, 0px))", zIndex: 1000,
         width: 56, height: 56, borderRadius: "50%", cursor: "pointer",
-        background: t.card, border: `2px solid ${t.accent}`, boxShadow: `0 8px 20px ${t.accentGlow}`,
+        background: t.card, border: `1px solid ${t.gold}`, boxShadow: "0 10px 24px rgba(70,50,30,.14)",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}>
       <div className={playing ? "t31-pulse" : undefined}>
-        {playing ? <MusicIcon size={24} color={t.accentDeep} /> : <MusicOffIcon size={24} color={t.accentDeep} />}
+        {playing ? <MusicIcon size={24} color={t.goldDeep} /> : <MusicOffIcon size={24} color={t.goldDeep} />}
       </div>
     </button>
   );
