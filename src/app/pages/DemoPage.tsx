@@ -7,11 +7,17 @@ import { DEMO_EVENT } from "../demo/demoEvent";
 // (/i/demo-sonic, /i/demo-spider). /demo/23, /demo/24 → нүүр хуудас руу.
 const DEMO_HIDDEN = new Set(["23", "24"]);
 
+// Загвар тус бүрийн demo дуу — DEMO_EVENT.music_url-ийг дарна (жишээ: T33 — шинэ жилийн дуу)
+const DEMO_MUSIC: Record<string, string> = {
+  "33": "https://bjixxbkzttcxgfkxcqvs.supabase.co/storage/v1/object/public/wedding%20song/serchmaa%20%20-%20shine%20jil.mp3",
+};
+
 // Landing page-ийн "Load demo" iframe энэ хуудсыг ачаална. DB-ээс уншихгүйгээр
 // сонгосон template-ийг demo дататай шууд render хийнэ.
 export function DemoPage() {
   const { id } = useParams<{ id: string }>();
   if (id && DEMO_HIDDEN.has(id)) return <Navigate to="/" replace />;
   const Template = templateMap[id ?? "11"] ?? App;
-  return <Template event={{ ...DEMO_EVENT, template: id }} />;
+  const music_url = (id && DEMO_MUSIC[id]) || DEMO_EVENT.music_url;
+  return <Template event={{ ...DEMO_EVENT, template: id, music_url }} />;
 }
